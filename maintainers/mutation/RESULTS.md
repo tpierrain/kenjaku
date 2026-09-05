@@ -362,6 +362,44 @@ also read **96.32 %**, over the same 163 mutants. That number was right, and it 
 refuse it — **58 of its mutants "died" of timeout**, and a timeout is a kill that proves nothing about
 the tests. Being right by luck is not evidence; the clean run with **0 timeouts** is.
 
+### Batch C — 78.95 % → 100 %, and this one owed real tests — 2026-09-06 01:14
+
+The ranges step 9.4 changed: `scripts/lib/filed-note.mjs:208-216` (the `author:` stamp) and
+`scripts/file-back-note.mjs:99-102` + `:139-142` (the wiring that reads the name and passes it in).
+Logs `reports/v510-95-batch-c.stdout.log` (first pass, 3 min 46) and `-c2` (confirming, 4 min).
+
+| Scope | First pass | Confirmed | Survivors left |
+|---|---|---|---|
+| `lib/filed-note.mjs` (9.4's hunk) | 92.86 % | **100 %** | 0 |
+| `file-back-note.mjs` (9.4's two hunks) | 40.00 % | **100 %** | 0 |
+| **Batch C** | **78.95 %** | **100 %** | 19 killed, **0 survived**, 0 timeout |
+
+**`file-back-note.mjs`'s 40 % is five mutants, three of them alive** — at that size the percentage is
+theatre and the count is the fact. **All four survivors were REAL**, the only batch of the four that
+owed anything, and the fix was two tests and **no production change**.
+
+- **`filed-note.mjs` 216:84** — `[\`author: ${spec.author.trim()}\`]` → `${spec.author}`. The guard one
+  column left already refuses an empty-after-trim name, so the existing *"a nameless machine stamps no
+  author"* test — which feeds `"   "`, padding **alone** — is rejected before the trim can matter. What
+  was missing is a real name **with padding around it**: `git config user.name " Claire Dubois "` is a
+  typo nobody notices, and a stamp that keeps the padding stops matching the same person's other notes,
+  which is the one thing a per-note author exists for.
+- **`file-back-note.mjs` 102 (three mutants: `() => undefined`, `defaultGit([])`, `-C` → `""`)** — the
+  REAL author dependency, which **every other test in the file injects**. All three failure modes land
+  on the same silence: a note filed with **no author at all**, while the whole suite stays green. One
+  **process-level** test closes all three — a temp brain whose git carries a name no other repository on
+  the machine has, filed into for real, then the written note re-read from disk.
+
+➡️ **The durable point, and it is the entry-point seam rule earning its keep again**: a dependency
+factory is the one place a test double cannot reach, so its mutants are invisible to every injected
+test in the file — and the ones here fail **silently**, which is the worst kind. The tell is a survivor
+whose line lives inside a `real*Deps` object. *(Contrast with batch B, where mutants in the same kind of
+factory were genuinely equivalent: the shape flags where to look, it does not settle the verdict.)*
+
+➡️ **And the prediction lever, third use this release and the cleanest yet**: *"19 killed, 0 survivors,
+100 %, and no equivalent claimed"* was written into the plan **before** the confirming run was launched.
+It came back exactly that. A re-run that could have failed, and did not.
+
 ## #84 duo — the announcement became a question, and half its survivors were code to DELETE — 2026-09-05
 
 State owned by

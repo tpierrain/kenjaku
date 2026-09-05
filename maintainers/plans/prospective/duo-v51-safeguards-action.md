@@ -22,11 +22,13 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
 > through `e4b4032`. The only thing waiting on the owner is the ❓ entry below (the second waiter), and
 > it blocks nothing.
 >
-> 🌙 **OVERNIGHT, 2026-09-06 — A AND B ARE IN AND CLOSED, C IS RUNNING.** Both are answered below
-> (**97.76 %** and **96.32 %**, every survivor an equivalent, register updated, nothing owed in tests).
-> **C** (the ranges 9.4 changed: `lib/filed-note.mjs:208-216`, `file-back-note.mjs:99-102` and
-> `:139-142`) was launched **01:03 on `a745f08`**, log `reports/v510-95-batch-c.stdout.log`; the machine
-> was checked clear of orphans first each time. Then **D**. One at a time. **The one thing the
+> 🌙 **OVERNIGHT, 2026-09-06 — A, B AND C ARE IN AND CLOSED. ONLY D IS LEFT, AND IT IS RUNNING.**
+> All three are answered below (**97.76 %**, **96.32 %**, **100 %**); C is the only one that owed tests,
+> two of them, and they are written, green and pushed with CI read. **D** (`lib/remote-arrivals.mjs` +
+> `prompt-restart-nudge.mjs`, whole-file) was launched **01:14 on `9ed0ebe`**, log
+> `reports/v510-95-batch-d.stdout.log`; the machine was checked clear of orphans before each run.
+> **When D lands, 9.5 is done** and what remains is the 📌 below: the figures join the release note's
+> *Quality* paragraph and #86's body. **The one thing the
 > machine owes a run is to stay awake: `caffeinate` does not survive a closed lid**, and a sleeping
 > laptop does not kill a mutation run, it starves it into a number that looks like a result.
 
@@ -84,10 +86,10 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
     **process-level** test closes all three — a temp brain whose git carries a name no other repository
     has, filed into, then the written note re-read from disk. This is the entry-point seam rule doing
     exactly what it is for.
-  - 🔮 **PREDICTION FOR THE CONFIRMING RUN, WRITTEN BEFORE LAUNCHING IT** _(the lever this release
-    already proved twice)_: **19 killed, 0 survivors, 100 %**. **No equivalent is claimed on these
-    ranges** — so an *extra* survivor means a test that does not reach what it claims, and a *missing*
-    kill means the instrument, not the tests.
+  - ✅ **PREDICTED, THEN CONFIRMED TO THE MUTANT: 100 %** _(01:14, 4 min, on `9ed0ebe`; **19 killed, 0
+    survived, 0 timeout**, both files 100 %)_. The prediction written here before launching — *"19
+    killed, 0 survivors, 100 %, no equivalent claimed"* — came back exactly. **Batch C is closed and
+    owes nothing.** CI green on the commit that carries the two tests.
 - ✅✅ **BATCH B IS IN, AND IT OWES NOTHING EITHER: 96.32 %** _(2026-09-06 00:59, 30 min, on `a745f08`;
   157 killed, **6 survived**, **0 timeout**. `author-identity.mjs` **99.24 %**, `session-authors.mjs`
   **83.87 %**. Log `reports/v510-95-batch-b3.stdout.log`)_. **All six read against the code, all six
