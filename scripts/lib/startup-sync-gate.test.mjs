@@ -360,114 +360,60 @@ test("readHookPayload: run by hand at a terminal, it reads NOTHING — fd 0 ther
   assert.equal(read, false, "fd 0 must not even be touched at a terminal");
 });
 
-test("readHookPayload: asking whether fd 0 is a terminal must NOT instantiate process.stdin", () => {
-  // THE defect, 2026-09-05, and it cost the barrier below its whole purpose. Reading
-  // `process.stdin.isTTY` builds the stdin STREAM, and building it puts fd 0 into
-  // NON-BLOCKING mode. `readFileSync(0)` then throws EAGAIN whenever the harness has
-  // not written yet — silence, no session id, barrier skipped, and the session is told
-  // the universe this machine woke up in. `tty.isatty(0)` answers the same question
-  // and leaves the descriptor alone. Measured: with the stream, a payload handed over
-  // 500 ms late is EAGAIN every time; with isatty, it is read every time.
-  const real = Object.getOwnPropertyDescriptor(process, "stdin");
-  let touched = false;
-  Object.defineProperty(process, "stdin", {
-    configurable: true,
-    get() {
-      touched = true;
-      return real.get.call(process);
-    },
-  });
+test("readHookPayload: the TTY guard is wired to the REAL stdin — not only to the stub the tests hand it", () => {
+  // Every other test injects `isTTY`, so the default could be wired to anything and
+  // stay green. It is the default that runs on the owner's machine, and if it stops
+  // answering "this is a terminal", running the hook by hand blocks on the keyboard.
+  const wasTTY = process.stdin.isTTY;
+  process.stdin.isTTY = true;
   try {
-    readHookPayload({ readInput: () => '{"session_id":"a1b2"}' });
+    let read = false;
+    const payload = readHookPayload({
+      readInput: () => {
+        read = true;
+        return "typed by a human";
+      },
+    });
+
+    assert.equal(payload, "");
+    assert.equal(read, false, "the real stdin said terminal — fd 0 must not be touched");
   } finally {
-    Object.defineProperty(process, "stdin", real);
+    process.stdin.isTTY = wasTTY;
   }
-
-  assert.equal(touched, false, "the tty question must never build the stdin stream");
 });
 
-test("readHookPayload: a pipe that has not been written to YET is waited for, not read as silence", () => {
-  // EAGAIN means "nothing there yet", never "there is nothing". The harness writes the
-  // payload and the hook boots concurrently; whoever wins is not ours to decide.
-  const attempts = [];
-  let reads = 0;
-  const payload = readHookPayload({
-    readInput: () => {
-      attempts.push("read");
-      reads += 1;
-      if (reads <= 2) {
-        const error = new Error("EAGAIN: resource temporarily unavailable, read");
-        error.code = "EAGAIN";
-        throw error;
-      }
-      return '{"session_id":"late"}';
-    },
-    isTTY: () => false,
-    now: () => 0,
-    sleep: () => attempts.push("slept"),
-  });
-
-  assert.equal(payload, '{"session_id":"late"}');
-  assert.deepEqual(attempts, ["read", "slept", "read", "slept", "read"]);
+test("readHookPayload: an unreadable fd 0 is silence, never a thrown hook", () => {
+  assert.equal(
+    readHookPayload({ readInput: () => { throw new Error("EAGAIN"); }, isTTY: () => false }),
+    "",
+  );
 });
 
-test("readHookPayload: a pipe that NEVER speaks still fails open, and the wait is bounded", () => {
-  // Fail-open is the right answer in the end — a hook that hangs costs the session
-  // start it was meant to inform. What changes is that silence is now a VERDICT
-  // reached after waiting, not a first impression.
-  let elapsed = 0;
-  let reads = 0;
-  const payload = readHookPayload({
-    readInput: () => {
-      reads += 1;
-      const error = new Error("EAGAIN");
-      error.code = "EAGAIN";
-      throw error;
-    },
-    isTTY: () => false,
-    now: () => elapsed,
-    sleep: (ms) => (elapsed += ms),
-    waitMs: 100,
-    pollMs: 20,
-  });
+test("readHookPayload: a payload that has NOT LANDED YET reads as nothing — the known limit, ADR 0028", () => {
+  // Not an aspiration: a characterisation test, pinning what this really does so the
+  // gap is visible in the suite instead of being rediscovered from a red run.
+  //
+  // fd 0 is non-blocking here (asking `process.stdin.isTTY` is what makes it so), so a
+  // harness that has not written yet reads as EAGAIN → "" → no session id → the
+  // barrier opens instead of waiting, and the session can be told the universe this
+  // machine woke up in. Measured 2026-09-05 through a real process: a payload handed
+  // over 500 ms late lost every time.
+  //
+  // ⚠️ Both repairs were built and measured, and BOTH were rejected. `tty.isatty(0)`
+  // leaves fd 0 blocking, and a blocking read of a pipe nobody writes to waits for a
+  // close that may never come — it took this suite from ~50 s to over 10 minutes.
+  // Polling with a small budget stays fast and still misses the payload. What remains
+  // is ADR 0028's constraint — a session start never blocks — against a barrier that
+  // by definition waits. The open call is in
+  // `maintainers/plans/prospective/duo-v51-safeguards-action.md`.
+  const notYet = new Error("EAGAIN: resource temporarily unavailable, read");
+  notYet.code = "EAGAIN";
 
-  assert.equal(payload, "");
-  assert.equal(elapsed, 100, "it waits its budget and not a millisecond more");
-  assert.equal(reads, 6, "one read per poll across the budget, plus the first");
-});
-
-test("readHookPayload: a genuine EOF is silence AT ONCE — an empty pipe is not a slow one", () => {
-  // The distinction the defect could not make. `/dev/null`, or a harness that closed
-  // fd 0 having written nothing, RETURNS "" — it does not throw. Waiting on that would
-  // add the whole budget to every hook run by a script.
-  let slept = 0;
-  const payload = readHookPayload({
-    readInput: () => "",
-    isTTY: () => false,
-    now: () => 0,
-    sleep: () => (slept += 1),
-  });
-
-  assert.equal(payload, "");
-  assert.equal(slept, 0, "an empty read is an answer, not a reason to wait");
-});
-
-test("readHookPayload: an fd 0 that fails for any OTHER reason is silence, never a thrown hook", () => {
-  let slept = 0;
-  const payload = readHookPayload({
-    readInput: () => {
-      const error = new Error("EBADF: bad file descriptor");
-      error.code = "EBADF";
-      throw error;
-    },
-    isTTY: () => false,
-    now: () => 0,
-    sleep: () => (slept += 1),
-    waitMs: 1_000,
-  });
-
-  assert.equal(payload, "");
-  assert.equal(slept, 0, "only EAGAIN is worth waiting on — a broken fd will not heal");
+  assert.equal(
+    readHookPayload({ readInput: () => { throw notYet; }, isTTY: () => false }),
+    "",
+    "today this is silence — change it only WITH the design call, never as a drive-by fix",
+  );
 });
 
 test("blockingSleep: it really blocks the thread — a poll loop that does not is a spin", () => {

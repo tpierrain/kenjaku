@@ -18,7 +18,6 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { isatty } from "node:tty";
 
 // Under the brain's gitignored `.cache/`, alongside `restart-needed` and the
 // upstream verdict: per-session, per-machine, regenerated at every start.
@@ -34,14 +33,6 @@ const POLL_MS = 50;
 // look before the puller's `node` has finished booting. Only a puller that dies
 // before writing ever pays it in full.
 const GRACE_MS = 3_000;
-// How long the payload itself is worth waiting for, and how often fd 0 is asked.
-// Generous next to a `node` boot, and it sits on TOP of the ceiling above, so the
-// worst case still clears the hooks' 20 s timeout. Only a pipe nobody ever writes to
-// pays it in full — and no harness does that.
-const PAYLOAD_WAIT_MS = 2_000;
-const PAYLOAD_POLL_MS = 20;
-// fd 0, named because `isatty(0)` on its own reads like a magic number.
-const STDIN_FD = 0;
 // The one hook that owns the sweep+pull (session-status.mjs). Named here rather
 // than at each call site: the puller and the readers must not drift apart.
 const PULLER_SCRIPT = "session-status.mjs";
@@ -49,41 +40,30 @@ const PULLER_SCRIPT = "session-status.mjs";
 /**
  * The raw hook payload, from fd 0 where the harness pipes it. A TTY is left alone
  * on purpose: run by hand, fd 0 is a keyboard and the read would hang the hook.
- * Every dep is injected so that guard is assertable without a terminal.
+ * Both deps are injected so that guard is assertable without a terminal.
  *
- * ⚠️ The tty question is asked with `isatty(0)` and NOT with `process.stdin.isTTY`,
- * and the difference is the whole reliability of the barrier below. Touching
- * `process.stdin` BUILDS the stdin stream, and building it switches fd 0 to
- * NON-BLOCKING: `readFileSync(0)` then throws EAGAIN for as long as the harness has
- * not written yet. Measured 2026-09-05 — with the stream, a payload handed over
- * 500 ms late threw every time; with `isatty`, it was read every time. The hook then
- * had no session id, skipped the wait, and told the session the universe this machine
- * went to sleep in. `isatty` answers the same question and leaves the descriptor's
- * mode alone.
- *
- * And because a future import could rebuild that stream out of our sight, EAGAIN is
- * no longer read as silence: it means "nothing there YET", and is worth a bounded
- * wait. A genuine EOF (an empty read, `/dev/null`) still answers instantly — silence
- * that has been waited for, rather than a first impression.
+ * ⚠️ **This read is BEST-EFFORT, and deliberately so — do not "fix" it into a wait
+ * without reading ADR 0028 first.** Touching `process.stdin` builds the stdin stream,
+ * which switches fd 0 to NON-BLOCKING, so a payload the harness has not written yet
+ * reads as nothing at all: no session id, and the barrier below opens instead of
+ * waiting. That was investigated in full on 2026-09-05 and the two obvious repairs
+ * were both measured and both rejected. Asking the tty question with `tty.isatty(0)`
+ * leaves fd 0 BLOCKING, and a blocking read of a pipe nobody writes to waits for a
+ * close that may never come — it took this repo's suite from ~50 s to over 10
+ * minutes. Polling with a short budget is fast but still misses the payload it was
+ * added to catch. **What is left is a design question, not a bug fix**: ADR 0028's
+ * hard constraint is that a session start never blocks, and a barrier that waits is
+ * already in tension with it. The analysis, the measurements and the open call live
+ * in `maintainers/plans/prospective/duo-v51-safeguards-action.md`.
  */
 export function readHookPayload({
   readInput = () => readFileSync(0, "utf8"),
-  isTTY = () => isatty(STDIN_FD),
-  now = Date.now,
-  sleep = blockingSleep,
-  waitMs = PAYLOAD_WAIT_MS,
-  pollMs = PAYLOAD_POLL_MS,
+  isTTY = () => Boolean(process.stdin.isTTY),
 } = {}) {
-  if (isTTY()) return "";
-  const startedAt = now();
-  for (;;) {
-    try {
-      return readInput();
-    } catch (error) {
-      if (error?.code !== "EAGAIN") return "";
-      if (now() - startedAt >= waitMs) return "";
-      sleep(pollMs);
-    }
+  try {
+    return isTTY() ? "" : readInput();
+  } catch {
+    return "";
   }
 }
 
