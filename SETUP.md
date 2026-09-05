@@ -597,14 +597,29 @@ a client and it answers from their notes, because they are yours now too.
 **What you do NOT share: each other's tools.** A brain reads *your* mail, *your* messages, *your*
 calendar, through the connectors signed in as you. Their brain does the same with theirs. So:
 
-- **Giving someone access to your mailbox does not give their brain access to it.** Gmail
-  delegation lets a person open your mailbox in *their own* Gmail window and read it with their own
-  eyes. It stops there: the tools a brain uses have no way to name a mailbox other than the one
-  they are signed in as. This is not a setting anyone can turn on.
+- **Giving someone access to your mailbox does not give their brain access to it.** This is the one
+  that surprises everybody, so here it is in full. **Gmail delegation asks for no password**: in
+  Gmail's settings you add the person as a *delegate*, and they open your mailbox from **their own**
+  Google account (the account switcher, top right), reading, filing and replying "on behalf of".
+  Nothing is handed over, no credentials change hands, and that is the right way to delegate. But
+  what it gives them is **their eyes, not their brain**: the tools a brain reads mail with read **the
+  mailbox of the account they are signed in as**, and have no field for naming another one. It is not
+  a permission to tick, not a setting anyone can turn on, and not something that opens up if you
+  insist — the button does not exist.
 - **Sharing a calendar DOES reach the other brain**, and it is the one place where this works
-  properly. A calendar has an address, and the tools take one, so once you share yours, their brain
-  can read your meetings the way it reads their own. If you want one thing to be shared
-  automatically, make it the calendar.
+  properly, for exactly the reason mail does not: the calendar tools take a **calendar address**,
+  which is a field mail has no equivalent of. Share yours and their brain reads your meetings the way
+  it reads their own. If you want one thing to be shared automatically, make it the calendar.
+- **And no, the answer is not to hand over your password.** Technically the only way a brain could
+  read another mailbox would be to be signed in **as** that account. That is not delegation, it is
+  account sharing: it defeats two-factor authentication, most companies forbid it outright, and
+  everything the brain read, wrote or sent would carry the owner's identity with no way left to tell
+  who did what.
+- **If mail really has to reach the other brain, two things do work.** Either make the message land
+  in **their own** mailbox — an auto-forward rule on the senders or subjects that concern the work,
+  or a shared address both accounts receive — and their brain then sees it like any other of their
+  mail. Or use the path that needs no setup at all: they read it with their eyes through delegation,
+  and ask their brain to keep what matters. The note is written, and a note travels.
 - **A direct message is invisible to the other brain**, always — the same way it is invisible to you
   in the app. Only what both of you can see in a channel is common ground.
 - **Chat workspaces do not add up.** Membership is per workspace: a brain sees the workspaces its

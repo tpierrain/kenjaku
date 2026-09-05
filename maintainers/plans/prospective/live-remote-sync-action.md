@@ -129,17 +129,22 @@ the rehearsal against a copy of a real brain.
 >   **"not what you can see in your own tools"** (mail, messages, calendar, Drive), in `SETUP.md` §7
 >   and in the release note's duo block that quotes it. Cold, the short form read as *the other person
 >   cannot see what is in the brain*, which is the opposite of the perimeter it states.
-> - **Still to write into the repo**: `SETUP.md` §7's Gmail-delegation bullet is true but too terse to
->   land — it says delegation does not reach the other brain without saying that **delegation asks for
->   no password** (so the reader's next thought, *"then they'd have to give their password"*, is
->   answered before it forms), without contrasting it with the calendar tool that **does** take an
->   address, and without naming the two things that DO work (auto-forward or a shared address, so the
->   mail lands in the colleague's own mailbox; else read with your eyes and write the note). The
->   wording is being settled **in French first**, in a one-page guide the owner is sending to a
->   colleague joining a real duo on 2026-09-08; the English lands here once he is happy with it. Both
->   ends verified against the real tool definitions on 2026-09-05: the Gmail tools read *"the
->   authenticated user's Gmail account"* and take no mailbox argument, `list_events` takes a
->   `calendarId` that is an email address.
+> - **Fixed and pushed too, on his ask the same morning**: `SETUP.md` §7's Gmail-delegation bullet was
+>   true but too terse to land. It said delegation does not reach the other brain without ever saying
+>   that **delegation asks for no password**, so it left standing the reader's very next thought —
+>   *"then they'd have to hand over their password"* — which is both wrong and dangerous. It now says
+>   that, contrasts it with the calendar tool that **does** take an address (which is why one crosses
+>   over and the other cannot), refuses account sharing by name, and ends on the two things that do
+>   work: land the mail in the colleague's own mailbox (auto-forward or a shared address), or read it
+>   with your eyes and write the note. Both ends verified against the real tool definitions on
+>   2026-09-05: the Gmail tools read *"the authenticated user's Gmail account"* and take no mailbox
+>   argument, `list_events` takes a `calendarId` that is an email address.
+>
+> 📄 **The French one-pager that produced both fixes is NOT in this repo, deliberately.** It is a
+> handout the owner is sending privately to a colleague joining a real duo on 2026-09-08, and it is
+> being iterated in French; it lives in the session scratchpad. **What the repo keeps is the English**,
+> already landed above. If a user-facing duo guide is ever wanted in the repo, it is that text
+> translated, and it is a new decision, not a leftover.
 >
 > ⏸️ **Then, and only then, 8.3** — tag `v5.1.0` **on `main`**, `git push
 > --tags`, publish the release with the body of
