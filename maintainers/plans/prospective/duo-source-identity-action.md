@@ -42,10 +42,11 @@ below, and the release is held until it lands.**
   the note re-checked against the real `extractWhatYouGet`: 17 lines captured, both moments in).
   **▶️ WHAT IS LEFT HERE IS 8.8, the mutation measurement**, then the note's Quality paragraph gains
   its figures, then the parent plan's 8.3 (the tag) is the owner's.
-  **▶️ 8.8 IS UNDER WAY** _(2026-09-05, 01:35)_: the first pass came back at **84.6 %**, its 75
-  survivors are answered (deleted where unreachable, tested where real, `24fa9cc`), and **two
-  measurements are running** — the three new files again, plus the ranges step 8 changed in the
-  files that already existed. The sub-checkboxes under 8.8 carry the detail. **Nothing else on this
+  **▶️ 8.8 IS UNDER WAY** _(2026-09-05, 03:00)_: the first pass came back at **84.6 %**, its 75
+  survivors are answered (deleted where unreachable, tested where real, `24fa9cc`), and the
+  re-measurement of the three new files reads **98.26 %** with its last two real survivors closed.
+  **What remains is the second measurement**, over the ranges step 8 changed in files that already
+  existed; it is running. The sub-checkboxes under 8.8 carry the detail. **Nothing else on this
   plan is open**; when those come back at this release's standard, `RESULTS.md` gains its section and
   **both** surfaces that quote figures gain them in the same commit: the release note's *Quality*
   paragraph and [`release-v5.1.0-pr-body.md`](release-v5.1.0-pr-body.md)'s *Quality evidence*, whose
@@ -613,7 +614,17 @@ This is the honest statement of the perimeter.
         merging one person leaves everybody else untouched, and the question, the usage, both
         refusals and the two travel warnings are pinned word for word — with a healthy answer
         asserting the **absence** of all of them. 3208 tests, 0 fail.
-  - [ ] **Re-measure, and batch B**: `v510-duo-batch-a2` over the three files again, and
+  - [x] **The three new files re-measured: 84.6 % → 98.26 %** _(2026-09-05, `v510-duo-batch-a2`)_ —
+        453 killed, **8 survived**, 0 timeout: `author-identities` **97.99 %**, `brain-author`
+        **97.78 %**, `author-identity` **99.24 %**. Two of the eight were real and are closed: a
+        `?? ""` default in `isSamePerson` (a placeholder makes two ANONYMOUS callers slug the same,
+        and *"nobody === nobody"* is the one answer that comparison may never give — it asks the type
+        now), and `markDistinct` proved fail-open on a hand-damaged registry, which is precisely the
+        state a CORRECTION is reached for. Both mutants hand-applied and seen to die. **The six left
+        are named equivalents**: four `[]` fallbacks a mutant fills with a name no fixture uses (only
+        a collision could tell them apart), and `readFileSync(p, "")`, which returns a Buffer that
+        `JSON.parse` accepts — the encoding is genuinely unobservable through that path.
+  - [ ] **Batch B**: `v510-duo-batch-a2` over the three files again, and
         `v510-duo-batch-b` over the ranges step 8 CHANGED in files that already existed
         (`session-authors`, both `dated-note-path`, both `remote-sync`, `universe-persist`).
         🛑 **ONE AT A TIME, and this cost a run to learn** _(2026-09-05, 01:35)_. Started both at
