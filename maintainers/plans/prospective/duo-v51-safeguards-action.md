@@ -20,11 +20,24 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
   Per file: `author-identities.mjs` **95.28 %** (10 survivors), `brain-author.mjs` **90.60 %** (22).
   Step 8.8 had left these two at 98.66 % and 98.90 %, so **the drop is step 9's own new code**, which
   is what a hunk-scoped reading would have said too.
-- ▶️ **RESUME HERE: ANSWER batch A's 32 survivors** — read one by one against the code, and the split
-  is already made: **7 are equivalents** of the class 8.8 already named (an `[]` fallback filled with
-  `["Stryker was here"]`, whose one element every consumer skips: `author-identities` 52:89, 228:76,
-  262:57; `brain-author` 70:56, 172:43, 231:56, 255:73). **The other 25 are killable, and none needs
-  production to change.** Two families:
+- ✅ **BATCH A'S SURVIVORS ARE ANSWERED IN TESTS, GREEN** _(2026-09-05, 8 new tests, whole suite
+  3165 pass / 0 fail / 3 pre-existing skips)_. **The final split, after reading each mutant against
+  the code, is 22 killable and 10 equivalent** — not the 25/7 of the first skim: the three optional
+  chainings inside `brain-author`'s `spellingsOf` (255:16, 255:47, 255:73) are unreachable, because
+  `unendorsedFusions` only ever returns entries whose `aka` is a non-empty array, and `194:47` is
+  unreachable for the same reason at both its call sites. **They are equivalents, and the honest
+  simplification is to DELETE those guards** — not done here, deliberately: it changes production on a
+  held release for three mutants. Left as a named candidate for the next pass.
+- ▶️ **RESUME HERE: re-run batch A to confirm**, then the two batches after it (below). The command is
+  unchanged: `node maintainers/mutation/mutate-one.mjs scripts/lib/author-identities.mjs
+  scripts/lib/brain-author.mjs` — ~61 min, and it must have the machine to itself. Expect **10
+  survivors, all named equivalents**; anything else is a mutant the new tests did not reach, and it is
+  read, not waved through.
+- 📖 **What the 22 killable ones were, kept because the re-run must be checked against it.** Ten are
+  equivalents of the class 8.8 named (an `[]` fallback filled with `["Stryker was here"]`, whose one
+  element every consumer skips: `author-identities` 52:89, 194:47, 228:76, 262:57; `brain-author`
+  70:56, 172:43, 231:56, 255:16, 255:47, 255:73). The other 22 needed **no production change at all**,
+  only tests. Two families:
   - **The words of the two new messages are not pinned** (7 mutants: `brain-author` 239:62, 241 ×4,
     245 ×2, 249:5). Emptying a whole sentence of `fusionElsewhereQuestion`, or dropping the `" = "`
     that makes *"Claire Dubois = Thomas Pierrain"* readable, changes nothing any test can see. **This
@@ -38,7 +51,7 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
     fallback is promised in a comment and asserted nowhere); and a fusion whose **canonical name is
     mine**, where the command must name the OTHER spelling.
 - ▶️ Then, **one run at a time** (two at once starve each other and return a meaningless score):
-  re-run batch A to confirm, then `scripts/session-authors.mjs scripts/author-identity.mjs`, then the
+  `scripts/session-authors.mjs scripts/author-identity.mjs`, then the
   ranges 9.4 changed in `scripts/lib/filed-note.mjs` (216) and `scripts/file-back-note.mjs` (102, 142).
   Findings into `maintainers/mutation/RESULTS.md`, newest-first; the figures then join the release
   note's *Quality* paragraph and #86's body, as 8.8's did.

@@ -562,3 +562,80 @@ test("a fusion decided elsewhere is worth a session start on its own", () => {
     systemMessage: "F",
   });
 });
+
+// ── The words themselves, pinned (9.5) ────────────────────────────────────────
+//
+// 🛑 `assert.match(said, /Claire Dubois/)` passes over a sentence whose every OTHER
+// word has been deleted, and the mutation pass proved it: emptying a whole clause of
+// the question below changed nothing any test could see. Step 8.8 pinned the other
+// messages for exactly this reason, and step 9 arrived with new sentences of its own.
+//
+// The template is transcribed BY HAND from the source, never printed by the code it
+// judges: a fixture produced by the thing under test agrees with it by construction.
+const fusionSaid = (list, count, first) =>
+  `Decided on another machine, and confirmed by nobody at this keyboard: ${list} — ` +
+  `${count} declared to be THE SAME PERSON as someone already writing in this brain. SAY it in ` +
+  `their language and ASK whether that is right, or two different people. If right: ` +
+  `\`node scripts/author-identity.mjs --same-person "${first}"\`. If not: ` +
+  `\`node scripts/author-identity.mjs --different "${first}"\`. Until then both their days are ` +
+  `filed as one person's.`;
+
+test("one unendorsed fusion is put in these words, and no others", () => {
+  assert.equal(
+    fusionElsewhereQuestion({ identities: fusedByHer, me: ME }),
+    fusionSaid("Claire Dubois = Thomas Pierrain", "1 name", "Claire Dubois"),
+  );
+});
+
+test("three fusions are separated, a fourth is counted, and a fourth that is not there is not counted", () => {
+  // TWO things at once, and both were unobservable: the "; " between fusions needs ≥2
+  // shown, and the ABSENCE of a "+0" needs a case where nothing overflows — the test
+  // above is that case, and it is why the overflow suffix is asserted from both sides.
+  const many = ["Amina Haddad", "Bruno Costa", "Chen Wei", "Dara Okoye"].map((name) => ({
+    name,
+    aka: [ME],
+    confirmedBy: [name],
+  }));
+
+  assert.equal(
+    fusionElsewhereQuestion({ identities: many, me: ME }),
+    fusionSaid(
+      "Amina Haddad = Thomas Pierrain; Bruno Costa = Thomas Pierrain; Chen Wei = Thomas Pierrain +1",
+      "4 names",
+      "Amina Haddad",
+    ),
+  );
+});
+
+test("a spelling nothing could file is not named, and does not become a half of the fusion", () => {
+  // A vault is a folder of text a human edits: `name` can come back a number and an
+  // alias can be punctuation. Neither is a person, and neither may be shown to one.
+  const damaged = [{ name: 42, aka: [HER, "!!!"], confirmedBy: [HER] }];
+
+  assert.equal(
+    fusionElsewhereQuestion({ identities: damaged, me: ME }),
+    fusionSaid("Claire Dubois", "1 name", "Claire Dubois"),
+  );
+});
+
+test("a fusion filed under MY name still names THEM in the command", () => {
+  // The fusion was recorded on her machine under mine, which is the ordinary shape when
+  // she answered first. The command must not tell me to run it against myself.
+  const underMyName = [{ name: ME, aka: [HER], confirmedBy: [HER] }];
+
+  assert.equal(
+    fusionElsewhereQuestion({ identities: underMyName, me: ME }),
+    fusionSaid("Thomas Pierrain = Claire Dubois", "1 name", "Claire Dubois"),
+  );
+});
+
+test("what a confirmed duo is owed is said in these words, and no others", () => {
+  assert.equal(
+    duoConfirmedNotice(HER),
+    "Recorded: Claire Dubois is a second person. Say ONCE, in their language: from here on each " +
+      "person's day gets its own note instead of the two being merged, and a source you both meet " +
+      "is not stored twice. Nothing to switch on, and nothing else changes. Then, in one sentence: " +
+      "they can write here because they were added to this brain's repository, and removing them " +
+      "there is what ends it — this brain grants no access of its own.",
+  );
+});

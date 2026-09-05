@@ -549,3 +549,45 @@ test("re-answering a fusion that records nobody stays a no-op", () => {
   assert.equal(res.changed, false);
   assert.deepEqual(res.state, legacy);
 });
+
+// ── What the mutation pass of 9.5 found missing, and every one of them is a shape
+// the July catalogue already names: the absent twin, the collection under two
+// elements, a promise made in a comment and asserted nowhere.
+
+test("an endorsement already signed is not signed twice, and a nameless keyboard signs nothing", () => {
+  // TWO endorsers, one of them me — with a single one, "has anyone signed?" and "have
+  // they ALL signed?" answer identically and the test cannot tell the two apart.
+  const signed = { identities: [{ name: HER, aka: [ME], confirmedBy: [HER, ME] }], distinct: [] };
+  assert.deepEqual(fuseAuthors(signed, HER, ME, ME), { ok: true, state: signed, changed: false, canonical: HER });
+
+  // A keyboard git has no name for cannot endorse: an unusable spelling in `confirmedBy`
+  // is one no later answer can ever match, so it would ask forever.
+  const hers = { identities: [{ name: HER, aka: [ME], confirmedBy: [HER] }], distinct: [] };
+  assert.deepEqual(fuseAuthors(hers, HER, ME, "   "), { ok: true, state: hers, changed: false, canonical: HER });
+});
+
+test("a hand-damaged registry costs the ENTRY, never the answer", () => {
+  // No state at all is nobody, not a crash: this runs inside a session-start hook.
+  assert.deepEqual(unendorsedFusions(undefined, ME), []);
+
+  const fusion = { name: HER, aka: [ME], confirmedBy: [HER] };
+  // A null entry, and an entry whose `aka` is not a list. Both are skipped — and the
+  // second must NOT be announced as a fusion: an entry that merged nothing is somebody's
+  // identity, and asking about it would be a false alarm.
+  assert.deepEqual(
+    unendorsedFusions({ identities: [null, { name: HER, aka: "nope", confirmedBy: [HER] }, fusion] }, ME),
+    [fusion],
+  );
+});
+
+test("with no name at this keyboard, the correction stays the one-directional one it always was", () => {
+  // The promise is in `markDistinct`'s own comment — "omitted, the old one-directional
+  // behaviour stands" — and nothing asserted it. `me` is what lifts ME out of THEIR
+  // entry; without it, their entry is left exactly as it is, junk alias included.
+  const theirs = { name: HER, aka: [ME, 42], confirmedBy: [HER] };
+  const res = markDistinct({ identities: [theirs], distinct: [] }, HER, undefined);
+
+  assert.deepEqual(res.state.identities, [theirs]);
+  assert.equal(res.state.identities[0], theirs, "not even rebuilt");
+  assert.deepEqual(res.state.distinct, [HER]);
+});
