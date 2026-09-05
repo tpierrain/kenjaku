@@ -22,13 +22,13 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
 > through `e4b4032`. The only thing waiting on the owner is the ❓ entry below (the second waiter), and
 > it blocks nothing.
 >
-> 🌙 **OVERNIGHT, 2026-09-06 00:00.** A session is watching that run to its end and will carry on with
-> its survivors, then batches B, C and D, one at a time and detached. Checked at 00:00: the run is
-> alive and 41 min in, the machine is on AC, a `caffeinate -ims` holds sleep off, and **one** orphan
-> spinner is left, which is the 30 s deadline of `e34cbb8` doing its job where 60 had piled up before
-> it. **The one thing the machine owes the run is to stay awake: `caffeinate` does not survive a closed
-> lid**, and a sleeping laptop does not kill a mutation run, it starves it into a number that looks
-> like a result.
+> 🌙 **OVERNIGHT, 2026-09-06 — BATCH A IS IN AND CLOSED, BATCH B IS RUNNING.** A is answered below
+> (**97.76 %**, all ten survivors equivalents, register updated). **B** (`session-authors.mjs` +
+> `author-identity.mjs`, whole-file) was launched **00:28 on `a745f08`**, log
+> `reports/v510-95-batch-b3.stdout.log`, back around **01:35**; the machine was checked clear of
+> orphans first (0 spinners, load falling). Then **C**, then **D**, one at a time. **The one thing the
+> machine owes a run is to stay awake: `caffeinate` does not survive a closed lid**, and a sleeping
+> laptop does not kill a mutation run, it starves it into a number that looks like a result.
 
 - ✅ **9.0 THROUGH 9.4 ARE DONE, GREEN AND PUSHED, CI READ AND GREEN ON EVERY COMMIT** _(2026-09-05)_
   — the whole suite (3157 tests) and the duo rehearsal (16/16) pass on each. **ONLY 9.5 REMAINS.**
@@ -52,6 +52,22 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
   tenth, `brain-author` **70:56**, was **killed**: it had been filed as an equivalent and that reading
   was wrong. Recorded in `RESULTS.md` with the durable point (naming the expected survivors before the
   re-run is what makes the re-run a check that can fail).
+- ✅✅ **BATCH A IS CLOSED FOR GOOD, ON A SOUND INSTRUMENT: 97.76 %** _(2026-09-06 00:19, 1 h 6 min, on
+  `a89af5a`; 436 killed, **10 survived**, **0 timeout**. `author-identities.mjs` **98.11 %**,
+  `brain-author.mjs` **97.44 %**. Log `reports/v510-95-batch-a5.stdout.log`)_. **All ten survivors were
+  read against the code, one by one, and all ten are equivalents** — six of the *"`[]` fallback filled
+  with `["Stryker was here"]`, whose one element every consumer skips"* class, four unreachable optional
+  chainings. **Effective score on non-equivalents: 100 %. Nothing is owed on these two files.**
+  - ↩️ **This retires the 97.98 % AND the conclusion drawn from it.** The two runs differ by **exactly
+    one mutant**, `brain-author` **70:56**, which the flaky instrument reported as killed. Same code and
+    same tests, proven rather than assumed: `git diff b06991d a89af5a` over both files and both test
+    files is **empty**. Its original filing as an equivalent was right; the "correction" that overturned
+    it mistook **reaching** the line for **observing** it.
+  - 📌 **The durable lesson is now in `RESULTS.md`, and it is bigger than a number**: a suite that is
+    not deterministic under load **manufactures kills**, and a manufactured kill reads as evidence that
+    a human's reading of the code was wrong. It does not just cost a score, it **writes a wrong
+    judgement into the register in prose**. So when an instrument is disowned, re-read what it talked
+    us into, not only what it measured.
 - 🧳 **BATCH B's FIRST ATTEMPT SURVIVED THE TRIP AND IS STILL WORTHLESS — the runner said so itself**
   _(launched 12:03, returned **14:47** instead of ~13:05, because the laptop travelled in a bag in
   between)_. Verdict: **`❌ 58 of 163 mutants TIMED OUT (36 %) — the 96.32 % is starved CPU, not killed
@@ -85,7 +101,9 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
     machine went to sleep in, while every search of the session is scoped to the one that just arrived —
     one sphere's context, another's retrieval. Rare (it needs the harness's write to lose a race against
     a `node` boot), silent, and intermittent.
-- ⚠️ **THEREFORE BATCH A's 97.98 % IS SUSPECT AND MUST BE RE-RUN.** Measured 2026-09-05, **8 concurrent
+- ⚠️ **~~THEREFORE BATCH A's 97.98 % IS SUSPECT AND MUST BE RE-RUN~~ — DONE 2026-09-06, and the doubt
+  was justified: the re-run cost one mutant and one wrong conclusion (see the ✅✅ entry above).** Kept
+  for the reasoning, which is what earned the re-run. Measured 2026-09-05, **8 concurrent
   full-suite runs: 1 failed** on this test. Every mutant re-runs the **whole** suite
   (`stryker.scripts.config.mjs`: `node --test "scripts/*.test.mjs" "scripts/lib/*.test.mjs"`,
   concurrency 5), and a mutant is killed when the suite **exits non-zero** — so an intermittent failure

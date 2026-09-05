@@ -244,14 +244,20 @@ record **who endorsed** them (`confirmedBy`), and `markDistinct` learned who is 
 that step's measurement, and it re-measures **whole** the two files 8.8 had already taken to 98.66 %
 and 98.90 % — because step 9's new code is what moved them.
 
-Logs: `reports/v510-95-batch-a2.stdout.log` (the runner's own verdict) and
-`reports/mutate-one-author-identities+1.log` (the raw output) for the confirming pass.
+Logs: `reports/v510-95-batch-a2.stdout.log` (the confirming pass, since disowned — see below) and
+`reports/v510-95-batch-a5.stdout.log` with `reports/mutate-one-author-identities+1.log` (the raw
+output) for **the run that counts**, the only one taken on a sound instrument.
 
-| File (scope) | 8.8 left it at | First pass | After | Survivors left |
+| File (scope) | 8.8 left it at | First pass | Confirmed | Survivors left |
 |---|---|---|---|---|
 | `lib/author-identities.mjs` (whole) | 98.66 % | 95.28 % | **98.11 %** | 4, all equivalents |
-| `lib/brain-author.mjs` (whole) | 98.90 % | 90.60 % | **97.86 %** | 5, all equivalents |
-| **Batch A** | — | 92.83 % | **97.98 %** | 437 killed, 9 survived of 446 |
+| `lib/brain-author.mjs` (whole) | 98.90 % | 90.60 % | **97.44 %** | 6, all equivalents |
+| **Batch A** | — | 92.83 % | **97.76 %** | 436 killed, 10 survived of 446, 0 timeout |
+
+**The figures above are the 2026-09-06 00:19 run** (1 h 6 min, on `a89af5a`, launched after the flaky
+test was deleted). The 12:02 run of the day before read **97.98 %** with **9** survivors; that number
+is **withdrawn**, and the paragraph below says why the difference is worth more than the 0.22 point
+it costs.
 
 **The first pass's 32 survivors split 22 killable / 10 equivalent** — not the 25/7 of the first skim.
 Reading each mutant against the code is what moved three of them: `brain-author`'s `spellingsOf`
@@ -262,14 +268,33 @@ at all**, only tests, in two families — *the words of the two new messages are
 **two** endorsers where one is me, `markDistinct` without `me`, a fusion whose canonical name is
 mine). Eight tests closed all 22.
 
-### ⚖️ The confirming run found NINE survivors where ten were predicted, and that is the good direction
+### ⚖️ The named list caught a FALSE KILL: the tenth "equivalent" was one after all, and a flaky test had said otherwise
 
 The plan named its 10 expected equivalents before the re-run, precisely so the verdict could be
-checked rather than admired. Nine came back, and **all nine are on that list** — no mutant escaped the
-new tests. The tenth, `brain-author` **70:56** (`Array.isArray(entry.aka) ? entry.aka : []`), was
-**killed**: it was filed as an equivalent of the *"`[]` fallback filled with `["Stryker was here"]`,
-whose one element every consumer skips"* class, and that reading was wrong — a test feeding an entry
-whose `aka` is not an array now reaches it.
+checked rather than admired. **The re-run has now happened twice, and the two disagree by exactly one
+mutant** — which is the whole reason for writing the list down first.
+
+- **The 12:02 run (9 survivors, 97.98 %)** was taken while the suite still carried a test that failed
+  about 1 run in 8 under load. A mutant is killed when the suite **exits non-zero**, so an intermittent
+  failure does not add noise to a score, it adds **points**. That run reported `brain-author` **70:56**
+  (`Array.isArray(entry.aka) ? entry.aka : []`) as **killed**, and this register concluded the
+  equivalence judgement had been wrong.
+- **The 00:19 run (10 survivors, 97.76 %)**, with the flaky test deleted, says it **survives**. Same
+  code and same tests, and not by assumption: `git diff b06991d a89af5a` over both production files and
+  both test files is **empty**. The instrument is the only thing that changed.
+- **Read against the code it is an equivalent**, of exactly the class it was first filed under. The
+  mutant fills the `[]` fallback with `["Stryker was here"]`, and its only consumer is
+  `aka.some((alias) => … slugSafe(alias) === slug)`: the extra element can change an answer only for a
+  lookup of the literal name *"Stryker was here"*. The correction this register carried — *"a test
+  feeding an entry whose `aka` is not an array now reaches it"* — mistook **reaching** the line for
+  **observing** it, which is the whole difference between coverage and a kill.
+
+**So all 10 survivors are equivalents, none escaped the new tests, and the effective score on
+non-equivalents is 100 %.** All ten, each read against its code: `author-identities` 52:89,
+228:76 and 262:57 plus `brain-author` 70:56, 172:43 and 231:56 are the *"`[]` fallback filled with
+`["Stryker was here"]`, whose one element every consumer skips"* class; `author-identities` 194:47 and
+`brain-author` 255:16, 255:47 and 255:73 are unreachable optional chainings, because `unendorsedFusions`
+only ever returns entries whose `aka` is a non-empty array.
 
 ➡️ **The durable point**: an equivalence verdict is a *claim about the code*, and claims are wrong
 sometimes. Naming the expected survivors **in writing before the re-run** is what turns a mutation
@@ -278,6 +303,15 @@ nine would have read as agreement, and the one misfiled judgement would have sta
 The error was in the safe direction here (a mutant we thought unkillable was killed), but the
 mechanism is symmetric: an unexpected **extra** survivor is a hole in the tests, and only a named
 list makes it visible on sight.
+
+➡️ **And the second point, bought at the price of a wrong paragraph in this very register**: a suite
+that is not deterministic under load does not merely inflate a score, **it manufactures kills** — and
+a manufactured kill does not read as noise, it reads as *evidence that a human's reading of the code
+was wrong*. So it costs more than a number: it overturns a correct judgement and writes the mistake
+down, in prose, where the next reader meets it as a settled fact. The standing rule — *treat a suite
+that is not deterministic under load as a broken instrument, and fix it before believing any number it
+produced* — therefore extends to **everything the instrument talked us into**, not only its figures.
+When an instrument is disowned, re-read what it made us conclude.
 
 ## #84 duo — the announcement became a question, and half its survivors were code to DELETE — 2026-09-05
 
