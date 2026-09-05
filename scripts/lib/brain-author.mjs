@@ -82,9 +82,17 @@ export function canonicalAuthor(name, identities) {
  * not each other: answering true there would silence a banner about a stranger.
  */
 export function isSamePerson(a, b, identities) {
-  const left = slugSafe(canonicalAuthor(a, identities) ?? "");
-  const right = slugSafe(canonicalAuthor(b, identities) ?? "");
-  return left !== null && left === right;
+  const left = personSlug(a, identities);
+  return left !== null && left === personSlug(b, identities);
+}
+
+// What `name` slugs to once the registry has had its say, or null when it is not a
+// name at all. Written as a type check rather than a default string: a placeholder
+// would make two ANONYMOUS callers slug identically, and "nobody === nobody" is the
+// one answer this comparison may never give.
+function personSlug(name, identities) {
+  const canonical = canonicalAuthor(name, identities);
+  return typeof canonical === "string" ? slugSafe(canonical) : null;
 }
 
 /**

@@ -337,6 +337,17 @@ test("a name that cannot be filed is refused here too, and nothing is written", 
   }
 });
 
+// Fail-open on this side too: the correction below is the one a human reaches for
+// AFTER a wrong answer, so it has to survive whatever the previous one left behind —
+// including a registry a human has since opened and damaged by hand.
+test("a damaged registry does not stop somebody being confirmed as a second person", () => {
+  const res = markDistinct(stateWith([null, "nonsense", { aka: [HER] }, { name: 42 }]), HER);
+
+  assert.equal(res.ok, true);
+  assert.deepEqual(res.state.distinct, [HER]);
+  assert.deepEqual(res.state.identities.at(2), { aka: [] }, "and the fusion that held them is undone");
+});
+
 test("a second person joins a list that already names somebody else", () => {
   const res = markDistinct(stateWith([], [HER]), "Amina Haddad");
 
