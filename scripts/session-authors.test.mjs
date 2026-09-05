@@ -240,3 +240,47 @@ test("as a process outside a git repository, it exits 0 and says nothing", (t) =
   assert.equal(answer.status, 0, answer.stderr);
   assert.equal(answer.stdout.trim(), "");
 });
+
+// ── A fusion decided on the other machine (step 9.1) ──────────────────────────
+//
+// 🛑 THE EXACT HOLE. Fusing is convergent on purpose, so "it's the same person"
+// answered on the newcomer's machine makes two humans resolve to one — and every
+// other line this hook can emit goes quiet at once: the roll call needs two people,
+// the question needs an unplaced name, and there is neither. Without the notice
+// below, this session start says NOTHING and the arrival is hidden.
+test("a fusion nobody here endorsed reaches a session that has nothing else to say", () => {
+  const { deps, emitted } = fakeDeps({
+    authors: [ME, HER],
+    state: { identities: [{ name: HER, aka: [ME], confirmedBy: [HER] }], distinct: [] },
+  });
+
+  assert.equal(sessionAuthorsNotice(deps), 0);
+
+  assert.equal(emitted.length, 1, "silence here is the defect");
+  assert.match(emitted[0].systemMessage, /another machine/i);
+  assert.match(emitted[0].hookSpecificOutput.additionalContext, /decided elsewhere/i);
+});
+
+test("and it goes quiet once this keyboard has endorsed it", () => {
+  const { deps, emitted } = fakeDeps({
+    authors: [ME, HER],
+    state: { identities: [{ name: HER, aka: [ME], confirmedBy: [HER, ME] }], distinct: [] },
+  });
+
+  sessionAuthorsNotice(deps);
+
+  assert.deepEqual(emitted, []);
+});
+
+// Fail-open, in the direction the rest of this file already falls: a registry that
+// cannot be read costs the answers it held, and never the session.
+test("a registry that cannot be read costs the notice, not the session start", () => {
+  const { deps, emitted } = fakeDeps({ authors: [ME, HER] });
+  deps.state = () => {
+    throw new Error("EACCES");
+  };
+
+  assert.equal(sessionAuthorsNotice(deps), 0);
+
+  assert.match(emitted[0].systemMessage, /someone else, or them on another machine/i);
+});

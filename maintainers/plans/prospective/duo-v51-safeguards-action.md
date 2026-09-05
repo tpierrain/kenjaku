@@ -13,6 +13,9 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-05
 
+- ✅ **9.1 AND 9.2 ARE DONE, GREEN AND PUSHED** _(2026-09-05)_ — the whole suite (3151 tests) and the
+  duo rehearsal (16/16) pass. **9.3 (the duo page), 9.4 (the `author:` stamp) and 9.5 (the mutation
+  measurement) remain**, and the release waits on them.
 - ▶️ **THE WORK IS STEP 9 BELOW, four items, all in v5.1 on his explicit call** _(2026-09-05)_. They
   answer the question he put after reading the duo surface: **what guarantees the person asked is the
   one whose brain it is**, and that the newcomer is not the one answering *"yes, that's fine"*?
@@ -59,19 +62,30 @@ branch protection are the git host's job, not this brain's.
       — access is the host's, the brain only files; ending a duo is removing the collaborator; and the
       three gates we will **not** build, each with why it would protect nobody. Listed in
       `maintainers/README.md` (where **0041 was missing too**, and is now listed beside it).
-- [ ] **9.1** _(A)_ **A fusion recorded elsewhere is announced here, until this keyboard has endorsed
+- [x] **9.1** _(A, 2026-09-05, green + rehearsal 16/16)_ **A fusion recorded elsewhere is announced here, until this keyboard has endorsed
       it.** Registry entries gain a `by:` list of the people who recorded or endorsed the fusion;
       `--same-person` appends the local person. The session hook says, once per machine that has not
       endorsed: *"on another machine, X and Y were declared to be the same person. If that is right,
       confirm; if not, split them"*, with both commands. Endorsing is answering the ordinary way, so
       **no per-machine marker is invented** — the memory stays the answer itself, and it travels.
-      ⚠️ **An entry with no `by:` is treated as endorsed**: a brain that fused names before this
+      ⚠️ **An entry with no recorder is treated as endorsed**: a brain that fused names before this
       shipped must not start nagging about its own past.
-- [ ] **9.2** _(B)_ **`duoConfirmedNotice` names where the access came from, and how to take it
+      **What the build actually found, and it is the half that mattered** — the notice offers
+      `--different "<them>"` to disagree, and **that command did nothing** in this direction: a fusion
+      recorded on the other machine is filed under THEIR name with mine as the alias, and `markDistinct`
+      deliberately left alone the entry a name is the canonical of. So the correction changed nothing and
+      the notice would have repeated forever. `markDistinct` now takes **who is disagreeing** and lifts
+      them out of the other person's entry. **Grandfathering means never touching it**: re-answering a
+      fusion that records nobody stays a no-op, or every such brain would write and commit a file nobody
+      asked about. The field is `confirmedBy`, the notice names **both halves** (`Claire Dubois = Thomas
+      Pierrain`), and it is compared by **raw** name so the fusion under review cannot vouch for itself.
+- [x] **9.2** _(B, 2026-09-05)_ **`duoConfirmedNotice` names where the access came from, and how to take it
       back.** Today it explains what changes in the filing; it must also say, in the person's
       language, that the other person can write here **because they were added to the repository**,
       and that removing them there is what ends it. An alert, not a permission — and it reaches the
-      owner by construction, `distinct` being per name.
+      owner by construction, `distinct` being per name. _(Shipped in the same commit as 9.1: one
+      sentence, after what changes — "they can write here because they were added to this brain's
+      repository, and removing them there is what ends it — this brain grants no access of its own".)_
 - [ ] **9.3** **A page of its own for duo mode** _(his call: "je pense que c'est une page dédiée au
       mode duo")_, in English, in the repo: the steps for both people, the Q&A, the perimeter, the
       mail detail in full (delegation asks for no password, what it does and does not reach, the two
@@ -89,6 +103,11 @@ branch protection are the git host's job, not this brain's.
       (`canonicalAuthor`). **Forward-only**, no backfill: git history answers for the past, and
       rewriting every existing note would be a large diff for a small gain _(his to overrule)_. The
       audit / export-by-person use case is **explicitly not built**, and the page from 9.3 says so.
+
+- [ ] **9.5** **Measure what step 9 changed** (CONVENTIONS §5quinquies), once 9.3 and 9.4 have landed,
+      the way 8.8 did it: the changed ranges of `author-identities.mjs`, `brain-author.mjs`,
+      `session-authors.mjs` and `author-identity.mjs`, **one run at a time** (two at once starved each
+      other and returned a meaningless score), findings into `maintainers/mutation/RESULTS.md`.
 
 ### Cutting the release — the owner's, and only his
 

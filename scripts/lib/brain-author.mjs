@@ -24,6 +24,7 @@
 // Below two authors this module is silent, in every direction. Same doctrine as
 // universes (ADR 0034): nothing surfaces until a second one exists.
 // ─────────────────────────────────────────────────────────────────────────────
+import { unendorsedFusions } from "./author-identities.mjs";
 import { slugSafe } from "./filed-note.mjs";
 import { countOf } from "./plural.mjs";
 
@@ -214,6 +215,54 @@ export function secondAuthorQuestion({ authors, me, identities, distinct }) {
 }
 
 /**
+ * What a fusion decided on ANOTHER machine owes this one, or null when there is
+ * nothing to say (step 9.1).
+ *
+ * 🛑 THE HOLE IT CLOSES. Fusing is convergent on purpose — answering settles it for
+ * both machines — so a wrong *"it's the same person"* recorded on the newcomer's
+ * machine makes two humans resolve to one, and this machine then falls SILENT: no
+ * roll call, no question, no arrival banner. Access was never the issue (ADR 0042
+ * leaves that to the git host); being able to hide an arrival is, because visibility
+ * is the one thing a filing mechanism can honestly offer.
+ *
+ * A directive to the agent, like the two above it: it names the spelling to pass to
+ * either command, so agreeing and disagreeing are the same one line of typing.
+ */
+export function fusionElsewhereQuestion({ identities = [], me } = {}) {
+  const pending = unendorsedFusions({ identities }, me);
+  if (pending.length === 0) return null;
+  // Named up to three then counted, exactly like the reminder and the question: a
+  // brain handed round a team must not open every session with a roll call.
+  const shown = pending.slice(0, NAMES_SHOWN);
+  // Both halves of each fusion, because the name at this keyboard is exactly what makes
+  // the sentence land: "Claire Dubois = Thomas Pierrain" is read; "1 fusion" is not.
+  const named = shown.map((entry) => spellingsOf(entry).join(" = "));
+  const rest = pending.length - shown.length;
+  const list = `${named.join("; ")}${rest > 0 ? ` +${rest}` : ""}`;
+  const first = theirSpelling(shown[0], me);
+  return (
+    `Decided on another machine, and confirmed by nobody at this keyboard: ${list} — ` +
+    `${countOf(pending.length, "name")} declared to be THE SAME PERSON as someone already writing ` +
+    `in this brain. SAY it in their language and ASK whether that is right, or two different ` +
+    `people. If right: \`node scripts/author-identity.mjs --same-person "${first}"\`. If not: ` +
+    `\`node scripts/author-identity.mjs --different "${first}"\`. Until then both their days are ` +
+    `filed as one person's.`
+  );
+}
+
+/** Every spelling this entry merged, in the order it merged them, and only the filable ones. */
+function spellingsOf(entry) {
+  const raw = [entry?.name, ...(Array.isArray(entry?.aka) ? entry.aka : [])];
+  return raw.filter((name) => typeof name === "string" && slugSafe(name) !== null);
+}
+
+/** The spelling to put in the command: the one at this keyboard is not the one in question. */
+function theirSpelling(entry, me) {
+  const mine = slugSafe(me);
+  return spellingsOf(entry).find((name) => slugSafe(name) !== mine);
+}
+
+/**
  * And what a CONFIRMED duo is owed, said once: the explanation duo mode always owed,
  * moved from the guess to the confirmation. Printed by the entry point that records
  * the answer, so it is said exactly once by construction — the event that triggers
@@ -223,7 +272,9 @@ export function duoConfirmedNotice(name) {
   return (
     `Recorded: ${name} is a second person. Say ONCE, in their language: from here on each person's ` +
     `day gets its own note instead of the two being merged, and a source you both meet is not stored ` +
-    `twice. Nothing to switch on, and nothing else changes.`
+    `twice. Nothing to switch on, and nothing else changes. Then, in one sentence: they can write ` +
+    `here because they were added to this brain's repository, and removing them there is what ends ` +
+    `it — this brain grants no access of its own.`
   );
 }
 
@@ -233,13 +284,14 @@ export function duoConfirmedNotice(name) {
  * was. Mirrors buildUniverseHookOutput: `additionalContext` is the only channel
  * Claude Desktop shows, `systemMessage` carries the raw fact for the CLI.
  */
-export function buildAuthorsHookOutput({ reminder = null, question = null } = {}) {
-  if (!reminder && !question) return null;
+export function buildAuthorsHookOutput({ reminder = null, question = null, fusion = null } = {}) {
+  if (!reminder && !question && !fusion) return null;
   const parts = [];
   if (reminder) parts.push(`[authors] ${reminder}`);
   if (question) parts.push(`[authors — ask, never guess] ${question}`);
+  if (fusion) parts.push(`[authors — decided elsewhere] ${fusion}`);
   return {
     hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: parts.join("\n\n") },
-    systemMessage: [reminder, question].filter(Boolean).join("\n"),
+    systemMessage: [reminder, question, fusion].filter(Boolean).join("\n"),
   };
 }

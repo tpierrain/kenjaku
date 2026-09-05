@@ -116,10 +116,16 @@ export function isAcknowledged(state, name) {
  * hand-edited file can hold `{ name: 42 }` inside a perfectly valid array, and that
  * must cost the entry rather than the answer.
  *
+ * `by` is WHO is answering, and it is what step 9.1 hangs on: a fusion carries the
+ * people who have endorsed it, so a machine that never did can be told rather than
+ * silently accepting a merge decided elsewhere. Omitted, nothing is recorded — and an
+ * entry that records nobody counts as endorsed, so a brain that fused names before
+ * this shipped is never nagged about its own past.
+ *
  * @returns `{ ok, reason?, state, changed, canonical }` — `state` is the input
  * itself when nothing is written, so a caller may always persist what it gets back.
  */
-export function fuseAuthors(state, canonical, alias) {
+export function fuseAuthors(state, canonical, alias, by) {
   const canonicalSlug = nameSlug(canonical);
   const aliasSlug = nameSlug(alias);
   // A name with no slug cannot be spelled into a filename, so fusing INTO it would
@@ -138,9 +144,10 @@ export function fuseAuthors(state, canonical, alias) {
     // Nobody knows either spelling yet: the person enters the registry under the
     // name the caller kept, which is the one this brain will file them under.
     const aka = aliasSlug === canonicalSlug ? [] : [alias];
+    const fresh = { name: canonical, aka, ...(endorserOf(by) === null ? {} : { confirmedBy: [by] }) };
     return {
       ok: true,
-      state: { ...state, identities: [...identities, { name: canonical, aka }] },
+      state: { ...state, identities: [...identities, fresh] },
       changed: true,
       canonical,
     };
@@ -160,15 +167,72 @@ export function fuseAuthors(state, canonical, alias) {
     known.add(slug);
     return true;
   });
-  if (additions.length === 0) return { ok: true, state, changed: false, canonical: kept };
+  // Endorsing an entry that already knows both spellings IS a change — it is the
+  // whole endorsement path (step 9.1), and an answer that never reaches the disk
+  // never reaches the other machine either.
+  const endorsers = withEndorser(entry, by);
+  if (additions.length === 0 && endorsers === null) return { ok: true, state, changed: false, canonical: kept };
 
-  const merged = { ...entry, name: kept, aka: [...(Array.isArray(entry.aka) ? entry.aka : []), ...additions] };
+  const merged = {
+    ...entry,
+    name: kept,
+    aka: [...(Array.isArray(entry.aka) ? entry.aka : []), ...additions],
+    ...(endorsers === null ? {} : { confirmedBy: endorsers }),
+  };
   return {
     ok: true,
     state: { ...state, identities: identities.map((e, i) => (i === found ? merged : e)) },
     changed: true,
     canonical: kept,
   };
+}
+
+/** The endorser a name stands for, or null when it is not one this registry could record. */
+const endorserOf = (name) => nameSlug(name);
+
+/** Everyone who has endorsed this entry, as it is on disk. A damaged list is nobody. */
+const endorsersOf = (entry) => (Array.isArray(entry?.confirmedBy) ? entry.confirmedBy : []);
+
+/**
+ * The endorser list this entry would have once `by` has signed it, or null when it
+ * would not change — because `by` is unusable, or because that human already signed
+ * it under this or another spelling.
+ */
+function withEndorser(entry, by) {
+  const slug = endorserOf(by);
+  if (slug === null) return null;
+  const already = endorsersOf(entry);
+  // 🛑 A fusion that records NOBODY is grandfathered, and grandfathering means never
+  // touching it: it predates step 9.1, it is taken as endorsed everywhere, and adding
+  // this keyboard to it would rewrite — and commit — a file nobody asked about.
+  if (already.length === 0) return null;
+  return already.some((name) => nameSlug(name) === slug) ? null : [...already, by];
+}
+
+/**
+ * The fusions on record that NOBODY AT THIS KEYBOARD has endorsed — the notice of
+ * step 9.1, and the one hole convergence leaves open.
+ *
+ * 🛑 Compared by RAW name, never resolved through `identities`: the entry under
+ * review is precisely the one claiming those two names are one person, so resolving
+ * `me` through it would let a wrong fusion vouch for itself.
+ *
+ * Silent in every other direction, because a notice is worth less than a false alarm:
+ * an entry with no alias is an identity rather than a fusion, an entry that records no
+ * endorser at all predates this and is taken as endorsed, and a keyboard with no
+ * spellable name is asked nothing.
+ */
+export function unendorsedFusions(state, me) {
+  const mine = nameSlug(me);
+  if (mine === null) return [];
+  const identities = Array.isArray(state?.identities) ? state.identities : [];
+  return identities.filter((entry) => {
+    const aliases = Array.isArray(entry?.aka) ? entry.aka : [];
+    if (aliases.length === 0) return false;
+    const endorsers = endorsersOf(entry);
+    if (endorsers.length === 0) return false;
+    return !endorsers.some((name) => nameSlug(name) === mine);
+  });
 }
 
 /**
@@ -178,17 +242,28 @@ export function fuseAuthors(state, canonical, alias) {
  * It also UNDOES a wrong fusion: a human who answered "it's me" about a colleague
  * must be able to say so, and the correction has to reach the filing rule, not just
  * the question. The alias is dropped from whoever had swallowed it; an entry the
- * name is the CANONICAL of is left alone — that entry is that person's own identity,
- * and confirming they exist is no reason to dismantle it.
+ * name is the CANONICAL of keeps its OWN other spellings — that entry is that
+ * person's own identity, and confirming they exist is no reason to dismantle it.
+ *
+ * 🛑 `me` is who is disagreeing, and without it the undo only works in one direction
+ * (step 9.1). A fusion recorded on the OTHER machine is filed under THEIR name, with
+ * mine as the alias — so "Claire and I are not the same person", run from my keyboard,
+ * has to lift ME out of THEIR entry. Before this it left that entry alone, the fusion
+ * survived the correction, and the notice offering the command would have repeated
+ * forever. Omitted, the old one-directional behaviour stands.
  */
-export function markDistinct(state, name) {
+export function markDistinct(state, name, me) {
   const slug = nameSlug(name);
   if (slug === null) return { ok: false, reason: "unusable", state, changed: false };
 
+  const mine = nameSlug(me);
   const { identities } = state;
   const unfused = identities.map((entry) => {
     const aka = Array.isArray(entry?.aka) ? entry.aka : [];
-    const kept = aka.filter((alias) => nameSlug(alias) !== slug);
+    // Their entry, seen from my keyboard: what has to go is ME, not them.
+    const theirs = nameSlug(entry?.name) === slug && mine !== null;
+    const dropped = theirs ? mine : slug;
+    const kept = aka.filter((alias) => nameSlug(alias) !== dropped);
     return kept.length === aka.length ? entry : { ...entry, aka: kept };
   });
   const fusionUndone = unfused.some((entry, i) => entry !== identities[i]);

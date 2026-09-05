@@ -22,6 +22,7 @@ import {
   isAcknowledged,
   markDistinct,
   readAuthorsState,
+  unendorsedFusions,
   writeAuthorsState,
 } from "./author-identities.mjs";
 
@@ -399,4 +400,152 @@ test("nobody is acknowledged by a registry nobody has answered for", () => {
 test("a nameless name matches nothing, not even another nameless one", () => {
   assert.equal(isAcknowledged(stateWith([], ["✨"]), "🌟"), false);
   assert.equal(isAcknowledged(stateWith([], ["✨"]), "✨"), false);
+});
+
+// ── Who ANSWERED, and why the registry has to remember it (step 9.1) ──────────
+//
+// 🛑 THE HOLE THIS CLOSES. Fusing is convergent on purpose — answering on either
+// machine settles it — so a wrong "it's the same person" recorded on the NEWCOMER's
+// machine resolves both names to one canonical, `everyone()` counts one person, and
+// the owner's machine then emits NOTHING AT ALL: no question, no reminder, no arrival
+// banner. It grants nobody any access (that is the git host's, ADR 0042), but it hides
+// a second person's arrival, which is the one thing a filing mechanism can honestly
+// prevent. So an entry remembers WHO answered for it, and a keyboard that never
+// endorsed it is told.
+
+test("a fusion remembers who answered it", () => {
+  const res = fuseAuthors(stateWith(), ME, MY_OTHER_MAC, ME);
+
+  assert.deepEqual(res.state, stateWith([{ name: ME, aka: [MY_OTHER_MAC], confirmedBy: [ME] }]));
+});
+
+test("a fusion answered by nobody in particular records nobody", () => {
+  const res = fuseAuthors(stateWith(), ME, MY_OTHER_MAC);
+
+  assert.deepEqual(res.state, stateWith([{ name: ME, aka: [MY_OTHER_MAC] }]));
+});
+
+// The endorsement path: the whole notice below is silenced by answering the ordinary
+// way, so nothing new has to be typed and no per-machine marker is invented.
+test("a second person endorsing an existing fusion is appended, and that IS a change", () => {
+  const hers = fuseAuthors(stateWith(), HER, ME, HER).state;
+
+  const res = fuseAuthors(hers, ME, HER, ME);
+
+  assert.equal(res.changed, true, "the endorsement must reach the disk, and the other machine");
+  assert.deepEqual(res.state, stateWith([{ name: HER, aka: [ME], confirmedBy: [HER, ME] }]));
+});
+
+test("the same person endorsing twice changes nothing", () => {
+  const once = fuseAuthors(stateWith(), ME, MY_OTHER_MAC, ME).state;
+
+  const twice = fuseAuthors(once, ME, MY_OTHER_MAC, ME);
+
+  assert.equal(twice.changed, false);
+  assert.deepEqual(twice.state, once);
+});
+
+test("endorsing is by PERSON, not by spelling: the same human's other Mac is not a second endorser", () => {
+  const once = fuseAuthors(stateWith(), ME, MY_OTHER_MAC, ME).state;
+
+  const res = fuseAuthors(once, ME, MY_OTHER_MAC, "  thomas   PIERRAIN ");
+
+  assert.equal(res.changed, false, "one human, one endorsement, however they spell it that day");
+});
+
+test("a fusion nobody at this keyboard endorsed is named, with the spellings it merged", () => {
+  const hers = fuseAuthors(stateWith(), HER, ME, HER).state;
+
+  assert.deepEqual(unendorsedFusions(hers, ME), [{ name: HER, aka: [ME], confirmedBy: [HER] }]);
+});
+
+test("and it goes quiet the moment this keyboard endorses it", () => {
+  const hers = fuseAuthors(stateWith(), HER, ME, HER).state;
+  const endorsed = fuseAuthors(hers, ME, HER, ME).state;
+
+  assert.deepEqual(unendorsedFusions(endorsed, ME), []);
+});
+
+// 🛑 Compared by RAW name, never through the registry: resolving `me` through
+// `identities` would let the very fusion under review vouch for itself — Claire and
+// Thomas ARE one person according to the entry being questioned.
+test("the fusion under review cannot vouch for itself", () => {
+  const wrong = fuseAuthors(stateWith(), HER, ME, HER).state;
+
+  assert.equal(unendorsedFusions(wrong, ME).length, 1, "resolved through identities, this would be 0");
+});
+
+test("a brain that fused names before this shipped is not nagged about its own past", () => {
+  const legacy = stateWith([{ name: ME, aka: [MY_OTHER_MAC] }]);
+
+  assert.deepEqual(unendorsedFusions(legacy, HER), [], "no recorder means endorsed, not suspect");
+});
+
+test("an entry with no alias is an identity, not a fusion, and is never questioned", () => {
+  const alone = stateWith([{ name: HER, aka: [], confirmedBy: [HER] }]);
+
+  assert.deepEqual(unendorsedFusions(alone, ME), []);
+});
+
+test("a damaged recorder list costs the notice and nothing else", () => {
+  const damaged = stateWith([
+    { name: HER, aka: [ME], confirmedBy: "Claire Dubois" },
+    { name: "Amina Haddad", aka: [ME], confirmedBy: [] },
+  ]);
+
+  assert.deepEqual(unendorsedFusions(damaged, ME), []);
+});
+
+test("a keyboard with no name of its own is asked nothing", () => {
+  const hers = fuseAuthors(stateWith(), HER, ME, HER).state;
+
+  assert.deepEqual(unendorsedFusions(hers, ""), []);
+  assert.deepEqual(unendorsedFusions(hers, "✨"), []);
+});
+
+test("the recorder survives the round trip through the disk", () => {
+  const io = fakeFs();
+  const state = fuseAuthors(stateWith(), ME, MY_OTHER_MAC, ME).state;
+
+  writeAuthorsState(io, DIR, state);
+
+  assert.deepEqual(readAuthorsState(io, DIR), state);
+});
+
+// ── Splitting, in the direction the notice actually offers (step 9.1) ─────────
+//
+// 🛑 Thomas reads "on another machine, Claire Dubois and Thomas Pierrain were declared
+// to be the same person" and disagrees. The command he is given must WORK: before this,
+// `--different "Claire Dubois"` left alone the entry Claire is the canonical of — the
+// exact entry that had swallowed him — so the fusion survived his correction and the
+// notice would have repeated forever.
+
+test("splitting from someone drops ME from THEIR entry too", () => {
+  const hers = fuseAuthors(stateWith(), HER, ME, HER).state;
+
+  const res = markDistinct(hers, HER, ME);
+
+  assert.equal(res.changed, true);
+  assert.deepEqual(res.state, stateWith([{ name: HER, aka: [], confirmedBy: [HER] }], [HER]));
+});
+
+test("splitting still leaves a person's OWN other spellings alone", () => {
+  const tangled = fuseAuthors(stateWith(), HER, "claire", HER).state;
+
+  const res = markDistinct(tangled, HER, ME);
+
+  assert.deepEqual(res.state, stateWith([{ name: HER, aka: ["claire"], confirmedBy: [HER] }], [HER]));
+});
+
+// 🛑 Grandfathering means never touching it. A fusion recorded before step 9.1 lists
+// no endorser, is taken as endorsed everywhere, and re-answering it must stay the
+// no-op it has always been — otherwise every such brain writes and COMMITS a file
+// nobody asked a question about.
+test("re-answering a fusion that records nobody stays a no-op", () => {
+  const legacy = stateWith([{ name: ME, aka: [MY_OTHER_MAC] }]);
+
+  const res = fuseAuthors(legacy, ME, MY_OTHER_MAC, ME);
+
+  assert.equal(res.changed, false);
+  assert.deepEqual(res.state, legacy);
 });

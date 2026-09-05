@@ -22,6 +22,7 @@ import {
   canonicalAuthor,
   distinctAuthors,
   duoConfirmedNotice,
+  fusionElsewhereQuestion,
   GIT_AUTHOR_ARGS,
   GIT_AUTHORS_ARGS,
   isSamePerson,
@@ -279,6 +280,17 @@ test("a confirmed duo is told what changes, once, and that nothing had to be swi
   assert.match(said, /nothing to switch on|switch on/i);
 });
 
+// 🛑 Step 9.2. The confirmation is the ONE moment a duo is spoken about out loud, so it
+// is where the owner learns what nothing else tells them: this person can write here
+// because they were added to the repository, and that is where it is taken back. ADR
+// 0042 — the brain files, the git host decides who may. An alert, never a permission.
+test("the confirmation says where the access came from, and how to take it back", () => {
+  const said = duoConfirmedNotice(HER);
+
+  assert.match(said, /repositor/i, "where the access came from");
+  assert.match(said, /remov|revok/i, "and how it ends");
+});
+
 // ── The hook output ───────────────────────────────────────────────────────────
 
 test("nothing to say produces no output at all, so a solo brain's session start is untouched", () => {
@@ -475,4 +487,78 @@ test("a real second person is still counted, announced and named, registry or no
   assert.match(line, /^More than one person writes here \(Thomas Pierrain, Claire Dubois\)\./);
   assert.doesNotMatch(line, new RegExp(ME_ON_THE_OTHER_MAC), "the alias is not a third name in the list");
   assert.match(secondAuthorQuestion({ authors: [ME, HER], me: ME, identities: IDENTITIES }), new RegExp(HER));
+});
+
+// ── A fusion decided on the OTHER machine, said out loud here (step 9.1) ──────
+//
+// 🛑 The hole this closes: a fusion is convergent on purpose, so "it's the same
+// person" answered on the newcomer's machine makes two humans resolve to one, and
+// this machine then says NOTHING — no roll call, no question, no arrival banner. The
+// access was never in question (ADR 0042: that is the git host's), but a second
+// person's arrival must not be hideable by an answer nobody here endorsed.
+
+const fusedByHer = [{ name: HER, aka: [ME], confirmedBy: [HER] }];
+
+test("a fusion this keyboard never endorsed is put to the human, with both ways out", () => {
+  const said = fusionElsewhereQuestion({ identities: fusedByHer, me: ME });
+
+  assert.match(said, /another machine/i);
+  assert.match(said, /Claire Dubois/);
+  assert.match(said, /Thomas Pierrain/);
+  assert.match(said, /--same-person "Claire Dubois"/, "the way to agree");
+  assert.match(said, /--different "Claire Dubois"/, "the way to disagree, naming THEM, not me");
+  assert.match(said, /their language/i, "said to the human, in theirs");
+});
+
+test("nothing is said about a fusion this keyboard endorsed", () => {
+  const both = [{ name: HER, aka: [ME], confirmedBy: [HER, ME] }];
+
+  assert.equal(fusionElsewhereQuestion({ identities: both, me: ME }), null);
+});
+
+test("nothing is said about a registry that records no fusion at all", () => {
+  assert.equal(fusionElsewhereQuestion({ identities: [], me: ME }), null);
+  assert.equal(fusionElsewhereQuestion({ identities: [{ name: ME, aka: [] }], me: ME }), null);
+  assert.equal(fusionElsewhereQuestion({ me: ME }), null);
+});
+
+test("a keyboard with no name of its own is asked nothing", () => {
+  assert.equal(fusionElsewhereQuestion({ identities: fusedByHer, me: "" }), null);
+});
+
+// Volume is the defect (F5): this is echoed verbatim to a CLI owner before they have
+// typed a word, so a brain handed round a team must not open every session with a list.
+test("many unendorsed fusions are named up to three, then counted", () => {
+  const many = ["Amina Haddad", "Bruno Costa", "Chen Wei", "Dara Okoye"].map((name) => ({
+    name,
+    aka: [ME],
+    confirmedBy: [name],
+  }));
+
+  const said = fusionElsewhereQuestion({ identities: many, me: ME });
+
+  assert.match(said, /Amina Haddad/);
+  assert.match(said, /\+1/);
+  assert.doesNotMatch(said, /Dara Okoye/);
+});
+
+test("the third thing there is to say rides the same two channels", () => {
+  const out = buildAuthorsHookOutput({ reminder: "R", question: "Q", fusion: "F" });
+
+  assert.deepEqual(out, {
+    hookSpecificOutput: {
+      hookEventName: "SessionStart",
+      additionalContext: "[authors] R\n\n[authors — ask, never guess] Q\n\n[authors — decided elsewhere] F",
+    },
+    systemMessage: "R\nQ\nF",
+  });
+});
+
+test("a fusion decided elsewhere is worth a session start on its own", () => {
+  const out = buildAuthorsHookOutput({ fusion: "F" });
+
+  assert.deepEqual(out, {
+    hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: "[authors — decided elsewhere] F" },
+    systemMessage: "F",
+  });
 });

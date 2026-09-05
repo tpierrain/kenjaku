@@ -31,6 +31,7 @@ import { readAuthorsState } from "./lib/author-identities.mjs";
 import {
   authorsReminder,
   buildAuthorsHookOutput,
+  fusionElsewhereQuestion,
   GIT_AUTHORS_ARGS,
   localAuthorName,
   secondAuthorQuestion,
@@ -72,7 +73,12 @@ export function sessionAuthorsNotice({ authors, me, state, emit }) {
       identities: answers.identities,
       distinct: answers.distinct,
     });
-    output = buildAuthorsHookOutput({ reminder, question });
+    // Third, and the only one of the three that can fire ALONE: a fusion recorded on
+    // the other machine silences both lines above by construction — it makes two
+    // humans resolve to one — so this is the session start that would otherwise say
+    // nothing at all (step 9.1).
+    const fusion = fusionElsewhereQuestion({ identities: answers.identities, me: here });
+    output = buildAuthorsHookOutput({ reminder, question, fusion });
   } catch {
     // Fail-open: session start belongs to the owner, not to this hook. Nothing was
     // built, so `output` is still null, nothing is emitted, and the 0 below is the

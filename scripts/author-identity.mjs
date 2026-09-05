@@ -127,9 +127,15 @@ export function runAuthorIdentity(argv, deps = realAuthorIdentityDeps()) {
       );
       return 2;
     }
-    result = fuseAuthors(state, me, intent.name);
+    // The third argument is WHO is answering (step 9.1). It is what lets the other
+    // machine tell an answer of its own from one it merely received — and endorsing a
+    // fusion decided there is this same command, run here.
+    result = fuseAuthors(state, me, intent.name, me);
   } else {
-    result = markDistinct(state, intent.name);
+    // And disagreeing needs to know who is disagreeing, because a fusion recorded on
+    // the OTHER machine is filed under THEIR name with mine as the alias: without it,
+    // the entry that swallowed me is left alone and the correction changes nothing.
+    result = markDistinct(state, intent.name, deps.author());
   }
 
   if (!result.ok) {

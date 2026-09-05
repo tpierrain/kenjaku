@@ -122,8 +122,47 @@ test("the fusion is written under the name this machine is configured with", () 
   assert.equal(runAuthorIdentity(["--same-person", MY_OTHER_MAC], f.deps), 0);
 
   assert.deepEqual(readAuthorsState(f.deps.io, DIR), {
-    identities: [{ name: ME, aka: [MY_OTHER_MAC] }],
+    identities: [{ name: ME, aka: [MY_OTHER_MAC], confirmedBy: [ME] }],
     distinct: [],
+  });
+});
+
+// 🛑 Step 9.1. WHO answered is not bookkeeping: it is what lets the other machine
+// tell an answer of its own from one it merely received. Without it, a fusion decided
+// on a colleague's Mac lands here indistinguishable from one the owner typed.
+test("the answer records who gave it, at this keyboard", () => {
+  const f = fakes({}, committing(FUSED));
+
+  runAuthorIdentity(["--same-person", MY_OTHER_MAC], f.deps);
+
+  assert.deepEqual(readAuthorsState(f.deps.io, DIR).identities[0].confirmedBy, [ME]);
+});
+
+// The endorsement path: agreeing with a fusion decided elsewhere is the SAME command,
+// so nothing new has to be learned and no per-machine marker is invented.
+test("endorsing a fusion decided elsewhere appends me, and travels like any answer", () => {
+  const hers = JSON.stringify({ identities: [{ name: HER, aka: [ME], confirmedBy: [HER] }], distinct: [] });
+  const f = fakes({ [PATH]: hers }, committing(`auto: ${HER} is Thomas Pierrain on another machine`));
+
+  assert.equal(runAuthorIdentity(["--same-person", HER], f.deps), 0);
+
+  assert.deepEqual(readAuthorsState(f.deps.io, DIR).identities, [{ name: HER, aka: [ME], confirmedBy: [HER, ME] }]);
+  assert.ok(f.events.includes("git add -A -- .vault-rag"), "an endorsement that stays here endorses nothing");
+});
+
+// 🛑 And disagreeing must WORK. A fusion recorded on the other machine is filed under
+// THEIR name with mine as the alias, so the command the notice offers has to lift ME
+// out of THEIR entry. It used to leave that entry alone: the fusion survived the
+// correction, and the notice would have repeated forever.
+test("saying they are someone else lifts me out of the entry their machine filed me into", () => {
+  const hers = JSON.stringify({ identities: [{ name: HER, aka: [ME], confirmedBy: [HER] }], distinct: [] });
+  const f = fakes({ [PATH]: hers }, committing(CONFIRMED));
+
+  assert.equal(runAuthorIdentity(["--different", HER], f.deps), 0);
+
+  assert.deepEqual(readAuthorsState(f.deps.io, DIR), {
+    identities: [{ name: HER, aka: [], confirmedBy: [HER] }],
+    distinct: [HER],
   });
 });
 
@@ -199,7 +238,9 @@ test("a commit that fails is said out loud, and the answer still stands on disk"
   assert.equal(runAuthorIdentity(["--same-person", MY_OTHER_MAC], f.deps), 0, "the answer IS recorded");
 
   assert.ok(only(f.said).includes(ANSWER_NOT_COMMITTED_WARNING.trim()), only(f.said));
-  assert.deepEqual(readAuthorsState(f.deps.io, DIR).identities, [{ name: ME, aka: [MY_OTHER_MAC] }]);
+  assert.deepEqual(readAuthorsState(f.deps.io, DIR).identities, [
+    { name: ME, aka: [MY_OTHER_MAC], confirmedBy: [ME] },
+  ]);
 });
 
 test("a paused merge defers the commit, and that is said calmly rather than as a failure", () => {
@@ -466,7 +507,7 @@ test("as a process, the answer lands in the brain's own .vault-rag and is commit
   runIn(root, "author-identity.mjs", ["--same-person", MY_OTHER_MAC]);
 
   assert.deepEqual(JSON.parse(readFileSync(join(root, ".vault-rag", "authors.json"), "utf8")), {
-    identities: [{ name: ME, aka: [MY_OTHER_MAC] }],
+    identities: [{ name: ME, aka: [MY_OTHER_MAC], confirmedBy: [ME] }],
     distinct: [],
   });
   const log = gitIn(root)("log", "-1", "--format=%s").stdout.trim();
