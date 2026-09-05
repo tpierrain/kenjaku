@@ -75,7 +75,44 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
   does not add noise, it adds **points**. This is the register's own durable rule, and the second time
   it has bitten: *"treat a suite that is not deterministic under load as a broken instrument, and fix it
   before believing any number it produced"*. Batch A's 92.83 % first pass is under the same doubt.
-- ✅ **THE DEFECT IS FIXED, TEST-FIRST, GREEN AND PUSHED** _(2026-09-05, `045bd3f`, the owner's call:
+- 🛑🛑 **THE FIX WAS REVERTED, AND WHAT REPLACES IT IS A QUESTION FOR THE OWNER** _(2026-09-05,
+  `162ec93`)_. Both repairs of the stdin race break something that outranks the race, and the
+  constraint they break is **already written down**: **ADR 0028** — *"the check must **never slow
+  session start**"*, plus his words today, *"ça doit démarrer vite, ça doit répondre vite … si on se
+  trompe parce qu'on n'a pas d'informations fraîches, on se corrige une à deux minutes après, mais sans
+  bloquer"*.
+  - **`tty.isatty(0)`** asks the terminal question correctly and leaves fd 0 **blocking** — and a
+    blocking read of a pipe nobody writes to waits for a close that may never come. **Measured: the
+    suite went from ~50 s to over 10 minutes**, because tests spawn these hooks without writing their
+    stdin. In production that shape is a **hung session start**, far worse than a stale announcement.
+  - **Unblocking fd 0 deliberately + polling a 200 ms budget** stays fast and **still misses the
+    payload** (probe: 200 ms late → stale universe announced anyway).
+- ❗ **THE REAL SUBJECT IS THE BARRIER ITSELF, AND IT IS BIGGER THAN THE RACE.** `waitForStartupSync`
+  makes the universe hook **wait for the git pull to finish** before it reads which universe is active:
+  grace 3 s, **ceiling 12 s**. That is a session start that blocks on the network, shipped in this
+  release, and it is in direct tension with ADR 0028. **The race is only what happens when that wait is
+  accidentally skipped** — fixing the race makes the blocking MORE reliable, which is the wrong
+  direction if the wait should not exist.
+  - **The alternative the ADR already models** (it is how the health check works): announce what is on
+    disk **instantly**, let the pull land in the background, and **correct at the next message** — the
+    live-sync announcement channel this release built is exactly that. Cost: for a few seconds the
+    announced universe can be yesterday's. Benefit: no session start ever waits on a network call.
+  - ❓ **The owner's call, and nothing else is blocked on it**: keep the barrier (and accept both the
+    slow start and an unfixable-without-blocking race), or drop it for announce-then-correct.
+  - 🧪 **A measurement he asked for and we do not have**: whether Claude **Desktop** hands the hook its
+    payload the same way the CLI does. If Desktop is slower to write fd 0, the race is not rare there,
+    it is the normal case. A probe hook that records what it received would answer it in one session —
+    **not wired anywhere yet**, and it must not be installed into either of his real brains.
+- ⚠️ **THE FLAKE IS BACK, BECAUSE THE DEFECT IS BACK**: `session-universe.test.mjs:334` fails about
+  1 run in 8 under load (and 3 of 5 when the file is run alone on a busy machine). **No mutation score
+  can be trusted until the call above is made** — every mutant re-runs the whole suite, and an
+  intermittent failure counts as a kill.
+- 🗂️ **NOTHING WAS LOST IN THE REVERT.** The mechanism, both rejected repairs and their measurements
+  live where the next reader meets them: a **characterisation test** pinning today's behaviour as the
+  known limit, a note beside the racing process-level test, and a warning in `readHookPayload` itself
+  saying not to "fix" this without reading ADR 0028 first.
+- 📉 **~~THE DEFECT IS FIXED~~ — superseded by the two blocks above, kept for the reasoning**
+  _(2026-09-05, `045bd3f`, the owner's call:
   *"corriger le vrai défaut"* rather than stabilising the test)_. The cause was one property read:
   `readHookPayload` asked *"is fd 0 a terminal?"* through `process.stdin.isTTY`, and **reading that
   property builds the stdin stream, which switches fd 0 to non-blocking**. `readFileSync(0)` then

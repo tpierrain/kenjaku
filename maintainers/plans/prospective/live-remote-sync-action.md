@@ -127,6 +127,17 @@ the rehearsal against a copy of a real brain.
 > _(This block used to say 8.8 was outstanding; it was, until that morning.)_ **Nothing on either plan
 > is owed by a session before the tag.**
 >
+> 🐛 **THE BARRIER THIS PLAN BUILT HAD A HOLE, FOUND AND FIXED 2026-09-05** _(`045bd3f`)_. Steps 5–7
+> above record the wait that stops the universe announcement from running ahead of the pull, and record
+> it as proven. It was proven only for the case where the hook **wins** the race against the harness
+> writing its payload to fd 0. It did not always win, and when it lost it announced the pre-pull
+> universe without waiting at all. **Cause**: `readHookPayload` asked *"is fd 0 a terminal?"* through
+> `process.stdin.isTTY`, which BUILDS the stdin stream and thereby switches fd 0 to non-blocking; the
+> read then failed with EAGAIN and was swallowed as *"no payload"*. The guard against hanging at a
+> terminal was what broke reading from a pipe. **The WHY lives here because the barrier does**; the
+> measurement fallout and the owner's call are in
+> [`duo-v51-safeguards-action.md`](duo-v51-safeguards-action.md), which owns the live state.
+>
 > ✍️ **ONE DOC THREAD IS OPEN, AND IT IS NOT A BLOCKER** _(2026-09-05, from the owner reading the duo
 > surface aloud)_. Two ambiguities he found in the perimeter prose, both about *whose* tools are
 > meant:
