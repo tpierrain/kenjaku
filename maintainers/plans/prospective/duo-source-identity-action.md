@@ -646,6 +646,9 @@ This is the honest statement of the perimeter.
         encoding that `JSON.parse` cannot tell apart.
   - [ ] **Batch B re-measured on the final code** _(running from 04:05)_, since the fixes moved
         production there too. Log `v510-duo-batch-b2`. **It is the last thing 8.8 is waiting on.**
+        _(Started 04:05, killed by the environment before it wrote a line — no log, nothing to read —
+        and relaunched at 04:25. Noted because a run that produces no log is invisible afterwards:
+        the only trace it ever happened is this line.)_
   - [ ] **Superseded, kept for the record**: `v510-duo-batch-a2` over the three files, and
         `v510-duo-batch-b` over the ranges step 8 CHANGED in files that already existed
         (`session-authors`, both `dated-note-path`, both `remote-sync`, `universe-persist`).
