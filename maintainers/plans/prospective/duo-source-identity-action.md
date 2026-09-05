@@ -46,9 +46,10 @@ below, and the release is held until it lands.**
   survivors are answered (deleted where unreachable, tested where real, `24fa9cc`), and the
   re-measurement of the three new files reads **98.26 %** with its last two real survivors closed.
   The second measurement, over the ranges step 8 changed in files that already existed, came back at
-  **92.02 %** and its three real survivors are closed. **What remains is one confirmation pass**: both
-  target lists re-measured on the final code, since those fixes moved production in both. Nothing is
-  expected to change but the numbers that go into `RESULTS.md`, the release note and the PR body. The sub-checkboxes under 8.8 carry the detail. **Nothing else on this
+  **92.02 %** and its three real survivors are closed. **The three new files re-measured at 98.92 %**, their five
+  remaining survivors being exactly the equivalents already named. **What 8.8 waits on is the same
+  confirmation pass over batch B**, running; then `RESULTS.md` gains its section and the release note
+  and the PR body gain their figures, in one commit. The sub-checkboxes under 8.8 carry the detail. **Nothing else on this
   plan is open**; when those come back at this release's standard, `RESULTS.md` gains its section and
   **both** surfaces that quote figures gain them in the same commit: the release note's *Quality*
   paragraph and [`release-v5.1.0-pr-body.md`](release-v5.1.0-pr-body.md)'s *Quality evidence*, whose
@@ -638,8 +639,13 @@ This is the honest statement of the perimeter.
         reads the REAL file was exercised nowhere, while its only visible effect is a desktop banner
         no test may raise — it is now driven directly against a brain the test owns. Both mutants
         hand-applied and seen to die.
-  - [ ] **Both batches re-measured on the FINAL code** _(running from 03:30)_, since the fixes above
-        moved production in both target lists. Logs `v510-duo-batch-a3` and `v510-duo-batch-b2`.
+  - [x] **The three new files, final: 98.92 %** _(2026-09-05, `v510-duo-batch-a3`)_ — 457 killed,
+        **5 survived**, 0 timeout: `author-identities` **98.66 %**, `brain-author` **98.90 %**,
+        `author-identity` **99.24 %**. The five are exactly the equivalents named above and no others:
+        four `[]` fallbacks a mutant fills with a name no fixture uses, and the `readFileSync`
+        encoding that `JSON.parse` cannot tell apart.
+  - [ ] **Batch B re-measured on the final code** _(running from 04:05)_, since the fixes moved
+        production there too. Log `v510-duo-batch-b2`. **It is the last thing 8.8 is waiting on.**
   - [ ] **Superseded, kept for the record**: `v510-duo-batch-a2` over the three files, and
         `v510-duo-batch-b` over the ranges step 8 CHANGED in files that already existed
         (`session-authors`, both `dated-note-path`, both `remote-sync`, `universe-persist`).
