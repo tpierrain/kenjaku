@@ -28,11 +28,15 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
   unreachable for the same reason at both its call sites. **They are equivalents, and the honest
   simplification is to DELETE those guards** — not done here, deliberately: it changes production on a
   held release for three mutants. Left as a named candidate for the next pass.
-- ▶️ **RESUME HERE: re-run batch A to confirm**, then the two batches after it (below). The command is
-  unchanged: `node maintainers/mutation/mutate-one.mjs scripts/lib/author-identities.mjs
-  scripts/lib/brain-author.mjs` — ~61 min, and it must have the machine to itself. Expect **10
-  survivors, all named equivalents**; anything else is a mutant the new tests did not reach, and it is
-  read, not waved through.
+- ▶️ **RESUME HERE: the confirming re-run of batch A WAS LEFT RUNNING** _(2026-09-05 ~11:35, on
+  `b06991d`, ~61 min)_. **Its verdict is a FILE this time, not a lost terminal**:
+  `maintainers/mutation/reports/v510-95-batch-a2.stdout.log` holds the runner's own ✅/❌ line and the
+  per-file scores; the raw Stryker output is `reports/mutate-one-author-identities+1.log` beside it.
+  Read the stdout file first. **If it is absent or truncated, the run did not finish** — re-run
+  `node maintainers/mutation/mutate-one.mjs scripts/lib/author-identities.mjs
+  scripts/lib/brain-author.mjs`, and give it the machine to itself.
+  **Expect 10 survivors, all of them the named equivalents below.** Anything else is a mutant the new
+  tests did not reach: read it, do not wave it through.
 - 📖 **What the 22 killable ones were, kept because the re-run must be checked against it.** Ten are
   equivalents of the class 8.8 named (an `[]` fallback filled with `["Stryker was here"]`, whose one
   element every consumer skips: `author-identities` 52:89, 194:47, 228:76, 262:57; `brain-author`
