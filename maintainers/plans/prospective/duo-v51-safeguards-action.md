@@ -35,16 +35,24 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
   tenth, `brain-author` **70:56**, was **killed**: it had been filed as an equivalent and that reading
   was wrong. Recorded in `RESULTS.md` with the durable point (naming the expected survivors before the
   re-run is what makes the re-run a check that can fail).
-- 🧳 **BATCH B WAS ALMOST CERTAINLY KILLED MID-RUN** _(2026-09-05 ~12:15: the owner left with the
-  laptop)_. **Assume it produced nothing and simply relaunch it** — a mutation run does not survive the
-  machine sleeping, and there is nothing to salvage or repair. Nothing else is affected: every commit
-  was pushed before the machine closed, and the only cost is the hour of compute.
-- ▶️ **RESUME HERE: BATCH B IS RUNNING** _(launched 2026-09-05 12:03, `scripts/session-authors.mjs`
-  + `scripts/author-identity.mjs`, ~1 h → **verdict expected ~13:05**)_. Its verdict is the file
-  `maintainers/mutation/reports/v510-95-batch-b.stdout.log` (the runner's own ✅/❌ line and per-file
-  scores). **If it is absent or stops at the launch line, the run did not finish** — check `ps` for a
-  live `stryker` before concluding it died, then re-run `node maintainers/mutation/mutate-one.mjs
-  scripts/session-authors.mjs scripts/author-identity.mjs` and give it the machine to itself.
+- 🧳 **BATCH B's FIRST ATTEMPT SURVIVED THE TRIP AND IS STILL WORTHLESS — the runner said so itself**
+  _(launched 12:03, returned **14:47** instead of ~13:05, because the laptop travelled in a bag in
+  between)_. Verdict: **`❌ 58 of 163 mutants TIMED OUT (36 %) — the 96.32 % is starved CPU, not killed
+  mutants`**. **Do not quote that 96.32 % anywhere.** Two things worth keeping from it:
+  - **The prediction written here — "assume the run died, relaunch it" — was wrong**, and wrong in the
+    comfortable direction: the process was alive the whole time. A sleeping machine does not kill a
+    mutation run, it **starves** it, and a starved run comes back looking like a result. The check is
+    never *"is the process still there"*: it is the runner's own ✅/❌ line, plus the wall-clock against
+    the expected duration.
+  - **This is exactly why `mutate-one.mjs` fails a run on its timeout ratio** rather than printing a
+    score. Without that guard, 96.32 % goes into the register and nobody ever finds out.
+- ▶️ **RESUME HERE: BATCH B IS RE-RUNNING ON AN IDLE MACHINE** _(relaunched 2026-09-05 14:48, same two
+  files, ~1 h → **verdict expected ~15:50**)_. Its verdict is the file
+  `maintainers/mutation/reports/v510-95-batch-b2.stdout.log` (the runner's own ✅/❌ line and per-file
+  scores); the first attempt's rejected output stays at `v510-95-batch-b.stdout.log` as the record.
+  **If it stops at the launch line, or comes back with a timeout ratio, it is not a result** — relaunch
+  `node maintainers/mutation/mutate-one.mjs scripts/session-authors.mjs scripts/author-identity.mjs`
+  and give it the machine to itself.
   ⚠️ **Read its survivors against the code, one by one, before calling any of them equivalent** — the
   batch above just proved that verdict can be wrong. **Note `session-authors.mjs` carries 2 known
   equivalents from 8.8** (it read 92.59 % there, hunk-scoped 44-109); this run is **whole-file**, so it
