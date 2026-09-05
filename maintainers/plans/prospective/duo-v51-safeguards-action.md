@@ -165,7 +165,12 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
   - **The test that would have caught it now exists**: the old process-level test handed the payload
     over the instant it spawned, so it only ever proved the barrier holds when the hook **wins** that
     race, and nothing promises it does. The new one hands it over late.
-- ▶️ **THE NEXT WORK IS 9.5, AND IT STARTS WITH BATCH A, ON THE CURRENT CODE.** _(The 15:29 relaunch
+- ⏳ **BATCH A IS RUNNING, on `a5a1cee`** _(launched 2026-09-05 ~22:55, ~1 h, log
+  `reports/v510-95-batch-a4.stdout.log`; the machine was checked for orphans first, none)_. The
+  instrument is sound again — the flaky test is deleted, and the whole suite is green under load.
+  **Read the runner's own ✅/❌ line and the wall-clock, never "is the process still alive"**: a starved
+  run comes back looking like a result.
+- ▶️ **THE ORDER FOR 9.5, AND IT STARTS WITH BATCH A, ON THE CURRENT CODE.** _(The 15:29 relaunch
   named below ran against the stdin repair that was afterwards **reverted**, so whatever it returned is
   about code nobody has: it is not the measurement, and the run has to be redone from today's HEAD.)_
   Before launching anything: `ps aux | grep input-type=module` for orphans, then **one run at a time**.
