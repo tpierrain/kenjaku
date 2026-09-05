@@ -85,7 +85,9 @@ export function runDatedNotePath(argv, deps = realDatedNotePathDeps) {
   // The answers the owner gave about their own names, if any. Unreadable ones cost
   // the fusion and nothing else — the same fail-open direction as everywhere else
   // this registry is consulted.
-  let identities = [];
+  // Declared without an initial value, like `notes` below and for the same reason: a
+  // default both branches overwrite is dead code wearing the shape of a default.
+  let identities;
   try {
     identities = deps.identities();
   } catch {

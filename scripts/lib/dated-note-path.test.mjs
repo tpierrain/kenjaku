@@ -62,6 +62,19 @@ test("one person spelled two ways is one person, so no suffix appears", () => {
 // name nobody can predict. A note that predates this rule names no author, and a git
 // author name with no Latin letters has no slug: in both cases the honest answer is
 // the shared file and a union merge, which is visible, and not an invented path.
+// A vault is a folder of text files somebody can open and edit, so `author:` can come
+// back as a number, a date or a list. That is a note this rule cannot place — never a
+// crash in the command that tells the agent where to write.
+test("a note whose author field is not a name at all still lands on the shared file", () => {
+  for (const author of [42, true, { name: "Claire" }, ["Claire"]]) {
+    assert.deepEqual(
+      datedNotePath({ folder: "daily", date: DAY, author: "Claire Dubois", base: { author } }),
+      { path: "daily/2026-09-02.md", suffixed: false },
+      `on ${JSON.stringify(author)}`,
+    );
+  }
+});
+
 test("a note that claims no author, and an author with no slug, both fall back to the shared file", () => {
   assert.deepEqual(datedNotePath({ folder: "daily", date: DAY, author: "Claire Dubois", base: { author: null } }), {
     path: "daily/2026-09-02.md",

@@ -86,11 +86,17 @@ export function isSamePerson(a, b, identities) {
   return left !== null && left === personSlug(b, identities);
 }
 
-// What `name` slugs to once the registry has had its say, or null when it is not a
-// name at all. Written as a type check rather than a default string: a placeholder
-// would make two ANONYMOUS callers slug identically, and "nobody === nobody" is the
-// one answer this comparison may never give.
-function personSlug(name, identities) {
+/**
+ * What `name` slugs to once the registry has had its say, or null when it is not a
+ * name at all — a missing author, a frontmatter field somebody typed a number into.
+ *
+ * Written as a type check rather than a `?? ""` default: a placeholder would make two
+ * ANONYMOUS callers slug identically, and *"nobody === nobody"* is the one answer this
+ * brain may never give — it would file a stranger's note into the owner's day and
+ * silence the banner about it. Exported because the note paths compare names too, and
+ * one notion of "who" means one place where a name becomes comparable.
+ */
+export function personSlug(name, identities) {
   const canonical = canonicalAuthor(name, identities);
   return typeof canonical === "string" ? slugSafe(canonical) : null;
 }

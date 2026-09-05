@@ -504,6 +504,35 @@ test("the tick's notifier is the real banner, bound to this platform and this en
   assert.match(spawned[0].args[1], /1 note from Claire/);
 });
 
+// 🛑 THE SEAM THE SHAPE TEST BELOW CANNOT JUDGE. Every tick test injects its own
+// `identities`, so the wiring that reads the REAL registry is exercised nowhere else —
+// and its only visible effect is a native banner, which a test may not raise. So it is
+// pinned here, on a brain this test owns: an answer on disk must come back from the
+// wiring rooted in that brain, or an owner's second Mac announces itself as a stranger.
+test("the wiring reads the owner's own answers, from the brain it is rooted in", (t) => {
+  const brain = realpathSync(mkdtempSync(join(tmpdir(), "kenjaku-tick-identities-")));
+  t.after(() => rmSync(brain, { recursive: true, force: true }));
+  mkdirSync(join(brain, ".vault-rag"), { recursive: true });
+  const answered = [{ name: "Thomas Pierrain", aka: ["tpierrain"] }];
+  writeFileSync(
+    join(brain, ".vault-rag", "authors.json"),
+    JSON.stringify({ identities: answered, distinct: ["Claire Dubois"] }),
+  );
+
+  const deps = realTickDeps(`file://${join(brain, "scripts", "remote-sync.mjs")}`, {}, () => ({ unref: () => {} }));
+
+  assert.deepEqual(deps.identities(), answered);
+});
+
+test("a brain that has answered nothing hands the tick an empty registry, never a failure", (t) => {
+  const brain = realpathSync(mkdtempSync(join(tmpdir(), "kenjaku-tick-identities-")));
+  t.after(() => rmSync(brain, { recursive: true, force: true }));
+
+  const deps = realTickDeps(`file://${join(brain, "scripts", "remote-sync.mjs")}`, {}, () => ({ unref: () => {} }));
+
+  assert.deepEqual(deps.identities(), []);
+});
+
 test("realTickDeps wires every seam the tick asks for, bound to the brain the module sits in", () => {
   // The spawn is handed in, and it MUST be: the notifier this wiring builds raises a native
   // desktop banner, so exercising it against the real one puts a popup on the screen of

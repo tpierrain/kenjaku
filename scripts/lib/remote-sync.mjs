@@ -158,7 +158,8 @@ function synchronise({ git, parts, readTrace, writeTrace, checkNote, push, notif
   // popped a real desktop banner at an owner about their own second Mac's notes, which
   // is the same defect as splitting their day in two, one surface over.
   const me = localAuthorName(git);
-  let confirmed = [];
+  // No initial value: one that both branches overwrite is a default nothing defaults to.
+  let confirmed;
   try {
     confirmed = identities();
   } catch {

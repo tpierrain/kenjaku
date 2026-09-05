@@ -24,8 +24,7 @@
 // this brain makes and which the live sync already speaks aloud ("1 note from
 // Claire arrived"). Nothing new is recorded, and no list of people is maintained.
 // ─────────────────────────────────────────────────────────────────────────────
-import { canonicalAuthor } from "./brain-author.mjs";
-import { slugSafe } from "./filed-note.mjs";
+import { personSlug } from "./brain-author.mjs";
 
 /** The frontmatter key a dated note stamps so the rule can read it back next time. */
 export const AUTHOR_FIELD = "author";
@@ -58,8 +57,8 @@ export function datedNotePath({ folder, date, author, base, identities }) {
   // header — a solo owner, even one with two Macs, never sees a suffix — is true
   // rather than hopeful: until the owner's answer was consulted here, it held only
   // while both machines happened to spell the name identically, and nothing checked.
-  const owner = base.author == null ? null : slugSafe(canonicalAuthor(base.author, identities) ?? "");
-  const mine = slugSafe(canonicalAuthor(author ?? "", identities) ?? "");
+  const owner = personSlug(base.author, identities);
+  const mine = personSlug(author, identities);
   // A note predating this rule names no author, and a name with no slug cannot be
   // spelled into a filename. Both degrade to the shared file — today's behaviour,
   // which is a union merge: visible, and not a path nobody expects.
