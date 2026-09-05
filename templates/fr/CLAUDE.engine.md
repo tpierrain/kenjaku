@@ -100,6 +100,7 @@ sous-arbre de cet univers, avec les mêmes dossiers de type imbriqués dedans, e
 type: daily | person | topic | decision | meeting
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
+author: <le nom que `git config --get user.name` donne sur CETTE machine>
 tags: [tag1, tag2]
 ---
 
@@ -107,6 +108,16 @@ tags: [tag1, tag2]
 
 Contenu en Markdown.
 ```
+
+> ✍️ **`author:` : à estampiller sur chaque note que tu écris, avec l'orthographe BRUTE configurée
+> dans le git de cette machine** (jamais une identité fusionnée : le registre résout les orthographes
+> à la lecture, et une fusion est une opinion corrigeable là où un nom estampillé est un fait sur qui
+> a tapé). Cela ne coûte rien sur un cerveau solo, et c'est ce qui rend deux choses possibles sur un
+> cerveau partagé : **la note datée par personne** (`dated-note-path.mjs` le relit, et une note qui
+> ne revendique personne retombe sur le fichier commun, donc la règle cesse discrètement d'exister)
+> et, plus tard, **pouvoir répondre « qu'est-ce que cette personne a écrit »** depuis les notes
+> plutôt que par l'archéologie git. `file-back-note.mjs` l'estampille pour toi ; les notes que tu
+> écris directement sont à toi de les estampiller. Absent veut dire INCONNU, jamais « personne ».
 
 ### Backlinks Obsidian
 

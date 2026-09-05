@@ -21,6 +21,8 @@
 import { readFileSync, existsSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
+import { localAuthorName } from "./lib/brain-author.mjs";
+import { defaultGit } from "./lib/engine-fetch.mjs";
 import { renderFiledNote, homonymCards, CONFIDENCE } from "./lib/filed-note.mjs";
 import { runAsEntrypoint } from "./lib/entrypoint.mjs";
 import { notesHoldingSource } from "./lib/source-key.mjs";
@@ -94,6 +96,10 @@ export const realFileBackDeps = {
   // 0041). The NOTES, never the index: a note that arrived over git seconds ago is
   // not indexed yet, and that is exactly the case this guard exists for.
   vaultNotes: () => readVaultNotes(join(process.cwd(), "vault")),
+  // ONE notion of "who is at this keyboard" for the whole brain (brain-author.mjs),
+  // rooted with `-C` like every other git call here: a command run in the wrong
+  // directory succeeds, it just answers about somewhere else.
+  author: () => localAuthorName((args) => defaultGit(["-C", process.cwd(), ...args])),
   writeFile: (p, content) => {
     mkdirSync(dirname(p), { recursive: true });
     writeFileSync(p, content);
@@ -130,7 +136,10 @@ export function runFileBack(argv, deps = realFileBackDeps) {
 
   let note;
   try {
-    note = renderFiledNote({ ...spec, today: deps.today(), universe: deps.universe() });
+    // WHO is filing, stamped on the note (step 9.4). Read here rather than accepted
+    // from the spec: the caller is a model, and a note's author is a fact about the
+    // machine, not something to be told.
+    note = renderFiledNote({ ...spec, today: deps.today(), universe: deps.universe(), author: deps.author() });
   } catch (err) {
     deps.error(`✗ ${err.message}`);
     return 1;

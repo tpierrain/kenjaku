@@ -205,6 +205,15 @@ export function renderFiledNote(spec) {
     `created: ${spec.today}`,
     `updated: ${spec.today}`,
     `tags: [${spec.tags.join(", ")}]`,
+    // WHO wrote it, on the note itself (step 9.4). Git history already answers this
+    // as archaeology, but a note that is moved, copied or re-filed loses its history
+    // and keeps its frontmatter — and two people sharing one brain will one day want
+    // it answered per note. The RAW spelling this machine's git gives, never resolved
+    // through the identity registry: a fusion is a correctable opinion, a stamped name
+    // is a fact about who typed, and resolving belongs at read time. Absent means
+    // UNKNOWN, like the source keys below: a nameless machine must still be able to
+    // file, and an empty stamp would claim nobody wrote it.
+    ...(typeof spec.author === "string" && spec.author.trim() !== "" ? [`author: ${spec.author.trim()}`] : []),
     // A caveat left in prose is a caveat the next session absorbs as confidence
     // (the claim discipline's "yesterday's caveat is a debt"). As a field, it is
     // findable without reading the sentence.

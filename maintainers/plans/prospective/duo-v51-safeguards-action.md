@@ -13,9 +13,9 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-05
 
-- ✅ **9.1 AND 9.2 ARE DONE, GREEN AND PUSHED** _(2026-09-05)_ — the whole suite (3151 tests) and the
-  duo rehearsal (16/16) pass. **9.3 (the duo page), 9.4 (the `author:` stamp) and 9.5 (the mutation
-  measurement) remain**, and the release waits on them.
+- ✅ **9.0 THROUGH 9.4 ARE DONE, GREEN AND PUSHED** _(2026-09-05)_ — the whole suite (3157 tests) and
+  the duo rehearsal (16/16) pass on each. **Only 9.5 remains** (the mutation measurement of what step
+  9 changed), and the release waits on it.
 - ▶️ **THE WORK IS STEP 9 BELOW, four items, all in v5.1 on his explicit call** _(2026-09-05)_. They
   answer the question he put after reading the duo surface: **what guarantees the person asked is the
   one whose brain it is**, and that the newcomer is not the one answering *"yes, that's fine"*?
@@ -86,13 +86,13 @@ branch protection are the git host's job, not this brain's.
       owner by construction, `distinct` being per name. _(Shipped in the same commit as 9.1: one
       sentence, after what changes — "they can write here because they were added to this brain's
       repository, and removing them there is what ends it — this brain grants no access of its own".)_
-- [ ] **9.3** **A page of its own for duo mode** _(his call: "je pense que c'est une page dédiée au
+- [x] **9.3** _(2026-09-05)_ **A page of its own for duo mode** _(his call: "je pense que c'est une page dédiée au
       mode duo")_, in English, in the repo: the steps for both people, the Q&A, the perimeter, the
       mail detail in full (delegation asks for no password, what it does and does not reach, the two
       arrangements that work), and the security section above. `SETUP.md` §7 keeps a short summary
       and points at it rather than growing a manual inside a setup guide. The French one-pager he is
       sending privately is the draft it is translated from; it stays out of the repo.
-- [ ] **9.4** **Attribution metadata laid NOW, audit built later** _(his call: "setup les infos, les
+- [x] **9.4** _(2026-09-05)_ **Attribution metadata laid NOW, audit built later** _(his call: "setup les infos, les
       métadonnées … avant que les gens commencent")_. Today `author:` is stamped only when the writer
       follows what `dated-note-path.mjs` prints, and **no skill or constitution line asks for it
       anywhere else**, so a future audit would be archaeology in git history. So: every note this
@@ -103,6 +103,11 @@ branch protection are the git host's job, not this brain's.
       (`canonicalAuthor`). **Forward-only**, no backfill: git history answers for the past, and
       rewriting every existing note would be a large diff for a small gain _(his to overrule)_. The
       audit / export-by-person use case is **explicitly not built**, and the page from 9.3 says so.
+      **What landed**: `renderFiledNote` stamps `author:` (absent when the machine has no git name —
+      ABSENT means unknown, never "nobody"), `file-back-note.mjs` reads it from git rather than
+      accepting it from the caller (a note's author is a fact about the machine, not something a model
+      is told), and the constitution + the briefing frontmatter say it in **both locales**. The
+      fingerprint table was regenerated for the four doc files, which is what the release gate asks.
 
 - [ ] **9.5** **Measure what step 9 changed** (CONVENTIONS §5quinquies), once 9.3 and 9.4 have landed,
       the way 8.8 did it: the changed ranges of `author-identities.mjs`, `brain-author.mjs`,

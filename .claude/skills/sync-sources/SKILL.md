@@ -544,6 +544,7 @@ Write to the path it gave you:
 ---
 type: briefing
 date: YYYY-MM-DD
+author: <the name the command above printed>   # who wrote it; absent means unknown, never nobody
 architecture: fan-out/fan-in
 sources: ["drive|<id>", "slack|<channel>|<ts>"]   # what this briefing DREW ON, normalized keys
 unverified: true          # true as long as one caveat below is unticked — see Caveats

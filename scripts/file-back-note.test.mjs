@@ -37,6 +37,7 @@ function fakeDeps(overrides = {}) {
     exists: (p) => existing.has(p),
     peopleCards: () => overrides.peopleCards ?? [],
     vaultNotes: () => overrides.vaultNotes ?? [],
+    author: () => (overrides.author === undefined ? "Thomas Pierrain" : overrides.author),
     writeFile: (p, content) => writes.push({ path: p, content }),
     log: (line) => logs.push(line),
     error: (line) => errors.push(line),
@@ -645,4 +646,38 @@ test("file-back-note, as a real process — the guard reads the brain's OWN vaul
 
 test("realFileBackDeps — the vault reader is wired to the brain's own vault/", () => {
   assert.equal(typeof realFileBackDeps.vaultNotes, "function");
+});
+
+// ── Who wrote it, on the note itself (plan step 9.4) ─────────────────────────
+
+test("runFileBack — the note it writes says who wrote it", () => {
+  const spec = JSON.stringify({
+    type: "topic",
+    title: "Capacity Management",
+    tags: ["rag"],
+    body: "The distilled answer.",
+    sources: SAID_HERE,
+  });
+  const f = fakeDeps({ input: spec, author: "Claire Dubois" });
+
+  assert.equal(runFileBack([], f.deps), 0);
+
+  assert.match(f.writes[0].content, /^author: Claire Dubois$/m);
+});
+
+// A machine whose git has no user.name still files: absent means unknown (ADR 0041's
+// rule, applied to the same question one field along), never "nobody wrote this".
+test("runFileBack — a nameless machine still files, with no author stamped", () => {
+  const spec = JSON.stringify({
+    type: "topic",
+    title: "Capacity Management",
+    tags: ["rag"],
+    body: "The distilled answer.",
+    sources: SAID_HERE,
+  });
+  const f = fakeDeps({ input: spec, author: "" });
+
+  assert.equal(runFileBack([], f.deps), 0);
+
+  assert.doesNotMatch(f.writes[0].content, /^author:/m);
 });

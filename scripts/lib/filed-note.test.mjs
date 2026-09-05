@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
+import { noteAuthor } from "./dated-note-path.mjs";
 import { slugify, slugSafe, filedNotePath, renderFiledNote, homonymCards, sourcesBlock } from "./filed-note.mjs";
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -815,4 +816,86 @@ test("slugSafe — answers null where slugify throws, instead of throwing", () =
     assert.equal(slugSafe(title), null, JSON.stringify(title));
     assert.throws(() => slugify(title), /empty slug/, "and slugify keeps its refusal");
   }
+});
+
+// ── Who wrote it, stamped on the note itself (plan step 9.4) ─────────────────
+//
+// 🛑 WHY THE FIELD AND NOT JUST GIT. Every write is committed under its author's
+// name, so history already answers "who wrote this" — as archaeology. Two people
+// sharing one brain will one day want that answered per NOTE (an audit, an export,
+// "everything she wrote"), and a note that is moved, copied or filed back loses its
+// history while keeping its frontmatter. The metadata is laid now so the use case
+// can be built later; the audit itself is not built, and is not promised.
+
+test("renderFiledNote — a note says who wrote it", () => {
+  const note = renderFiledNote({
+    type: "topic",
+    title: "X",
+    tags: ["a"],
+    body: "b",
+    sources: SAID_HERE,
+    today: "2026-07-17",
+    author: "Thomas Pierrain",
+  });
+
+  assert.match(note.content, /^author: Thomas Pierrain$/m);
+});
+
+// 🛑 The RAW spelling, exactly as this machine's git says it — never resolved through
+// the identity registry. A fusion is an OPINION, correctable and reversible; a stamped
+// name is a fact about who typed. Resolving happens at read time, where it belongs.
+test("renderFiledNote — the spelling is stamped as given, untouched", () => {
+  const note = renderFiledNote({
+    type: "topic",
+    title: "X",
+    tags: ["a"],
+    body: "b",
+    sources: SAID_HERE,
+    today: "2026-07-17",
+    author: "tpierrain",
+  });
+
+  assert.match(note.content, /^author: tpierrain$/m);
+});
+
+// ABSENT means unknown, exactly like the source keys above: a brain whose git has no
+// user.name must still be able to file a note, and a stamped empty name would be a
+// claim that nobody wrote it.
+test("renderFiledNote — a nameless machine stamps no author at all", () => {
+  for (const author of [undefined, "", "   ", null]) {
+    const note = renderFiledNote({
+      type: "topic",
+      title: "X",
+      tags: ["a"],
+      body: "b",
+      sources: SAID_HERE,
+      today: "2026-07-17",
+      author,
+    });
+
+    assert.doesNotMatch(note.content, /^author:/m, `on ${JSON.stringify(author)}`);
+  }
+});
+
+// The field the per-person dated-note rule reads back is the field written here:
+// two spellings of "who wrote this" would be a rule that never fires.
+test("renderFiledNote — the stamp is the field the dated-note rule reads", () => {
+  const note = renderFiledNote({
+    type: "topic",
+    title: "X",
+    tags: ["a"],
+    body: "b",
+    sources: SAID_HERE,
+    today: "2026-07-17",
+    author: "Claire Dubois",
+  });
+
+  const frontmatter = Object.fromEntries(
+    note.content
+      .split("---")[1]
+      .trim()
+      .split("\n")
+      .map((line) => [line.slice(0, line.indexOf(": ")), line.slice(line.indexOf(": ") + 2)]),
+  );
+  assert.equal(noteAuthor(frontmatter), "Claire Dubois", "two spellings of who wrote this is a rule that never fires");
 });

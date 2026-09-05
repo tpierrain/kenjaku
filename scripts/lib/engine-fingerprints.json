@@ -136,11 +136,11 @@
         "since": "v4.8.0",
         "locale": "fr"
       },
-      "sha256:87121db61a1b3ce053feca911318a73fa9a7d6e2b9865d3012bca0e1a72e87c1": {
+      "sha256:ecf80308d748623f74906a1d6ccef681a702c96236d1c33bdf55a154c9a8e813": {
         "since": "v5.1.0",
         "locale": "en"
       },
-      "sha256:6b5ff16c8a88d028f2330e936e5c6199445143604cebb7b7e4da7250226089d5": {
+      "sha256:2505318f243115f9f606c7603755882ccd74679ee68ab74022ca11ac3c2eb4f0": {
         "since": "v5.1.0",
         "locale": "fr"
       }
@@ -262,6 +262,14 @@
       },
       "sha256:0317dd928f088520ddd9552f712811a80f78956c989386bdd28dc7705987ecc8": {
         "since": "v5.0.0",
+        "locale": "fr"
+      },
+      "sha256:6dfd9d327fbce6bfbad9dba65fd70609845f086f0f650216db441669380cbcf0": {
+        "since": "v5.1.0",
+        "locale": "en"
+      },
+      "sha256:0411d77869536157270e8be4b3a778abe3e1cabe343ca2ee6e923dc795d9811e": {
+        "since": "v5.1.0",
         "locale": "fr"
       }
     },

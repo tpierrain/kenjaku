@@ -576,6 +576,7 @@ pour `--folder daily`.
 ---
 type: briefing
 date: YYYY-MM-DD
+author: <le nom affiché par la commande ci-dessus>   # qui l'a écrit ; absent = inconnu, jamais personne
 architecture: fan-out/fan-in
 sources: ["drive|<id>", "slack|<canal>|<ts>"]   # ce dont ce briefing S'EST SERVI, clés normalisées
 unverified: true          # vrai tant qu'un caveat ci-dessous reste décoché (voir Caveats)
