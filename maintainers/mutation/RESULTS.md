@@ -107,7 +107,7 @@
 | Package | Mutation score | As of | Detail |
 |---|---|---|---|
 | **rag** | **90.42 %** | 2026-07-16 (post-B2/B3) | [re-audit #2](#full-rag-re-audit-2--2026-07-16-post-b2b3-hardening) — production-only. Not re-measured package-wide since; the [v4.4.0 targeted run](#v440--the-field-fixes-release-rag--scripts--2026-07-28--2026-08-02) over the 10 files that release changed reads **93.93 %**, with its two new files at **100 %**. The [v4.5.0 run](#v450--the-silence-stops-passing-release-rag--scripts--2026-08-03) over its 6 changed files reads **94.67 %**, with the file it creates at **100 %**. The [v4.7.0 run](#v470--the-short-visibility-release-rag--scripts--2026-08-05) over the 2 files that release changed reads **94.44 %** first pass, **100 % on both** after the survivors were closed |
-| **scripts** (harness) | **97.27 %** | 2026-06-23 baseline | 3 weak files since hardened to 92–100 % (no full re-audit; `lib/**` already 100 %). The three files audited on [2026-07-27](#increment-25-engine-skill-refresh--step-10--2026-07-27) are now hardened too: `update-engine.mjs` **98.49 %**, `reconcile-brain.mjs` **96.45 %**, `engine-source.mjs` **93.02 %** (every survivor killed or recorded as equivalent). The four files touched on [2026-07-28](#v430-the-harness-side-of-the-review-fixes--2026-07-28) were measured the same way, after the review fixes: `engine-commit.mjs` **100 %**, `startup-sync.mjs` **100 %**, `repo-status.mjs` **97.44 %**, `auto-commit.mjs` **98.04 %** (98.37 % together, every survivor an accepted equivalent). ⚠️ **The baseline flatters the package**: the [v4.4.0 run](#v440--the-field-fixes-release-rag--scripts--2026-07-28--2026-08-02) measured 16 files one by one and found **two at 0 %** — `session-status.mjs` and `status-line.mjs`, top-level scripts no test can import. **[Named debt](#the-two-0--files--named-debt-and-not-a-regression)**, carried by every published tag. The [v4.5.0 run](#v450--the-silence-stops-passing-release-rag--scripts--2026-08-03) measured 15 more files one by one: **seven of them end at 100 %, twelve of the fifteen at 92 % or above**, and the three `session-*` scripts confirm the same top-level tier (`session-status.mjs` still **0 %**, inherited rather than new). The [v4.6.0 run](#v460--the-vaults-identity-release-scripts-only--2026-08-03) measured the 7 files that release changed: **all seven end at 96 % or above, two at 100 %**, every remaining survivor a pre-listed equivalent. It then ran a **second pass after the review fixes** (those fixes changed production code, so the first numbers no longer covered it): 4 files re-measured, 3 of them at **96.88–100 %**, plus `lib/hooks-reconcile.mjs` — a file this release only grazes — at **78.69 %**, whose 24 remaining survivors are pre-existing and named rather than implied. The [v4.7.0 run](#v470--the-short-visibility-release-rag--scripts--2026-08-05) measured the 4 files that release wrote: **83.33 % → 97.56 %**, two of them at **100 %**, the two survivors left both pre-listed equivalents — and the low first-pass number was a **design** defect (a fail-soft written twice, so neither half was observable), not thin tests. The [v4.8.0 run](#v480--the-release-that-looks-upstream-scripts-only--2026-08-05) is the biggest targeted pass so far — **16 files**, six batches: **thirteen end at 94 % or above**, one at 100 %, and the three that do not are the **named structural debt** (two files with no test sibling at 0 %, `engine-fetch.mjs`'s real git runner at 54.05 %), whose two remedies the owner **arbitrated into v4.9.0**, then **re-arbitrated in writing** (2026-08-08) onto the unfreeze release that follows it, rather than left implied. The [v4.9.0 run](#v490--the-universes-release-scripts-only--2026-08-08) measured the 6 files that release changed: **the two files it WROTE end at 100.00 % and 95.28 %**, `update-engine.mjs` at **98.44 %** and `reconcile-brain.mjs` at **96.11 %** — and the two entrypoint-tier files it merely grazed both **rose**, `session-universe.mjs` **39.39 % → 66.18 %** and `session-status.mjs` **0.00 % → 8.67 %**, still debt 1 rather than new rot. The [v4.9.1 run](#v491--the-switch-that-leaves-the-machine-scripts-only--2026-08-15) measured the 6 files that hotfix changed, over **three passes** (production moved twice): **the two files it WROTE both end at 100.00 %**, the untested CLI wiring goes **25 % → 100 %**, and the four others land at **95.92–99.66 %** — every survivor left a named equivalent. The [S0bis run](#s0bis--the-two-structural-debts-paid-scripts-only--2026-08-20) is not a release but the **debt run itself**: it pays both structural debts this table has flagged since v4.4.0 — the two entry-guard files quoted above at **0 %** (`status-line.mjs`, `upstream-check-run.mjs`) both end at **100.00 %**, `engine-fetch.mjs` goes **54.05 % → 84.21 %**, and a new repo-wide **guard test** makes the shape unrepeatable rather than merely fixed. **The tier is now closed**: `session-status.mjs`, held back the same day as a written arbitration because it is the one file that cannot be verified by running it, was answered by the owner and paid — **8.67 % → 96.10 %** over three rounds, its red taken inside a disposable worktree and its output proved byte-identical before and after. **No `scripts/*.mjs` sits in the 0 % tier any more**, for the first time since v4.4.0 |
+| **scripts** (harness) | **97.27 %** | 2026-06-23 baseline | 3 weak files since hardened to 92–100 % (no full re-audit; `lib/**` already 100 %). The three files audited on [2026-07-27](#increment-25-engine-skill-refresh--step-10--2026-07-27) are now hardened too: `update-engine.mjs` **98.49 %**, `reconcile-brain.mjs` **96.45 %**, `engine-source.mjs` **93.02 %** (every survivor killed or recorded as equivalent). The four files touched on [2026-07-28](#v430-the-harness-side-of-the-review-fixes--2026-07-28) were measured the same way, after the review fixes: `engine-commit.mjs` **100 %**, `startup-sync.mjs` **100 %**, `repo-status.mjs` **97.44 %**, `auto-commit.mjs` **98.04 %** (98.37 % together, every survivor an accepted equivalent). ⚠️ **The baseline flatters the package**: the [v4.4.0 run](#v440--the-field-fixes-release-rag--scripts--2026-07-28--2026-08-02) measured 16 files one by one and found **two at 0 %** — `session-status.mjs` and `status-line.mjs`, top-level scripts no test can import. **[Named debt](#the-two-0--files--named-debt-and-not-a-regression)**, carried by every published tag. The [v4.5.0 run](#v450--the-silence-stops-passing-release-rag--scripts--2026-08-03) measured 15 more files one by one: **seven of them end at 100 %, twelve of the fifteen at 92 % or above**, and the three `session-*` scripts confirm the same top-level tier (`session-status.mjs` still **0 %**, inherited rather than new). The [v4.6.0 run](#v460--the-vaults-identity-release-scripts-only--2026-08-03) measured the 7 files that release changed: **all seven end at 96 % or above, two at 100 %**, every remaining survivor a pre-listed equivalent. It then ran a **second pass after the review fixes** (those fixes changed production code, so the first numbers no longer covered it): 4 files re-measured, 3 of them at **96.88–100 %**, plus `lib/hooks-reconcile.mjs` — a file this release only grazes — at **78.69 %**, whose 24 remaining survivors are pre-existing and named rather than implied. The [v4.7.0 run](#v470--the-short-visibility-release-rag--scripts--2026-08-05) measured the 4 files that release wrote: **83.33 % → 97.56 %**, two of them at **100 %**, the two survivors left both pre-listed equivalents — and the low first-pass number was a **design** defect (a fail-soft written twice, so neither half was observable), not thin tests. The [v4.8.0 run](#v480--the-release-that-looks-upstream-scripts-only--2026-08-05) is the biggest targeted pass so far — **16 files**, six batches: **thirteen end at 94 % or above**, one at 100 %, and the three that do not are the **named structural debt** (two files with no test sibling at 0 %, `engine-fetch.mjs`'s real git runner at 54.05 %), whose two remedies the owner **arbitrated into v4.9.0**, then **re-arbitrated in writing** (2026-08-08) onto the unfreeze release that follows it, rather than left implied. The [v4.9.0 run](#v490--the-universes-release-scripts-only--2026-08-08) measured the 6 files that release changed: **the two files it WROTE end at 100.00 % and 95.28 %**, `update-engine.mjs` at **98.44 %** and `reconcile-brain.mjs` at **96.11 %** — and the two entrypoint-tier files it merely grazed both **rose**, `session-universe.mjs` **39.39 % → 66.18 %** and `session-status.mjs` **0.00 % → 8.67 %**, still debt 1 rather than new rot. The [v4.9.1 run](#v491--the-switch-that-leaves-the-machine-scripts-only--2026-08-15) measured the 6 files that hotfix changed, over **three passes** (production moved twice): **the two files it WROTE both end at 100.00 %**, the untested CLI wiring goes **25 % → 100 %**, and the four others land at **95.92–99.66 %** — every survivor left a named equivalent. The [S0bis run](#s0bis--the-two-structural-debts-paid-scripts-only--2026-08-20) is not a release but the **debt run itself**: it pays both structural debts this table has flagged since v4.4.0 — the two entry-guard files quoted above at **0 %** (`status-line.mjs`, `upstream-check-run.mjs`) both end at **100.00 %**, `engine-fetch.mjs` goes **54.05 % → 84.21 %**, and a new repo-wide **guard test** makes the shape unrepeatable rather than merely fixed. **The tier is now closed**: `session-status.mjs`, held back the same day as a written arbitration because it is the one file that cannot be verified by running it, was answered by the owner and paid — **8.67 % → 96.10 %** over three rounds, its red taken inside a disposable worktree and its output proved byte-identical before and after. **No `scripts/*.mjs` sits in the 0 % tier any more**, for the first time since v4.4.0. The [v5.1.0 duo run](#84-duo--the-announcement-became-a-question-and-half-its-survivors-were-code-to-delete--2026-09-05) — the step the owner **held the release** on — measured the three files it writes at **84.60 % → 98.92 %** and the ranges it changed elsewhere at **92.02 % → 95.45 %**, with **fourteen** survivors left, every one of them a named equivalent of three classes. Half the first pass's survivors were answered by **deleting** production rather than adding tests: fail-open written twice, defaults nothing defaults to, re-validation of lists their reader had already normalised |
 | **local-mirror** | **90.44 %** | 2026-07-28 (v4.2.0) | [re-audit](#full-local-mirror-re-audit--2026-07-28-v420) — +336 mutants since the 95.63 % below (auto-refresh growth); this release's own survivors were found and killed before tagging. The two files v4.3.0 touched were re-measured [after the review fixes](#v430-after-the-review-fixes--2026-07-28): `markdown.ts` **100 %**, `local-mirror.ts` **96.86 %**. **v4.4.0 touches no `src/**` file here — the number carries over, deliberately not re-measured** |
 
 Pinned to the release that ships the hardened tests: **v3.4.2** (local-mirror pinned at 78.69 % there —
@@ -232,6 +232,120 @@ are rag's **embedders** (~82 %) and `search-degradation` / `reindex-scheduler` /
 local-mirror's `fs-state-store` and `content-hash`.
 
 ---
+
+## #84 duo — the announcement became a question, and half its survivors were code to DELETE — 2026-09-05
+
+State owned by
+[`../plans/prospective/duo-source-identity-action.md`](../plans/prospective/duo-source-identity-action.md)
+(step 8.8). The release was **held by the owner** on this step: a brain that reads who writes from git
+author names alone told an owner with two Macs that *"a second person now writes here"*, and split
+their day into one file per machine. The fix makes the announcement a **question**, remembered in a
+registry that travels. This is that step's measurement.
+
+Two batches, through `mutate-one.mjs` in a disposable worktree — **whole** for the three files step 8
+creates, **hunk-scoped** for the ranges it changed in files that already had a measurement. Logs:
+`reports/v510-duo-batch-a.log` (first pass), `v510-duo-batch-a3.log` (final),
+`v510-duo-batch-b.log`, `v510-duo-batch-b2.log`.
+
+| File (scope) | First pass | After | Survivors left |
+|---|---|---|---|
+| `lib/author-identities.mjs` (new, whole) | 82.18 % | **98.66 %** | 2, both equivalents |
+| `lib/brain-author.mjs` (whole) | 91.94 % | **98.90 %** | 2, both equivalents |
+| `author-identity.mjs` (new, whole) | 77.17 % | **99.24 %** | 1, an equivalent |
+| **Batch A** | 84.60 % | **98.92 %** | 457 killed, 5 survived of 462 |
+| `lib/universe-persist.mjs` (46-93) | **100.00 %** | — | 0 |
+| `session-authors.mjs` (44-109) | 92.59 % | 92.59 % | 2, both equivalents |
+| `lib/dated-note-path.mjs` (45-80) | 92.11 % | **100.00 %** | 0 |
+| `lib/remote-sync.mjs` (150-176) | 80.00 % | 84.62 % | 2, both equivalents |
+| `dated-note-path.mjs` (45-137) | 93.33 % | 94.59 % | 4, all equivalents |
+| `remote-sync.mjs` (180-195) | 55.56 % | **88.89 %** | 1, an equivalent |
+| **Batch B** | 92.02 % | **95.45 %** | 189 killed (2 by timeout), 9 survived of 198 |
+
+### 🛑 The instrument first: two runs at once is not a slow measurement, it is no measurement
+
+Both batches were started **together** on a 14-core machine, on the reasoning that 5 test runners each
+would fit. They do not: every mutant runs the whole suite, the two runs starved each other, and batch
+A came back with **456 of its 461 mutants TIMED OUT**. Had the runner not refused it, the arithmetic
+would have read as a **100 %** — the exact T13 shape, one release later, caught this time by the
+instrument's own timeout guard rather than by a human.
+
+➡️ **The rule this adds**: a mutation run has the machine to itself. Sequential batches, always — the
+wall-clock saved by overlapping them is the wall-clock of a result nobody may use.
+
+### The finding that cost the most: one comparison, written three different ways
+
+"Are these two spellings the same human?" existed in **three** places by the end of step 8 — the
+arrival banner, the session line, and the note paths, the last one spelled
+`base.author == null ? null : slugSafe(canonicalAuthor(base.author, identities) ?? "")`. The mutants
+found all three, in the same shape each time: a `?? ""` placeholder whose survival says *nothing
+distinguishes this default from any other string*.
+
+It is worse than a duplicate. A placeholder makes two **anonymous** callers slug identically, so
+`nobody === nobody` comes back **true** — which files a stranger's note into the owner's day and
+silences the banner that would have shown it. The three collapse into one exported `personSlug`, which
+asks the type instead of defaulting: not a name → `null`, and null matches nothing.
+
+And the shared version answers a case the copy **crashed** on. A vault is a folder of text files a
+human edits, so `author:` in a note's frontmatter can come back as a number, a date or a list; the old
+expression called `slugSafe` on it and threw, inside the one command that tells the agent where to
+write. Seen failing against the expression it replaces, then green.
+
+### The wiring the whole suite was blind to — the T7 shape, twice in one step
+
+`realTickDeps` builds the live sync's seams, and **every** tick test injects its own `identities`. So
+the code that reads the real `.vault-rag/authors.json` was exercised by nothing, while its only
+visible effect is a **native desktop banner a test may not raise** (thousands of popups under a
+mutation run). Three mutants sat there untroubled: the reader returning `undefined`, the file access
+replaced by `{}`, the whole thunk replaced by `() => undefined`.
+
+It is now driven directly against a brain the test owns — answered, and unanswered — and both mutants
+were hand-applied and seen to die. The same shape had already been caught **during** step 8 by adding
+the key to the deps-shape assertion first; this is its other half.
+
+### The split that made the number move: half the survivors were code to DELETE
+
+Of the 75 survivors in the first pass, a large share were not missing tests at all. They were branches
+no test could ever reach, and the honest answer is to remove them:
+
+- a `existsSync` probe in front of a `try/catch` that already answers *"no file"* identically —
+  fail-open written **twice**, so neither copy is observable;
+- the optional chaining **inside** that same `try`;
+- a null-slug filter on lookups no null slug reaches;
+- the re-validation of two lists their reader has already normalised (`readAuthorsState` is now
+  documented as the single normalisation point, and nothing downstream re-checks);
+- two initialisers both branches overwrite — *a default nothing defaults to*, which the file next door
+  already had a comment about;
+- and a commit message composed **before** the refusal that guarantees its inputs, which needed a
+  fallback for a canonical name that cannot exist.
+
+### The words themselves, pinned — because asserting a constant against itself proves nothing
+
+The question a duo meets at session start, the usage, both refusals and the two travel warnings were
+all asserted with `assert.match(output, new RegExp(THE_CONSTANT))` — which passes whatever the constant
+says, including nothing. They are now pinned **word for word**, and the healthy path asserts the
+**absence** of every warning: a command that warns about a commit that succeeded is a command nobody
+believes.
+
+### The fourteen that stand, and why every one of them is an equivalent
+
+Five in batch A, nine in batch B, and they fall into **three classes** — none of which a test could
+separate without testing the mutant itself:
+
+- **The `[]` fallback filled with a name** (`entrySlugs`, `markDistinct`'s alias list,
+  `canonicalAuthor`'s, the confirmed-people set, the tick's identities, the entry point's identities
+  and its notes) — mutated into `["Stryker was here"]`. Each fires only on a registry or a vault
+  damaged by hand, and its one element is a **string every consumer already skips**: an entry with no
+  readable name, or a note with no `path`. Only a collision with that exact literal could tell the two
+  apart. The emptied `catch {}` mutants are the same finding from the other side — the fallback and
+  the declaration now agree, so removing the assignment leaves `undefined`, which every consumer
+  treats exactly like an empty list.
+- **`readFileSync(p, "")`** in place of `"utf-8"`, in all three places the registry is read. Node does
+  **not** throw on an empty encoding — it returns a **Buffer**, and `JSON.parse` accepts one. Checked
+  by hand rather than assumed; the neighbouring finding in this register is a type check that judged a
+  `Buffer` it should have stood down on.
+- **A throw whose message nothing reads**: `throw new Error("no git history")` inside the session
+  hook, caught two lines later by the block that keeps session start fail-open. The message is there
+  for a human reading the source, and no surface can observe it.
 
 ## #84 — the `scripts/` files this branch changed after their own last run — 2026-09-03
 

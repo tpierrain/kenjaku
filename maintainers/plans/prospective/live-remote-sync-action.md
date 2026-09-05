@@ -75,9 +75,11 @@ the rehearsal against a copy of a real brain.
 > work named below has landed. Everything already built stays: nothing is reverted, nothing is thrown
 > away, and the branch stays green.
 >
-> ✅ **THAT WORK HAS LANDED** _(2026-09-04 night — see the next block for what shipped)_, bar its
-> mutation measurement, which is running as this is written and whose state the sub-plan owns at its
-> step 8.8. **The hold is his to lift**, not mine: the tag, the publication and the merge of #86 were
+> ✅ **THAT WORK HAS LANDED, MEASUREMENT INCLUDED** _(2026-09-05 — see the next block for what
+> shipped)_. The sub-plan's last step is closed: **84.60 % → 98.92 %** on the three files the step
+> writes, **92.02 % → 95.45 %** on what it changed elsewhere, the register section written, and the
+> figures carried into the release note and into #86's body on GitHub. **Every step of both plans is
+> ticked.** **The hold is his to lift**, not mine: the tag, the publication and the merge of #86 were
 > his before the hold and still are.
 >
 > ↩️ **One figure above has since moved, and it moved the right way**: the `What you get` re-check

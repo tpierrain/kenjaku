@@ -54,14 +54,24 @@ subject.)
 
 ## Quality evidence
 
-- **Mutation-tested on both halves of what this release writes**, because a per-step target list is a
+- **Mutation-tested on every half of what this release writes**, because a per-step target list is a
   plan artefact and the release is the **union** of them: the search-server half **82.89 % → 97.37 %**,
-  the harness half **97.22 %** (batch A) and **82.14 % → 100 %** (batch B). Every survivor left is a
-  named equivalent. Findings in `maintainers/mutation/RESULTS.md`, newest-first.
-- **Three findings worth a reviewer's minute**, all recorded there: a guard whose three riders no test
+  the harness half **97.22 %** (batch A) and **82.14 % → 100 %** (batch B), and the duo-mode question
+  the release was held for — **84.60 % → 98.92 %** on the three files it adds, **92.02 % → 95.45 %** on
+  the ranges it changed elsewhere. Every survivor left is a named equivalent, in three classes.
+  Findings in `maintainers/mutation/RESULTS.md`, newest-first.
+- **Five findings worth a reviewer's minute**, all recorded there: a guard whose three riders no test
   ever saw apart (the arrivals-only case is the migration that reaches a brain predating the feature —
   the rehearsal proved it, no unit did); a type check that judged a `Buffer` it should have stood down
-  on; and the mutation runner itself **refusing a measurement it had really made**, fixed first.
+  on; the mutation runner itself **refusing a measurement it had really made**, fixed first; *"are
+  these two spellings the same human?"* found written **three different ways**, one of which crashed on
+  a `author:` field a human had typed a number into; and the live sync's registry wiring, exercised by
+  **nothing** because every tick test injects its own — its only visible effect being a desktop banner
+  no test may raise.
+- **And half of that step's first-pass survivors were answered by DELETING production**, not by adding
+  tests: fail-open written twice (a probe in front of a `try/catch` that already answered the same
+  way), defaults both branches overwrite, and the re-validation of lists their reader had already
+  normalised. The register says which, and why each was unreachable.
 - **The marketing surface was re-read whole** (CONVENTIONS §10). One absolute promise this release
   turns into a half-truth — *"you share the generator, **never** the brain"* — corrected in the README
   and in EN-QUOI; two undersells added; the boards deliberately **not** re-rendered, with the

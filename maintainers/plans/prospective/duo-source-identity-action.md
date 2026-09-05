@@ -40,22 +40,15 @@ below, and the release is held until it lands.**
   it, and the loop proved end to end as processes — the hook asks, the answer is recorded, the hook
   goes silent. **8.9 is written too** (SETUP §7, the release note's duo block, the PR body on GitHub;
   the note re-checked against the real `extractWhatYouGet`: 17 lines captured, both moments in).
-  **▶️ WHAT IS LEFT HERE IS 8.8, the mutation measurement**, then the note's Quality paragraph gains
-  its figures, then the parent plan's 8.3 (the tag) is the owner's.
-  **▶️ 8.8 IS UNDER WAY** _(2026-09-05, 03:00)_: the first pass came back at **84.6 %**, its 75
-  survivors are answered (deleted where unreachable, tested where real, `24fa9cc`), and the
-  re-measurement of the three new files reads **98.26 %** with its last two real survivors closed.
-  The second measurement, over the ranges step 8 changed in files that already existed, came back at
-  **92.02 %** and its three real survivors are closed. **The three new files re-measured at 98.92 %**, their five
-  remaining survivors being exactly the equivalents already named. **What 8.8 waits on is the same
-  confirmation pass over batch B**, running; then `RESULTS.md` gains its section and the release note
-  and the PR body gain their figures, in one commit. The sub-checkboxes under 8.8 carry the detail. **Nothing else on this
-  plan is open**; when those come back at this release's standard, `RESULTS.md` gains its section and
-  **both** surfaces that quote figures gain them in the same commit: the release note's *Quality*
-  paragraph and [`release-v5.1.0-pr-body.md`](release-v5.1.0-pr-body.md)'s *Quality evidence*, whose
-  current numbers cover this release's earlier halves and **not** step 8's three new files. The PR
-  body is edited on GitHub in that same move, as it was for the reordering — deliberately once, when
-  the numbers are real, rather than twice around a measurement still running.
+  **✅ AND 8.8 IS DONE TOO, WHICH CLOSES EVERY STEP THIS PLAN CARRIES** _(2026-09-05, 05:10)_. The
+  measurement ran in two batches, each answered rather than merely reported: **84.60 % → 98.92 %** on
+  the three files step 8 writes, **92.02 % → 95.45 %** on the ranges it changed elsewhere, fourteen
+  survivors left and every one a named equivalent of three classes (the checkboxes under 8.8 carry the
+  detail, `RESULTS.md` carries the findings). The figures are in the release note's *Quality* paragraph
+  and in the PR body — **on GitHub as well as in the record**, verified byte-for-byte after the edit.
+  **▶️ NOTHING ON THIS PLAN IS OPEN. What is left belongs to the owner alone**: merge #86, tag
+  `v5.1.0` on `main`, push the tag, publish the release. Their order lives in the parent plan's
+  `## 📍 STATE`, which this file deliberately does not restate.
 - ✅ **THE CI WAS READ ON RESUMING** _(2026-09-04, 23:31 push)_: the checks for `9246e12` **and** for
   the plan commit after it both **passed**. Nothing red is outstanding, so a failure appearing from
   here belongs to the work below (`rules/ci.md`).
@@ -600,7 +593,10 @@ This is the honest statement of the perimeter.
       `paul` vs `Paul`), and an unreadable registry costs the fusion, never the tick.
 - [x] **8.7** _(2026-09-04, with 8.5)_ **The entry point is tested as a PROCESS**, not only through its imported functions
       (`test-first-discipline`, the entry-point seam rule).
-- [ ] **8.8** **Mutation-measured** like the rest of this release, results in `maintainers/mutation/RESULTS.md`, newest-first.
+- [x] **8.8** _(2026-09-05, `RESULTS.md` § *the announcement became a question*)_ **Mutation-measured**
+      like the rest of this release, results in `maintainers/mutation/RESULTS.md`, newest-first.
+      **84.60 % → 98.92 %** on the three files this step writes, **92.02 % → 95.45 %** on the ranges it
+      changed elsewhere, **fourteen** survivors left and every one a named equivalent of three classes.
   - [x] **First pass on the three new files** _(2026-09-05, `v510-duo-batch-a.log`)_: **84.6 %** — 412
         killed, 75 survived, 0 timeout (`author-identities` 82.18 %, `brain-author` 91.94 %,
         `author-identity` 77.17 %). Far under the 97–100 % this release has held elsewhere, so it was
@@ -644,8 +640,10 @@ This is the honest statement of the perimeter.
         `author-identity` **99.24 %**. The five are exactly the equivalents named above and no others:
         four `[]` fallbacks a mutant fills with a name no fixture uses, and the `readFileSync`
         encoding that `JSON.parse` cannot tell apart.
-  - [ ] **Batch B re-measured on the final code** _(running from 04:05)_, since the fixes moved
-        production there too. Log `v510-duo-batch-b2`. **It is the last thing 8.8 is waiting on.**
+  - [x] **Batch B, final: 92.02 % → 95.45 %** _(2026-09-05, `v510-duo-batch-b2.log`)_ — 189 killed (2
+        by timeout), **9 survived** of 198. `lib/dated-note-path` **100 %**, `remote-sync` **55.56 % →
+        88.89 %**, `lib/remote-sync` 84.62 %, `dated-note-path` 94.59 %, `session-authors` 92.59 %,
+        `universe-persist` 100 %. All nine are equivalents of the three classes named above.
         _(Started 04:05, killed by the environment before it wrote a line — no log, nothing to read —
         and relaunched at 04:25. Noted because a run that produces no log is invisible afterwards:
         the only trace it ever happened is this line.)_
@@ -660,10 +658,11 @@ This is the honest statement of the perimeter.
         second run was stopped and the pair re-queued sequentially. **The finding belongs in
         `RESULTS.md`** with the section below: the runner's timeout guard has now earned its keep
         twice.
-- [ ] **8.9** **The surface says it**: `SETUP.md` §7 and the release note's duo-mode block describe the
+- [x] **8.9** _(2026-09-04, its figures added 2026-09-05)_ **The surface says it**: `SETUP.md` §7 and the release note's duo-mode block describe the
       question, not a silent detection. If the note changes, **re-check it against the real
       `extractWhatYouGet` parser** (the constraint is CONVENTIONS §11).
-- [ ] **8.10** Then, and only then, the parent plan's 8.3 is unblocked and the release can be cut.
+- [x] **8.10** _(2026-09-05)_ Then, and only then, the parent plan's 8.3 is unblocked and the release
+      can be cut. **It is unblocked. Cutting it is the owner's, and only his.**
 
 ## 🛑 The owner's call: duo mode is implicit, and the brain announces it once _(2026-09-02, before the run)_
 
