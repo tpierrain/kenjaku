@@ -613,9 +613,17 @@ This is the honest statement of the perimeter.
         merging one person leaves everybody else untouched, and the question, the usage, both
         refusals and the two travel warnings are pinned word for word — with a healthy answer
         asserting the **absence** of all of them. 3208 tests, 0 fail.
-  - [ ] **Re-measure, and batch B** _(running 2026-09-05 ~01:35)_: `v510-duo-batch-a2` over the three
-        files again, and `v510-duo-batch-b` over the ranges step 8 CHANGED in files that already
-        existed (`session-authors`, both `dated-note-path`, both `remote-sync`, `universe-persist`).
+  - [ ] **Re-measure, and batch B**: `v510-duo-batch-a2` over the three files again, and
+        `v510-duo-batch-b` over the ranges step 8 CHANGED in files that already existed
+        (`session-authors`, both `dated-note-path`, both `remote-sync`, `universe-persist`).
+        🛑 **ONE AT A TIME, and this cost a run to learn** _(2026-09-05, 01:35)_. Started both at
+        once on a 14-core machine — each mutant runs the whole suite, so the two runs starved each
+        other and batch A came back **456 of 461 mutants TIMED OUT**. That is not a slow run, it is a
+        run whose score is meaningless, and had the runner not refused it the arithmetic would have
+        read as a **100 %**: exactly the T13 shape, caught this time by the instrument itself. The
+        second run was stopped and the pair re-queued sequentially. **The finding belongs in
+        `RESULTS.md`** with the section below: the runner's timeout guard has now earned its keep
+        twice.
 - [ ] **8.9** **The surface says it**: `SETUP.md` §7 and the release note's duo-mode block describe the
       question, not a silent detection. If the note changes, **re-check it against the real
       `extractWhatYouGet` parser** (the constraint is CONVENTIONS §11).
