@@ -7,6 +7,14 @@
 >
 > **The RELEASE title is a separate choice**, with its three candidates in
 > [`release-v5.1.0-note.md`](release-v5.1.0-note.md); this is the PR title only.
+>
+> 🚪 **`plan-carrier-guard: delegates-only`** — this file is **not a plan**, and it holds no state of
+> the work: it is a *transcript*, and what it owns is fidelity to #86's body on GitHub, never currency
+> with the branch. It goes stale the moment the PR body is edited **there** and not here, which is a
+> mismatch no guard can see — so the discipline is the one already written at 8.2: **edit both in the
+> same breath, then re-read GitHub's copy to confirm.** Where the work actually stands lives in
+> [`duo-v51-safeguards-action.md`](duo-v51-safeguards-action.md), which also names this file's next
+> due edit. **Delete this line the day this file starts carrying anything the branch must obey.**
 
 ---
 
