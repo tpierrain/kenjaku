@@ -98,6 +98,15 @@ and a five-minute re-read of my own test diff would have caught it without start
       single-element collection under a `some`/`every`/`find` test. Greppable, so a guard can say it.
 - [ ] **S2.3** Judged the only way that means anything: the **first-pass** score of the next new file,
       recorded here beside 84.60 %.
+- [x] **S2.0 The second measurement, taken the same day, says the same thing** _(2026-09-05 10:52,
+      step 9.5 batch A, 61 min)_: **92.83 %**, 32 survivors. **Seven** are equivalents of the class
+      already named; the **25 killable ones are, without exception, the catalogue** — the words of two
+      new messages not pinned (emptying a whole sentence changes nothing a test sees, which 8.8 had
+      already fixed for the *other* messages), and the damaged-or-absent input never fed (`entry?.` on
+      an entry no test makes null, `.some` vs `.every` on a list no test gives two elements, a
+      documented one-directional fallback promised in a comment and asserted nowhere). **No production
+      change is needed to kill any of them.** The instrument is being paid an hour to hand back a list
+      we could have written before starting.
 
 ### S3. A finished plan stops being read as a plan _(the record lever)_
 

@@ -15,16 +15,38 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
 
 - ✅ **9.0 THROUGH 9.4 ARE DONE, GREEN AND PUSHED, CI READ AND GREEN ON EVERY COMMIT** _(2026-09-05)_
   — the whole suite (3157 tests) and the duo rehearsal (16/16) pass on each. **ONLY 9.5 REMAINS.**
-- ▶️ **RESUME HERE: 9.5, and its first batch was LEFT RUNNING** _(2026-09-05, late morning)_. The
-  command is `node maintainers/mutation/mutate-one.mjs scripts/lib/author-identities.mjs
-  scripts/lib/brain-author.mjs`; its report lands in `maintainers/mutation/reports/` and its score
-  must be **answered, not merely reported** (every survivor either killed by a new test or named as an
-  equivalent, the way 8.8 did it). **A resuming session cannot assume it finished** — check the report,
-  and re-run it if there is none. Then the second batch, **one at a time** (two at once starve each
-  other and return a meaningless score): `scripts/session-authors.mjs scripts/author-identity.mjs`,
-  then the ranges 9.4 changed in `scripts/lib/filed-note.mjs` and `scripts/file-back-note.mjs`.
+- ✅ **9.5 BATCH A HAS RUN** _(2026-09-05 10:52, 61 min, log
+  `reports/mutate-one-author-identities+1.log`)_: **92.83 %**, 414 killed, **32 survived**, 0 timeout.
+  Per file: `author-identities.mjs` **95.28 %** (10 survivors), `brain-author.mjs` **90.60 %** (22).
+  Step 8.8 had left these two at 98.66 % and 98.90 %, so **the drop is step 9's own new code**, which
+  is what a hunk-scoped reading would have said too.
+- ▶️ **RESUME HERE: ANSWER batch A's 32 survivors** — read one by one against the code, and the split
+  is already made: **7 are equivalents** of the class 8.8 already named (an `[]` fallback filled with
+  `["Stryker was here"]`, whose one element every consumer skips: `author-identities` 52:89, 228:76,
+  262:57; `brain-author` 70:56, 172:43, 231:56, 255:73). **The other 25 are killable, and none needs
+  production to change.** Two families:
+  - **The words of the two new messages are not pinned** (7 mutants: `brain-author` 239:62, 241 ×4,
+    245 ×2, 249:5). Emptying a whole sentence of `fusionElsewhereQuestion`, or dropping the `" = "`
+    that makes *"Claire Dubois = Thomas Pierrain"* readable, changes nothing any test can see. **This
+    is the exact defect 8.8 fixed for the other messages** and step 9 re-introduced with its own new
+    sentences: pin them word for word, and assert the `+N` overflow at its boundary.
+  - **The damaged / absent input is never fed** (18 mutants: every `entry?.` → `entry.`, the
+    `slug === null` guard, `.some` → `.every`, `mine !== null`, the `spellingsOf` filter,
+    `theirSpelling`'s `find`). Concretely missing: a registry entry that is `null`; an entry whose
+    `aka` holds a number or punctuation-only string; **two** endorsers where one is me (`.some` vs
+    `.every` only diverge at ≥2); `markDistinct` called without `me` (its documented one-directional
+    fallback is promised in a comment and asserted nowhere); and a fusion whose **canonical name is
+    mine**, where the command must name the OTHER spelling.
+- ▶️ Then, **one run at a time** (two at once starve each other and return a meaningless score):
+  re-run batch A to confirm, then `scripts/session-authors.mjs scripts/author-identity.mjs`, then the
+  ranges 9.4 changed in `scripts/lib/filed-note.mjs` (216) and `scripts/file-back-note.mjs` (102, 142).
   Findings into `maintainers/mutation/RESULTS.md`, newest-first; the figures then join the release
   note's *Quality* paragraph and #86's body, as 8.8's did.
+- 📎 **This batch is evidence for the OTHER plan** —
+  [`harness-speed-and-test-quality-action.md`](harness-speed-and-test-quality-action.md) § S2: a first
+  pass at 92.83 % whose 25 killable survivors are, without exception, the shapes catalogued since
+  2026-07-15 (the absent twin, the collection under 2 elements, the boundary, the constant asserted
+  against itself). Recorded there rather than re-derived.
 - ▶️ **THE WORK IS STEP 9 BELOW, four items, all in v5.1 on his explicit call** _(2026-09-05)_. They
   answer the question he put after reading the duo surface: **what guarantees the person asked is the
   one whose brain it is**, and that the newcomer is not the one answering *"yes, that's fine"*?
