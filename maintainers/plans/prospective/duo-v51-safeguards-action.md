@@ -35,6 +35,10 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
   tenth, `brain-author` **70:56**, was **killed**: it had been filed as an equivalent and that reading
   was wrong. Recorded in `RESULTS.md` with the durable point (naming the expected survivors before the
   re-run is what makes the re-run a check that can fail).
+- 🧳 **BATCH B WAS ALMOST CERTAINLY KILLED MID-RUN** _(2026-09-05 ~12:15: the owner left with the
+  laptop)_. **Assume it produced nothing and simply relaunch it** — a mutation run does not survive the
+  machine sleeping, and there is nothing to salvage or repair. Nothing else is affected: every commit
+  was pushed before the machine closed, and the only cost is the hour of compute.
 - ▶️ **RESUME HERE: BATCH B IS RUNNING** _(launched 2026-09-05 12:03, `scripts/session-authors.mjs`
   + `scripts/author-identity.mjs`, ~1 h → **verdict expected ~13:05**)_. Its verdict is the file
   `maintainers/mutation/reports/v510-95-batch-b.stdout.log` (the runner's own ✅/❌ line and per-file
