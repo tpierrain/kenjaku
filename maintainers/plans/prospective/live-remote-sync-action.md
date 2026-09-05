@@ -116,6 +116,15 @@ the rehearsal against a copy of a real brain.
 > fuses the two names and no suffix is ever written; *"it's someone else"* confirms duo mode and the
 > question is over.
 >
+> 🛑 **AND THE RELEASE IS HELD AGAIN, BY HIM, ON THE SAME MORNING** _(2026-09-05)_. Reading the duo
+> surface he asked what guarantees the person asked is *the one whose brain it is*, rather than the
+> newcomer answering for themselves. **Four items, all in v5.1, his explicit call**: announce here a
+> fusion recorded on another machine, say in the confirmation where the access came from and how to
+> take it back, give duo mode a page of its own, and stamp the attribution metadata now so an audit
+> can be built later. They live as **step 9 of the sub-plan**
+> [`duo-source-identity-action.md`](duo-source-identity-action.md), which owns them; do not tag before
+> they land.
+>
 > ✅ **THAT LAST THING IS DONE TOO** _(2026-09-05)_ — the sub-plan's **8.8**, the mutation measurement
 > of what step 8 wrote, with its figures in the release note's *Quality* paragraph and in #86's body.
 > _(This block used to say 8.8 was outstanding; it was, until that morning.)_ **Nothing on either plan

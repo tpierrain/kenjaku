@@ -46,9 +46,12 @@ below, and the release is held until it lands.**
   survivors left and every one a named equivalent of three classes (the checkboxes under 8.8 carry the
   detail, `RESULTS.md` carries the findings). The figures are in the release note's *Quality* paragraph
   and in the PR body — **on GitHub as well as in the record**, verified byte-for-byte after the edit.
-  **▶️ NOTHING ON THIS PLAN IS OPEN. What is left belongs to the owner alone**: merge #86, tag
-  `v5.1.0` on `main`, push the tag, publish the release. Their order lives in the parent plan's
-  `## 📍 STATE`, which this file deliberately does not restate.
+  **▶️ THE PLAN THEN REOPENED, SAME MORNING, ON HIS ASK — SEE STEP 9** _(2026-09-05)_. Reading the
+  duo surface he put the question none of step 8 answers: what guarantees the person asked is *the
+  one whose brain it is*, and that the newcomer is not the one saying "it's fine"? **The release is
+  held again for the four items of step 9** (announce a fusion made elsewhere, say where the access
+  came from, a page of its own for duo mode, and the attribution metadata laid before anyone starts),
+  all four in **v5.1**, his explicit call. Merging #86 and tagging stay his and stay after that.
 - ✅ **THE CI WAS READ ON RESUMING** _(2026-09-04, 23:31 push)_: the checks for `9246e12` **and** for
   the plan commit after it both **passed**. Nothing red is outstanding, so a failure appearing from
   here belongs to the work below (`rules/ci.md`).
@@ -665,7 +668,65 @@ This is the honest statement of the perimeter.
       question, not a silent detection. If the note changes, **re-check it against the real
       `extractWhatYouGet` parser** (the constraint is CONVENTIONS §11).
 - [x] **8.10** _(2026-09-05)_ Then, and only then, the parent plan's 8.3 is unblocked and the release
-      can be cut. **It is unblocked. Cutting it is the owner's, and only his.**
+      can be cut. **It is unblocked. Cutting it is the owner's, and only his.** ⚠️ **Superseded the
+      same morning by step 9**: he read the duo surface, asked what stops the NEWCOMER from being the
+      one who says "it's fine", and held the release again for the four items below.
+
+### 9. What a duo owes the person whose brain it is _(opened 2026-09-05, his ask, release held again)_
+
+**His question, in his words:** how do we guarantee the question is put to *the person whose brain it
+is*, and that the newcomer is not the one who answers "yes, that's fine" on their own behalf?
+
+**The answer, and it is mostly already true** — the consent is the **collaborator invite on the
+private repository**, which lives in the owner's authenticated account and cannot be self-granted.
+Nothing typed inside a brain grants any access, and the registry answers decide **how notes are
+filed**, never **who may write**. Verified in the code on 2026-09-05, not recalled: `distinct` is a
+list of NAMES, so the newcomer answering about the owner's name does **not** silence the owner's own
+question about theirs (`unplacedAuthors` filters by slug, per name).
+
+**And one real hole, which is what 9.1 closes.** `fuseAuthors` is convergent **on purpose** (answering
+on either machine settles it), so a wrong *"it's the same person"* answer recorded on the newcomer's
+machine resolves both names to one canonical → `everyone()` counts one person → the owner's machine
+emits **nothing at all**: no question, no reminder, and no arrival banner. It grants nothing, but it
+**hides the arrival**, which is exactly the scenario he described.
+
+**What is NOT worth building, and why it is written here rather than re-argued** — a notion of "the
+owner" that only accepts answers from them. The name is a line of git config, and anyone who can push
+can already change it, rewrite any note, and hand-edit `authors.json`. **No in-brain mechanism defends
+against someone who already has push access**; the invite list is the fence, and signed commits /
+branch protection are the git host's job, not this brain's.
+
+- [ ] **9.1** _(A)_ **A fusion recorded elsewhere is announced here, until this keyboard has endorsed
+      it.** Registry entries gain a `by:` list of the people who recorded or endorsed the fusion;
+      `--same-person` appends the local person to it. The session hook says, once per machine that
+      has not endorsed: *"on another machine, X and Y were declared to be the same person. If that is
+      right, confirm; if not, split them"*, with both commands. Endorsing is answering the ordinary
+      way, so **no per-machine marker is invented** — the memory stays the answer itself, and it
+      travels (step 8.3's doctrine). ⚠️ **An entry with no `by:` at all is treated as endorsed**: a
+      brain that fused names before this shipped must not start nagging about its own past.
+- [ ] **9.2** _(B)_ **`duoConfirmedNotice` names where the access came from, and how to take it
+      back.** Today it explains what changes in the filing; it must also say, in the person's
+      language, that the other person can write here **because they were added to the repository**,
+      and that removing them there is what ends it. An alert, not a permission — and it reaches the
+      owner by construction, because `distinct` is per name and the owner is asked their own question.
+- [ ] **9.3** **A page of its own for duo mode** _(his call, 2026-09-05: "je pense que c'est une page
+      dédiée au mode duo")_, in English, in the repo: the steps for both people, the Q&A, the
+      perimeter, the mail detail in full (delegation asks for no password …), and the security
+      section above (the invite is the fence; answering inside a brain grants nothing). `SETUP.md` §7
+      keeps a short summary and points at it, rather than growing a manual inside a setup guide. The
+      French one-pager he is sending privately is the draft this is translated from; it stays out of
+      the repo (parent plan's STATE says why).
+- [ ] **9.4** **Attribution metadata laid NOW, audit built later** _(his call: "ne pas implémenter le
+      use case tout de suite est raisonnable, mais setup les infos, les métadonnées … avant que les
+      gens commencent")_. Today `author:` is stamped only when the writer follows what
+      `dated-note-path.mjs` prints, and **no skill or constitution line asks for it anywhere else**,
+      so a future audit would have to be archaeology in git history. So: every note this brain writes
+      carries `author:` in its frontmatter, said in the constitution and in the skills that write
+      notes (**both locales, same commit**). **The RAW local name is stamped, never the canonical
+      one**: a fusion is an opinion that can be wrong and is reversible, while a stamped name is a
+      fact about who typed — resolution through the registry belongs at read time, where it already
+      lives (`canonicalAuthor`). The audit / export-by-person use case itself is **explicitly not
+      built** and is named as such on the page from 9.3, so nobody reads the field as a promise.
 
 ## 🛑 The owner's call: duo mode is implicit, and the brain announces it once _(2026-09-02, before the run)_
 
