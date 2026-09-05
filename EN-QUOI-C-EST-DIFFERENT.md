@@ -119,7 +119,7 @@ by using it: your notes, your rules (`CLAUDE.md`), your skills.
 |---|---|---|
 | **What's delivered** | A finished product, identical for everyone | A **generator** that produces **your** instance |
 | **Customization** | Settings in a closed UI | **Your constitution** (`CLAUDE.md`) + **your skills**, in the clear, editable |
-| **Sharing** | Shared accounts/spaces | We share the **generator**, not the brain: everyone has their own — and two people who *want* one between them can share theirs, deliberately: that is **duo mode**, with its perimeter written down ([SETUP §7](SETUP.md)) |
+| **Sharing** | Shared accounts/spaces | We share the **generator**, not the brain: everyone has their own — and two people who *want* one between them can share theirs, deliberately: that is **duo mode**, with its perimeter written down ([docs/duo-mode.md](docs/duo-mode.md)) |
 
 > 📌 *Underlying decisions:* [`maintainers/decisions/0001`](maintainers/decisions/0001-launcher-vs-brain.md)
 > (reusable launcher vs brain created elsewhere) and

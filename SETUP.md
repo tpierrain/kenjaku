@@ -581,77 +581,33 @@ still there if you would rather do it yourself, at your moment.
 
 > ⚠️ **Never** commit `.env` (gitignored). On a new machine, re-enter the key.
 
-### Duo mode — sharing one brain with someone else, what it does and what it does not
+### Duo mode — sharing one brain with someone else
 
 The same remote repository that keeps your two computers in step can keep **two people** in step.
 That is **duo mode**: nothing to switch on, it is what the brain does once a second person pulls from
-the same repository.
-Nothing extra to install and nothing to configure: you add them to the private repository, and their
-brain and yours pull from the same place. Here is the honest perimeter, because the part people
-expect and do not get is the part that costs a day.
+the same repository. You add them to the private repository, and their brain and yours pull from the
+same place.
 
-**What you now share: the notes.** Everything written into the vault travels both ways — captures,
-person pages, meeting write-ups, the activity log. Ask your brain what the other person wrote about
-a client and it answers from their notes, because they are yours now too.
+**📖 The whole thing is one page: [`docs/duo-mode.md`](docs/duo-mode.md)** — what each person does,
+the question your brain will ask you, who controls access and how a duo ends, and the honest
+perimeter. Worth two minutes before you invite anyone in. The three things people get wrong:
 
-**What you do NOT share: each other's tools.** A brain reads *your* mail, *your* messages, *your*
-calendar, through the connectors signed in as you. Their brain does the same with theirs. So:
+- **Sharing a brain shares what you wrote down, not what you can see in your own tools** (mail,
+  messages, calendar, Drive). Each brain reads *its own* account's mail and messages; **giving
+  someone access to your mailbox does not give their brain access to it**, and no setting changes
+  that. A **shared calendar** is the one thing that crosses over.
+- **Access is the repository's, not the brain's.** Nobody adds themselves, and **ending a duo is
+  removing their access on GitHub** — there is nothing to un-declare inside the brain
+  ([ADR 0042](maintainers/decisions/0042-access-belongs-to-the-git-host-the-brain-only-files.md)).
+- **Your brain asks one question and never guesses**: a second name appearing may be a colleague, or
+  you on another machine — it cannot tell, so it asks, and it remembers your answer on both
+  computers.
 
-- **Giving someone access to your mailbox does not give their brain access to it.** This is the one
-  that surprises everybody, so here it is in full. **Gmail delegation asks for no password**: in
-  Gmail's settings you add the person as a *delegate*, and they open your mailbox from **their own**
-  Google account (the account switcher, top right), reading, filing and replying "on behalf of".
-  Nothing is handed over, no credentials change hands, and that is the right way to delegate. But
-  what it gives them is **their eyes, not their brain**: the tools a brain reads mail with read **the
-  mailbox of the account they are signed in as**, and have no field for naming another one. It is not
-  a permission to tick, not a setting anyone can turn on, and not something that opens up if you
-  insist — the button does not exist.
-- **Sharing a calendar DOES reach the other brain**, and it is the one place where this works
-  properly, for exactly the reason mail does not: the calendar tools take a **calendar address**,
-  which is a field mail has no equivalent of. Share yours and their brain reads your meetings the way
-  it reads their own. If you want one thing to be shared automatically, make it the calendar.
-- **And no, the answer is not to hand over your password.** Technically the only way a brain could
-  read another mailbox would be to be signed in **as** that account. That is not delegation, it is
-  account sharing: it defeats two-factor authentication, most companies forbid it outright, and
-  everything the brain read, wrote or sent would carry the owner's identity with no way left to tell
-  who did what.
-- **If mail really has to reach the other brain, two things do work.** Either make the message land
-  in **their own** mailbox — an auto-forward rule on the senders or subjects that concern the work,
-  or a shared address both accounts receive — and their brain then sees it like any other of their
-  mail. Or use the path that needs no setup at all: they read it with their eyes through delegation,
-  and ask their brain to keep what matters. The note is written, and a note travels.
-- **A direct message is invisible to the other brain**, always — the same way it is invisible to you
-  in the app. Only what both of you can see in a channel is common ground.
-- **Chat workspaces do not add up.** Membership is per workspace: a brain sees the workspaces its
-  own account belongs to. Being in the same *company* is not the same as being in the same
-  workspace, and the difference shows up as a search that comes back empty for no visible reason.
-
-**And you both keep writing.** Two people writing on the same day get one dated note each rather
-than one contested file, and the places you only ever add to (daily notes, inbox, the activity log)
-merge on their own. What you both **rewrite** — a person's page, a topic — stops and asks, on
-purpose (see just above).
-
-**One question your brain will ask you, and why it asks rather than decides.** All it knows about
-who writes here is the name git is configured with on each computer. If your two machines spell your
-name differently (`Thomas Pierrain` on one, `tpierrain` on the other), that looks exactly like a
-second person — and treating you as two would tell you a colleague had arrived, and start splitting
-your days into one file per machine. It has no way of telling the difference, so it does not guess:
-the first time a second name appears, it asks you, in plain words, **is that someone else, or you on
-another machine?**
-
-- **If it is you**, say so. Your brain records that the two spellings are one person, and nothing of
-  yours is ever filed apart again.
-- **If it really is someone else**, say that instead. Duo mode is confirmed, your brain explains in
-  one sentence what changes, and the question is over.
-- **The answer travels.** It is stored with your notes and pushed like everything else, so answering
-  on one computer answers for both. Until you answer, it will ask again at the start of each session:
-  a question nobody answered would otherwise leave your brain filing on a guess forever.
-- **Changed your mind?** Answer the other way and it corrects itself — a fusion made by mistake is
-  undone, and the two people go back to having a file each.
-
-> 💡 In one sentence: **sharing a brain shares what you wrote down, not what you can see in your own
-> tools** (mail, messages, calendar, Drive). The way to put something in front of the other person is
-> the way it always was — write it down.
+> 🔐 **What sharing one repository means, plainly.** A brain's repository holds your notes **and the
+> code your brain runs** (`scripts/`, `rag/`). So anyone you let push to it can, in principle, have
+> code run on your machine at your next session. That is why the repository is **private**: the fence
+> is its collaborator list. Sharing a brain with a colleague is a real decision — the same one as
+> sharing a machine, not the one as sharing a document.
 
 ## 8. Troubleshooting
 
