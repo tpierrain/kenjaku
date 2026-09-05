@@ -245,7 +245,17 @@ import { openTickGate } from "GATE_URL";
 // \`node -e\` leaves no script path in argv, so the arguments start at index 1.
 const [, dir, id] = process.argv;
 writeFileSync(join(dir, "ready." + id), "");
-while (!existsSync(join(dir, "go"))) { /* spin: the tightest start four processes can share */ }
+// The spin is the tightest start four processes can share -- and it MUST carry a
+// deadline. Measured 2026-09-05, the hard way: killing a mutation run leaves these
+// children alive, the "go" file never appears, and each one burns a core forever.
+// Sixty of them were found spinning after ~9 hours, on a laptop that spent the
+// afternoon in a backpack. A busy-wait with no way out is not a fast test, it is a
+// fork bomb with a delay. Exit 2 is never a pass, so an expiry cannot be mistaken
+// for a result.
+const spinUntil = Date.now() + 30_000;
+while (!existsSync(join(dir, "go"))) {
+  if (Date.now() > spinUntil) process.exit(2);
+}
 const gate = openTickGate({ dir: join(dir, ".cache"), minGapMs: 1_000, isAlive: () => true });
 process.stdout.write(gate.acquire() ? "won" : "lost");
 `;
