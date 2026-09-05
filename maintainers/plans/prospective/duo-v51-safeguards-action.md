@@ -13,9 +13,18 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-05
 
-- ✅ **9.0 THROUGH 9.4 ARE DONE, GREEN AND PUSHED** _(2026-09-05)_ — the whole suite (3157 tests) and
-  the duo rehearsal (16/16) pass on each. **Only 9.5 remains** (the mutation measurement of what step
-  9 changed), and the release waits on it.
+- ✅ **9.0 THROUGH 9.4 ARE DONE, GREEN AND PUSHED, CI READ AND GREEN ON EVERY COMMIT** _(2026-09-05)_
+  — the whole suite (3157 tests) and the duo rehearsal (16/16) pass on each. **ONLY 9.5 REMAINS.**
+- ▶️ **RESUME HERE: 9.5, and its first batch was LEFT RUNNING** _(2026-09-05, late morning)_. The
+  command is `node maintainers/mutation/mutate-one.mjs scripts/lib/author-identities.mjs
+  scripts/lib/brain-author.mjs`; its report lands in `maintainers/mutation/reports/` and its score
+  must be **answered, not merely reported** (every survivor either killed by a new test or named as an
+  equivalent, the way 8.8 did it). **A resuming session cannot assume it finished** — check the report,
+  and re-run it if there is none. Then the second batch, **one at a time** (two at once starve each
+  other and return a meaningless score): `scripts/session-authors.mjs scripts/author-identity.mjs`,
+  then the ranges 9.4 changed in `scripts/lib/filed-note.mjs` and `scripts/file-back-note.mjs`.
+  Findings into `maintainers/mutation/RESULTS.md`, newest-first; the figures then join the release
+  note's *Quality* paragraph and #86's body, as 8.8's did.
 - ▶️ **THE WORK IS STEP 9 BELOW, four items, all in v5.1 on his explicit call** _(2026-09-05)_. They
   answer the question he put after reading the duo surface: **what guarantees the person asked is the
   one whose brain it is**, and that the newcomer is not the one answering *"yes, that's fine"*?
