@@ -858,6 +858,26 @@ test("renderFiledNote — the spelling is stamped as given, untouched", () => {
   assert.match(note.content, /^author: tpierrain$/m);
 });
 
+// 🛑 The stamp is TRIMMED, and the "nameless machine" test below does NOT prove it: that
+// one feeds padding ALONE, which the emptiness guard rejects before the padding matters.
+// A name with padding AROUND it is a real name — `git config user.name " Claire Dubois "`
+// is a typo nobody notices — and it has to land as the spelling itself. Stamped with its
+// padding, the field stops matching the same person's other notes, which is precisely
+// what a per-note author is for.
+test("renderFiledNote — a padded name is stamped as the name, without the padding", () => {
+  const note = renderFiledNote({
+    type: "topic",
+    title: "X",
+    tags: ["a"],
+    body: "b",
+    sources: SAID_HERE,
+    today: "2026-07-17",
+    author: "   Claire Dubois   ",
+  });
+
+  assert.match(note.content, /^author: Claire Dubois$/m);
+});
+
 // ABSENT means unknown, exactly like the source keys above: a brain whose git has no
 // user.name must still be able to file a note, and a stamped empty name would be a
 // claim that nobody wrote it.

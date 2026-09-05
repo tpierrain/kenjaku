@@ -681,3 +681,39 @@ test("runFileBack — a nameless machine still files, with no author stamped", (
 
   assert.doesNotMatch(f.writes[0].content, /^author:/m);
 });
+
+// 🛑 AS A PROCESS, because the real author dep is the one thing every test above
+// INJECTS. `realFileBackDeps.author` asks THIS machine's git, rooted with `-C` on the
+// brain being filed into — and each of the three ways that wiring can fail (answering
+// nothing, dropping the arguments, losing the `-C`) ends in the same silence: a note
+// written with no author at all, while every injected test above stays green.
+const A_NAME_ONLY_THIS_BRAIN_CARRIES = "Perceval de Galles";
+
+test("file-back-note, as a real process — the note carries the name the FILED-INTO repository's git holds", () => {
+  const brain = mkdtempSync(join(tmpdir(), "file-back-author-"));
+  const git = (...args) => spawnSync("git", ["-C", brain, ...args], { encoding: "utf8" });
+  git("init", "--quiet", "--initial-branch=main");
+  git("config", "user.name", A_NAME_ONLY_THIS_BRAIN_CARRIES);
+  git("config", "user.email", "perceval@example.com");
+
+  const run = spawnSync(process.execPath, [CLI], {
+    cwd: brain,
+    input: JSON.stringify({
+      type: "topic",
+      title: "Capacity Management",
+      tags: ["rag"],
+      body: "The distilled answer.",
+      sources: SAID_HERE,
+    }),
+    encoding: "utf8",
+  });
+
+  assert.equal(run.status, 0, run.stderr);
+  const filed = run.stdout.match(/^✓ Filed back: (vault\/.+)$/m);
+  assert.ok(filed, `no filed path was announced — stdout was ${JSON.stringify(run.stdout)}`);
+  assert.match(
+    readFileSync(join(brain, filed[1]), "utf8"),
+    new RegExp(`^author: ${A_NAME_ONLY_THIS_BRAIN_CARRIES}$`, "m"),
+    "the stamp must be the name THIS brain's git carries, read from the brain the CLI was pointed at",
+  );
+});

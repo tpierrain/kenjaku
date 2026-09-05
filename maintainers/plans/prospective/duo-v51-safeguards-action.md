@@ -68,6 +68,26 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
     a human's reading of the code was wrong. It does not just cost a score, it **writes a wrong
     judgement into the register in prose**. So when an instrument is disowned, re-read what it talked
     us into, not only what it measured.
+- ▶️ **BATCH C IS THE ONE THAT OWED TESTS: 78.95 %, four survivors, and all four were REAL**
+  _(2026-09-06 01:07, 3 min 46, on `a745f08`; 15 killed, 4 survived, 0 timeout. `filed-note.mjs`
+  **92.86 %**, `file-back-note.mjs` **40 %** — 5 mutants in range, so the percentage is theatre and the
+  count is the fact)_. **Answered in two tests, each seen RED against its mutant by hand before being
+  kept**, and the whole suite is green after them (3195 tests, 3192 pass / 0 fail / 3 pre-existing
+  skips). No production change was needed.
+  - **`filed-note.mjs` 216:84** — the stamped name's `.trim()` was not pinned. The existing *"nameless
+    machine"* test feeds padding **alone**, which the emptiness guard rejects before the trim matters;
+    what was missing is a real name **with** padding around it. Stamped padded, the field stops matching
+    the same person's other notes, which is the one thing a per-note author exists for.
+  - **`file-back-note.mjs` 102, all three mutants** — the REAL author wiring, which every other test
+    **injects**. Answering nothing, dropping the arguments, or losing the `-C` all end in the same
+    silence: a note filed with no author at all, while every injected test stays green. One
+    **process-level** test closes all three — a temp brain whose git carries a name no other repository
+    has, filed into, then the written note re-read from disk. This is the entry-point seam rule doing
+    exactly what it is for.
+  - 🔮 **PREDICTION FOR THE CONFIRMING RUN, WRITTEN BEFORE LAUNCHING IT** _(the lever this release
+    already proved twice)_: **19 killed, 0 survivors, 100 %**. **No equivalent is claimed on these
+    ranges** — so an *extra* survivor means a test that does not reach what it claims, and a *missing*
+    kill means the instrument, not the tests.
 - ✅✅ **BATCH B IS IN, AND IT OWES NOTHING EITHER: 96.32 %** _(2026-09-06 00:59, 30 min, on `a745f08`;
   157 killed, **6 survived**, **0 timeout**. `author-identity.mjs` **99.24 %**, `session-authors.mjs`
   **83.87 %**. Log `reports/v510-95-batch-b3.stdout.log`)_. **All six read against the code, all six
