@@ -136,6 +136,10 @@ branch protection are the git host's job, not this brain's.
       [`duo-source-identity-action.md`](duo-source-identity-action.md) — into `../archived/` with
       today's date, and this file with them. **Not before**: #86's body links the first by path and
       ADR 0041 links the second, and both links must stay alive while the PR is open.
+      📌 **Read [`harness-speed-and-test-quality-action.md`](harness-speed-and-test-quality-action.md)
+      § S3 before doing this** _(2026-09-05, the owner's ask on how we work)_: it turns this one-off
+      archiving into a standing hygiene, and its **S3.3 is exactly the broken-link problem** the
+      sentence above describes. Doing both here costs almost nothing extra.
 
 ### Also outstanding, and neither gates the tag
 
