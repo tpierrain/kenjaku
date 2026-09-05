@@ -75,6 +75,38 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
   does not add noise, it adds **points**. This is the register's own durable rule, and the second time
   it has bitten: *"treat a suite that is not deterministic under load as a broken instrument, and fix it
   before believing any number it produced"*. Batch A's 92.83 % first pass is under the same doubt.
+- 🔥 **A LAPTOP RAN AT 100 % FOR NINE HOURS, AND IT WAS OURS** _(2026-09-05 22:24, found by the owner
+  from the symptom: *"mon mac était bouillant … dans mon sac à dos"*)_. **Fixed, `e34cbb8`.** The
+  tick-gate race test (`remote-sync-gate.test.mjs`) starts four children that **spin** on `existsSync`
+  until a `go` file appears. Interrupting a mutation run kills the parent, the file never appears, and
+  each child burns a core **forever**. **60 were found alive**, in batches matching each interrupted
+  run, the oldest at 9 h 30. The spin now carries a 30 s deadline and exits 2, a code no assertion
+  accepts.
+  - ↩️ **This rewrites an earlier entry below**: batch B's *"58 of 163 mutants timed out"* was blamed on
+    the travelling laptop. **The likelier cause is these spinners**, which were eating the machine at
+    the time. The lesson stands and gets sharper: a starved run looks like a result, and **`ps` is the
+    first thing to look at when a run is slow** — not just for the runner, for what else is alive.
+  - 🧹 **Before any measurement: check for orphans.** `ps aux | grep input-type=module`. A run started
+    on a machine already at load 200 measures nothing.
+- ✅ **THE OWNER'S CALL IS IN, 2026-09-05: *"enlève l'attente"*.** The barrier goes; a session start
+  never blocks on the network. **This is the next work, and it has two halves — shipping only the first
+  would silently LOSE the information instead of delaying it**:
+  1. **Remove the wait.** `session-universe.mjs:164` drops its `waitForStartupSync` call and announces
+     what is on disk at once. ⚠️ **A second waiter exists and was not part of his question**:
+     `session-engine-divergence.mjs:63` (`awaitStartupSync`). Same shape, same tension with ADR 0028 —
+     put it to him rather than assume; a stale read there produces a *false* "your engine is behind".
+  2. **Say it at the next message when the universe changed.** The correction channel exists
+     (`prompt-restart-nudge.mjs` → `remote-arrivals.mjs`, the directive that rides the next prompt) but
+     it announces **files**: the pointer arriving would read as *"1 other file"*, which tells the owner
+     nothing. **Design settled, not yet written**: a `universeArrivalDirective` that fires when
+     `.vault-rag/active-universe` is among the arrived files, reads the pointer, and names the universe
+     now in force. Keyed on the **arrival** rather than on a remembered value, so a local `/switch`
+     never triggers a false correction, and git only lists the pointer when its content really changed.
+     It leads the message: a correction of something already said comes before the news.
+  3. **The flake dies with the barrier** — `session-universe.test.mjs:334` exists only to prove the
+     wait happens. It is replaced by its opposite: with a puller wired and the marker still *running*,
+     the hook must answer **promptly** and announce what is on disk. **That unblocks 9.5**: no mutation
+     score is trustworthy while a test fails 1 run in 8.
 - 🛑🛑 **THE FIX WAS REVERTED, AND WHAT REPLACES IT IS A QUESTION FOR THE OWNER** _(2026-09-05,
   `162ec93`)_. Both repairs of the stdin race break something that outranks the race, and the
   constraint they break is **already written down**: **ADR 0028** — *"the check must **never slow
