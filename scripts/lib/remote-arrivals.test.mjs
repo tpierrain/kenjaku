@@ -303,6 +303,22 @@ test("an absurdly long universe name is cut to fit, and the instruction survives
   assert.match(directive, /cross-cutting notes\.$/, "the sentence still ends where it should");
 });
 
+// The boundary itself, from both sides: a cut that fires one character early silently
+// mangles a perfectly legal name, and one that fires one character late overflows the
+// budget this whole file exists to respect.
+test("a name that fills the budget EXACTLY is left whole — one character more and it gives way", () => {
+  const say = (name) => universeArrivalDirective(trace({ files: [ACTIVE_UNIVERSE_REL] }), () => name);
+  const fits = DIRECTIVE_MAX - (say("x").length - 1); // the longest name the sentence has room for
+
+  const exact = say("y".repeat(fits));
+  const oneOver = say("y".repeat(fits + 1));
+
+  assert.equal(exact.length, DIRECTIVE_MAX);
+  assert.doesNotMatch(exact, /…/, "at the budget nothing is cut: the boundary belongs to the name");
+  assert.equal(oneOver.length, DIRECTIVE_MAX, "past it, it fills the budget and stops there");
+  assert.match(oneOver, /y…'/, "and what gave way is the name, nothing else");
+});
+
 // It arrives in the same `git diff` as everything else, so without this it would be
 // announced as "1 other file" — which is precisely what tells the owner nothing.
 test("the pointer is not one of the files that arrived: it has its own sentence", () => {

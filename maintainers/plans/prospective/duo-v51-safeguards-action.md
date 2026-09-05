@@ -177,8 +177,13 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
   batch above just proved that verdict can be wrong. **Note `session-authors.mjs` carries 2 known
   equivalents from 8.8** (it read 92.59 % there, hunk-scoped 44-109); this run is **whole-file**, so it
   is not the same measurement and the numbers are not comparable line for line.
-- ▶️ **THEN, the last batch**: the ranges 9.4 changed in `scripts/lib/filed-note.mjs` (216) and
+- ▶️ **THEN batch C**: the ranges 9.4 changed in `scripts/lib/filed-note.mjs` (216) and
   `scripts/file-back-note.mjs` (102, 142). One run at a time, always.
+- ▶️ **AND A BATCH D THAT 9.5 DID NOT PLAN FOR, because 9.4bis wrote production code after it was
+  written**: `scripts/lib/remote-arrivals.mjs` (whole — `universeArrivalDirective`, the pointer lifted
+  out of the file list, the name budget) and `scripts/prompt-restart-nudge.mjs` (the reader it wires).
+  CONVENTIONS §5quinquies asks for the day it is written, and this is that day. `session-universe.mjs`
+  owes nothing: 9.4bis only DELETED code there.
 - 📖 **The 32 first-pass survivors, and the reading that split them 22 killable / 10 equivalent, now
   live in `RESULTS.md`** — they were kept here only until the re-run could be checked against them,
   and it has been. Not copied back: a list that has done its job is history, and history belongs in
