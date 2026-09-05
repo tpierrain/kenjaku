@@ -28,8 +28,10 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
   unreachable for the same reason at both its call sites. **They are equivalents, and the honest
   simplification is to DELETE those guards** — not done here, deliberately: it changes production on a
   held release for three mutants. Left as a named candidate for the next pass.
-- ▶️ **RESUME HERE: the confirming re-run of batch A WAS LEFT RUNNING** _(2026-09-05 ~11:35, on
-  `b06991d`, ~61 min)_. **Its verdict is a FILE this time, not a lost terminal**:
+- ▶️ **RESUME HERE: the confirming re-run of batch A IS RUNNING** _(2026-09-05, launched **11:01**, on
+  `b06991d`, ~61 min → **verdict expected ~12:02**; the "~11:35" written here first was the writing
+  time, not the launch, and reading it as a launch makes a healthy run look overdue by half an hour —
+  **check `ps` before concluding a run died**)_. **Its verdict is a FILE this time, not a lost terminal**:
   `maintainers/mutation/reports/v510-95-batch-a2.stdout.log` holds the runner's own ✅/❌ line and the
   per-file scores; the raw Stryker output is `reports/mutate-one-author-identities+1.log` beside it.
   Read the stdout file first. **If it is absent or truncated, the run did not finish** — re-run
