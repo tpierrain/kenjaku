@@ -76,6 +76,20 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
   mutation measurements (**98.92 %** on the three files step 8 wrote, **95.45 %** on what it changed
   elsewhere), the release note, the PR body, and the doc corrections of 2026-09-05.
 - **Blocked on:** nothing.
+- 📇 **THE FOUR OTHER FILES THAT NAME THIS BRANCH, AND WHY EACH NEEDS NOTHING** _(checked 2026-09-05
+  by opening them, not by grepping)_. The carrier guard names them at every hand-back on this branch;
+  it judges no content, so the answer has to be written once rather than re-derived each time:
+  - [`live-remote-sync-action.md`](live-remote-sync-action.md) and
+    [`duo-source-identity-action.md`](duo-source-identity-action.md) — **both say, in their own STATE
+    block, that they are CLOSED and that the live state moved here.** They are records. They stop
+    being carriers at R.4, which archives them.
+  - [`harness-speed-and-test-quality-action.md`](harness-speed-and-test-quality-action.md) — owns its
+    own state and it is **current**: held until the tag, resuming at S1, and the order the owner
+    validated is *finish 9.5 with the instrument as it is, then S1*. Which is exactly what is
+    happening.
+  - [`release-v5.1.0-pr-body.md`](release-v5.1.0-pr-body.md) — a **frozen copy of what #86 was told**,
+    which is its whole point. It owes an edit only when the PR body itself is edited on GitHub, and
+    the next such edit is already named above: 9.5's figures, alongside the release note's.
 - **A session may, alone**: run step 9 test-first on `feat/live-remote-sync`, **pushing every green
   commit and READING its CI** (rules/ci.md). Mutation-score every new production file the day it is
   written (CONVENTIONS §5quinquies). **Writing a French twin is part of editing an English file that
