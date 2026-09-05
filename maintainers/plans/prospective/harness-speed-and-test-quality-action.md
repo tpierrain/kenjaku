@@ -141,6 +141,14 @@ pain got loud enough** into a **standing hygiene with a trigger**.
       hook**: the owner's standing latency budget (rules/ci.md, 2026-08-23 — *"on a de plus en plus de
       hooks … ça va pas le faire"*) rules out paying milliseconds on every hand-back for a question that
       only changes a few times per release.
+- [ ] **S3.5bis A finished plan is also a false alarm on every hand-back.** `plan-carrier-guard`
+      counts any tracked Markdown naming the branch, and it **cannot tell closed from stale** (it says
+      so itself). Measured 2026-09-05: it fired **twice in one session** over the same two closed plans
+      plus a PR body, each time answered "needs nothing" in one line. Archiving them removes them from
+      the guard's list by construction, so S3 buys back a recurring interruption as well as the reading
+      cost. **The declared door is NOT the answer here**: a plan may never declare `delegates-only`,
+      which is exactly right, and is why the only honest fix is to stop the finished plan from living
+      in the live folder.
 - [ ] **S3.5 Judged by the reading cost at a resume**, recorded here: the number of lines a *"on
       reprend"* has to read before work starts, today versus after. The door (`ACTIVE.md`, 34 lines) plus
       the active plan's STATE block is the budget; anything else opened is the defect.
