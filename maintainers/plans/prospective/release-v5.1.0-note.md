@@ -69,7 +69,7 @@ A second brain has always been one person's. The moment someone else worked in i
 - 🙋 **It asks instead of assuming, because it cannot tell.** Your two computers may spell your name slightly differently, and from the inside that looks exactly like a colleague. So your brain puts the question to you once — *someone else, or you on another machine?* — and remembers your answer on both computers. Say it is you, and nothing of yours is ever filed apart.
 - 👥 **The same thing captured twice is stored once.** You and a colleague both come out of the same meeting and both ask your brain to keep it: it recognises that it already holds that source, and does not write a second copy.
 - 📆 **You both keep writing on the same day without colliding.** Two people's write-ups of the same day become one note each rather than one contested file.
-- 📖 **And what sharing a brain does — and does not — do is written down.** The short version: it shares what you wrote down, not what you can see. Your mail, your messages, your calendar stay yours; a shared calendar is the one thing that crosses over. [SETUP §7](https://github.com/tpierrain/kenjaku/blob/main/SETUP.md) has the honest perimeter, worth two minutes before you invite anyone in.
+- 📖 **And what sharing a brain does — and does not — do is written down.** The short version: it shares what you wrote down, not what you can see in your own tools. Your mail, your messages, your calendar stay yours; a shared calendar is the one thing that crosses over. [SETUP §7](https://github.com/tpierrain/kenjaku/blob/main/SETUP.md) has the honest perimeter, worth two minutes before you invite anyone in.
 
 **And underneath it, for everyone: while a conversation is open, on either machine.**
 

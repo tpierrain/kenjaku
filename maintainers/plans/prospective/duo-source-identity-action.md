@@ -418,7 +418,10 @@ This is the honest statement of the perimeter.
       a **direct message** to one person is invisible to the other; and that Slack membership is
       **per workspace**. `SETUP.md` has **no French twin**, so this half was free to write.
       Framed around the one sentence worth remembering: *sharing a brain shares what you wrote down,
-      not what you can see.*
+      not what you can see in your own tools.* ⚠️ **That sentence lost four words on 2026-09-05, at
+      the owner's ask**: without them, *"what you can see"* reads as *what the other person can see
+      in the brain*, which is the opposite of the perimeter it states. Same fix in the release note's
+      duo block, which quotes it.
 - [x] **5.2** _(2026-09-03, `415cd7c`)_ Applied with step 3, in the same commit, as predicted. The
       constitution's owner-editable part is `CLAUDE.md.template`, which **is** a watched locale pair
       (`templates/fr/CLAUDE.md.template` exists), exactly like `CLAUDE.engine.md` — so the section

@@ -634,8 +634,9 @@ another machine?**
 - **Changed your mind?** Answer the other way and it corrects itself — a fusion made by mistake is
   undone, and the two people go back to having a file each.
 
-> 💡 In one sentence: **sharing a brain shares what you wrote down, not what you can see.** The way
-> to put something in front of the other person is the way it always was — write it down.
+> 💡 In one sentence: **sharing a brain shares what you wrote down, not what you can see in your own
+> tools** (mail, messages, calendar, Drive). The way to put something in front of the other person is
+> the way it always was — write it down.
 
 ## 8. Troubleshooting
 
