@@ -233,6 +233,52 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## v5.1 step 9 — the safeguards a duo owes the owner, and an "equivalent" that turned out to be killable — 2026-09-05
+
+State owned by
+[`../plans/prospective/duo-v51-safeguards-action.md`](../plans/prospective/duo-v51-safeguards-action.md)
+(step 9.5). Step 9 answers the owner's question after reading the shipped duo surface — *what stops
+the NEWCOMER from being the one who says "it's fine"* — and its one real hole was that a fusion
+recorded on the other machine made the owner's machine emit **nothing at all**. Registry entries now
+record **who endorsed** them (`confirmedBy`), and `markDistinct` learned who is disagreeing. This is
+that step's measurement, and it re-measures **whole** the two files 8.8 had already taken to 98.66 %
+and 98.90 % — because step 9's new code is what moved them.
+
+Logs: `reports/v510-95-batch-a2.stdout.log` (the runner's own verdict) and
+`reports/mutate-one-author-identities+1.log` (the raw output) for the confirming pass.
+
+| File (scope) | 8.8 left it at | First pass | After | Survivors left |
+|---|---|---|---|---|
+| `lib/author-identities.mjs` (whole) | 98.66 % | 95.28 % | **98.11 %** | 4, all equivalents |
+| `lib/brain-author.mjs` (whole) | 98.90 % | 90.60 % | **97.86 %** | 5, all equivalents |
+| **Batch A** | — | 92.83 % | **97.98 %** | 437 killed, 9 survived of 446 |
+
+**The first pass's 32 survivors split 22 killable / 10 equivalent** — not the 25/7 of the first skim.
+Reading each mutant against the code is what moved three of them: `brain-author`'s `spellingsOf`
+optional chainings (255:16, 255:47, 255:73) are unreachable, because `unendorsedFusions` only ever
+returns entries whose `aka` is a non-empty array. The 22 killable ones needed **no production change
+at all**, only tests, in two families — *the words of the two new messages are not pinned* (7), and
+*the damaged or absent input is never fed* (18: a `null` registry entry, an `aka` holding a number,
+**two** endorsers where one is me, `markDistinct` without `me`, a fusion whose canonical name is
+mine). Eight tests closed all 22.
+
+### ⚖️ The confirming run found NINE survivors where ten were predicted, and that is the good direction
+
+The plan named its 10 expected equivalents before the re-run, precisely so the verdict could be
+checked rather than admired. Nine came back, and **all nine are on that list** — no mutant escaped the
+new tests. The tenth, `brain-author` **70:56** (`Array.isArray(entry.aka) ? entry.aka : []`), was
+**killed**: it was filed as an equivalent of the *"`[]` fallback filled with `["Stryker was here"]`,
+whose one element every consumer skips"* class, and that reading was wrong — a test feeding an entry
+whose `aka` is not an array now reaches it.
+
+➡️ **The durable point**: an equivalence verdict is a *claim about the code*, and claims are wrong
+sometimes. Naming the expected survivors **in writing before the re-run** is what turns a mutation
+re-run into a check with a possible failure. Had the plan only said *"expect about ten equivalents"*,
+nine would have read as agreement, and the one misfiled judgement would have stayed on the books.
+The error was in the safe direction here (a mutant we thought unkillable was killed), but the
+mechanism is symmetric: an unexpected **extra** survivor is a hole in the tests, and only a named
+list makes it visible on sight.
+
 ## #84 duo — the announcement became a question, and half its survivors were code to DELETE — 2026-09-05
 
 State owned by

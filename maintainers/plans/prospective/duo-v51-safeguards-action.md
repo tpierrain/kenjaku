@@ -28,39 +28,33 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
   unreachable for the same reason at both its call sites. **They are equivalents, and the honest
   simplification is to DELETE those guards** — not done here, deliberately: it changes production on a
   held release for three mutants. Left as a named candidate for the next pass.
-- ▶️ **RESUME HERE: the confirming re-run of batch A IS RUNNING** _(2026-09-05, launched **11:01**, on
-  `b06991d`, ~61 min → **verdict expected ~12:02**; the "~11:35" written here first was the writing
-  time, not the launch, and reading it as a launch makes a healthy run look overdue by half an hour —
-  **check `ps` before concluding a run died**)_. **Its verdict is a FILE this time, not a lost terminal**:
-  `maintainers/mutation/reports/v510-95-batch-a2.stdout.log` holds the runner's own ✅/❌ line and the
-  per-file scores; the raw Stryker output is `reports/mutate-one-author-identities+1.log` beside it.
-  Read the stdout file first. **If it is absent or truncated, the run did not finish** — re-run
-  `node maintainers/mutation/mutate-one.mjs scripts/lib/author-identities.mjs
-  scripts/lib/brain-author.mjs`, and give it the machine to itself.
-  **Expect 10 survivors, all of them the named equivalents below.** Anything else is a mutant the new
-  tests did not reach: read it, do not wave it through.
-- 📖 **What the 22 killable ones were, kept because the re-run must be checked against it.** Ten are
-  equivalents of the class 8.8 named (an `[]` fallback filled with `["Stryker was here"]`, whose one
-  element every consumer skips: `author-identities` 52:89, 194:47, 228:76, 262:57; `brain-author`
-  70:56, 172:43, 231:56, 255:16, 255:47, 255:73). The other 22 needed **no production change at all**,
-  only tests. Two families:
-  - **The words of the two new messages are not pinned** (7 mutants: `brain-author` 239:62, 241 ×4,
-    245 ×2, 249:5). Emptying a whole sentence of `fusionElsewhereQuestion`, or dropping the `" = "`
-    that makes *"Claire Dubois = Thomas Pierrain"* readable, changes nothing any test can see. **This
-    is the exact defect 8.8 fixed for the other messages** and step 9 re-introduced with its own new
-    sentences: pin them word for word, and assert the `+N` overflow at its boundary.
-  - **The damaged / absent input is never fed** (18 mutants: every `entry?.` → `entry.`, the
-    `slug === null` guard, `.some` → `.every`, `mine !== null`, the `spellingsOf` filter,
-    `theirSpelling`'s `find`). Concretely missing: a registry entry that is `null`; an entry whose
-    `aka` holds a number or punctuation-only string; **two** endorsers where one is me (`.some` vs
-    `.every` only diverge at ≥2); `markDistinct` called without `me` (its documented one-directional
-    fallback is promised in a comment and asserted nowhere); and a fusion whose **canonical name is
-    mine**, where the command must name the OTHER spelling.
-- ▶️ Then, **one run at a time** (two at once starve each other and return a meaningless score):
-  `scripts/session-authors.mjs scripts/author-identity.mjs`, then the
-  ranges 9.4 changed in `scripts/lib/filed-note.mjs` (216) and `scripts/file-back-note.mjs` (102, 142).
-  Findings into `maintainers/mutation/RESULTS.md`, newest-first; the figures then join the release
-  note's *Quality* paragraph and #86's body, as 8.8's did.
+- ✅ **BATCH A IS CONFIRMED AND CLOSED: 92.83 % → 97.98 %** _(2026-09-05 12:02, 61 min, on `b06991d`;
+  437 killed, **9 survived**, 0 timeout. `author-identities.mjs` **98.11 %**, `brain-author.mjs`
+  **97.86 %**)_. **The check the plan asked for passed**: 10 equivalents were named in writing before
+  the run, nine came back, and **all nine are on that list** — no mutant escaped the new tests. The
+  tenth, `brain-author` **70:56**, was **killed**: it had been filed as an equivalent and that reading
+  was wrong. Recorded in `RESULTS.md` with the durable point (naming the expected survivors before the
+  re-run is what makes the re-run a check that can fail).
+- ▶️ **RESUME HERE: BATCH B IS RUNNING** _(launched 2026-09-05 12:03, `scripts/session-authors.mjs`
+  + `scripts/author-identity.mjs`, ~1 h → **verdict expected ~13:05**)_. Its verdict is the file
+  `maintainers/mutation/reports/v510-95-batch-b.stdout.log` (the runner's own ✅/❌ line and per-file
+  scores). **If it is absent or stops at the launch line, the run did not finish** — check `ps` for a
+  live `stryker` before concluding it died, then re-run `node maintainers/mutation/mutate-one.mjs
+  scripts/session-authors.mjs scripts/author-identity.mjs` and give it the machine to itself.
+  ⚠️ **Read its survivors against the code, one by one, before calling any of them equivalent** — the
+  batch above just proved that verdict can be wrong. **Note `session-authors.mjs` carries 2 known
+  equivalents from 8.8** (it read 92.59 % there, hunk-scoped 44-109); this run is **whole-file**, so it
+  is not the same measurement and the numbers are not comparable line for line.
+- ▶️ **THEN, the last batch**: the ranges 9.4 changed in `scripts/lib/filed-note.mjs` (216) and
+  `scripts/file-back-note.mjs` (102, 142). One run at a time, always.
+- 📖 **The 32 first-pass survivors, and the reading that split them 22 killable / 10 equivalent, now
+  live in `RESULTS.md`** — they were kept here only until the re-run could be checked against them,
+  and it has been. Not copied back: a list that has done its job is history, and history belongs in
+  the register.
+- 📌 **STILL OWED WHEN ALL THREE BATCHES ARE IN**: the figures join the release note's *Quality*
+  paragraph **and #86's body on GitHub**, as 8.8's did — the PR body's file copy and GitHub's own copy
+  are edited in the same breath, then GitHub's is re-read to confirm.
+- ⚠️ **Always one run at a time**: two at once starve each other and return a meaningless score.
 - 📎 **This batch is evidence for the OTHER plan** —
   [`harness-speed-and-test-quality-action.md`](harness-speed-and-test-quality-action.md) § S2: a first
   pass at 92.83 % whose 25 killable survivors are, without exception, the shapes catalogued since
