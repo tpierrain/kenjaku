@@ -23,6 +23,13 @@ permanence des plans énormes qui sont déjà faits."* → **S3**.
   note's *Quality* paragraph, and the 9.5 batches left are small (~1 h) — the tooling work saves
   almost nothing by jumping the queue, and costs comparability. **S3 was added after that call**, on
   the same day and on the same terms.
+- 🔧 **"THE INSTRUMENT AS IT IS" CHANGED ONCE, ON 2026-09-05, AND ONLY FOR THE BETTER** _(`ae5f61b`)_.
+  The suite carried a test that failed about 1 run in 8 under load, and since every mutant re-runs the
+  whole suite, an intermittent failure did not add noise to a score, it added **points**. It is gone —
+  deleted with the barrier it asserted, not stabilised. **Nothing here moves because of it**: this plan
+  stays held until the tag and still resumes at S1. It is recorded because S1 and S2 both reason about
+  the instrument, and they now reason about a sound one. Owner of that story:
+  [`duo-v51-safeguards-action.md`](duo-v51-safeguards-action.md).
 - ▶️ **RESUME HERE once the tag is published: S1 below**, the targeted test command. **The three are
   independent** and may be done in any order: S1 is the speed of the instrument, S2 the quality of the
   first pass, S3 the cost of reading the record. S1 first because it pays back on the very next run.
