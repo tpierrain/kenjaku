@@ -75,12 +75,27 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
   does not add noise, it adds **points**. This is the register's own durable rule, and the second time
   it has bitten: *"treat a suite that is not deterministic under load as a broken instrument, and fix it
   before believing any number it produced"*. Batch A's 92.83 % first pass is under the same doubt.
-- ❓ **ONE CALL IS THE OWNER'S, AND IT IS THE ONLY THING BLOCKING** — see the question at the end of
-  this block. Everything else is ready to go the moment he answers.
-- ▶️ **BATCH B IS NOT RUNNING** _(the 14:48 relaunch aborted in 1 min; its output is
-  `maintainers/mutation/reports/v510-95-batch-b2.stdout.log`)_. **Nothing may be re-measured until the
-  suite is deterministic under load** — a re-run before then buys another hour and another number
-  nobody can quote.
+- ✅ **THE DEFECT IS FIXED, TEST-FIRST, GREEN AND PUSHED** _(2026-09-05, `045bd3f`, the owner's call:
+  *"corriger le vrai défaut"* rather than stabilising the test)_. The cause was one property read:
+  `readHookPayload` asked *"is fd 0 a terminal?"* through `process.stdin.isTTY`, and **reading that
+  property builds the stdin stream, which switches fd 0 to non-blocking**. `readFileSync(0)` then
+  throws EAGAIN until the harness writes, and EAGAIN was caught and returned as `""`. **The guard
+  against hanging at a terminal was what broke reading from a pipe.**
+  - **The fix**: `tty.isatty(0)` answers the same question without touching the descriptor's mode; and
+    because a later import could rebuild that stream out of our sight, EAGAIN now means *"nothing there
+    YET"* and is worth a bounded 2 s wait. A genuine EOF (an empty read, `/dev/null`) still answers
+    instantly, so nothing pays for the belt.
+  - **Proof, before → after**, hook spawned with its payload handed over late: `500 ms` → announced
+    `acme` in 171 ms, never waiting → now `blue-team`, and it still holds at `1000 ms`. Under load,
+    **1 red in 8 concurrent full-suite runs → 0 in 8**.
+  - **The test that would have caught it now exists**: the old process-level test handed the payload
+    over the instant it spawned, so it only ever proved the barrier holds when the hook **wins** that
+    race, and nothing promises it does. The new one hands it over late.
+- ▶️ **BATCH A IS RE-RUNNING ON THE FIXED SUITE** _(relaunched 2026-09-05 15:29, ~1 h → verdict
+  ~16:30, file `maintainers/mutation/reports/v510-95-batch-a3.stdout.log`)_. **Batch A first, not B**:
+  its 97.98 % is the number under doubt, and it is the one already quoted in `RESULTS.md`. Then B
+  (`session-authors.mjs` + `author-identity.mjs`), then C (the ranges 9.4 changed in
+  `lib/filed-note.mjs` 216 and `file-back-note.mjs` 102, 142). One at a time.
   ⚠️ **Read its survivors against the code, one by one, before calling any of them equivalent** — the
   batch above just proved that verdict can be wrong. **Note `session-authors.mjs` carries 2 known
   equivalents from 8.8** (it read 92.59 % there, hunk-scoped 44-109); this run is **whole-file**, so it
