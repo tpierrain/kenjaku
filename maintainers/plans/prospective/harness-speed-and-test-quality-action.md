@@ -99,14 +99,27 @@ and a five-minute re-read of my own test diff would have caught it without start
 - [ ] **S2.3** Judged the only way that means anything: the **first-pass** score of the next new file,
       recorded here beside 84.60 %.
 - [x] **S2.0 The second measurement, taken the same day, says the same thing** _(2026-09-05 10:52,
-      step 9.5 batch A, 61 min)_: **92.83 %**, 32 survivors. **Seven** are equivalents of the class
-      already named; the **25 killable ones are, without exception, the catalogue** — the words of two
+      step 9.5 batch A, 61 min)_: **92.83 %**, 32 survivors. **Ten** are equivalents of the class
+      already named; the **22 killable ones are, without exception, the catalogue** — the words of two
       new messages not pinned (emptying a whole sentence changes nothing a test sees, which 8.8 had
       already fixed for the *other* messages), and the damaged-or-absent input never fed (`entry?.` on
       an entry no test makes null, `.some` vs `.every` on a list no test gives two elements, a
       documented one-directional fallback promised in a comment and asserted nowhere). **No production
       change is needed to kill any of them.** The instrument is being paid an hour to hand back a list
       we could have written before starting.
+      ↩️ **The split was 25/7 on the first skim and is 22/10 after reading each mutant against the
+      code** _(corrected 2026-09-05; the earlier figures stood here for two hours)_. It changes nothing
+      about S2's thesis — the killable ones are still the catalogue, entire — and it is worth the
+      correction anyway, because **the skim erred towards "killable" while the careful read erred
+      towards "equivalent"**, and the second is the direction that quietly lowers a bar.
+- [x] **S2.0bis The confirming run, and the one lever that cost nothing** _(2026-09-05 12:02, same two
+      files after 8 tests: **92.83 % → 97.98 %**, 9 survivors)_. The plan had **written the 10 expected
+      equivalents down before launching**, so nine returning was a *verdict* and not a vibe: all nine
+      were on the list, and the tenth turned out to be **killable** — an equivalence call we had got
+      wrong. ➡️ **A candidate for S2 that costs one minute, not an hour: name the survivors you expect
+      before a re-run.** It is the difference between a re-run you can fail and a re-run you can only
+      admire, it catches an escaped mutant *on sight* rather than by re-reading everything, and unlike
+      S2.1/S2.2 it needs no new tooling and no new discipline at authoring time.
 
 ### S3. A finished plan stops being read as a plan _(the record lever)_
 
