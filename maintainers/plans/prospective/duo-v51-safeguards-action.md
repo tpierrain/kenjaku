@@ -22,11 +22,11 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
 > through `e4b4032`. The only thing waiting on the owner is the ❓ entry below (the second waiter), and
 > it blocks nothing.
 >
-> 🌙 **OVERNIGHT, 2026-09-06 — BATCH A IS IN AND CLOSED, BATCH B IS RUNNING.** A is answered below
-> (**97.76 %**, all ten survivors equivalents, register updated). **B** (`session-authors.mjs` +
-> `author-identity.mjs`, whole-file) was launched **00:28 on `a745f08`**, log
-> `reports/v510-95-batch-b3.stdout.log`, back around **01:35**; the machine was checked clear of
-> orphans first (0 spinners, load falling). Then **C**, then **D**, one at a time. **The one thing the
+> 🌙 **OVERNIGHT, 2026-09-06 — A AND B ARE IN AND CLOSED, C IS RUNNING.** Both are answered below
+> (**97.76 %** and **96.32 %**, every survivor an equivalent, register updated, nothing owed in tests).
+> **C** (the ranges 9.4 changed: `lib/filed-note.mjs:208-216`, `file-back-note.mjs:99-102` and
+> `:139-142`) was launched **01:03 on `a745f08`**, log `reports/v510-95-batch-c.stdout.log`; the machine
+> was checked clear of orphans first each time. Then **D**. One at a time. **The one thing the
 > machine owes a run is to stay awake: `caffeinate` does not survive a closed lid**, and a sleeping
 > laptop does not kill a mutation run, it starves it into a number that looks like a result.
 
@@ -68,6 +68,19 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
     a human's reading of the code was wrong. It does not just cost a score, it **writes a wrong
     judgement into the register in prose**. So when an instrument is disowned, re-read what it talked
     us into, not only what it measured.
+- ✅✅ **BATCH B IS IN, AND IT OWES NOTHING EITHER: 96.32 %** _(2026-09-06 00:59, 30 min, on `a745f08`;
+  157 killed, **6 survived**, **0 timeout**. `author-identity.mjs` **99.24 %**, `session-authors.mjs`
+  **83.87 %**. Log `reports/v510-95-batch-b3.stdout.log`)_. **All six read against the code, all six
+  equivalents**, so the effective score on non-equivalents is **100 %**. `session-authors.mjs`'s 83.87 %
+  is a small denominator, not a hole: 31 mutants in the file, so each equivalent costs 3.2 points.
+  - 🔬 **Two of the six were settled by RUNNING Node, not by reasoning about it** — the honest way,
+    given the night's lesson. `readFileSync(p, "utf-8")` → `readFileSync(p, "")` in both real dependency
+    factories looked like a silent-wiring defect, which is the worst kind here. It is not: Node accepts
+    a falsy encoding, hands back a **Buffer**, and the seam's only consumer is `JSON.parse`, which
+    coerces it. Identical parsed object. Detail and the other four in `RESULTS.md`.
+  - 📌 **The disowned 96.32 % of yesterday was, by coincidence, the right number.** Same 163 mutants.
+    Refusing it was still correct: 58 of them "died" of timeout, and a timeout proves nothing about the
+    tests. **Being right by luck is not evidence**, and this is the clean run that is.
 - 🧳 **BATCH B's FIRST ATTEMPT SURVIVED THE TRIP AND IS STILL WORTHLESS — the runner said so itself**
   _(launched 12:03, returned **14:47** instead of ~13:05, because the laptop travelled in a bag in
   between)_. Verdict: **`❌ 58 of 163 mutants TIMED OUT (36 %) — the 96.32 % is starved CPU, not killed

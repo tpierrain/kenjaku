@@ -233,7 +233,7 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
-## v5.1 step 9 — the safeguards a duo owes the owner, and an "equivalent" that turned out to be killable — 2026-09-05
+## v5.1 step 9 — the safeguards a duo owes the owner, and a flaky suite caught manufacturing a kill — 2026-09-05/06
 
 State owned by
 [`../plans/prospective/duo-v51-safeguards-action.md`](../plans/prospective/duo-v51-safeguards-action.md)
@@ -312,6 +312,55 @@ down, in prose, where the next reader meets it as a settled fact. The standing r
 that is not deterministic under load as a broken instrument, and fix it before believing any number it
 produced* — therefore extends to **everything the instrument talked us into**, not only its figures.
 When an instrument is disowned, re-read what it made us conclude.
+
+### Batch B — 96.32 %, six survivors, and all six are equivalents — 2026-09-06 00:59
+
+Whole-file on the two scripts step 9 wired: `scripts/session-authors.mjs` (the SessionStart hook) and
+`scripts/author-identity.mjs` (the entry point that records an answer). 30 min, on `a745f08`, log
+`reports/v510-95-batch-b3.stdout.log`.
+
+| File (scope) | Score | Killed | Survived | Timeout |
+|---|---|---|---|---|
+| `author-identity.mjs` (whole) | **99.24 %** | 131 | 1 | 0 |
+| `session-authors.mjs` (whole) | **83.87 %** | 26 | 5 | 0 |
+| **Batch B** | **96.32 %** | 157 | 6 | 0 |
+
+**`session-authors.mjs`'s 83.87 % looks alarming and is not**: the file holds only 31 mutants, so each
+survivor costs 3.2 points, and **all five are equivalents**. Effective score on non-equivalents:
+**100 %**, both files.
+
+**The six, each read against the code — and two of them settled by running it rather than by reasoning
+about it:**
+
+- **`author-identity.mjs` 55:42 and `session-authors.mjs` 111:75** — `readFileSync(p, "utf-8")` →
+  `readFileSync(p, "")`, in the two real dependency factories. This one deserved the doubt: it is
+  exactly the shape of a wiring defect that fails **silently** (an unreadable registry costs the answer
+  the owner already gave, and the question comes back forever). **Probed rather than assumed**: Node
+  does **not** reject an empty encoding — `assertEncoding` skips a falsy value — so the call returns a
+  **Buffer** instead of a string, and the single consumer of that seam is
+  `JSON.parse(io.readFileSync(…))`, which coerces a Buffer perfectly. Same parsed object, byte for
+  byte. **Unkillable, and the codebase already knew it**: `universes.mjs:259` wraps the very same seam
+  in `String(…)` before calling `.trim()`, which is where a Buffer *would* have shown.
+- **`session-authors.mjs` 44:20, 44:34, 44:48** — the `NO_ANSWERS` fallback, reached only when the
+  registry read throws, mutated to `{}` and to lists holding `["Stryker was here"]`. Every consumer
+  normalises with `Array.isArray(…) ? … : []`, and the planted name is a slug no human has. Same
+  output in all three.
+- **`session-authors.mjs` 104:36** — `throw new Error("no git history")` → `Error("")`. The throw is a
+  control-flow signal caught by an empty `catch` one frame up, and the message reaches no channel at
+  all. Nothing can observe it. *(The standing rule is a matcher on every `throws`; it does not apply to
+  a message that is deliberately never surfaced — pinning it would assert on the test's own reach, not
+  on behaviour.)*
+
+➡️ **The durable point, and it is a saving**: `"utf-8"` at a seam whose only consumer is `JSON.parse`
+is **decorative to the instrument** — correct, worth keeping for the reader, and impossible to pin with
+a test. Recognising the class up front is worth an hour: it belongs to the same family as *"the `[]`
+fallback whose one planted element every consumer skips"*, and both can be named **before** a run
+rather than discovered after it.
+
+📌 **And a coincidence worth writing down before someone re-derives it**: the starved run of 2026-09-05
+also read **96.32 %**, over the same 163 mutants. That number was right, and it was still correct to
+refuse it — **58 of its mutants "died" of timeout**, and a timeout is a kill that proves nothing about
+the tests. Being right by luck is not evidence; the clean run with **0 timeouts** is.
 
 ## #84 duo — the announcement became a question, and half its survivors were code to DELETE — 2026-09-05
 
