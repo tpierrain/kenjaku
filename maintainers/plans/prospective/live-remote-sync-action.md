@@ -116,9 +116,30 @@ the rehearsal against a copy of a real brain.
 > fuses the two names and no suffix is ever written; *"it's someone else"* confirms duo mode and the
 > question is over.
 >
-> ▶️ **WHAT IS LEFT ON THIS BRANCH, AND IT IS ONE THING**: the sub-plan's **8.8**, the mutation
-> measurement of what step 8 wrote, whose figures then join the release note's *Quality* paragraph.
-> Nothing else is owed before the tag.
+> ✅ **THAT LAST THING IS DONE TOO** _(2026-09-05)_ — the sub-plan's **8.8**, the mutation measurement
+> of what step 8 wrote, with its figures in the release note's *Quality* paragraph and in #86's body.
+> _(This block used to say 8.8 was outstanding; it was, until that morning.)_ **Nothing on either plan
+> is owed by a session before the tag.**
+>
+> ✍️ **ONE DOC THREAD IS OPEN, AND IT IS NOT A BLOCKER** _(2026-09-05, from the owner reading the duo
+> surface aloud)_. Two ambiguities he found in the perimeter prose, both about *whose* tools are
+> meant:
+>
+> - **Fixed and pushed** (`1b7ff47`): *"shares what you wrote down, not what you can see"* now says
+>   **"not what you can see in your own tools"** (mail, messages, calendar, Drive), in `SETUP.md` §7
+>   and in the release note's duo block that quotes it. Cold, the short form read as *the other person
+>   cannot see what is in the brain*, which is the opposite of the perimeter it states.
+> - **Still to write into the repo**: `SETUP.md` §7's Gmail-delegation bullet is true but too terse to
+>   land — it says delegation does not reach the other brain without saying that **delegation asks for
+>   no password** (so the reader's next thought, *"then they'd have to give their password"*, is
+>   answered before it forms), without contrasting it with the calendar tool that **does** take an
+>   address, and without naming the two things that DO work (auto-forward or a shared address, so the
+>   mail lands in the colleague's own mailbox; else read with your eyes and write the note). The
+>   wording is being settled **in French first**, in a one-page guide the owner is sending to a
+>   colleague joining a real duo on 2026-09-08; the English lands here once he is happy with it. Both
+>   ends verified against the real tool definitions on 2026-09-05: the Gmail tools read *"the
+>   authenticated user's Gmail account"* and take no mailbox argument, `list_events` takes a
+>   `calendarId` that is an email address.
 >
 > ⏸️ **Then, and only then, 8.3** — tag `v5.1.0` **on `main`**, `git push
 > --tags`, publish the release with the body of
