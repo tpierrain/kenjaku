@@ -45,8 +45,10 @@ below, and the release is held until it lands.**
   **▶️ 8.8 IS UNDER WAY** _(2026-09-05, 03:00)_: the first pass came back at **84.6 %**, its 75
   survivors are answered (deleted where unreachable, tested where real, `24fa9cc`), and the
   re-measurement of the three new files reads **98.26 %** with its last two real survivors closed.
-  **What remains is the second measurement**, over the ranges step 8 changed in files that already
-  existed; it is running. The sub-checkboxes under 8.8 carry the detail. **Nothing else on this
+  The second measurement, over the ranges step 8 changed in files that already existed, came back at
+  **92.02 %** and its three real survivors are closed. **What remains is one confirmation pass**: both
+  target lists re-measured on the final code, since those fixes moved production in both. Nothing is
+  expected to change but the numbers that go into `RESULTS.md`, the release note and the PR body. The sub-checkboxes under 8.8 carry the detail. **Nothing else on this
   plan is open**; when those come back at this release's standard, `RESULTS.md` gains its section and
   **both** surfaces that quote figures gain them in the same commit: the release note's *Quality*
   paragraph and [`release-v5.1.0-pr-body.md`](release-v5.1.0-pr-body.md)'s *Quality evidence*, whose
@@ -624,7 +626,21 @@ This is the honest statement of the perimeter.
         are named equivalents**: four `[]` fallbacks a mutant fills with a name no fixture uses (only
         a collision could tell them apart), and `readFileSync(p, "")`, which returns a Buffer that
         `JSON.parse` accepts — the encoding is genuinely unobservable through that path.
-  - [ ] **Batch B**: `v510-duo-batch-a2` over the three files again, and
+  - [x] **Batch B — the ranges step 8 changed in files that already existed: 92.02 %**
+        _(2026-09-05, `v510-duo-batch-b`)_ — 194 killed, 17 survived, 2 timeout;
+        `universe-persist.mjs` **100 %**. Three survivors were worth acting on, and acting on them
+        **merged two ideas into one**: the note paths had grown a third spelling of "is this the same
+        person" (`base.author == null ? null : slugSafe(canonicalAuthor(…) ?? "")`), so `personSlug`
+        is now exported from `brain-author.mjs` and used by both — and the shared version answers a
+        case the copy **crashed** on, since a vault is text files a human edits and `author:` can come
+        back as a number or a list. Seen failing against the expression it replaces. The tick's
+        registry wiring is pinned too: every tick test injects its own `identities`, so the code that
+        reads the REAL file was exercised nowhere, while its only visible effect is a desktop banner
+        no test may raise — it is now driven directly against a brain the test owns. Both mutants
+        hand-applied and seen to die.
+  - [ ] **Both batches re-measured on the FINAL code** _(running from 03:30)_, since the fixes above
+        moved production in both target lists. Logs `v510-duo-batch-a3` and `v510-duo-batch-b2`.
+  - [ ] **Superseded, kept for the record**: `v510-duo-batch-a2` over the three files, and
         `v510-duo-batch-b` over the ranges step 8 CHANGED in files that already existed
         (`session-authors`, both `dated-note-path`, both `remote-sync`, `universe-persist`).
         🛑 **ONE AT A TIME, and this cost a run to learn** _(2026-09-05, 01:35)_. Started both at
