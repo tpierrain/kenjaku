@@ -1,4 +1,12 @@
 <!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- ARCHIVED 2026-09-06 — SHIPPED IN v5.1.0, tag cut the same day. This file -->
+<!-- is a RECORD: it holds no live state and no session resumes here. Where   -->
+<!-- work goes next is the one door, ../ACTIVE.md.                            -->
+<!-- plan-carrier-guard: delegates-only — an archived record by construction, -->
+<!-- and the guard cannot tell that from staleness, so it is told here.       -->
+<!-- What it OWNS: the WHY of the live sync between machines (#84), tick to clock. -->
+<!-- ─────────────────────────────────────────────────────────────────────── -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
 <!-- THE canonical plan for live sync between machines (issue #84). Opened      -->
 <!-- 2026-09-01. The `## 📍 STATE` block below is this file's only perishable  -->
 <!-- content: do not restate it here, in another file, or in a resume header.  -->

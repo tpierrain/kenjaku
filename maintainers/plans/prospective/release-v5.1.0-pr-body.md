@@ -13,7 +13,7 @@
 > with the branch. It goes stale the moment the PR body is edited **there** and not here, which is a
 > mismatch no guard can see — so the discipline is the one already written at 8.2: **edit both in the
 > same breath, then re-read GitHub's copy to confirm.** Where the work actually stands lives in
-> [`v5.1.0-code-review-fixes-action.md`](v5.1.0-code-review-fixes-action.md), which also names this file's next
+> [`v5.1.0-code-review-fixes-action.md`](../archived/v5.1.0-code-review-fixes-action.md), which also names this file's next
 > due edit. **Delete this line the day this file starts carrying anything the branch must obey.**
 
 ---
@@ -30,7 +30,7 @@
 ## How to review it
 
 The branch is best read **in the order the plan built it**, and each step's own reasoning is in
-[`maintainers/plans/prospective/live-remote-sync-action.md`](maintainers/plans/prospective/live-remote-sync-action.md)
+[`maintainers/plans/archived/live-remote-sync-action.md`](maintainers/plans/archived/live-remote-sync-action.md)
 — the merge rule, then the gate, then the clock, then the announcement, then the doctrine, then the
 field rehearsal. The two things most worth a reviewer's eye:
 

@@ -2,7 +2,7 @@
 <!-- ARCHIVED 2026-09-06 — step 9 in full, and nothing else. This file is a   -->
 <!-- RECORD: it holds no live state, and no session resumes here. The work    -->
 <!-- that outlived it is in                                                    -->
-<!--   ../prospective/v5.1.0-code-review-fixes-action.md                       -->
+<!--   v5.1.0-code-review-fixes-action.md (archived beside this file, tag cut) -->
 <!-- plan-carrier-guard: delegates-only — an archived record by construction, -->
 <!-- and the guard cannot tell that from staleness, so it is told here. What  -->
 <!-- this file DOES own: the reasoning of step 9 and the four 9.5 batches.    -->
@@ -20,7 +20,7 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
 > Step 9 landed whole, green, pushed, CI read on every commit. What the code review then opened, and
 > the tag behind it, moved to a small plan of its own on the owner's ask _("est-ce que ça ne vaut pas
 > le coup de faire un plan dédié un peu plus petit qui contient que ça, et d'archiver le reste ?")_:
-> **[`../prospective/v5.1.0-code-review-fixes-action.md`](../prospective/v5.1.0-code-review-fixes-action.md)**.
+> **[`../archived/v5.1.0-code-review-fixes-action.md`](v5.1.0-code-review-fixes-action.md)**.
 >
 > Everything below is the **record** of step 9: what a duo owes the person whose brain it is, the four
 > mutation batches of 9.5, and the session-start wait of 9.6. Read it for the WHY, never for a status.
@@ -325,8 +325,8 @@ is a lesson, not a status: the next mutation run is S1's, one plan over.)_
 - 📇 **THE FOUR OTHER FILES THAT NAME THIS BRANCH, AND WHY EACH NEEDS NOTHING** _(checked 2026-09-05
   by opening them, not by grepping)_. The carrier guard names them at every hand-back on this branch;
   it judges no content, so the answer has to be written once rather than re-derived each time:
-  - [`live-remote-sync-action.md`](../prospective/live-remote-sync-action.md) and
-    [`duo-source-identity-action.md`](../prospective/duo-source-identity-action.md) — **both say, in their own STATE
+  - [`live-remote-sync-action.md`](live-remote-sync-action.md) and
+    [`duo-source-identity-action.md`](duo-source-identity-action.md) — **both say, in their own STATE
     block, that they are CLOSED and that the live state moved here.** They are records. They stop
     being carriers at R.4, which archives them.
   - [`harness-speed-and-test-quality-action.md`](../prospective/harness-speed-and-test-quality-action.md) — owns its
@@ -469,7 +469,7 @@ branch protection are the git host's job, not this brain's.
     session. **Delayed, not lost.**
   - ➡️ **9.6.3 — MOVED, 2026-09-06.** The dead-plumbing sweep was the one item still open when this
         plan was archived, and an archived plan may not hold one. It is **§ 2.10 of**
-        [`../prospective/v5.1.0-code-review-fixes-action.md`](../prospective/v5.1.0-code-review-fixes-action.md).
+        [`../archived/v5.1.0-code-review-fixes-action.md`](v5.1.0-code-review-fixes-action.md).
 
 ### 10, the release cut, and the leftovers — MOVED, 2026-09-06
 
@@ -477,16 +477,16 @@ The `/code-review max` of 2026-09-06 found fifteen defects on this branch, and t
 them to live in a plan of their own rather than as a new chapter of a finished one. **Nothing about
 them is restated here** — the list, the six that gate the tag, the nine deferred to v5.2, the release
 steps and the two leftover measurements all live in
-**[`../prospective/v5.1.0-code-review-fixes-action.md`](../prospective/v5.1.0-code-review-fixes-action.md)**,
+**[`../archived/v5.1.0-code-review-fixes-action.md`](v5.1.0-code-review-fixes-action.md)**,
 which owns them.
 
 ## Where the reasoning lives — open these only when you need the WHY
 
 Both are closed and hold no live state. They are long on purpose: they are the record.
 
-- [`live-remote-sync-action.md`](../prospective/live-remote-sync-action.md) — the live sync between machines (#84):
+- [`live-remote-sync-action.md`](live-remote-sync-action.md) — the live sync between machines (#84):
   the merge rule, the tick, the gate, the announcement, the risks, the field rehearsal, and why duo
   mode needed it.
-- [`duo-source-identity-action.md`](../prospective/duo-source-identity-action.md) — duo mode itself: source
+- [`duo-source-identity-action.md`](duo-source-identity-action.md) — duo mode itself: source
   identity (ADR 0041), per-person dated notes, the narrowed merge rule, the owner's call that duo
   mode is implicit, and step 8's *a brain may file on a guess, it may not assert one*.
