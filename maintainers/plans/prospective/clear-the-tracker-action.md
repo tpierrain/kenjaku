@@ -41,11 +41,17 @@
   `templates/fr/**`, or write into either of his two real brains.
 - **One tidy-up is decided and NOT done** — § *The fold that is owed*. Five minutes of editing; it
   belongs to whoever opens v5.2's universe group.
-- 🙋 **ONE THING WAITS ON THE OWNER AND ON NOBODY ELSE** _(2026-09-02)_: **merge
-  [PR #85](https://github.com/tpierrain/kenjaku/pull/85), then dispatch the nightly mutation
-  workflow by hand and READ the score.** Both causes of its fortnight of red are fixed and verified
-  in CI's own shape (§ *Inherited from v5.0.0*), but "dispatch and read before trusting the cron"
-  is the rollout condition that workflow was written with, and no session may declare it met.
+- 🙋 **ONE THING WAITS ON THE OWNER AND ON NOBODY ELSE** _(2026-09-02; the merge half is now done,
+  2026-09-06)_: **dispatch the nightly mutation workflow by hand and READ the score.** Both causes of
+  its fortnight of red are fixed and verified in CI's own shape (§ *Inherited from v5.0.0*), and the
+  truncated-clone fix is **on `main` since 2026-09-06** — carried by
+  [PR #89](https://github.com/tpierrain/kenjaku/pull/89) (merged, `ae8671a`), **not** by
+  [PR #85](https://github.com/tpierrain/kenjaku/pull/85), which was **closed as superseded**: five of
+  its seven commits had already landed through v5.1.0, so it was five days behind `main` and a rebase
+  would have replayed present work. What remains is only the reading: "dispatch and read before
+  trusting the cron" is the rollout condition that workflow was written with, and no session may
+  declare it met. The cron of **7 September** is the first that can produce a score; a red one that
+  morning is a NEW cause, not this one.
 
 > **The two-release split is the owner's, 2026-08-23**: *« ce serait bien de faire une petite issue
 > pour bug fixer les issues remontées par Stefan ces prochains jours (une 5.1), puis de traiter les
@@ -175,7 +181,9 @@ _(That plan is archived; these came here so it could close. They belong to no mi
       dies in Stryker's **initial test run, before a single mutant** — so the job has never been
       reporting a weak suite, it has been reporting an environment it cannot run in. Eight tests
       failed; the two causes split them four and four.
-  - [x] **Cause 1, a truncated clone — fixed, PR [#85](https://github.com/tpierrain/kenjaku/pull/85).**
+  - [x] **Cause 1, a truncated clone — fixed and ON `main` since 2026-09-06, PR
+        [#89](https://github.com/tpierrain/kenjaku/pull/89)** (it superseded PR
+        [#85](https://github.com/tpierrain/kenjaku/pull/85), closed).
         `mutation-nightly.yml` checked out with bare `actions/checkout@v4` (shallow, no tags) while
         every `ci.yml` job running these same suites pins `fetch-depth: 0`. Four of the eight need
         real history: the QA fixtures replaying a brain from tag `v3.6.0` (EN, FR and the CRLF one)
