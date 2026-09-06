@@ -3,11 +3,16 @@
 // mutant re-runs the WHOLE harness suite (the exact CI command, see ci.yml).
 // NOTE: this is the BIGGEST run — 513 tests re-run per mutant. Expect it to be slow.
 // See ../plans/prospective/mutation-testing-stryker.md.
+import { commandFrom } from './judges.mjs';
+
 /** @type {import('@stryker-mutator/api/core').PartialStrykerOptions} */
 export default {
   testRunner: 'command',
   commandRunner: {
-    command: 'node --test "scripts/*.test.mjs" "scripts/lib/*.test.mjs"',
+    // The WHOLE suite unless the run narrowed the judges (mutate-one.mjs sets
+    // KENJAKU_MUTATION_JUDGES). Unset → byte-identical to what this file always
+    // said, which is what every published figure in RESULTS.md was measured with.
+    command: commandFrom(process.env),
   },
   // Prod harness code only; exclude the *.test.mjs siblings AND __fixtures__/** (test
   // doubles like stub-mcp-server.mjs, spawned only by *.test.mjs). Mutating a fixture
