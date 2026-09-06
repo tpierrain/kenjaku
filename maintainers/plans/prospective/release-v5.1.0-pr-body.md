@@ -62,6 +62,43 @@ acquired, slept and exited before the last had started — and a rival reclaimin
 is the gate working. The barrier plus an injected `isAlive` is what turned the weather into the
 subject.)
 
+## Six more defects, found by reviewing the branch against itself
+
+A `/code-review max` was run over the whole branch **after** the work above was green, and it found
+six things worth fixing before the tag. Four of them are in the live sync this release ships, which
+is the piece a defect would hurt most, and three of those four could **lose or hide a note**:
+
+- **An undo that could delete a note the owner had just written.** When a merged note failed the
+  header check, the tick reset the tree to `ORIG_HEAD` — a **shared** ref that a no-op rebase never
+  writes and that the auto-commit path can move underneath it. The tick now reads `rev-parse HEAD`
+  itself, one line before the rebase, and works from that **value**: no other git can move a value.
+- **A brain that could go quiet for good.** Freshness was asked of `@{u}` — this repo's own copy of
+  where the remote was, which its own `fetch` advances. One tick that fetched and then failed to
+  rebase left that ref at the remote's commit while the branch stayed behind, so every later tick
+  found them equal, said *"up to date"*, and announced nothing. For ever. The question is now whether
+  the branch **already contains** the remote commit, which is what the early return always meant.
+- **A sibling branch answering for `main`.** `ls-remote --heads origin main` matches the tail of a ref
+  on a path boundary, so a repo also carrying `archive/main` gets two lines back — sorted, so the
+  sibling comes first. The ref is now matched whole, as the engine's tag lookup already did.
+- **A name YAML reads as syntax.** `author:` is stamped from `git config user.name`, the only
+  frontmatter value that comes from outside the brain. Written raw, `@tpierrain` opens on a reserved
+  character: the note does not parse, its owner cannot find it, and **on a shared brain the partner's
+  header check undoes their entire pull over a name.** Quoted now — and only when needed, so no
+  ordinary name's bytes change.
+- Plus two one-liners: the `sources:` keys the skill taught **quoted** while the reader never
+  unquoted them, so ADR 0041's duplicate check silently never fired for the notes that skill produced;
+  and a French em dash in prose.
+
+**The two sync defects a fake `git` cannot see are pinned on a real repository as well** — only a real
+`fetch` writes the ref of the second one, and whether `ls-remote` really answers about a sibling
+branch is git's behaviour, not ours. Both were run against the old code first, and both went red.
+The announcement path was corrected in the same movement: it stated as a **fact** that a failed pull
+had been undone, without ever checking whether the undo ran. It checks now, and says so when it did
+not, because a person told their files were restored will not go looking for them.
+
+**Nine further findings are recorded and deliberately deferred to v5.2**, none of which can lose a
+note; they are listed with their reasoning in the branch's plan.
+
 ## Quality evidence
 
 - **Mutation-tested on every half of what this release writes**, because a per-step target list is a
