@@ -844,16 +844,26 @@ Sequence of one tick (`scripts/lib/remote-sync.mjs`):
 2. dirty tree → **deferred**: the existing persistence commits first on its quiet window (never
    a commit of a half-written file, ADR 0011's cost 3 stands); rebase in progress or
    `.git/index.lock` present → nothing;
-3. probe: `git ls-remote --heads origin <branch>`; SHA equal to `@{u}` → **total silence**, no
-   trace, no sentence (a "nothing new" every 90 s is the alarm fatigue CONVENTIONS §5quater
-   forbids);
-4. `git fetch` then `git rebase @{u}`; success → files arrived (`diff --name-only ORIG_HEAD
-   HEAD`), authors (`log --format=%an ORIG_HEAD..HEAD`), header check of merged notes (A);
-   failure or failed check → conflict list (`diff --name-only --diff-filter=U`) then `git rebase
-   --abort`;
+3. probe: `git ls-remote --heads origin <branch>`, the answer matched as `refs/heads/<branch>` line
+   by line; that commit **already contained in `HEAD`** → **total silence**, no trace, no sentence
+   (a "nothing new" every 90 s is the alarm fatigue CONVENTIONS §5quater forbids);
+   - 🩹 _(code review, 2026-09-06 — steps 3 and 4 are as SHIPPED here, not as first written.)_ The
+     comparison was against `@{u}`, which this tick's own `fetch` advances, so one failed
+     integration silenced every later tick for good; and `--heads` glob-matches the ref tail, so a
+     repo carrying `archive/main` answered about the sibling.
+4. `git fetch` then `git rebase`; success → files arrived (`diff --name-only <base> HEAD`), authors
+   (`log --format=%an <base>..HEAD`), header check of merged notes (A); failure or failed check →
+   conflict list (`diff --name-only --diff-filter=U`) then `git rebase --abort` / reset back to
+   `<base>` — where `<base>` is the SHA the tick read **itself** before rebasing, never `ORIG_HEAD`
+   (a no-op rebase leaves that ref naming an arbitrary older commit), and **the undo's exit status
+   is kept**;
 5. trace `.cache/remote_arrivals` (name and place per 0.6; gitignored, per machine):
-   `{ arrivedAt, files[], authors[], blocked: { files[] } | null, announcedAt | null }`,
-   **accumulated** until announced, written by atomic rename;
+   `{ arrivedAt, files[], authors[], blocked: { files[], reason, undone } | null, announcedAt | null }`,
+   **accumulated** until announced, written by atomic rename. `undone` is step 4's verdict: the
+   announcement states as a FACT that the pull was undone, so when the undo itself failed it says
+   *"could NOT undo it"* and asks for the merge to be **finished** rather than redone. **A trace
+   written by an older engine carries no `undone`** (the file is per-machine, so this is a
+   cross-VERSION case, never a cross-machine one), and its absence keeps the original sentence;
 6. then push through the existing path (`auto-push.mjs` as a child, under its
    `secondbrain.autopush` opt-in), so the other side receives at its next tick.
 

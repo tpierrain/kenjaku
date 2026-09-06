@@ -73,6 +73,11 @@ plan's own strategy is "migrate early, explore later"). A soft default scope pre
 3. **The default is implicit across three surfaces, one principle.** (a) The **column** is always
    populated (the engine stamps the default when frontmatter is absent). (b) The **frontmatter** carries
    `universe:` **only when non-default** (absence means default), so the majority's notes stay clean.
+   That value is a kebab slug by construction (`normalizeUniverseName`), hence YAML-safe as written,
+   **bar the handful a parser reads as a value rather than as text** — a universe named `true`,
+   `false`, `no` or `off` comes back as a boolean. Known, deliberately not changed in v5.1.0: quoting
+   it changes the bytes of every note in a universe, which is not a ripple to take on the eve of a
+   tag. Tracked for v5.2, where `yamlScalar` (the `author:` stamp's quoting) already covers it.
    (c) The **file layout** puts the default universe at the **vault root** (today's `daily/`, `topics/`,
    `backlog/`, ... unchanged), and each **created** universe in its own top-level subtree
    `vault/<universe>/...`. The same implicit-when-default / explicit-when-created rule unifies data,

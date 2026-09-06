@@ -124,6 +124,16 @@ brain believe it had already digested the whole world.
 | `sources` | machine | a **list** of normalized keys. What the duplicate check reads. |
 | `source_url` | human | a clickable link. What the citation renderer already reads. |
 
+> ✍️ **A key is written plainly, and read back either way** _(v5.1.0 code review, 2026-09-06)_. The
+> writer emits `sources: [drive|<id>, slack|<channel>|<ts>]`, unquoted, and the reader **unwraps a
+> matching quote pair** wrapping the whole value before comparing. That tolerance is not decoration:
+> the instructions shipped with this decision taught the **quoted** spelling for a while, the reader
+> compared whole strings, and every note produced from those very instructions was invisible to the
+> check — the same document captured again at every sync. The notes written that way are found again
+> because the reader unquotes, so **this is not a cleanup to undo**. Only a pair wrapping the whole
+> value, never "strip quote characters": a key carries a mail subject, and a subject carries an
+> apostrophe.
+
 `sources` is a **list**, not a single key, because the brain writes two different kinds of note:
 
 - **A capture** — a stored mail, a saved thread, a transcript. **One source, one note.** This is the

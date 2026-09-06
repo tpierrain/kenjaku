@@ -136,6 +136,15 @@ under the same conditions ADR 0032 admitted one for the local mirror:
   happens only when the answer differs from what this machine already has. Equal → total silence: no
   file written, nothing announced. A "nothing new" every interval is the alarm fatigue that makes a
   real signal unreadable;
+  - 🎯 ***"what this machine already has" is its HEAD, and the precision is load-bearing*** _(a
+    v5.1.0 code review, 2026-09-06)_. Shipped first, the probe compared the remote's answer to the
+    **tracking ref** — which this very tick's own `fetch` has just advanced. So after any integration
+    that failed, the tracking ref already named the remote commit while the notes were still not in
+    the tree: every later tick answered *"up to date"*, which is total silence, and the brain stayed
+    behind **for good**. The question the early return means is *"is that commit already contained in
+    my HEAD?"*, and it is now the question that is asked (`merge-base --is-ancestor`). The ref is also
+    matched as `refs/heads/<branch>` line by line: `ls-remote` glob-matches the tail, so a repository
+    carrying `archive/main` answers about the sibling;
 - **it never commits.** Cost 3 above stands whole: this rung refuses a dirty tree outright and defers to
   the persistence path, which commits on its own quiet window. It also stands aside for a paused rebase
   or a held `.git/index.lock`, so cost 4's multi-window race is not amplified — one **shared lock per
@@ -147,6 +156,15 @@ under the same conditions ADR 0032 admitted one for the local mirror:
 What the pull carries is the other side's notes, so **the vault's append-only zones merge by `union`**
 (both contributions kept, no markers, no human) and anything else conflicts as it always did. A merged
 note whose header no longer parses undoes the whole pull rather than leave an unindexable note behind.
+
+> ⚖️ **And the undo is CHECKED, because the sentence it produces is a statement of fact about
+> somebody's own files** _(same code review)_. `rebase --abort` and the reset back can themselves
+> fail, and the announcement used to assert *"undid the pull"* either way — a person told their side
+> was restored does not go looking for it. The trace now carries whether the undo actually ran, and
+> the sentence follows: *"could NOT undo it: the repo is left mid-operation"*, with the next step
+> becoming **finish** the merge rather than redo it. The undo also works from a commit the tick read
+> **itself** before rebasing, never from `ORIG_HEAD`: a no-op rebase leaves that ref naming an
+> arbitrary older commit, and resetting hard to it deletes notes the owner just wrote.
 
 **The scope of that word is the decision, and it narrowed.** `union` is not a merge, it is a
 **concatenation**: it keeps both sides' lines with no marker and no question asked. Shipped first
