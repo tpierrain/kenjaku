@@ -4,6 +4,8 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { docSection } from "./doc-section.mjs";
+import { parseNote } from "./note-parse.mjs";
+import { noteSources, sourceKey } from "./source-key.mjs";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // 14.7 layer 3 — an AI summary was served as a source while the verbatim sat in
@@ -308,11 +310,11 @@ const APPLIED = {
       },
       {
         why: "a capture stamps the key of the one document it is",
-        pattern: /sources: \["drive\|<DOC_ID>"\]/,
+        pattern: /sources: \[drive\|<DOC_ID>\]/,
       },
       {
         why: "the briefing's own frontmatter carries the normalized keys it drew on",
-        pattern: /sources: \["drive\|<id>", "slack\|/,
+        pattern: /sources: \[drive\|<id>, slack\|/,
       },
       {
         why: "a dated note's path is asked for, never composed by hand",
@@ -334,11 +336,11 @@ const APPLIED = {
       },
       {
         why: "a capture stamps the key of the one document it is",
-        pattern: /sources: \["drive\|<DOC_ID>"\]/,
+        pattern: /sources: \[drive\|<DOC_ID>\]/,
       },
       {
         why: "the briefing's own frontmatter carries the normalized keys it drew on",
-        pattern: /sources: \["drive\|<id>", "slack\|/,
+        pattern: /sources: \[drive\|<id>, slack\|/,
       },
       {
         why: "a dated note's path is asked for, never composed by hand",
@@ -351,6 +353,37 @@ const APPLIED = {
     ],
   },
 };
+
+// ── And the question the four patterns above never asked ───────────────────
+//
+// They pinned the documented spelling CHARACTER FOR CHARACTER, and the spelling
+// they pinned was `sources: ["drive|<DOC_ID>"]` — quoted. The reader compared
+// whole strings without unquoting, so every note produced from these very
+// instructions was invisible to the duplicate check, and the same Drive document
+// was captured again at every sync. The guard was green throughout: it asked "does
+// the doc say this?", never "does what the doc says WORK?".
+//
+// So this is the assertion that has teeth: fill the placeholder with a key the
+// brain really composes, read it back with the brain's own reader, and require the
+// key to come out. It fails on any spelling the reader cannot resolve, including
+// ones nobody has thought of yet.
+const TAUGHT_SOURCES = /^\s*sources: (\[[^\]]*\])\s*$/m;
+
+for (const [locale, { path }] of Object.entries(APPLIED)) {
+  test(`${locale} sync-sources — the spelling it TEACHES reads back as the key the brain COMPOSES`, () => {
+    const key = sourceKey({ type: "drive", file: "1A2b3C4d" });
+    const taught = read(path).match(TAUGHT_SOURCES);
+    assert.ok(taught, `${path} shows no sources: [...] example at all`);
+
+    const filled = taught[1].replace(/drive\|<[^>]*>/, key);
+    const { frontmatter } = parseNote(`---\ntype: note\nsources: ${filled}\n---\nbody\n`);
+
+    assert.ok(
+      noteSources(frontmatter).includes(key),
+      `${path} teaches ${taught[1]}, which does not read back as ${key}`,
+    );
+  });
+}
 
 for (const [locale, { path, rules }] of Object.entries(APPLIED)) {
   for (const { why, pattern, times } of rules) {

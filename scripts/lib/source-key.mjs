@@ -166,7 +166,24 @@ export const SOURCES_FIELD = "sources";
 export function noteSources(frontmatter) {
   const raw = frontmatter?.[SOURCES_FIELD];
   const values = Array.isArray(raw) ? raw : [raw];
-  return values.map((v) => String(v ?? "").trim()).filter((v) => v !== "");
+  return values.map((v) => unwrapQuotes(String(v ?? "").trim())).filter((v) => v !== "");
+}
+
+/**
+ * `"drive|1A2b"` → `drive|1A2b`. YAML allows a quoted scalar and the brain's own
+ * frontmatter reader keeps the quotes, so without this the two spellings of one key
+ * compare unequal — and `sync-sources/SKILL.md` had been teaching the quoted one
+ * since ADR 0041, which made the duplicate check silently miss every note the skill
+ * itself produced (code review, 2026-09-06).
+ *
+ * A matching PAIR around the whole value, never "delete the quote characters": a key
+ * carries a mail subject, a subject carries an apostrophe, and one character eaten
+ * here is a source that matches nothing for good.
+ */
+function unwrapQuotes(value) {
+  const opening = value[0];
+  if (value.length < 2 || (opening !== '"' && opening !== "'")) return value;
+  return value.at(-1) === opening ? value.slice(1, -1) : value;
 }
 
 /**

@@ -288,6 +288,32 @@ test("a note's sources are read from an inline list, from a lone key, and from n
   assert.deepEqual(noteSources(undefined), []);
 });
 
+test("a quoted key is the SAME key — the skill has been teaching that spelling all along", () => {
+  // The defect, found by the code review 2026-09-06: `sync-sources/SKILL.md` shows
+  // `sources: ["drive|<DOC_ID>"]` with quotes, the frontmatter reader trims but does
+  // not unquote, and the comparison is whole-string equality — so every note the
+  // skill's own instructions produced was invisible to the duplicate check, and the
+  // same Drive doc was captured again at every sync. Fixing only the documentation
+  // would leave the notes already written that way broken for good.
+  assert.deepEqual(noteSources({ sources: [`"${MAIL}"`, `'${THREAD}'`] }), [MAIL, THREAD]);
+  assert.deepEqual(noteSources({ sources: `"${MAIL}"` }), [MAIL], "a lone key is quoted too");
+  assert.deepEqual(noteSources({ sources: [` "${MAIL}" `] }), [MAIL], "padding outside the quotes");
+});
+
+test("a quote that is not a WRAPPER is part of the key, not punctuation to remove", () => {
+  // Triangulated against the strip above, because "delete the quote characters"
+  // passes the case above and is wrong: only a matching PAIR around the whole value
+  // is a wrapper. A mail subject can carry an apostrophe, and a key is compared by
+  // whole-string equality — one character eaten here is a source that matches nothing.
+  const apostrophe = "mail|a@b.c|20260902T161932Z|l'invoice";
+  assert.deepEqual(noteSources({ sources: [apostrophe] }), [apostrophe]);
+  assert.deepEqual(noteSources({ sources: ['"' + MAIL] }), ['"' + MAIL], "an opening quote alone wraps nothing");
+  assert.deepEqual(noteSources({ sources: [MAIL + '"'] }), [MAIL + '"'], "a closing quote alone wraps nothing");
+  assert.deepEqual(noteSources({ sources: [`"${MAIL}'`] }), [`"${MAIL}'`], "two different quotes are not a pair");
+  assert.deepEqual(noteSources({ sources: ['"'] }), ['"'], "one character cannot be its own pair");
+  assert.deepEqual(noteSources({ sources: ['""'] }), [], "an empty quoted value is no claim at all");
+});
+
 // A source is legitimately listed by SEVERAL notes: the capture that stored it and
 // every synthesis that drew on it. The check must name them all, so the caller can
 // cite the right one rather than the first one found.

@@ -151,7 +151,7 @@ que tu n'as pas.
    lecture, que ce qui revient est une synthèse. Il se déclenche sur les signatures qu'il connaît, donc son silence ne vaut pas permission :
    un export qu'il n'a jamais vu reste un export, et les règles 1 à 4 s'appliquent avec ou sans lui.
 
-## Identité de source — ne pas digérer deux fois la même source
+## Identité de source : ne pas digérer deux fois la même source
 
 > **Deux personnes peuvent partager un même cerveau, et alors le même mail, le même fil, le même
 > document est accessible des deux côtés.** Rien, dans une note, n'enregistrait jusqu'ici DE QUEL
@@ -392,7 +392,7 @@ TÂCHE :
    ---
    type: transcript
    source: <connecteur>
-   sources: ["drive|<DOC_ID>"]
+   sources: [drive|<DOC_ID>]
    meeting: "<titre>"
    date: YYYY-MM-DD
    captured: <date du jour>
@@ -578,7 +578,7 @@ type: briefing
 date: YYYY-MM-DD
 author: <le nom affiché par la commande ci-dessus>   # qui l'a écrit ; absent = inconnu, jamais personne
 architecture: fan-out/fan-in
-sources: ["drive|<id>", "slack|<canal>|<ts>"]   # ce dont ce briefing S'EST SERVI, clés normalisées
+sources: [drive|<id>, slack|<canal>|<ts>]   # ce dont ce briefing S'EST SERVI, clés normalisées
 unverified: true          # vrai tant qu'un caveat ci-dessous reste décoché (voir Caveats)
 tags: [briefing]
 ---
