@@ -10,6 +10,54 @@ controls access. If you read one line, read this one.
 > **Sharing a brain shares what you wrote down, not what you can see in your own tools**
 > (mail, messages, calendar, Drive).
 
+## The shape of it, before anything else
+
+**A duo is not two brains talking to each other. It is ONE brain, checked out on two machines**, with
+**exactly one** private repository in the middle. Same notes, same skills, same engine on both sides;
+the repository is the only thing that joins them, and it is the same one for both people.
+
+```
+                  ONE brain · ONE private remote · TWO machines
+
+      THE OWNER'S MAC                              THE OTHER PERSON'S MAC
+ ┌──────────────────────┐                        ┌──────────────────────┐
+ │  the brain (a clone) │                        │  the brain (a clone) │
+ │   vault/  the notes  │                        │   vault/  the notes  │
+ │   rag/    the search │                        │   rag/    the search │
+ │   skills/ the recipes│                        │   skills/ the recipes│
+ └──────────────────────┘                        └──────────────────────┘
+       push │        ▲ pull                pull ▲        │ push
+        (1) ▼        │ (2)                  (2) │        ▼ (1)
+        ┌──────────────────────────────────────────────────────┐
+        │     THE private repository — exactly one, shared     │
+        │   the same remote URL on both machines, and its      │
+        │   collaborator list IS the access control (§2, §7)   │
+        └──────────────────────────────────────────────────────┘
+
+  (1) push — once per turn, at the end of each exchange with your brain
+  (2) pull — every ~90 s, while a brain window is open (REMOTE_SYNC_INTERVAL)
+
+  never travels: .env · .mcp.json · .claude/settings.json (machine-local, and
+  rebuilt by `rehydrate.mjs`) — and everything outside the vault: mail, DMs,
+  the workspaces only one of the two accounts belongs to.
+```
+
+Four things that diagram is there to settle:
+
+- **One remote, and only one.** The person joining **clones the owner's repository**; they never
+  create a second one, and they never run the installer (that would make a brand-new empty brain
+  standing beside the first). Two repositories is not a duo: it is two brains drifting apart, and
+  nothing will ever tell you they diverged.
+- **Sending happens once per turn.** At the end of each exchange with your brain, that turn's commits
+  are bundled and pushed. A failed push is not blocking, and is retried at the next turn. It requires
+  `git config secondbrain.autopush true` — without it, a brain commits locally and sends nothing.
+- **Receiving happens on a timer**: while a brain window is open, each machine checks about every
+  **90 seconds** whether the other one pushed, brings in what it finds, indexes it, and tells you at
+  your next message. Set `REMOTE_SYNC_INTERVAL` (seconds) in `.env` to change the cadence. It ticks
+  only while a window is open — this is not a background daemon, and nothing syncs overnight.
+- **Both directions are the same mechanism**, so there is no "main" machine and no "copy": whoever
+  writes, pushes; whoever has a window open, pulls. The two brains are peers.
+
 ---
 
 ## 1. What travels, and what does not

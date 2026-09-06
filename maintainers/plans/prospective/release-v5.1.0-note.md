@@ -66,6 +66,20 @@ A second brain has always been one person's. The moment someone else worked in i
 
 **Duo mode — when two of you work in one brain.** Nothing to turn on: your brain notices on its own that a second name is writing here — and rather than decide what that means, it asks you.
 
+**And what that means, in one picture.** Not two brains talking to each other: *one* brain, living on two machines, with **exactly one** private repository in the middle. Whoever writes sends at the end of their turn; whoever has a window open receives about every ninety seconds.
+
+```
+   THE OWNER'S MAC                              THE OTHER PERSON'S MAC
+   the brain (a clone)                          the brain (a clone)
+           │  ▲                                      ▲  │
+     push  │  │ pull                            pull │  │  push
+  once per │  │ every ~90 s              every ~90 s │  │  once per
+      turn ▼  │                                      │  ▼  turn
+        ┌────────────────────────────────────────────────┐
+        │      ONE private repository, shared by both    │
+        └────────────────────────────────────────────────┘
+```
+
 - 🙋 **It asks instead of assuming, because it cannot tell.** Your two computers may spell your name slightly differently, and from the inside that looks exactly like a colleague. So your brain puts the question to you once — *someone else, or you on another machine?* — and remembers your answer on both computers. Say it is you, and nothing of yours is ever filed apart.
 - 👥 **The same thing captured twice is stored once.** You and a colleague both come out of the same meeting and both ask your brain to keep it: it recognises that it already holds that source, and does not write a second copy.
 - 📆 **You both keep writing on the same day without colliding.** Two people's write-ups of the same day become one note each rather than one contested file.

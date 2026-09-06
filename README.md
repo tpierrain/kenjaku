@@ -503,8 +503,9 @@ since is merged around your words, or offered to you as a choice. It's run **as 
 brains **in real use**, every upgrade **tested against existing brains before it ships** (the migration
 path is a **release gate**). What you share is the **generator** — one brain each, by default, and
 never a space at a vendor's. Two people who *want* one brain between them can have it — that's **duo
-mode**, deliberate and with its perimeter written down ([the duo-mode page](docs/duo-mode.md)); a choice you make, not
-the shape you are put in. And you could walk away from this repo tomorrow without losing a thing.
+mode**: *one* brain, *one* private remote, two machines, deliberate and with its perimeter written down
+([the duo-mode page](docs/duo-mode.md) opens on the diagram of what crosses, in which direction and how
+often); a choice you make, not the shape you are put in. And you could walk away from this repo tomorrow without losing a thing.
 
 *The market landscape (Notion AI, Mem, Reflect, Tana, Obsidian plugins, Khoj, AnythingLLM, NotebookLM,
 Glean…) is situated in [EN-QUOI §9](EN-QUOI-C-EST-DIFFERENT.md#9-for-the-record--and-compared-to-the-market-apps).*
