@@ -84,7 +84,8 @@ is the piece a defect would hurt most, and three of those four could **lose or h
   frontmatter value that comes from outside the brain. Written raw, `@tpierrain` opens on a reserved
   character: the note does not parse, its owner cannot find it, and **on a shared brain the partner's
   header check undoes their entire pull over a name.** Quoted now — and only when needed, so no
-  ordinary name's bytes change.
+  ordinary name's bytes change. The fix reaches **both** doors: the writer, and the command that
+  hands that line back to be pasted into a header rather than writing it itself.
 - Plus two one-liners: the `sources:` keys the skill taught **quoted** while the reader never
   unquoted them, so ADR 0041's duplicate check silently never fired for the notes that skill produced;
   and a French em dash in prose.
