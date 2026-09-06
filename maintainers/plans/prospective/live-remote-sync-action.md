@@ -23,9 +23,14 @@ the rehearsal against a copy of a real brain.
 > ⛔ **THE TAG IS HELD, ON A LIST THIS FILE DOES NOT OWN** _(2026-09-06)_. The `/code-review max`
 > found nine defects in the sync code **this plan shipped** — among them a `reset --hard ORIG_HEAD`
 > that can delete a note, and a freshness probe that answers *"up-to-date"* forever once an
-> integration has failed. **Not restated here**: they are § 1.1 → 1.3 (fixed now) and § 2.1 → 2.5
-> (deferred) of [`v5.1.0-code-review-fixes-action.md`](v5.1.0-code-review-fixes-action.md), which owns
-> them and the go/no-go.
+> integration has failed. **Not restated here**: they are § 1.1 → 1.3 and § 2.1 → 2.5 of
+> [`v5.1.0-code-review-fixes-action.md`](v5.1.0-code-review-fixes-action.md), which owns them, their
+> status and the go/no-go. **Open that file for where they stand** — this one deliberately says
+> nothing about it.
+>
+> ⚠️ _This line used to read "§ 1.1 → 1.3 (fixed now)", and it was false: those three are still open,
+> their tests written and not yet passing. Two words of status, copied into a file that does not own
+> it, and the copy went stale the same day. Kept as the reason this block now carries a link only._
 >
 > ✅ **THE OWNER'S GO IS GIVEN, AND THE NUMBER IS `v5.1.0`** _(2026-09-03, in conversation)_. His
 > words: *"ok pour v5.1.0, go pour la release"*. So 8.3's "owner's call" is answered — **the tag is
