@@ -20,6 +20,12 @@ server with its knob and its shutdown, the announcement that reaches the convers
 next message, the banner for notes written by someone else, the doctrine and docs that say so, and
 the rehearsal against a copy of a real brain.
 
+> ⛔ **THE TAG IS HELD, ON A LIST THIS FILE DOES NOT OWN** _(2026-09-06)_. The `/code-review max`
+> found nine defects in the sync code **this plan shipped** — among them a `reset --hard ORIG_HEAD`
+> that can delete a note, and a freshness probe that answers *"up-to-date"* forever once an
+> integration has failed. **Not restated here**: they are 10.1 → 10.9 in
+> [`duo-v51-safeguards-action.md`](duo-v51-safeguards-action.md) § 10, which owns them and the go/no-go.
+>
 > ✅ **THE OWNER'S GO IS GIVEN, AND THE NUMBER IS `v5.1.0`** _(2026-09-03, in conversation)_. His
 > words: *"ok pour v5.1.0, go pour la release"*. So 8.3's "owner's call" is answered — **the tag is
 > `v5.1.0`**, which is also the number the fingerprint table already carries (8.2ter therefore needs

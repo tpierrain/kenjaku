@@ -20,6 +20,12 @@ is lifted: the owner gave the go-ahead, both twins were written in the same comm
 3.1–3.3, 4.4, 4.5 and 5.2 landed with it. **The plan reopened on 2026-09-04 with one more step, and
 that step landed too: ✅ NOTHING HERE HOLDS THE RELEASE ANY MORE** _(2026-09-06)_.
 
+> ⛔ **The release IS held again, on a different file's list** _(2026-09-06)_. The `/code-review max`
+> found defects in code **this plan shipped** — the raw `author:` stamp written unquoted into YAML,
+> the two writers that spell `author:` differently, the `sources:` keys the skill teaches quoted while
+> the parser does not strip quotes. They are **not restated here**: they live as 10.4, 10.11 and 10.13
+> in [`duo-v51-safeguards-action.md`](duo-v51-safeguards-action.md) § 10, which owns that list.
+
 - ✅ **~~THE RELEASE IS HELD ON THIS PLAN AGAIN, BY THE OWNER~~ — LIFTED, THE WORK LANDED**
   _(hold 2026-09-04, lifted 2026-09-06)_. His words at the time: *"On ne publie pas la release tant
   qu'on n'a pas amélioré le mode Duo."* Duo mode was improved (step 8 whole), measured, and the

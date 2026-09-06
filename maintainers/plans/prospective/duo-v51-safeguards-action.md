@@ -13,17 +13,21 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-05
 
-> ▶️ **ON RESUMING (2026-09-06 09:00). THERE IS NO ENGINEERING WORK LEFT. THE NEXT EVENT IS A CODE
-> REVIEW THE OWNER LAUNCHES HIMSELF, AND ITS FINDINGS ARE THE WORK.** His sequence, given in his own
-> words: *"tu corriges ce comportement, on lance une code review max et on cut ensuite (sauf si des
-> trucs graves)"*. He cleared the context to launch it, so **the review's output is the first thing
-> to ask for on resuming** — if it is not to hand, ask for it rather than guessing what it said.
+> ▶️ **ON RESUMING (2026-09-06 10:00). THE CODE REVIEW HAS RUN, AND IT FOUND *DES TRUCS GRAVES*.
+> THE RELEASE IS HELD. THE WORK IS `### 10` BELOW — start at 10.1.** His own sequence was *"tu
+> corriges ce comportement, on lance une code review max et on cut ensuite (sauf si des trucs
+> graves)"*: the exception clause is the one that fired, so **R.1 → R.4 do not open yet**.
 >
+> - **The review's 15 findings are written out in `### 10`**, grouped by what they cost, with the
+>   line numbers it verified. **Four of them can lose or hide a note** and are the reason the tag
+>   waits; the review's own verification ran real `git` and `node`, and the four blockers were
+>   re-read against the code here before being believed.
+> - **Owner's call pending:** how much of `### 10` is fixed before the tag — the four blockers only,
+>   or the whole list. Recommended: the four blockers plus the two one-line ones (10.13, 10.15).
 > - **9.6 is DONE** (the last session-start wait is gone, ~104 ms instead of a 12 s ceiling), green,
 >   pushed, **CI read and green** on both commits and on #86. Nothing else was left over.
-> - **Then R.1 → R.4 below, which are his and only his.** A session may not tag, merge or publish.
 > - ⛔ **NO MUTATION RUN, his explicit call this morning**: *"pas de mutation testing encore pendant
->   des heures"*. None is owed anyway — 9.6 only deleted production code.
+>   des heures"*.
 >
 > **9.5 is closed on four batches** — A **97.76 %**, B **96.32 %**, C **100 %**, D **95.98 %** — and
 > the figures are already in the release note and in #86's body on GitHub (both edited together, and
@@ -477,7 +481,98 @@ branch protection are the git host's job, not this brain's.
         the tag. The gate's own ⚠️ blocks are updated to say the question is settled and the wait is
         unused, so nobody wires it back by reading a stale comment.
 
+### 10. What the code review found _(2026-09-06, `/code-review max` on the branch)_
+
+**Fifteen findings, every line number verified by the review against the working tree, most of them
+reproduced with real `git` and `node` rather than argued.** Four refuted candidates and a page of
+lower-severity near-misses are not carried here; what follows is what it stood behind.
+
+**The four blockers were re-read against `scripts/lib/remote-sync.mjs` before being written down**,
+and the code says what the review says: `known` is `@{u}` at line 115, the probe takes `[0]` of a
+glob match at 118, and 148 hard-resets to `ORIG_HEAD`. They chain: the glob defeats the early
+return, which makes the no-op rebase reachable, which leaves `ORIG_HEAD` stale under the reset.
+
+#### 10.a — Blocking: a note can be lost, or the sync can stop without saying so
+
+- [ ] **10.1** `remote-sync.mjs:148` — **`git reset --hard ORIG_HEAD` can delete a note the owner
+      just wrote.** A no-op rebase leaves `ORIG_HEAD` untouched, so the ref can name an arbitrary
+      older commit; nothing serialises the tick against `auto-commit.mjs`, which fires from
+      `PostToolUse`. The exit status of both the reset and the `rebase --abort` (126) is discarded,
+      while `remote-arrivals.mjs:195` tells the owner as a fact that the pull was undone.
+- [ ] **10.2** `remote-sync.mjs:115` — **the freshness probe compares the remote against `@{u}`, the
+      ref this tick's own `fetch` already advanced.** Neither `rebase --abort` nor `reset --hard`
+      rewinds it, so after any failed integration every later tick answers *"up-to-date"* — which is
+      defined as total silence — and the brain stays behind until someone pushes again. The suite
+      cannot see it: `remote-sync.test.mjs:42` stubs `rev-parse @{u}` as a constant.
+- [ ] **10.3** `remote-sync.mjs:116-118` — **`git ls-remote --heads <remote> <branch>` glob-matches
+      the ref tail**, so a repo carrying `archive/main` or `wip/main` gets several lines and `[0]`
+      reads the sibling's SHA. The cheap early return then never fires, every tick does a full
+      fetch + no-op rebase, and that is exactly 10.1's precondition. The correct parse already
+      exists at `engine-fetch.mjs:75-83`.
+- [ ] **10.4** `filed-note.mjs:216` — **the `author:` stamp interpolates raw `git config user.name`
+      into YAML unquoted.** A name starting with a YAML indicator (`@tpierrain`, `*thomas`, `- tp`)
+      makes every note that machine files unparseable — written, committed, invisible to search — and
+      on the partner's machine it fails `checkNote`, so 10.1's reset undoes their whole pull. The
+      write is `writeFileSync` from a Bash-run script, so the `Write|Edit` guard never sees it.
+
+#### 10.b — Serious: the owner is told the wrong thing, or nothing
+
+- [ ] **10.5** `remote-sync.mjs:124` — **every rebase failure is filed as `reason: "conflict"` with
+      the output of `--diff-filter=U`, which is empty when the failure was not a conflict** (an
+      `index.lock`, an unstaged change). `remote-arrivals.mjs:190` returns null on an empty file
+      list, so the tick reports *"blocked"* and **nothing at all reaches the owner**. Compounds
+      10.2: silent, and never retried.
+- [ ] **10.6** `remote-sync.mjs:130` — **`git diff --name-only` octal-escapes non-ASCII paths**, so
+      `vault/réunion.md` comes back quoted, fails `isNote()`, skips the damaged-frontmatter check
+      entirely, and is shown to the owner mangled. On a French-first product that is the normal
+      case; `repo-status.mjs:26` already carries `stripQuotes` and nothing here imports it.
+- [ ] **10.7** `remote-sync-gate.mjs:154` — **reclaiming a stale lock is an unconditional `rmSync`,
+      not a compare-and-delete**, so two windows can both emerge from `acquire()` holding it and run
+      concurrent git — the very `index.lock` collision this file documents having measured.
+- [ ] **10.8** `rag/src/lib/remote-sync-interval.ts:27` — **`REMOTE_SYNC_INTERVAL` has no upper
+      bound**; above ~22 days it overflows `setTimeout`'s 32-bit delay, Node rewrites it to 1 ms, and
+      the scheduler's `finally` re-arm turns *"sync rarely"* into an unbounded spawn loop.
+- [ ] **10.9** `session-status.mjs:256` — **the startup pull writes no arrivals trace**, so the
+      next-message correction that was traded for removing the session-start barrier (9.4bis/9.6)
+      can never fire. A session that starts as the other machine's universe switch lands announces
+      the wrong universe **for its whole life**, and scopes every search to the wrong sphere.
+
+#### 10.c — Correctness and consistency
+
+- [ ] **10.10** `remote-arrivals.mjs:197` — `blockedDirective` orders *"keep BOTH contributions"*
+      without filtering to notes, so it is issued verbatim for `.vault-rag/active-universe` and
+      `.vault-rag/authors.json`, where obeying it corrupts them. `arrivalsDirective` one function up
+      draws exactly this line; the blocked half does not.
+- [ ] **10.11** `dated-note-path.mjs:99` — **two writers stamp `author:` two different ways**: this
+      CLI resolves through the fusion registry, `filed-note.mjs:211` stamps the raw git name and its
+      own comment forbids resolving. The raw fact is destroyed at write time, and the CLI can then
+      announce a false attribution that `--different` cannot undo.
+- [ ] **10.12** `.gitattributes:46` — the narrowed `merge=union` **still covers daily and raw-capture
+      notes**, which `CLAUDE.engine.md:96` requires to carry frontmatter, so the duplicated-YAML-key
+      damage the narrowing was meant to remove is still reachable on today's daily note.
+      `notes-union-merge.test.mjs` cannot catch it: both sides share the header as common context.
+- [ ] **10.13** `.claude/skills/sync-sources/SKILL.md:371` (also 549, and 395/581 in the French
+      template) — **the skill teaches `sources:` keys quoted, and `note-parse.mjs:21` does not strip
+      quotes**, so the ADR 0041 duplicate check silently never fires for the notes the skill itself
+      produces, and the same Drive doc is captured again at every sync.
+
+#### 10.d — Conventions
+
+- [ ] **10.14** The four new/changed plans open with `## 📍 STATE` blocks of **33 to 334 lines**
+      against `CONVENTIONS.md` §3ter's *"≤ 20 lines"*, drop the mandatory `Next:` and
+      `Owner's call pending:` keys, and state CI-green facts §3ter says to link. **This file is one
+      of them.**
+- [ ] **10.15** One French em dash added in
+      `templates/fr/.claude/skills/sync-sources/SKILL.md:154` — the global no-em-dash-in-French rule.
+
+> ✅ **What the review checked and found clean**: artifacts in English, both new ADRs carry every
+> mandatory field, every new production file has its test twin, and all five new entry points are
+> driven as a real process.
+
 ### Cutting the release — the owner's, and only his
+
+> ⛔ **HELD until `### 10` is answered** (2026-09-06). The owner's condition was *"sauf si des trucs
+> graves"*, and 10.1 → 10.4 are that exception.
 
 - [ ] **R.1** Merge [#86](https://github.com/tpierrain/kenjaku/pull/86), titled **"v5.1.0 — The One
       with the Duo Mode"**.

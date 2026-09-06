@@ -23,6 +23,10 @@ permanence des plans énormes qui sont déjà faits."* → **S3**.
   note's *Quality* paragraph, and the 9.5 batches left are small (~1 h) — the tooling work saves
   almost nothing by jumping the queue, and costs comparability. **S3 was added after that call**, on
   the same day and on the same terms.
+  - ⏳ **The tag moved further out on 2026-09-06**, and nothing here changes because of it: the
+    `/code-review max` found blockers that must be answered before `v5.1.0` is cut. The list and the
+    go/no-go belong to [`duo-v51-safeguards-action.md`](duo-v51-safeguards-action.md) § 10; this plan
+    still resumes at S1, still after the tag.
 - 🔧 **"THE INSTRUMENT AS IT IS" CHANGED ONCE, ON 2026-09-05, AND ONLY FOR THE BETTER** _(`ae5f61b`)_.
   The suite carried a test that failed about 1 run in 8 under load, and since every mutant re-runs the
   whole suite, an intermittent failure did not add noise to a score, it added **points**. It is gone —
