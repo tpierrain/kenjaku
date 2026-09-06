@@ -11,6 +11,7 @@
 // kebab-case (e.g. "Jane Doe" → "jane-doe").
 import { DEFAULT_UNIVERSE } from "./universes.mjs";
 import { renderSourcesField, SOURCES_FIELD, sourceKey } from "./source-key.mjs";
+import { yamlScalar } from "./yaml-scalar.mjs";
 
 // The active universe carried by a spec, or null when the note belongs to the
 // vault root — no universe, or the implicit default (ADR 0034: a default-universe
@@ -213,7 +214,11 @@ export function renderFiledNote(spec) {
     // is a fact about who typed, and resolving belongs at read time. Absent means
     // UNKNOWN, like the source keys below: a nameless machine must still be able to
     // file, and an empty stamp would claim nobody wrote it.
-    ...(typeof spec.author === "string" && spec.author.trim() !== "" ? [`author: ${spec.author.trim()}`] : []),
+    // …and it goes through `yamlScalar` because this value comes from OUTSIDE: it is
+    // whatever `git config user.name` says, and `@tpierrain` is a name YAML reserves.
+    // Stamped raw it made the note unparseable — unfindable for its owner, and on a
+    // shared brain it undid the partner's whole pull. Ordinary names gain no quotes.
+    ...(typeof spec.author === "string" && spec.author.trim() !== "" ? [`author: ${yamlScalar(spec.author)}`] : []),
     // A caveat left in prose is a caveat the next session absorbs as confidence
     // (the claim discipline's "yesterday's caveat is a debt"). As a field, it is
     // findable without reading the sentence.

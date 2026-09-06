@@ -1,8 +1,13 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { noteAuthor } from "./dated-note-path.mjs";
 import { slugify, slugSafe, filedNotePath, renderFiledNote, homonymCards, sourcesBlock } from "./filed-note.mjs";
+import { engineParser } from "./vault-write-guard.mjs";
+
+const LAUNCHER = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 // ═══════════════════════════════════════════════════════════════════════════
 // filed-note — the pure, I/O-free core of Track B ("file the good answer back").
@@ -918,4 +923,54 @@ test("renderFiledNote — the stamp is the field the dated-note rule reads", () 
       .map((line) => [line.slice(0, line.indexOf(": ")), line.slice(line.indexOf(": ") + 2)]),
   );
   assert.equal(noteAuthor(frontmatter), "Claire Dubois", "two spellings of who wrote this is a rule that never fires");
+});
+
+// ── Names YAML would choke on, judged by the engine's OWN parser ─────────────
+//
+// 🛑 `git config user.name` is free text a person sets, and it lands verbatim in a
+// header. `@tpierrain` opens with a character YAML reserves, so the note does not
+// parse — the indexer refuses it, the owner cannot find it, and on a shared brain
+// the partner's `checkNote` undoes their whole pull over a name.
+//
+// Judged HERE by gray-matter + js-yaml resolved from the engine's own dependencies,
+// exactly as `vault-write-guard` and the indexer resolve them: a hand-rolled parse in
+// a test proves the test's opinion of YAML, not the engine's.
+const PARSE = engineParser({ brainDir: LAUNCHER });
+const NEEDS_ENGINE_PARSER = PARSE === null
+  ? { skip: "engine parser absent — CI re-runs this file after `npm ci` in rag/" }
+  : {};
+
+const noteWrittenBy = (author) =>
+  renderFiledNote({ type: "topic", title: "X", tags: ["a"], body: "b", sources: SAID_HERE, today: "2026-07-17", author });
+
+test("renderFiledNote — a name YAML reserves still parses, and comes back as the name", NEEDS_ENGINE_PARSER, () => {
+  // Real shapes: a handle, a nickname with a star, a name typed as a list item, an
+  // initial followed by a colon, a middle name a parser would read as a comment.
+  for (const author of ["@tpierrain", "*thomas", "- tp", "TP: the second", "Tom #2", "'quoted'", "null", "true", "42"]) {
+    const parsed = PARSE(noteWrittenBy(author).content);
+
+    assert.equal(parsed.data.author, author, `${JSON.stringify(author)} must survive as itself`);
+    assert.equal(noteAuthor(parsed.data), author, "…and reach the reader the per-person rule uses");
+    assert.equal(parsed.data.type, "topic", "the keys after it are still there: nothing swallowed the rest");
+    assert.deepEqual(parsed.data.tags, ["a"]);
+  }
+});
+
+// The converse, and it is the load-bearing half: quoting everything would also pass the
+// test above while rewriting the header of every note in every brain. An ordinary name
+// is written plainly, and the bytes on disk stay what they have always been.
+test("renderFiledNote — an ordinary name gains no quotes: no note is rewritten over a problem it does not have", () => {
+  assert.match(noteWrittenBy("Thomas Pierrain").content, /^author: Thomas Pierrain$/m);
+  assert.match(noteWrittenBy("Zoé Martín-Lévy").content, /^author: Zoé Martín-Lévy$/m);
+  assert.match(noteWrittenBy("O'Brien").content, /^author: O'Brien$/m);
+});
+
+// A name carrying a line break would end the frontmatter mid-value: the `---` closing
+// the header lands inside the name, and every key below it disappears into the body.
+test("renderFiledNote — a name spread over two lines cannot split the header in two", NEEDS_ENGINE_PARSER, () => {
+  const parsed = PARSE(noteWrittenBy("Thomas\nPierrain").content);
+
+  assert.equal(parsed.data.author, "Thomas Pierrain", "folded into one line, which is what a header value is");
+  assert.equal(parsed.data.type, "topic");
+  assert.equal(parsed.data.source_tier, "conversation", "the keys below the name are still keys");
 });
