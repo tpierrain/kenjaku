@@ -282,6 +282,10 @@ the rehearsal against a copy of a real brain.
      machine's own unpushed commits with new SHAs, so the trace announced the person at the
      keyboard as the author of what had just arrived. The upstream ref does not move during a
      rebase, so that range names the incoming commits and nothing else _(commit `546ead4`)_.
+     📌 **The RANGE still holds; the left-hand name does not.** Since `8c10215` the tick reads
+     `rev-parse HEAD` before the rebase and uses that VALUE, because `ORIG_HEAD` is a shared ref
+     another git in the brain can move (§ 1.1 of the code-review plan). The reasoning above is
+     unchanged — only the spelling of where the range starts.
   2. **The ignore line has to reach ALREADY-DEPLOYED brains**, and `.gitignore` is carried by no
      engine regime. Untracked and unignored, the trace makes the tree dirty → the next tick
      defers → the feature silently does nothing on the very brains that just received it, while
