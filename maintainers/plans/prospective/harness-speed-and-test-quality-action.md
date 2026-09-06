@@ -47,6 +47,19 @@ permanence des plans énormes qui sont déjà faits."* → **S3**.
     the bill is **CPU oversubscription** (each worker's `node --test` forks per file, ~28 processes
     seen at once), not only the breadth of the suite. Measure the narrowed subset's standalone time
     before concluding what S1 bought.
+- 🎯 **THE RE-MEASUREMENT THIS PLAN PREDICTED IS NOW ACTUALLY DUE** _(2026-09-06)_. The bullet below
+  argued S1 pays for itself because the code review would change already-measured files. § 1 of
+  [`v5.1.0-code-review-fixes-action.md`](v5.1.0-code-review-fixes-action.md) **is now done**, and it
+  changed **four files that all carry a published figure** in `RESULTS.md`: `lib/filed-note.mjs`,
+  `lib/remote-sync.mjs`, `lib/remote-arrivals.mjs` and `dated-note-path.mjs`. Sharpest of all,
+  **`filed-note.mjs:216` is the exact line a survivor was recorded on** (RESULTS.md, batch C, scored
+  100 %) — the `author:` stamp, which now goes through `yamlScalar`.
+  - **`lib/yaml-scalar.mjs` is BRAND NEW and has never been measured at all.**
+  - ⛔ **Not now, and it is the owner's call, not a session's**: he asked for no mutation run before
+    S1 landed (*"j'aimerais éviter de passer toute la journée à faire du mutation testing"*), and the
+    honest order is **S1.4 first** — redo the proving run properly, get a real figure, and only then
+    re-measure these five behind the faster instrument. Re-measuring on the 81-minute instrument is
+    exactly the bill S1 exists to avoid paying twice.
 - [ ] **S1.5 — `CONVENTIONS.md` §5quinquies still says "1-3 minutes"**, and it is still not true.
   Update it once S1.4 has a real figure to put there.
 - ▶️ ~~**S1 IS UNHELD AND IS THE NEXT THING TO DO, BEFORE THE TAG**~~ _(the decision, kept)_ _(2026-09-06, the owner's ask:

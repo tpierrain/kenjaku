@@ -20,11 +20,16 @@ is lifted: the owner gave the go-ahead, both twins were written in the same comm
 3.1–3.3, 4.4, 4.5 and 5.2 landed with it. **The plan reopened on 2026-09-04 with one more step, and
 that step landed too: ✅ NOTHING HERE HOLDS THE RELEASE ANY MORE** _(2026-09-06)_.
 
-> ⛔ **The release IS held again, on a different file's list** _(2026-09-06)_. The `/code-review max`
-> found defects in code **this plan shipped** — the raw `author:` stamp written unquoted into YAML,
-> the two writers that spell `author:` differently, the `sources:` keys the skill teaches quoted while
-> the parser does not strip quotes. They are **not restated here**: they live as 1.4, 1.5 and 2.7 in
-> [`v5.1.0-code-review-fixes-action.md`](v5.1.0-code-review-fixes-action.md), which owns that list.
+> 🔗 **The `/code-review max` found defects in code THIS plan shipped** _(2026-09-06)_ — the raw
+> `author:` stamp written unquoted into YAML, the two writers that spell `author:` differently, the
+> `sources:` keys the skill teaches quoted while the parser does not strip quotes. They are **not
+> restated here, and neither is where they stand**: they live as 1.4, 1.5 and 2.7 in
+> [`v5.1.0-code-review-fixes-action.md`](v5.1.0-code-review-fixes-action.md), which owns that list and
+> the go/no-go on the tag. **Open that file** — this block is a pointer and nothing else.
+>
+> ⚠️ _This block used to open on "the release IS held again", and within the day the hold was lifted
+> and two of the three defects fixed. Two words of status in a file that does not own it, stale by
+> lunchtime: the same lesson the sibling plan learned one paragraph at a time._
 
 - ✅ **~~THE RELEASE IS HELD ON THIS PLAN AGAIN, BY THE OWNER~~ — LIFTED, THE WORK LANDED**
   _(hold 2026-09-04, lifted 2026-09-06)_. His words at the time: *"On ne publie pas la release tant
