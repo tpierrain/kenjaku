@@ -12,7 +12,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -398,6 +398,26 @@ test("markAnnounced stamps the trace and changes nothing else", () => {
   assert.equal(before.announcedAt, null, "the input is not mutated: the caller decides what to write");
 });
 
+// The OTHER budget's boundary — this one guards the list of arrived files, where the
+// previous one guarded a universe name, and it gives up whole names rather than cutting
+// a sentence. A shrink that fires one file early costs a name the directive had room
+// for, every time, and nobody would ever notice: the sentence still reads perfectly.
+test("a directive that fills the budget EXACTLY names every file it has room for", (t) => {
+  const say = (paths) => arrivalsDirective(trace({ files: paths }));
+  const others = ["vault/a.md", "vault/b.md"];
+  const short = "vault/c.md";
+  // Derived from the sentence, not written out, so an edit to the prose cannot silently
+  // move the boundary this test is standing on.
+  const pad = DIRECTIVE_MAX - say([...others, short]).length;
+  const third = `vault/c${"y".repeat(pad)}.md`;
+
+  const exact = say([...others, third]);
+
+  assert.equal(exact.length, DIRECTIVE_MAX, "the fixture must land ON the budget, or it judges nothing");
+  assert.match(exact, new RegExp(`c${"y".repeat(pad)}\\.md`), "at the budget nothing gives way");
+  assert.doesNotMatch(exact, /\+1 more/, "…and no name is traded for a count");
+});
+
 // ── The trace on disk ────────────────────────────────────────────────────────
 
 function tempBrain(t) {
@@ -424,4 +444,22 @@ test("what is written is what is read back, and the atomic rename leaves nothing
   assert.deepEqual(buildTrace(root).read(), written);
   assert.deepEqual(JSON.parse(readFileSync(join(root, "remote-arrivals.json"), "utf8")), written);
   assert.deepEqual(readdirSync(join(root, ".cache")), [], "the staging copy is gone, and never sat at the brain root");
+});
+
+// 🛑 THE FAILING HALF of the atomic write, which the happy path cannot reach. A rename
+// that cannot land must do two things, and both matter more than the write itself: leave
+// NO staging file (the next run would otherwise rename a stale trace into place and
+// announce arrivals that already happened), and let the error OUT — swallowed here, the
+// caller believes the trace was written and the brain stops carrying anything over.
+test("a rename that cannot land cleans up after itself, and the failure reaches the caller", (t) => {
+  const root = tempBrain(t);
+  // A directory where the trace file belongs: the rename has nowhere legal to land.
+  mkdirSync(join(root, "remote-arrivals.json"), { recursive: true });
+
+  // The matcher is `rename`, not an errno: which errno a refused rename produces is the
+  // platform's business, and what this test claims is that the RENAME's own failure came
+  // out untouched rather than being re-wrapped or swallowed.
+  assert.throws(() => buildTrace(root).write(trace({ files: ["vault/a.md"] })), /rename/);
+
+  assert.deepEqual(readdirSync(join(root, ".cache")), [], "no half-written trace is left waiting to be picked up");
 });

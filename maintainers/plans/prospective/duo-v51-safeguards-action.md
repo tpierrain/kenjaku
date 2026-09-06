@@ -70,6 +70,32 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
     a human's reading of the code was wrong. It does not just cost a score, it **writes a wrong
     judgement into the register in prose**. So when an instrument is disowned, re-read what it talked
     us into, not only what it measured.
+- ▶️ **BATCH D — 95.09 %, eleven survivors, TWO of them real** _(2026-09-06 01:55, 39 min 37, on
+  `9ed0ebe`; 212 killed, 11 survived, 1 timeout. `remote-arrivals.mjs` **94.87 %**,
+  `prompt-restart-nudge.mjs` **96.55 %**)_. **Answered in two tests, each seen RED against its mutant
+  and the two neighbouring equivalents seen STILL GREEN** — the check that the fixture judges the
+  operator and not merely the line. Whole suite green after them: 3197 tests, 3194 pass / 0 fail / 3
+  pre-existing skips. No production change.
+  - **`remote-arrivals.mjs` 98:39** — `text.length > DIRECTIVE_MAX` → `>=`, in the loop that gives up
+    file NAMES one at a time to fit the prompt budget. A shrink firing one character early costs a name
+    the directive had room for, **every time, invisibly**: the sentence still reads perfectly. The
+    boundary test that existed guards the OTHER budget (the universe name, `withinNameBudget`); this one
+    is `withinBudget`, and its boundary was unpinned. The new fixture derives its padding from the
+    sentence, so an edit to the prose cannot move the boundary under the test.
+  - **`remote-arrivals.mjs` 248:23** — the whole `catch` of the atomic write emptied. Two guarantees die
+    with it and both outrank the write: the staging copy is left behind (the next run renames a **stale
+    trace** into place and announces arrivals that already happened), and the failure never reaches the
+    caller, which then believes the trace was written. Only the happy path was tested; the failing half
+    now is too, driven by a real refused rename.
+  - ⚖️ **The other nine are equivalents, and two were settled by RUNNING Node**: an empty encoding on
+    `writeFileSync` produces byte-identical output, and on `readFileSync` a Buffer that `JSON.parse`
+    coerces (the batch B class again). The rest: a `null` default swapped for `undefined` behind a
+    falsy test, the planted-string fallbacks, and `rmSync`'s `force` on a path that always exists at
+    that point.
+  - 🔮 **PREDICTION FOR THE CONFIRMING RUN, WRITTEN BEFORE LAUNCHING IT: 9 survivors, ~95.98 %**
+    (215 of 224 killed). **Named, so the run can fail**: `remote-arrivals` 98:20, 98:70, 154:25, 209:63,
+    236:46, 245:69, 249:25, 249:34, and `prompt-restart-nudge` 47:75. Anything else that comes back is a
+    hole, not an equivalent.
 - ▶️ **BATCH C IS THE ONE THAT OWED TESTS: 78.95 %, four survivors, and all four were REAL**
   _(2026-09-06 01:07, 3 min 46, on `a745f08`; 15 killed, 4 survived, 0 timeout. `filed-note.mjs`
   **92.86 %**, `file-back-note.mjs` **40 %** — 5 mutants in range, so the percentage is theatre and the
