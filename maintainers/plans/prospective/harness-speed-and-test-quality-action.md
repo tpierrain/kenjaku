@@ -17,12 +17,31 @@ permanence des plans énormes qui sont déjà faits."* → **S3**.
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-05
 
-- ⏸️ **NOT STARTED, AND DELIBERATELY HELD until `v5.1.0` is tagged** _(owner's call, 2026-09-05:
-  "on valide cet ordre")_. The order he validated is: **finish 9.5 with the instrument as it is**,
-  then S1, then S2. Changing the runner mid-measurement would put two instruments in one release
-  note's *Quality* paragraph, and the 9.5 batches left are small (~1 h) — the tooling work saves
-  almost nothing by jumping the queue, and costs comparability. **S3 was added after that call**, on
-  the same day and on the same terms.
+- ▶️ **S1 IS UNHELD AND IS THE NEXT THING TO DO, BEFORE THE TAG** _(2026-09-06, the owner's ask:
+  *"est-ce que les modifications là ne seraient pas pertinentes à faire avant le truc qu'on avait dit
+  qu'on ferait après la release ? … c'est quoi l'arbitrage le plus intéressant"*)_. **The hold expired
+  on its own terms** rather than being overridden: the condition was *finish 9.5 with the instrument
+  as it is*, and 9.5 closed at 02:42 this morning. What changed the arithmetic is the code review —
+  [`duo-v51-safeguards-action.md`](duo-v51-safeguards-action.md) § 10 opens six fixes in files that
+  are **already measured**, so their published figures stop describing the shipped code and a
+  re-measurement is owed **either way**. On the instrument as it stands that is ~80 min a batch,
+  twice; behind S1 it is minutes. **S1 pays for itself inside this release instead of after it.**
+  - **Why it cannot flatter the release**: S1.2's property is one-directional — narrowing the judges
+    removes kills, it cannot invent one, so a score can only come back **equal or lower**.
+  - **And it ships to nobody**: `mutate-one.mjs` is a maintainer tool, absent from the product
+    surface, so this adds no risk to what v5.1.0 hands a user.
+  - **The one honest cost, accepted**: the release note's *Quality* paragraph will describe two
+    instruments. It gets written as such, with the old figure and the new one side by side (S1.4
+    already asks for exactly that pair).
+  - **S2 and S3 stay held until the tag**, unchanged — with one free exception: **S2.1 is a re-read,
+    not a run**, so it is applied to the § 10 fixes' own test diff as they are written.
+- ⏸️ ~~**NOT STARTED, AND DELIBERATELY HELD until `v5.1.0` is tagged**~~ _(owner's call, 2026-09-05:
+  "on valide cet ordre" — **superseded 2026-09-06, see above**)_. The order he validated is: **finish
+  9.5 with the instrument as it is**, then S1, then S2. Changing the runner mid-measurement would put
+  two instruments in one release note's *Quality* paragraph, and the 9.5 batches left are small (~1 h)
+  — the tooling work saves almost nothing by jumping the queue, and costs comparability. **S3 was
+  added after that call**, on the same day and on the same terms. _(Kept, not deleted: the reasoning
+  is still right, and it is the measure of what had to change for the conclusion to move.)_
   - ⏳ **The tag moved further out on 2026-09-06**, and nothing here changes because of it: the
     `/code-review max` found blockers that must be answered before `v5.1.0` is cut. The list and the
     go/no-go belong to [`duo-v51-safeguards-action.md`](duo-v51-safeguards-action.md) § 10; this plan

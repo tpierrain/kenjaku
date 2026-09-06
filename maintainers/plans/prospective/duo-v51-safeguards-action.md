@@ -22,8 +22,13 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
 >   line numbers it verified. **Four of them can lose or hide a note** and are the reason the tag
 >   waits; the review's own verification ran real `git` and `node`, and the four blockers were
 >   re-read against the code here before being believed.
-> - **Owner's call pending:** how much of `### 10` is fixed before the tag — the four blockers only,
->   or the whole list. Recommended: the four blockers plus the two one-line ones (10.13, 10.15).
+> - **THE SCOPE IS SETTLED** _(2026-09-06, "on suit ta recommandation")_: **10.1 → 10.4 plus 10.13
+>   and 10.15**, six fixes. The nine others are real and stay written above; they go to v5.2.
+> - **AND THE ORDER CHANGED, HIS ASK, SAME BREATH**: the harness-speed step **S1 runs FIRST**, before
+>   the six fixes. Those fixes land in already-measured files, so a re-measurement is owed either way,
+>   and on the instrument as it stands that is ~80 min a batch. Reasoning and the accepted cost:
+>   [`harness-speed-and-test-quality-action.md`](harness-speed-and-test-quality-action.md) § STATE,
+>   which owns it. **Next: S1.1 there, then 10.1 here.**
 > - **9.6 is DONE** (the last session-start wait is gone, ~104 ms instead of a 12 s ceiling), green,
 >   pushed, **CI read and green** on both commits and on #86. Nothing else was left over.
 > - ⛔ **NO MUTATION RUN, his explicit call this morning**: *"pas de mutation testing encore pendant
