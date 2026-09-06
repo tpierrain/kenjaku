@@ -299,3 +299,27 @@ test("as a process, an answered brain files both Macs into one note", () => {
   assert.match(run.stdout, /^path: vault\/daily\/2026-09-02\.md$/m, "one owner, one day, one note");
   assert.match(run.stdout, new RegExp(`^author: ${ME}$`, "m"));
 });
+
+// 🛑 THE SECOND DOOR ONTO THE SAME DEFECT. `renderFiledNote` now quotes an author whose
+// spelling YAML reads as syntax — but this CLI does not write a note, it hands back the
+// `author:` LINE and asks for it to be stamped verbatim. Handing back `author: @tpierrain`
+// is handing back an unparseable header, and the person copying it has no way to know.
+// The line given must be a line that can be pasted.
+test("an author YAML reserves is handed back quoted, because this line is copied verbatim", () => {
+  const { deps, logs } = fakeDeps({ author: "@tpierrain" });
+
+  assert.equal(runDatedNotePath(["--folder", "daily", "--date", "2026-09-02"], deps), 0);
+  assert.deepEqual(logs, ["path: vault/daily/2026-09-02.md", "author: '@tpierrain'"]);
+});
+
+// …and the path is still built from the NAME, not from the quotes: a stamp that is safe
+// to paste and a filename that names somebody else would be a worse bug than the first.
+test("the quoting is on the stamp alone: the per-person path still slugs the name itself", () => {
+  const { deps, logs } = fakeDeps({
+    author: "@tpierrain",
+    notes: [{ path: "daily/2026-09-02.md", frontmatter: { author: HER } }],
+  });
+
+  assert.equal(runDatedNotePath(["--folder", "daily", "--date", "2026-09-02"], deps), 0);
+  assert.deepEqual(logs.slice(0, 2), ["path: vault/daily/2026-09-02-tpierrain.md", "author: '@tpierrain'"]);
+});

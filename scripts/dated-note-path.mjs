@@ -33,6 +33,7 @@ import { defaultGit } from "./lib/engine-fetch.mjs";
 import { runAsEntrypoint } from "./lib/entrypoint.mjs";
 import { vaultRagDir } from "./lib/universes.mjs";
 import { readVaultNotes } from "./lib/wiki-lint-io.mjs";
+import { yamlScalar } from "./lib/yaml-scalar.mjs";
 
 const USAGE =
   `usage: dated-note-path.mjs --folder <daily|briefings|…> --date <YYYY-MM-DD> [--author "<name>"]\n` +
@@ -125,7 +126,11 @@ export function runDatedNotePath(argv, deps = realDatedNotePathDeps) {
     identities,
   });
   deps.log(`path: vault/${path}`);
-  deps.log(`author: ${author}`);
+  // Quoted only when the spelling needs it: this line is meant to be pasted into a
+  // header verbatim, and `author: @tpierrain` is a header that does not parse. The
+  // PATH above is built from the name itself — a stamp that is safe to paste and a
+  // filename naming somebody else would be worse than the defect this closes.
+  deps.log(`author: ${yamlScalar(author)}`);
   if (suffixed) {
     const base = notes.find((n) => n.path === `${flags.folder}/${flags.date}.md`);
     deps.log(
