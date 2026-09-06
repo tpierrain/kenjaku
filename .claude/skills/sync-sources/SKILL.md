@@ -538,13 +538,17 @@ node scripts/dated-note-path.mjs --folder briefings --date YYYY-MM-DD
 It answers `vault/briefings/YYYY-MM-DD.md` on a brain with one author (nothing changes for you), and
 a per-person path once someone else already wrote that day. Same command for `--folder daily`.
 
+It also prints the `author:` to stamp — **copy that name exactly as it came, quotes included**. A
+name is free text: `@tpierrain` or `- tp` has to be quoted or the note's header stops parsing, and an
+unparseable note is refused by the index and undoes the other person's pull.
+
 Write to the path it gave you:
 
 ```markdown
 ---
 type: briefing
 date: YYYY-MM-DD
-author: <the name the command above printed>   # who wrote it; absent means unknown, never nobody
+author: <the name the command above printed, with its quotes if it printed any>   # absent = unknown
 architecture: fan-out/fan-in
 sources: [drive|<id>, slack|<channel>|<ts>]   # what this briefing DREW ON, normalized keys
 unverified: true          # true as long as one caveat below is unticked — see Caveats

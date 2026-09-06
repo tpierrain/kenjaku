@@ -570,13 +570,17 @@ Il répond `vault/briefings/YYYY-MM-DD.md` sur un cerveau à un·e seul·e auteu
 pour toi), et un chemin par personne dès que quelqu'un d'autre a déjà écrit ce jour-là. Même commande
 pour `--folder daily`.
 
+Il affiche aussi l'`author:` à estampiller : **recopie ce nom exactement tel quel, guillemets
+compris**. Un nom est du texte libre : `@tpierrain` ou `- tp` doit être entre guillemets, sinon
+l'en-tête de la note ne se parse plus, l'index la refuse et le pull de l'autre personne est annulé.
+
 Écrire dans le chemin qu'il a rendu :
 
 ```markdown
 ---
 type: briefing
 date: YYYY-MM-DD
-author: <le nom affiché par la commande ci-dessus>   # qui l'a écrit ; absent = inconnu, jamais personne
+author: <le nom affiché par la commande ci-dessus, avec ses guillemets s'il y en a>   # absent = inconnu
 architecture: fan-out/fan-in
 sources: [drive|<id>, slack|<canal>|<ts>]   # ce dont ce briefing S'EST SERVI, clés normalisées
 unverified: true          # vrai tant qu'un caveat ci-dessous reste décoché (voir Caveats)

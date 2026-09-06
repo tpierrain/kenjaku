@@ -114,6 +114,17 @@ Markdown content.
 > shared file, so the rule quietly stops existing — and, later, **being able to answer "what did this
 > person write"** from the notes rather than from git archaeology. `file-back-note.mjs` stamps it for
 > you; notes you write directly are yours to stamp. Absent means UNKNOWN, never "nobody".
+>
+> 🛑 **A name is free text, so it is not always a bare word.** `git config user.name` may be
+> `@tpierrain`, `- tp`, `007` or `null`, and pasted as-is the header stops parsing: the indexer
+> refuses the note, its owner cannot find it, and on a shared brain the other person's header check
+> undoes their whole pull over a name. So **wrap the name in single quotes whenever it does not start
+> with a letter or a digit** (or reads as a number, a `true`/`false`/`null`), doubling any single
+> quote inside it: `author: '@tpierrain'`. **A name that needs no quotes gets none** — no note is
+> rewritten over a problem it does not have. The tools already do this for you: `file-back-note.mjs`
+> stamps the safe form, and `dated-note-path.mjs` prints the finished `author:` line, which you paste
+> **exactly as it came, quotes included**. Quoting changes nothing for the reader: names are compared
+> as slugs, so `'@tpierrain'` and `@tpierrain` are the same person.
 
 ### Obsidian backlinks
 

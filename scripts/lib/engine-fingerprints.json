@@ -136,11 +136,11 @@
         "since": "v4.8.0",
         "locale": "fr"
       },
-      "sha256:97ae9769642ec518bd0ec4909b79b0458d48165417d032e2e46ed678ad556781": {
+      "sha256:7e8fc1084f73513793d998a5c7f70890531e9ef744aa8487d9e512693ce5d731": {
         "since": "v5.1.0",
         "locale": "en"
       },
-      "sha256:dbb4cbce743911dfe6a4de3a7918dd63955dd7b98568c33fcc54d4e37e2245bc": {
+      "sha256:7cdb0e7836a5aea5abc8717725c613261abeb44fc9faca0fe680a7b932893719": {
         "since": "v5.1.0",
         "locale": "fr"
       }
@@ -264,11 +264,11 @@
         "since": "v5.0.0",
         "locale": "fr"
       },
-      "sha256:6dfd9d327fbce6bfbad9dba65fd70609845f086f0f650216db441669380cbcf0": {
+      "sha256:a2dbd3575c6e75a1b04e87d135bf33b7265c9caf2e7278ffc37fd49ce55c7dda": {
         "since": "v5.1.0",
         "locale": "en"
       },
-      "sha256:0411d77869536157270e8be4b3a778abe3e1cabe343ca2ee6e923dc795d9811e": {
+      "sha256:d991f3ca831bfd01698d57316089c1a9d1f3b6528ffee3270472aae687820d28": {
         "since": "v5.1.0",
         "locale": "fr"
       }

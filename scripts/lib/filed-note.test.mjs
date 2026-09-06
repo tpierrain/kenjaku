@@ -3,7 +3,9 @@ import assert from "node:assert/strict";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { isSamePerson } from "./brain-author.mjs";
 import { noteAuthor } from "./dated-note-path.mjs";
+import { parseNote } from "./note-parse.mjs";
 import { slugify, slugSafe, filedNotePath, renderFiledNote, homonymCards, sourcesBlock } from "./filed-note.mjs";
 import { engineParser } from "./vault-write-guard.mjs";
 
@@ -963,6 +965,26 @@ test("renderFiledNote — an ordinary name gains no quotes: no note is rewritten
   assert.match(noteWrittenBy("Thomas Pierrain").content, /^author: Thomas Pierrain$/m);
   assert.match(noteWrittenBy("Zoé Martín-Lévy").content, /^author: Zoé Martín-Lévy$/m);
   assert.match(noteWrittenBy("O'Brien").content, /^author: O'Brien$/m);
+});
+
+// 🚪 …and the door the two tests above do NOT walk through. They read the note back with
+// the ENGINE's parser (gray-matter + js-yaml), which unquotes. The rule that decides where
+// tomorrow's dated note goes reads it with the brain's OWN reader — `parseNote`, which is
+// dependency-free and deliberately does not unquote — so what IT sees is `'@tpierrain'`,
+// quotes and all. That must still be the same person, or a quoted name silently becomes a
+// stranger and every day gets a second file. It holds because names are compared as slugs
+// and a quote is not alphanumeric; nothing said so before this test.
+test("a quoted stamp names the same person to the reader the per-person rule actually uses", () => {
+  for (const author of ["@tpierrain", "*thomas", "- tp", "null", "42"]) {
+    const content = noteWrittenBy(author).content;
+    const { frontmatter } = parseNote(content);
+
+    assert.match(content, /^author: '/m, "these are the names that DO get quoted — otherwise this proves nothing");
+    assert.ok(
+      isSamePerson(noteAuthor(frontmatter), author, []),
+      `${JSON.stringify(author)} read back as ${JSON.stringify(noteAuthor(frontmatter))} is a different person`,
+    );
+  }
 });
 
 // A name carrying a line break would end the frontmatter mid-value: the `---` closing

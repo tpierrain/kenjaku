@@ -16,6 +16,9 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { isSamePerson } from "./lib/brain-author.mjs";
+import { noteAuthor } from "./lib/dated-note-path.mjs";
+import { parseNote } from "./lib/note-parse.mjs";
 import { runDatedNotePath } from "./dated-note-path.mjs";
 
 const CLI = join(dirname(fileURLToPath(import.meta.url)), "dated-note-path.mjs");
@@ -310,6 +313,22 @@ test("an author YAML reserves is handed back quoted, because this line is copied
 
   assert.equal(runDatedNotePath(["--folder", "daily", "--date", "2026-09-02"], deps), 0);
   assert.deepEqual(logs, ["path: vault/daily/2026-09-02.md", "author: '@tpierrain'"]);
+});
+
+// 🔁 And the whole point of handing back a quoted line: pasted into a header, it must come
+// back naming the SAME person tomorrow. The reader that decides where the next dated note
+// goes is `parseNote`, which does not unquote — so this closes the loop the writer's own
+// tests cannot see, and it is what the constitution and the skill now tell people to do
+// (paste the line as it came). It holds because names are compared as slugs.
+test("the line it hands back, pasted into a header, still names the same person tomorrow", () => {
+  const { deps, logs } = fakeDeps({ author: "@tpierrain" });
+  assert.equal(runDatedNotePath(["--folder", "daily", "--date", "2026-09-02"], deps), 0);
+
+  const stamped = logs.find((l) => l.startsWith("author: "));
+  const { frontmatter } = parseNote(`---\ntype: daily\n${stamped}\n---\nbody\n`);
+
+  assert.ok(isSamePerson(noteAuthor(frontmatter), "@tpierrain", []), `pasted "${stamped}" names somebody else`);
+  assert.equal(frontmatter.type, "daily", "and nothing below the name fell into the body");
 });
 
 // …and the path is still built from the NAME, not from the quotes: a stamp that is safe
