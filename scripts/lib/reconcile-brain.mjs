@@ -36,6 +36,8 @@ import { withoutEngineStatusLine } from "./status-line-retreat.mjs";
 import { needsReindex } from "./reindex-trigger.mjs";
 import { unignoreActiveUniverse } from "./unignore-pointer.mjs";
 import { ignoreBaseSettings } from "./ignore-base-settings.mjs";
+import { ensureIgnored } from "./gitignore-entry.mjs";
+import { TRACE_IGNORE_COMMENT, TRACE_REL } from "./remote-sync.mjs";
 import { advanceRegimes, reseedBaseRefs, reseedProvenance } from "./engine-source.mjs";
 import { agreeing, countOf } from "./plural.mjs";
 import { syncBaseTree, readBaseTree, readInstalledMergeFiles } from "./engine-base-fs.mjs";
@@ -490,7 +492,14 @@ export async function reconcileBrain({
   if (existsSync(gitignorePath)) {
     const unignored = unignoreActiveUniverse(readFileSync(gitignorePath, "utf8"));
     const ignored = ignoreBaseSettings(unignored.text);
-    if (unignored.changed || ignored.changed) writeFileSync(gitignorePath, ignored.text);
+    // …and the third rider, for the same reason and on the same read: the live sync
+    // between machines (plan #84) leaves its arrivals trace at the brain ROOT, per
+    // machine. Untracked and unignored, it makes the tree dirty — so the NEXT tick
+    // defers instead of syncing, and the feature silently does nothing on the very
+    // brains that just received it — while the sweep commits it and publishes one
+    // machine's arrivals to the other.
+    const arrivals = ensureIgnored({ text: ignored.text, entry: TRACE_REL, comment: TRACE_IGNORE_COMMENT });
+    if (unignored.changed || ignored.changed || arrivals.changed) writeFileSync(gitignorePath, arrivals.text);
     pointerUnignored = unignored.changed;
   }
 

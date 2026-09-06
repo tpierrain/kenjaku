@@ -10,22 +10,27 @@ the active plan, never directly.
 
 ## The active plan
 
-- **Subject:** clear the tracker in two releases — **v5.1** repairs only what an outside contributor
-  reported (the link checker crying wolf), **v5.2** takes the rest.
-- **Plan:** [`prospective/clear-the-tracker-action.md`](prospective/clear-the-tracker-action.md)
-- **Active since:** 2026-08-23
+- **Subject:** six defects a code review found on v5.1.0 (all fixed), the documentation re-read
+  against them (done), and now **cutting the release, which is the owner's alone**. The features
+  themselves are done and green: two machines stay in step (#84) and two people can share one brain.
+- **Plan:** [`prospective/v5.1.0-code-review-fixes-action.md`](prospective/v5.1.0-code-review-fixes-action.md)
+- **Active since:** 2026-09-06 _(it replaces `duo-v51-safeguards-action.md`, whose work landed whole
+  and which is now in `archived/`. Same owner's call as the day before, in his words: split the
+  finished part off, keep a small plan for what is actually left)_
 
 ## Open, but NOT active
 
 Links only — each one's own `## 📍 STATE` block says whose it is and where it stands.
 
-- [`prospective/plan-state-single-source-study.md`](../studies/plan-state-single-source-study.md) —
+- [`prospective/clear-the-tracker-action.md`](prospective/clear-the-tracker-action.md) — the
+  two-release tracker sweep (v5.1 for outside reports, v5.2 for the rest); resumes after the plan above.
+- [`../studies/plan-state-single-source-study.md`](../studies/plan-state-single-source-study.md) —
   its queued items come due now that the tag is cut.
 - [`prospective/harness-universe-blindspot-hardening-action.md`](prospective/harness-universe-blindspot-hardening-action.md)
   — read before v5.1's universe group; it says why universe changes keep escaping green suites.
-
-_(v5.0.0 shipped on 2026-08-23. Its plan and seven others were archived with it; the post-tag tail
-they carried is inside the active plan, not lost.)_
+- [`prospective/harness-speed-and-test-quality-action.md`](prospective/harness-speed-and-test-quality-action.md)
+  — held until the v5.1.0 tag: the 81-minute mutation run, the weak first pass, the plans read as plans
+  when they are records.
 
 > **Why this file exists** (Thomas, 2026-08-22): *"un plan, on est censé avoir qu'un seul plan actif à
 > l'instant T… et ça c'est pour que le 'on reprend' fonctionne."* Answering one *"on reprends"* that

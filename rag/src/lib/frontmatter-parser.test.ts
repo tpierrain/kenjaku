@@ -284,3 +284,60 @@ test("returns the body content with the frontmatter stripped", () => {
   assert.equal(parsed.content.trim(), "hello world");
   assert.equal(parsed.frontmatter.title, "T");
 });
+
+// --- sources: the MACHINE identity of what a note was captured from (ADR 0041) ---
+// Beside `source_url`, and doing a different job: `source_url` is a link a human
+// clicks, `sources` is a list of normalized keys a machine compares. The parser
+// exposes it the way it exposes sourceUrl, so retrieval, citation and consolidation
+// can read it without re-parsing the file.
+
+test("exposes the sources list a captured note carries", () => {
+  const raw =
+    "---\ntitle: Invoice\nsources: [mail|billing@example.com|20260902T161932Z|your-invoice-is-ready, slack|C0CEQ4R5E|1725283200.001200]\n---\n";
+
+  const parsed = parseDocument(raw, "raw-sources/2026-09-02-invoice.md");
+
+  assert.deepEqual(parsed.sources, [
+    "mail|billing@example.com|20260902T161932Z|your-invoice-is-ready",
+    "slack|C0CEQ4R5E|1725283200.001200",
+  ]);
+});
+
+test("a lone key needs no list to be one source", () => {
+  const raw = "---\ntitle: Invoice\nsources: drive|1A2b3C4d\n---\n";
+
+  assert.deepEqual(parseDocument(raw, "raw-sources/x.md").sources, ["drive|1A2b3C4d"]);
+});
+
+// A key is compared for EQUALITY against the one the capture path stamped, so a stray
+// space is the difference between "already held" and "never seen". Hand-edited
+// frontmatter and a YAML block list both produce padding, and a blank entry is what a
+// trailing `-` on its own line leaves behind: neither may become a key of its own.
+test("a padded key is trimmed, and a blank entry is not a source", () => {
+  const raw = "---\ntitle: Invoice\nsources:\n  - '  drive|1A2b3C4d  '\n  - '   '\n  - ''\n---\n";
+
+  assert.deepEqual(parseDocument(raw, "raw-sources/x.md").sources, ["drive|1A2b3C4d"]);
+});
+
+// 🛑 A note written before this decision claims NOTHING, and an empty list is what
+// that must look like to a reader — never a claim to have drawn on nothing.
+test("sources is empty for every note written before the decision", () => {
+  assert.deepEqual(parseDocument("---\ntitle: Plain\n---\n# Plain\n", "topics/plain.md").sources, []);
+  assert.deepEqual(parseDocument("# No frontmatter at all\n", "daily/2026-09-02.md").sources, []);
+});
+
+// --- per-person dated notes (plan step 4.6) ---------------------------------
+// `daily/2026-09-02-claire-dubois.md` is a file name nothing in this repo had seen
+// before two people shared a brain. Type detection matches on the FOLDER, which is
+// why the suffix is free — asserted here rather than assumed, because a detection
+// keyed on the file name would silently type every per-person note as "other" and
+// drop it out of every type-scoped retrieval.
+
+test("a per-person dated note is still typed by its folder, at the root and in a universe", () => {
+  assert.equal(parseDocument("# Day", "daily/2026-09-02-claire-dubois.md").type, "daily");
+  assert.equal(
+    parseDocument("---\nuniverse: acme\n---\n# Day", "acme/daily/2026-09-02-claire-dubois.md").type,
+    "daily",
+  );
+  assert.equal(parseDocument("# B", "briefings/2026-09-02-thomas-pierrain.md").type, "briefing");
+});

@@ -189,6 +189,22 @@
     reported by the fingerprint lookup describes **the bytes it matched**, never the brain. Adding a
     locale is adding a directory. **No behaviour change** — it writes down what the code has enforced
     since v4.9.1. **Scope: Second brain (runtime).**
+  - [`0041-a-captured-source-carries-its-identity.md`](decisions/0041-a-captured-source-carries-its-identity.md) —
+    a note records **which sources it was built from**, as normalized keys in its frontmatter, and the
+    capture path asks the vault whether any note already lists that key. The vault is the ledger, so
+    there is no "already seen" database to seed or corrupt. The check can only ever *say* **"already
+    held"**: it never deletes, overwrites or silently skips, because a duplicate is a nuisance and a
+    silent loss is invisible from inside the vault. Content-addressing applied to captures.
+    **Scope: Second brain (runtime).**
+  - [`0042-access-belongs-to-the-git-host-the-brain-only-files.md`](decisions/0042-access-belongs-to-the-git-host-the-brain-only-files.md) —
+    duo mode implements **no access control**: who may write is the **git host's collaborator list**,
+    and ending a duo is removing that access — nothing to unwind inside the brain. What the brain
+    decides is **how notes are filed**, never who may write, so its *"someone else, or you on another
+    machine?"* is a filing question and must never be re-read as a permission prompt. No in-brain gate
+    would help: an author name is a line of git config, and anyone who can push can already rewrite
+    any note and run code on the other machine. What the brain owes instead is **visibility** (where
+    the access came from, and a fusion recorded elsewhere announced here). Stronger guarantees are the
+    host's: signed commits, branch protection, SSO. **Scope: Second brain (runtime).**
 - **[`eval-set.md`](eval-set.md)** — 🧪 **dev tool**: the RAG eval-set (Step 2 of the embedder plan).
   Measures the retrieval quality of the current embedder as a **reproducible score** (judge =
   Claude via `claude -p`), on the Flemmr vault → **Gemini baseline** to replay on the local

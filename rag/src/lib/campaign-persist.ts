@@ -46,6 +46,14 @@ export interface PersistDeps {
 export const PERSIST_SCRIPTS = ["auto-commit.mjs", "auto-push.mjs"] as const;
 
 /**
+ * The brain-side script that PULLS what the other machine pushed (plan #84). Same runner,
+ * same division of labour as the two above: git lives in `scripts/`, the server is only the
+ * clock. Named here so the manifest guard that checks "every script an engine script spawns
+ * is itself carried to upgraders" can see it.
+ */
+export const REMOTE_SYNC_SCRIPT = "remote-sync.mjs";
+
+/**
  * Spawns a child process and resolves when it is done (rejecting on a non-zero
  * exit) — `promisify(execFile)` in production, a recorder in tests.
  */

@@ -62,6 +62,18 @@ Quand l'utilisateur demande de « sauvegarder sur GitHub » / « mettre le cerve
 - Langue par défaut : **{{LANGUAGE}}**. Termes techniques anglais tolérés quand c'est naturel.
 - Quand Claude génère une note : reprendre **mon** vocabulaire, pas le sien. Pas d'emojis sauf si je les ai utilisés.
 
+## Si tu partages ce cerveau avec quelqu'un d'autre
+
+- **Ce que tu partages, ce sont les notes, pas les outils.** Son cerveau à elle ou à lui lit ses
+  mails, ses messages, son agenda : jamais les tiens, et aucun réglage ne change ça. Ce qui passe
+  d'un cerveau à l'autre, c'est ce que l'un·e de vous a écrit.
+- **L'agenda est l'exception, et c'est la voie recommandée** :
+  un agenda partagé, lui, atteint bien l'autre cerveau, parce qu'un agenda a une adresse que les
+  outils acceptent. Une boîte mail partagée, non.
+- **Quand on te demande sur quoi l'autre personne travaille**, réponds à partir de ses notes, et
+  dis-le. Ne va pas chercher son activité dans tes propres connecteurs : tu ne l'y trouveras pas, et
+  une réponse vide dite avec assurance est pire que pas de réponse du tout.
+
 ## Tes sources externes (optionnel — à activer selon tes outils)
 
 > 🔧 **À adapter** : ce générateur ne fournit que le moteur RAG. Si tu veux brancher Slack,

@@ -43,12 +43,18 @@ const IN_PROGRESS_HEADS = ["MERGE_HEAD", "REBASE_HEAD", "CHERRY_PICK_HEAD"];
 const operationInProgress = (git) =>
   IN_PROGRESS_HEADS.some((h) => git(["rev-parse", "-q", "--verify", h]).ok);
 
-// Commits the .vault-rag state (pointer + registry). Returns "committed" |
-// "clean" | "conflicted" | "failed" — same vocabulary as attemptCommit, same
-// shared treeState refusal of an unmerged tree (committing there would bury
-// `<<<<<<<` markers). "clean" also covers the idempotent re-switch: the scoped
-// add staged nothing, so there is nothing to say. NEVER throws.
-export function commitUniverseState({ git, name }) {
+// Commits whatever the caller just wrote into .vault-rag, under ITS OWN message.
+// Returns "committed" | "clean" | "conflicted" | "deferred" | "failed" — same
+// vocabulary as attemptCommit, same shared treeState refusal of an unmerged tree
+// (committing there would bury `<<<<<<<` markers). "clean" also covers the
+// idempotent re-write: the scoped add staged nothing, so there is nothing to say.
+// NEVER throws.
+//
+// The message is a PARAMETER because .vault-rag is no longer only the universe
+// pointer: the duo-mode answers (`authors.json`) live there too and must travel the
+// same way, for the same reason (a fact about the world, true on every machine).
+// One scoping rule, one opt-in, one retry — and each writer says what it did.
+export function commitVaultRagState({ git, message }) {
   const state = treeState(git(["status", "--porcelain"]).out);
   if (state !== "dirty") return state;
   // A paused merge/rebase whose conflicts are already staged reads "dirty", but
@@ -60,19 +66,28 @@ export function commitUniverseState({ git, name }) {
   // conflict resolution — rode along under the switch message. Scoped, it stays
   // exactly where they left it: staged, uncommitted, theirs.
   if (git(["diff", "--cached", "--quiet", "--", ".vault-rag"]).ok) return "clean";
-  return git(["commit", "-m", switchCommitMessage(name), "--", ".vault-rag"]).ok
-    ? "committed"
-    : "failed";
+  return git(["commit", "-m", message, "--", ".vault-rag"]).ok ? "committed" : "failed";
+}
+
+/** The same commit, under the universe switch's own message. */
+export function commitUniverseState({ git, name }) {
+  return commitVaultRagState({ git, message: switchCommitMessage(name) });
 }
 
 // The whole persistence: commit, then push through the Stop hook's own logic
 // (remote + `secondbrain.autopush` opt-in + upstream + something to push). The
-// push is GATED on this switch having committed (review finding): a failed or
-// deferred commit must not turn a switch into a push of unrelated local commits.
-export function persistUniverseSwitch({ git, sleep, name }) {
-  const commit = commitUniverseState({ git, name });
+// push is GATED on this write having committed (review finding): a failed or
+// deferred commit must not turn a .vault-rag write into a push of unrelated
+// local commits.
+export function persistVaultRagChange({ git, sleep, message }) {
+  const commit = commitVaultRagState({ git, message });
   const push = commit === "committed" ? attemptPush({ git, sleep }) : "skipped";
   return { commit, push };
+}
+
+/** The same persistence, for a universe switch. */
+export function persistUniverseSwitch({ git, sleep, name }) {
+  return persistVaultRagChange({ git, sleep, message: switchCommitMessage(name) });
 }
 
 // runSwitchCli, then persistence — but ONLY when the CLI says it wrote (`wrote`

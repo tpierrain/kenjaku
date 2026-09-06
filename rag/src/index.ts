@@ -50,8 +50,11 @@ import {
   buildScriptRunner,
   persistenceApplies,
   persistVaultNow,
+  REMOTE_SYNC_SCRIPT,
 } from "./lib/campaign-persist.js";
 import { PersistenceScheduler } from "./lib/persistence-scheduler.js";
+import { RemoteSyncScheduler } from "./lib/remote-sync-scheduler.js";
+import { resolveRemoteSyncIntervalSeconds } from "./lib/remote-sync-interval.js";
 import { runCatchUpCampaign } from "./lib/campaign-run.js";
 import { FileProgressStorage } from "./lib/reindex-reporter.js";
 import { formatLastRunMarkdown } from "./lib/progress-report.js";
@@ -79,6 +82,9 @@ let watcherActive = false;
 // client is gone. Before it existed the server died of an idle event loop; adding liveness turned
 // that implicit shutdown into a leak, so the shutdown has to be explicit now.
 let liveWatcher: FSWatcher | null = null;
+// The live-sync clock (plan #84): the same lifetime as the watcher, and for the same reason —
+// it must not outlive the window it belongs to.
+let remoteSyncClock: RemoteSyncScheduler | null = null;
 
 // F21: the engine's own catch-up, and the memory that keeps it from looping. A shortfall the
 // run state cannot explain is notes that landed after the scan — the ordinary multi-machine
@@ -403,6 +409,7 @@ async function main() {
       stopWatcher: () => {
         void liveWatcher?.close();
       },
+      stopRemoteSync: () => remoteSyncClock?.stop(),
       closeIndex: closeDb,
       trace: traceWatcher,
     }),
@@ -438,6 +445,7 @@ async function main() {
       // serializes in-process runs; each run rewrites last-run.md → observable like
       // the others (F.5).
       startFileWatcher();
+      startRemoteSyncClock();
 
       // AFTER the watcher, because it is what owns the scheduler: this is the exact window
       // the field report walked into — the session's `git pull` lands notes while this run is
@@ -481,6 +489,32 @@ const persistRunner = buildScriptRunner({
   run: promisify(execFile),
 });
 const vaultIsOurs = persistenceApplies(loadEngineManifest());
+
+/**
+ * The live sync between machines (plan #84): every interval, run the brain's own
+ * `scripts/remote-sync.mjs` as a child. Git stays in `scripts/`, the server is only the
+ * clock — the same division ADR 0037 drew for persistence, and the reason this reuses
+ * `persistRunner` rather than talking to git itself.
+ *
+ * Armed under the SAME condition as persistence (`vaultIsOurs`): run the engine from the
+ * generator and there is no vault of anyone's to pull into. `REMOTE_SYNC_INTERVAL=0` is the
+ * owner's off switch, and it is honoured by never arming a timer at all.
+ */
+function startRemoteSyncClock(): void {
+  if (!vaultIsOurs) return;
+  const seconds = resolveRemoteSyncIntervalSeconds(process.env.REMOTE_SYNC_INTERVAL);
+  if (seconds === 0) {
+    traceWatcher("🔄 live sync between machines: off (REMOTE_SYNC_INTERVAL=0)");
+    return;
+  }
+  remoteSyncClock = new RemoteSyncScheduler({
+    tick: () => persistRunner(REMOTE_SYNC_SCRIPT),
+    intervalMs: seconds * 1000,
+    log: traceWatcher,
+  });
+  remoteSyncClock.start();
+  traceWatcher(`🔄 live sync between machines: on, every ${seconds}s`);
+}
 
 function startFileWatcher(): void {
   try {

@@ -17,3 +17,34 @@
 #          invisible byte with an unreadable "command not found".
 *.cmd text eol=crlf
 *.sh text eol=lf
+
+# Append-only notes merge by UNION (plan #84, live sync between machines). Two brains
+# — a second machine, or a second person on the same private repo — routinely append
+# to the SAME daily note or actions log. Git's built-in `union` driver resolves such a
+# hunk by keeping both sides, no markers, no human: exactly the "keep both" the `/sync`
+# skill recommends by hand for append-only vault content.
+#
+# ⚠️ NARROWED on 2026-09-03 (#84 step 4bis). The rule used to read `vault/**/*.md`,
+# i.e. EVERY note. Union is not a merge, it is a CONCATENATION: it keeps both sides'
+# lines with no marker and no question asked. That is the right resolution for a ledger
+# nobody rewrites, and the wrong one for a page two people edit — there it silently
+# interleaves two versions of one paragraph, and on the frontmatter it produces a note
+# carrying `updated:` TWICE, which the indexer then refuses to read. That last case was
+# caught after the fact (the sync tick re-checks a merged note's header and undoes the
+# rebase); narrowing the rule means curated notes never reach that state at all.
+#
+# So the scope follows the vault's own vocabulary: the RAW CAPTURE ZONES — the same
+# list `scripts/lib/wiki-lint.mjs` exempts from the orphan and frontmatter rules.
+# `notes-union-merge.test.mjs` asserts the two lists agree, because a rule written down
+# twice drifts (CONVENTIONS §5quater). Everywhere else in the vault a double edit stops
+# the rebase, which is NOT a failure: the tick aborts, names the files, and the brain
+# guides the merge at the next message (scripts/lib/remote-sync.mjs).
+#
+# `**/` matches zero or more directories, so each rule covers the vault root AND a
+# universe subtree (`vault/acme/daily/…`) — the blind spot those zone lists have their
+# own hardening plan for.
+vault/**/daily/**/*.md merge=union
+vault/**/raw-sources/**/*.md merge=union
+vault/**/inbox/**/*.md merge=union
+vault/**/_inbox/**/*.md merge=union
+vault/**/actions-log.md merge=union

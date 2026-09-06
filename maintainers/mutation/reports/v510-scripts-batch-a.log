@@ -1,0 +1,60 @@
+[32m18:03:01 (75640) INFO ProjectReader[39m Found 2 of 975 file(s) to be mutated.
+[32m18:03:01 (75640) INFO Instrumenter[39m Instrumented 2 source file(s) with 36 mutant(s)
+[32m18:03:01 (75640) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m18:03:01 (75640) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-x3m8E8
+[32m18:03:01 (75640) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m18:03:01 (75640) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m18:03:12 (75640) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 11 seconds (net 11245 ms, overhead 0 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/36 tested (0 survived, 0 timed out)
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/36 tested (0 survived, 0 timed out)
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/36 tested (0 survived, 0 timed out)
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/36 tested (0 survived, 0 timed out)
+Mutation testing 13% (elapsed: <1m, remaining: ~5m) 5/36 tested (0 survived, 0 timed out)
+Mutation testing 13% (elapsed: ~1m, remaining: ~6m) 5/36 tested (0 survived, 0 timed out)
+Mutation testing 13% (elapsed: ~1m, remaining: ~7m) 5/36 tested (0 survived, 0 timed out)
+Mutation testing 13% (elapsed: ~1m, remaining: ~8m) 5/36 tested (0 survived, 0 timed out)
+Mutation testing 13% (elapsed: ~1m, remaining: ~9m) 5/36 tested (0 survived, 0 timed out)
+Mutation testing 27% (elapsed: ~1m, remaining: ~4m) 10/36 tested (0 survived, 0 timed out)
+Mutation testing 27% (elapsed: ~1m, remaining: ~4m) 10/36 tested (0 survived, 0 timed out)
+Mutation testing 27% (elapsed: ~2m, remaining: ~5m) 10/36 tested (0 survived, 0 timed out)
+Mutation testing 27% (elapsed: ~2m, remaining: ~5m) 10/36 tested (0 survived, 0 timed out)
+Mutation testing 27% (elapsed: ~2m, remaining: ~6m) 10/36 tested (0 survived, 0 timed out)
+Mutation testing 41% (elapsed: ~2m, remaining: ~3m) 15/36 tested (0 survived, 0 timed out)
+Mutation testing 41% (elapsed: ~2m, remaining: ~3m) 15/36 tested (0 survived, 0 timed out)
+Mutation testing 41% (elapsed: ~2m, remaining: ~3m) 15/36 tested (0 survived, 0 timed out)
+Mutation testing 41% (elapsed: ~3m, remaining: ~4m) 15/36 tested (0 survived, 0 timed out)
+Mutation testing 41% (elapsed: ~3m, remaining: ~4m) 15/36 tested (0 survived, 0 timed out)
+Mutation testing 55% (elapsed: ~3m, remaining: ~2m) 20/36 tested (0 survived, 0 timed out)
+Mutation testing 55% (elapsed: ~3m, remaining: ~2m) 20/36 tested (0 survived, 0 timed out)
+Mutation testing 55% (elapsed: ~3m, remaining: ~2m) 20/36 tested (0 survived, 0 timed out)
+Mutation testing 55% (elapsed: ~3m, remaining: ~3m) 20/36 tested (0 survived, 0 timed out)
+Mutation testing 69% (elapsed: ~4m, remaining: ~1m) 25/36 tested (1 survived, 0 timed out)
+Mutation testing 69% (elapsed: ~4m, remaining: ~1m) 25/36 tested (1 survived, 0 timed out)
+Mutation testing 69% (elapsed: ~4m, remaining: ~1m) 25/36 tested (1 survived, 0 timed out)
+Mutation testing 69% (elapsed: ~4m, remaining: ~1m) 25/36 tested (1 survived, 0 timed out)
+Mutation testing 69% (elapsed: ~4m, remaining: ~2m) 25/36 tested (1 survived, 0 timed out)
+Mutation testing 83% (elapsed: ~4m, remaining: <1m) 30/36 tested (1 survived, 0 timed out)
+Mutation testing 83% (elapsed: ~5m, remaining: ~1m) 30/36 tested (1 survived, 0 timed out)
+Mutation testing 83% (elapsed: ~5m, remaining: ~1m) 30/36 tested (1 survived, 0 timed out)
+Mutation testing 83% (elapsed: ~5m, remaining: ~1m) 30/36 tested (1 survived, 0 timed out)
+Mutation testing 97% (elapsed: ~5m, remaining: <1m) 35/36 tested (1 survived, 0 timed out)
+
+All tests
+  ✓ All tests (killed 35)
+
+[Survived] StringLiteral
+scripts/lib/instrumented-source.mjs:44:39
+-     return MARKER.test(String(source ?? ""));
++     return MARKER.test(String(source ?? "Stryker was here!"));
+
+Ran 1.00 tests per mutant on average.
+-------------------------|------------------|----------|-----------|------------|----------|----------|
+                         | % Mutation score |          |           |            |          |          |
+File                     |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+-------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files                |  97.22 |   97.22 |       35 |         0 |          1 |        0 |        0 |
+ filed-note.mjs          | 100.00 |  100.00 |       19 |         0 |          0 |        0 |        0 |
+ instrumented-source.mjs |  94.12 |   94.12 |       16 |         0 |          1 |        0 |        0 |
+-------------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m18:08:51 (75640) INFO MutationTestExecutor[39m Done in 5 minutes and 49 seconds.
+[32m18:08:51 (75640) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-x3m8E8.

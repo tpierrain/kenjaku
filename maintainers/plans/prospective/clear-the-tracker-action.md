@@ -30,6 +30,11 @@
   `templates/fr/**`, or write into either of his two real brains.
 - **One tidy-up is decided and NOT done** — § *The fold that is owed*. Five minutes of editing; it
   belongs to whoever opens v5.2's universe group.
+- 🙋 **ONE THING WAITS ON THE OWNER AND ON NOBODY ELSE** _(2026-09-02)_: **merge
+  [PR #85](https://github.com/tpierrain/kenjaku/pull/85), then dispatch the nightly mutation
+  workflow by hand and READ the score.** Both causes of its fortnight of red are fixed and verified
+  in CI's own shape (§ *Inherited from v5.0.0*), but "dispatch and read before trusting the cron"
+  is the rollout condition that workflow was written with, and no session may declare it met.
 
 > **The two-release split is the owner's, 2026-08-23**: *« ce serait bien de faire une petite issue
 > pour bug fixer les issues remontées par Stefan ces prochains jours (une 5.1), puis de traiter les
@@ -153,9 +158,46 @@ _(That plan is archived; these came here so it could close. They belong to no mi
       that legitimately customizes an engine skill? Correct the first time, noise the tenth. Only
       living with it for a few days answers it, and the escape hatch (`/permissions`) already exists.
       **Nothing to build; something to notice.**
-- [ ] **The nightly mutation run on `main` has failed two nights** (2026-08-22, 2026-08-23) and nobody
-      has read it. Pre-existing, unrelated to the cut — and unread CI is the exact shape that cost
-      this project three hours on 2026-08-23. Read it before anything else in this section.
+- [x] **The nightly mutation run on `main` fails every night, and it has TWO causes, not one**
+      _(read at last 2026-09-02; unread since 2026-08-22)_. Every scheduled run still fails, back to
+      2026-08-26 at least. Only `mutate · scripts` is red (`rag` and `local-mirror` pass), and it
+      dies in Stryker's **initial test run, before a single mutant** — so the job has never been
+      reporting a weak suite, it has been reporting an environment it cannot run in. Eight tests
+      failed; the two causes split them four and four.
+  - [x] **Cause 1, a truncated clone — fixed, PR [#85](https://github.com/tpierrain/kenjaku/pull/85).**
+        `mutation-nightly.yml` checked out with bare `actions/checkout@v4` (shallow, no tags) while
+        every `ci.yml` job running these same suites pins `fetch-depth: 0`. Four of the eight need
+        real history: the QA fixtures replaying a brain from tag `v3.6.0` (EN, FR and the CRLF one)
+        and `every waived sha is a real commit that is still reachable`. A hand-dispatched run on
+        the fix branch confirms it: **8 failures → 4**.
+  - [x] **Cause 2, source-scanning guards versus instrumentation — FIXED** _(the owner picked
+        option B, 2026-09-02; commits on the same PR)_. Four tests do not test behaviour at all,
+        they **read the engine's own source text**: the byte fingerprints of a release's merge
+        files, `every script an engine script SPAWNS is itself carried`, `no module composes a
+        child-process request at the call site`, and the byte-dated doctrine fixture. Stryker's
+        whole job is to **rewrite that source text** to inject mutants (157 files, 9 833 mutants),
+        so those four failed under **every** configuration tried: `--inPlace` as CI runs it (4
+        fail), the `batch` config (3), and the committed sandbox config worst of all (8 — it also
+        lacks `.git`).
+    - [x] **What was built**: `scripts/lib/instrumented-source.mjs` answers one question — has this
+          text been rewritten by the runner — and each guard asks it about the very files it is
+          about to read, standing down with a sentence that says so. Neither a false red nor a
+          silent green, and it survives a rename, which a skip-by-name would not.
+    - [x] **The trap it was written around, and it fired**: the detector is itself engine source,
+          read by the guards it protects, so a detector matching the bare word would silence all
+          four on a clean checkout with nothing to see. It matches the runner's HASHED identifiers,
+          its own test pins that — and caught the module's own doc comment before the wiring
+          existed.
+    - [x] **Verified in CI's exact shape**: `--inPlace`, full scope, in a throwaway worktree —
+          *"Initial test run succeeded … the dry-run has been completed successfully"*. The nightly
+          can produce a score again.
+    - [ ] **What is left, and it is the owner's**: merge PR #85, then **dispatch the workflow by
+          hand and read the score** before the cron is trusted again — that was the rollout
+          condition when this workflow was written, and no session should declare it met.
+    - [ ] ⚠️ **A stale note to correct while nearby**: `stryker.scripts.batch.config.mjs` says
+          *"the whole harness suite dry-runs green here"*. It was true on 2026-07-28, before these
+          guards were written; it is now true again for a different reason, and the comment
+          explains neither.
 
 ## How each release is cut, when it gets there
 

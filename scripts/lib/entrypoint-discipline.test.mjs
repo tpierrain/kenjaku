@@ -9,6 +9,7 @@ import {
   hasEntrypointTail,
   findInlineInvocations,
 } from "./entrypoint-discipline.mjs";
+import { instrumentationStandDown } from "./instrumented-source.mjs";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // findHandRolledGuards — every spelling of "am I the entry point?" that is NOT
@@ -415,10 +416,15 @@ test("every top-level script has a test sibling (allowlist may only shrink)", ()
   );
 });
 
-test("no module composes a child-process request at the call site (allowlist may only shrink)", () => {
-  const offenders = allScriptModules()
-    .filter((f) => findInlineInvocations(readFileSync(f, "utf8")).length > 0)
-    .map(rel);
+test("no module composes a child-process request at the call site (allowlist may only shrink)", (t) => {
+  const modules = allScriptModules().map((f) => ({ name: rel(f), source: readFileSync(f, "utf8") }));
+
+  // Same reason as the spawn scan: this reads call sites, and a mutation run has
+  // rewritten every one of them, so every exemption would read as no longer needed.
+  const standDown = instrumentationStandDown(modules);
+  if (standDown) return t.skip(standDown);
+
+  const offenders = modules.filter(({ source }) => findInlineInvocations(source).length > 0).map(({ name }) => name);
 
   assert.deepEqual(
     offenders.filter((f) => !INLINE_INVOCATION_EXEMPT.has(f)),

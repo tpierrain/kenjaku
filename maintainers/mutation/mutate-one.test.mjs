@@ -888,6 +888,50 @@ test("unmeasuredTargets — ONE row answers for ONE target: a single row cannot 
   ]);
 });
 
+test("unmeasuredTargets — SEVERAL HUNKS of one file are one file to the table, and share its row", () => {
+  // Met in the wild, 2026-09-03, on #84's step 3.7: a batch naming six hunks of
+  // `lib/filed-note.mjs` was REFUSED with "these TARGETS contributed no mutants at
+  // all" listing five of them — over a run that had honestly measured all six, at
+  // 100 % on 19 mutants. Stryker prints ONE row per FILE however many ranges it was
+  // handed, so consuming a row per target made the extra hunks look unmeasured.
+  //
+  // This is the exact mirror of T13: there the instrument printed ✅ over a run that
+  // had measured nothing; here it printed ❌ over a run that had measured everything.
+  // A refusal nobody can trust is disabled within a day, so it costs as much as a
+  // green that lies.
+  //
+  // The "one row cannot certify two" rule above is NOT weakened: it is about two
+  // distinct FILES, and two hunks of one file are one file.
+  const oneRow = [{ file: "filed-note.mjs", path: "lib/filed-note.mjs", score: 100, survived: 0, timeout: 0 }];
+
+  assert.deepEqual(
+    unmeasuredTargets(
+      [
+        "scripts/lib/filed-note.mjs:13-13",
+        "scripts/lib/filed-note.mjs:37-42",
+        "scripts/lib/filed-note.mjs:187-192",
+      ],
+      oneRow
+    ),
+    []
+  );
+
+  // And the half that keeps it honest: a SECOND file, named by hunks of its own and
+  // absent from the table, is still reported — once, not once per hunk.
+  assert.deepEqual(
+    unmeasuredTargets(
+      [
+        "scripts/lib/filed-note.mjs:13-13",
+        "scripts/lib/filed-note.mjs:37-42",
+        "scripts/lib/actions-log-seed.mjs:41-47",
+        "scripts/lib/actions-log-seed.mjs:60-66",
+      ],
+      oneRow
+    ),
+    ["scripts/lib/actions-log-seed.mjs"]
+  );
+});
+
 test("unmeasuredTargets — a table with no file rows at all names every target", () => {
   // The zero-mutant run: `n/a`, no rows, and every target unmeasured. Its own gate
   // speaks first in the runner, but this function must not go quiet here.
@@ -903,7 +947,21 @@ test("unmeasuredTargets — a table with no file rows at all names every target"
 
 // A fake whose answers are a FINGERPRINT of what it was asked (RESULTS.md
 // § S0bis, family 2: a double that ignores its arguments certifies nothing).
-function harness({ results = {}, worktreeExists = true, config = SOUND_CONFIG } = {}) {
+// A corpus shaped like the real package: a target with a twin, an unrelated pair,
+// and a PROCESS-level test that only names the target's path — the seam an import
+// graph cannot see. Hand-written, never produced by the code under test.
+const SOURCES = {
+  "scripts/lint-vault.mjs": "export const lint = () => 1;\n",
+  "scripts/lint-vault.test.mjs": 'import { lint } from "./lint-vault.mjs";\n',
+  "scripts/lib/repo-status.mjs": "export const treeState = () => 'clean';\n",
+  "scripts/lib/repo-status.test.mjs": 'import { treeState } from "./repo-status.mjs";\n',
+  "scripts/run-lint.test.mjs": 'spawnSync("node", ["scripts/lint-vault.mjs"]);\n',
+  "scripts/status-line.mjs": "export const line = () => 'ok';\n",
+  "scripts/status-line.test.mjs": 'import { line } from "./status-line.mjs";\n',
+  "scripts/run-status-line.test.mjs": 'spawnSync("node", ["scripts/status-line.mjs"]);\n',
+};
+
+function harness({ results = {}, worktreeExists = true, config = SOUND_CONFIG, sources = SOURCES } = {}) {
   const calls = [];
   const out = [];
   return {
@@ -920,8 +978,11 @@ function harness({ results = {}, worktreeExists = true, config = SOUND_CONFIG } 
         calls.push({ fn: "exists", path });
         return worktreeExists;
       },
-      run: ({ command, args, cwd }) => {
-        calls.push({ fn: "run", command, args, cwd });
+      readSources: () => sources,
+      run: ({ command, args, cwd, env }) => {
+        // `env` recorded only when there IS one: a key that is always present but
+        // usually undefined would slip past every `some(c => c.env)` check.
+        calls.push(env ? { fn: "run", command, args, cwd, env } : { fn: "run", command, args, cwd });
         // The registry this repo really has: itself, plus the default worktree. A run
         // is allowed to reset the second and never the first (S1/S3), so the double
         // has to answer this one for real or every existing case below would refuse.
@@ -1000,7 +1061,7 @@ test("runMutateOne — the happy path runs every step, writes the log, and repor
     "▶ node --test scripts/lib/vault-write-guard.test.mjs   (in /Users/dev/kenjaku-mut-one)",
     "   ✓ write guard: 22 pass, 0 skipped",
     "▶ discard stale log /Users/dev/kenjaku/maintainers/mutation/reports/mutate-one-status-line.log",
-    `▶ node ${MUTATE_KEY("scripts/status-line.mjs")}   (in /Users/dev/kenjaku-mut-one)`,
+    `▶ node ${MUTATE_KEY("scripts/status-line.mjs")}   (in /Users/dev/kenjaku-mut-one)   [judged by 2 test files]`,
     "✅ Mutation score 81.57 % — 331 killed, 82 survived, 32 timeout",
     // The breakdown prints Stryker's own labels, so it can be laid beside the log
     // it came from. Where a file LIVES is the gate's business, not the reader's.
@@ -1236,7 +1297,11 @@ test("runMutateOne — --dry-run prints the plan, whole, and runs nothing", () =
     "   symlink /Users/dev/kenjaku/rag/node_modules → /Users/dev/kenjaku-mut-one/rag/node_modules",
     "   node --test scripts/lib/vault-write-guard.test.mjs   (in /Users/dev/kenjaku-mut-one)",
     "   discard stale log /Users/dev/kenjaku/maintainers/mutation/reports/mutate-one-a+1.log",
-    `   node ${MUTATE_KEY("scripts/a.mjs,scripts/lib/b.mjs")}   (in /Users/dev/kenjaku-mut-one)`,
+    // The plan now names WHO WILL JUDGE, and here it refuses to narrow: neither
+    // target is in this double's corpus. A dry run that hid that would be showing a
+    // different run from the one that follows.
+    `   node ${MUTATE_KEY("scripts/a.mjs,scripts/lib/b.mjs")}   (in /Users/dev/kenjaku-mut-one)   ` +
+      "[judged by the WHOLE suite: scripts/a.mjs is not in the measured package — refusing to narrow the judges]",
   ]);
 });
 
@@ -1672,4 +1737,114 @@ test("runMutateOne — a missing worktree is created, and the rag link with it",
       "/Users/dev/kenjaku/maintainers/mutation/node_modules/@stryker-mutator/core/bin/stryker.js run maintainers/mutation/stryker.scripts.batch.config.mjs",
     ]
   );
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// The judges — which tests are allowed to kill a mutant (plan § S1)
+//
+// The run used to hand Stryker the WHOLE harness suite for every single mutant:
+// ~50 s of tests to judge one changed operator, 81 min for a batch of 487. The
+// narrowing lives in judges.mjs and is asserted there; what is asserted HERE is
+// the wiring — that the chosen list reaches the child process, that a refusal
+// leaves the old behaviour exactly as it was, and that both say so out loud.
+// ─────────────────────────────────────────────────────────────────────────────
+
+test("planRun — the mutate step carries the judges in its environment, and no other step does", () => {
+  const steps = planRun({
+    ...PLAN_INPUT,
+    worktreeExists: true,
+    judges: ["scripts/lint-vault.test.mjs", "scripts/lib/repo-status.test.mjs"],
+  });
+
+  assert.deepEqual(steps.find((s) => s.step === "mutate").env, {
+    KENJAKU_MUTATION_JUDGES: "scripts/lint-vault.test.mjs,scripts/lib/repo-status.test.mjs",
+  });
+  // The write-guard step must keep running the WHOLE guard, not the mutant's
+  // judges: it is the proof the worktree is usable, and narrowing it would make
+  // that proof about a different thing.
+  assert.deepEqual(steps.filter((s) => s.env).map((s) => s.step), ["mutate"]);
+});
+
+test("planRun — no judges means NO variable at all, not an empty one", () => {
+  // An empty variable and an absent one must reach the config the same way, but
+  // absent is the honest spelling: `commandFrom` treats blank as "whole suite"
+  // precisely because a blank that got there by accident must not narrow.
+  const mutate = planRun({ ...PLAN_INPUT, worktreeExists: true, judges: null }).find((s) => s.step === "mutate");
+  assert.equal("env" in mutate, false);
+});
+
+test("runMutateOne — the narrowed judges reach the child process, and the run says so", () => {
+  const h = harness({
+    results: {
+      [GUARD_KEY]: { code: 0, output: NODE_TEST_TAIL },
+      [MUTATE_KEY("scripts/status-line.mjs")]: { code: 0, output: STRYKER_TAIL },
+    },
+  });
+
+  const code = runMutateOne(["scripts/status-line.mjs"], h.deps);
+
+  assert.equal(code, 0);
+  // The VALUE that reaches the child, not merely a sentence about it: the twin plus
+  // the process-level test that only names the path, which is the whole point.
+  const mutate = h.calls.filter((c) => c.fn === "run").at(-1);
+  assert.deepEqual(mutate.env, {
+    KENJAKU_MUTATION_JUDGES: "scripts/run-status-line.test.mjs,scripts/status-line.test.mjs",
+  });
+  // and the write guard before it still runs unnarrowed
+  assert.equal(h.calls.filter((c) => c.fn === "run").at(-2).env, undefined);
+  assert.match(h.out.join("\n"), /\[judged by 2 test files\]/);
+});
+
+test("runMutateOne — a target no test can observe falls back to the whole suite, LOUDLY", () => {
+  // The dangerous failure is the silent one: narrowing to nothing would report
+  // every mutant survived, which reads as a terrible score rather than as a
+  // broken instrument. So the refusal is spoken and the run continues, slowly.
+  const h = harness({
+    results: {
+      [GUARD_KEY]: { code: 0, output: NODE_TEST_TAIL },
+      [MUTATE_KEY("scripts/status-line.mjs")]: { code: 0, output: STRYKER_TAIL },
+    },
+    sources: {
+      "scripts/status-line.mjs": "export const line = () => 'ok';\n",
+      "scripts/other.mjs": "export const nothing = () => 2;\n",
+      "scripts/other.test.mjs": 'import { nothing } from "./other.mjs";\n',
+    },
+  });
+
+  const code = runMutateOne(["scripts/status-line.mjs"], h.deps);
+
+  assert.equal(code, 0);
+  assert.match(h.out.join("\n"), /\[judged by the WHOLE suite: no test can observe scripts\/status-line\.mjs\b/);
+  assert.equal(
+    h.calls.filter((c) => c.fn === "run").some((c) => c.env),
+    false,
+    "a refused narrowing must not set the variable at all",
+  );
+});
+
+test("runMutateOne — a dry run already shows the judges, because that is what it is for", () => {
+  const h = harness();
+  const code = runMutateOne(["scripts/status-line.mjs", "--dry-run"], h.deps);
+
+  assert.equal(code, 0);
+  assert.match(h.out.join("\n"), /\[judged by 2 test files\]/);
+  // and it still changes nothing: the only git call is the read-only ownership question
+  assert.deepEqual(h.calls.filter((c) => c.fn === "run").map((c) => c.args.join(" ")), [WORKTREE_LIST_KEY]);
+  assert.deepEqual(h.calls.filter((c) => c.fn === "removeFile" || c.fn === "symlink"), []);
+});
+
+test("defaultDeps — run forwards a step's env to the child, on top of the real one", async () => {
+  // Driven as a real process: the whole narrowing is worthless if the variable
+  // stops at the seam, and a double asserting "run was called with env" would
+  // have passed just as happily while spawnSync dropped it.
+  const deps = await defaultDeps();
+  const done = deps.run({
+    command: process.execPath,
+    args: ["-e", "process.stdout.write(`${process.env.KENJAKU_MUTATION_JUDGES}|${Boolean(process.env.PATH)}`)"],
+    cwd: process.cwd(),
+    env: { KENJAKU_MUTATION_JUDGES: "scripts/a.test.mjs" },
+  });
+
+  assert.equal(done.code, 0);
+  assert.equal(done.output, "scripts/a.test.mjs|true");
 });

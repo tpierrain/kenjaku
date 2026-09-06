@@ -44,10 +44,11 @@
 // Dev-only; `maintainers/` never ships to a generated brain.
 // ─────────────────────────────────────────────────────────────────────────────
 import { execFileSync, spawnSync } from "node:child_process";
-import { existsSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runAsEntrypoint } from "../../scripts/lib/entrypoint.mjs";
+import { JUDGES_ENV, judgingTests } from "./judges.mjs";
 
 export const USAGE =
   "usage: node maintainers/mutation/mutate-one.mjs <scripts/file.mjs> [more files…] " +
@@ -246,7 +247,7 @@ export function linkedWorktrees(porcelain) {
 // The order is the contract, and a value is the only thing a test can assert —
 // the same lesson that turned defaultGit's inline invocation into a value.
 
-export function planRun({ repoRoot, worktreePath, sha, targets, logPath, strykerBin, worktreeExists }) {
+export function planRun({ repoRoot, worktreePath, sha, targets, logPath, strykerBin, worktreeExists, judges, judgesWhy }) {
   const steps = [{ step: "prune", command: "git", args: ["worktree", "prune"], cwd: repoRoot }];
 
   if (worktreeExists) {
@@ -286,6 +287,16 @@ export function planRun({ repoRoot, worktreePath, sha, targets, logPath, stryker
       // and the files it dropped read as measured in the log all the same.
       args: [strykerBin, "run", CONFIG, "--mutate", targets.join(",")],
       cwd: worktreePath,
+      // The judges reach Stryker's command runner through the environment, because
+      // its CLI has no flag for the runner's command (checked: only --testRunner).
+      // ABSENT rather than empty when there is no narrowing: `commandFrom` reads a
+      // blank as "whole suite" on purpose, and an absent variable says the same
+      // thing without relying on that mercy.
+      ...(judges ? { env: { [JUDGES_ENV]: judges.join(",") } } : {}),
+      // Why it could NOT narrow, carried on the step so the announcement can say it.
+      // Only when there is one: a key that is always present but usually undefined
+      // would change every whole-list assertion for nothing.
+      ...(judgesWhy ? { judgesWhy } : {}),
     }
   );
 
@@ -480,7 +491,18 @@ export function unmeasuredTargets(targets, files) {
   const available = files.map((file) => file.path);
   const missing = [];
 
-  for (const path of targetPaths(targets)) {
+  // 🚨 ONE FILE, HOWEVER MANY HUNKS. Stryker prints one row per FILE whatever the
+  // number of ranges it was handed, so a batch naming six hunks of one file must
+  // consume ONE row, not six — otherwise five of them look unmeasured and the run is
+  // refused over a measurement it really made (met 2026-09-03, #84 step 3.7: five
+  // hunks named as contributing nothing, over 19 honestly-killed mutants at 100 %).
+  // That refusal is the exact mirror of T13's false green, and costs the same: a
+  // guard nobody can trust gets bypassed within a day.
+  //
+  // It does NOT weaken "one row cannot certify two": that rule is about two distinct
+  // FILES, and two hunks of one file are one file. `Set` keeps the first spelling and
+  // its order, which is the one the refusal message names.
+  for (const path of new Set(targetPaths(targets))) {
     const [match] = available
       .filter((reported) => path.endsWith(`/${reported}`))
       .sort((left, right) => right.length - left.length);
@@ -495,7 +517,7 @@ export function unmeasuredTargets(targets, files) {
 // ── The run itself ───────────────────────────────────────────────────────────
 
 export function runMutateOne(argv, deps) {
-  const { repoRoot, sha, config, exists, run, symlink, removeFile, writeFile, say } = deps;
+  const { repoRoot, sha, config, exists, run, symlink, removeFile, writeFile, say, readSources } = deps;
 
   const parsed = parseArgs(argv);
   if (!parsed.ok) {
@@ -561,6 +583,17 @@ export function runMutateOne(argv, deps) {
     }
   }
 
+  // ── Who is allowed to judge this mutant ────────────────────────────────────
+  // BEFORE planRun and before the dry-run return: a dry run whose plan does not
+  // show what will judge the mutants is describing a different run.
+  //
+  // 🛡️ The property that makes this safe: narrowing can only LOWER a score, never
+  // raise it (judges.mjs). So every failure here falls back to the whole suite —
+  // slow and correct — and says why. Never to nothing: a judge-less run kills no
+  // mutant and prints a 0 % that reads like a bad score rather than a broken
+  // instrument.
+  const verdict = judgingTests(readSources(), targetPaths(parsed.targets));
+
   const logPath = join(repoRoot, REPORTS, parsed.logName);
   const steps = planRun({
     repoRoot,
@@ -573,6 +606,8 @@ export function runMutateOne(argv, deps) {
     // directory that a guard has decided about is a precondition read after its own
     // check, which is the shape that produced the rag-link alternation above.
     worktreeExists,
+    judges: verdict.files,
+    judgesWhy: verdict.why,
   });
 
   if (parsed.dryRun) {
@@ -705,7 +740,16 @@ export function runMutateOne(argv, deps) {
 function renderStep(step) {
   if (step.step === "link-rag-node-modules") return `symlink ${step.from} → ${step.to}`;
   if (step.step === "discard-stale-log") return `discard stale log ${step.path}`;
-  return `${step.command} ${step.args.join(" ")}   (in ${step.cwd})`;
+  const invocation = `${step.command} ${step.args.join(" ")}   (in ${step.cwd})`;
+  if (step.step !== "mutate") return invocation;
+
+  // The mutate step announces WHO WILL JUDGE, because that is now a decision the
+  // run makes rather than a constant. It rides on the announcement every step
+  // already makes, rather than a line of its own: a refused run must not print a
+  // verdict about a mutation it never performs.
+  const judges = step.env?.[JUDGES_ENV];
+  if (judges) return `${invocation}   [judged by ${judges.split(",").length} test files]`;
+  return `${invocation}   [judged by the WHOLE suite${step.judgesWhy ? `: ${step.judgesWhy}` : ""}]`;
 }
 
 // ── The composition root ─────────────────────────────────────────────────────
@@ -719,9 +763,31 @@ export async function defaultDeps() {
     exists: (path) => existsSync(path),
     // Buffered rather than streamed: a one-file run is 1-3 minutes, and the whole
     // output has to be captured to be written to the log and parsed for a score.
-    run: ({ command, args, cwd }) => {
-      const done = spawnSync(command, args, { cwd, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
+    run: ({ command, args, cwd, env }) => {
+      const done = spawnSync(command, args, {
+        cwd,
+        encoding: "utf8",
+        maxBuffer: 64 * 1024 * 1024,
+        // ON TOP of the real environment, never instead of it: a child launched
+        // with only our one variable loses PATH, and Stryker's command runner
+        // would fail to find `node` in a way that reads as a broken worktree.
+        env: env ? { ...process.env, ...env } : process.env,
+      });
       return { code: done.status ?? 1, output: `${done.stdout ?? ""}${done.stderr ?? ""}` };
+    },
+    // Every `.mjs` of the measured package, so the judges can be worked out from
+    // the import graph plus the paths tests NAME (the process-level seam).
+    readSources: () => {
+      const sources = {};
+      const walk = (relative) => {
+        for (const entry of readdirSync(join(repoRoot, relative), { withFileTypes: true })) {
+          const child = `${relative}/${entry.name}`;
+          if (entry.isDirectory()) walk(child);
+          else if (entry.name.endsWith(".mjs")) sources[child] = readFileSync(join(repoRoot, child), "utf8");
+        }
+      };
+      walk("scripts");
+      return sources;
     },
     symlink: (from, to) => symlinkSync(from, to, "dir"),
     removeFile: (path) => rmSync(path, { force: true }),

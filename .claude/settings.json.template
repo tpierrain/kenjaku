@@ -156,6 +156,16 @@
         "hooks": [
           {
             "type": "command",
+            "command": "{{NODE}} \"{{PROJECT_ROOT}}/scripts/session-authors.mjs\"",
+            "timeout": 20000
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
             "command": "{{NODE}} \"{{PROJECT_ROOT}}/scripts/session-actions-log.mjs\"",
             "timeout": 20000
           }

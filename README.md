@@ -101,7 +101,9 @@ there's genuinely something new. *([details in EN-QUOI §2](EN-QUOI-C-EST-DIFFER
 > it **auto-pushes** there too, so a **lost, stolen or dead laptop costs you nothing** — clone the backup
 > onto a new machine and **one offline command puts your brain back to work** there
 > (`node scripts/rehydrate.mjs`, [SETUP §7](SETUP.md)). Same command for a second machine you simply
-> want to work from.
+> want to work from — **and it catches up mid-session**: while a window is open, your brain notices on
+> its own what the other machine wrote, brings it in, and tells you at your next message. Two notes
+> added the same afternoon to the same daily note **merge by themselves**, both kept, nobody asked.
 
 ---
 
@@ -388,7 +390,9 @@ tested and fail-loud**. The through-line — **fail loudly rather than pretend**
 > on real events rather than trusting the model to remember). The ladder, most to least deterministic:
 
 - **Pure functions** (injected deps, faked in tests) and **binary exit-code tools** — a *verdict* (0/1), not a vibe.
-- **Real event triggers, not timers** — auto-commit on a file edit, auto-push on the Stop event.
+- **Real event triggers, not timers** — auto-commit on a file edit, auto-push on the Stop event. The one
+  exception is the one thing no local event can see: what the *other* machine wrote. That check holds a
+  clock, inside the session, and asks the remote one cheap question before doing anything at all.
 - **Bounded scheduler + injected clock + PID locking** — a write burst coalesces into one reindex; no two windows collide.
 - **LLM only where judgment is the point** — never on a load-bearing step.
 
@@ -497,8 +501,10 @@ tailors ***your own*** to your line of work, then it **keeps living on its own**
 notes, keys nor your constitution** — and a skill you made your own is **never lost**: what shipped
 since is merged around your words, or offered to you as a choice. It's run **as a product, not a hack**:
 brains **in real use**, every upgrade **tested against existing brains before it ships** (the migration
-path is a **release gate**). You
-share the **generator**, never the brain, and you could walk away from this repo tomorrow without losing a thing.
+path is a **release gate**). What you share is the **generator** — one brain each, by default, and
+never a space at a vendor's. Two people who *want* one brain between them can have it — that's **duo
+mode**, deliberate and with its perimeter written down ([the duo-mode page](docs/duo-mode.md)); a choice you make, not
+the shape you are put in. And you could walk away from this repo tomorrow without losing a thing.
 
 *The market landscape (Notion AI, Mem, Reflect, Tana, Obsidian plugins, Khoj, AnythingLLM, NotebookLM,
 Glean…) is situated in [EN-QUOI §9](EN-QUOI-C-EST-DIFFERENT.md#9-for-the-record--and-compared-to-the-market-apps).*

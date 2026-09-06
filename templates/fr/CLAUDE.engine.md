@@ -100,6 +100,7 @@ sous-arbre de cet univers, avec les mêmes dossiers de type imbriqués dedans, e
 type: daily | person | topic | decision | meeting
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
+author: <le nom que `git config --get user.name` donne sur CETTE machine>
 tags: [tag1, tag2]
 ---
 
@@ -107,6 +108,28 @@ tags: [tag1, tag2]
 
 Contenu en Markdown.
 ```
+
+> ✍️ **`author:` : à estampiller sur chaque note que tu écris, avec l'orthographe BRUTE configurée
+> dans le git de cette machine** (jamais une identité fusionnée : le registre résout les orthographes
+> à la lecture, et une fusion est une opinion corrigeable là où un nom estampillé est un fait sur qui
+> a tapé). Cela ne coûte rien sur un cerveau solo, et c'est ce qui rend deux choses possibles sur un
+> cerveau partagé : **la note datée par personne** (`dated-note-path.mjs` le relit, et une note qui
+> ne revendique personne retombe sur le fichier commun, donc la règle cesse discrètement d'exister)
+> et, plus tard, **pouvoir répondre « qu'est-ce que cette personne a écrit »** depuis les notes
+> plutôt que par l'archéologie git. `file-back-note.mjs` l'estampille pour toi ; les notes que tu
+> écris directement sont à toi de les estampiller. Absent veut dire INCONNU, jamais « personne ».
+>
+> 🛑 **Un nom est du texte libre : ce n'est pas toujours un simple mot.** `git config user.name` peut
+> valoir `@tpierrain`, `- tp`, `007` ou `null`, et collé tel quel l'en-tête ne se parse plus : l'index
+> refuse la note, la personne qui l'a écrite ne la retrouve pas, et sur un cerveau partagé la
+> vérification d'en-tête de l'autre annule tout son pull, à cause d'un nom. Donc : **entoure le nom de
+> guillemets simples dès qu'il ne commence pas par une lettre ou un chiffre** (ou qu'il se lit comme un
+> nombre, un `true`/`false`/`null`), en doublant tout guillemet simple qu'il contient :
+> `author: '@tpierrain'`. **Un nom qui n'en a pas besoin n'en reçoit aucun** : aucune note n'est
+> réécrite pour un problème qu'elle n'a pas. Les outils le font déjà pour toi : `file-back-note.mjs`
+> estampille la forme sûre, et `dated-note-path.mjs` affiche la ligne `author:` finie, que tu colles
+> **telle quelle, guillemets compris**. Les guillemets ne changent rien à la lecture : les noms sont
+> comparés en slug, donc `'@tpierrain'` et `@tpierrain` sont la même personne.
 
 ### Backlinks Obsidian
 

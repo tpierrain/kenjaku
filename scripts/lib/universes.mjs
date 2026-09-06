@@ -92,10 +92,21 @@ export function defaultBrainRoot() {
   return resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 }
 
+/** The name of the state directory holding the registry + active pointer. */
+const VAULT_RAG_DIR = ".vault-rag";
+
 /** The state directory holding the registry + active pointer, at the brain root. */
 export function vaultRagDir(brainRoot = defaultBrainRoot()) {
-  return toPosix(join(brainRoot, ".vault-rag"));
+  return toPosix(join(brainRoot, VAULT_RAG_DIR));
 }
+
+/**
+ * The pointer's path RELATIVE to the brain root — the spelling `git diff --name-only`
+ * uses, and therefore the one a pulled-file list is matched against. Derived rather
+ * than written out a second time: the day the state dir moves, a hand-copied literal
+ * elsewhere would keep matching nothing, in silence.
+ */
+export const ACTIVE_UNIVERSE_REL = activeUniversePath(VAULT_RAG_DIR);
 
 /**
  * Parses `/switch` CLI argv (already sliced past the script path) into an intent.
