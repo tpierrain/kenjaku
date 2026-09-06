@@ -189,12 +189,20 @@ export function blockedDirective(trace) {
   const blocked = trace?.blocked;
   if (!blocked || (blocked.files ?? []).length === 0) return null;
   const because = blocked.reason && blocked.reason !== "conflict" ? ` (${blocked.reason})` : "";
+  // The sync now tells us whether its `rebase --abort` / `reset --hard` actually worked, and
+  // this is the whole point of it checking: "undid the pull" is a statement of fact about the
+  // owner's own files. When the undo failed the tree is left mid-operation, so there is no
+  // merge to REDO — there is one to FINISH — and a person told their side was restored will
+  // not go looking for it. An older trace carries no verdict; silence keeps the old sentence.
+  const undone = blocked.undone !== false;
+  const outcome = undone ? "and undid the pull" : "and could NOT undo it: the repo is left mid-operation";
+  const step = undone ? "redo the merge" : "finish the merge";
 
   return withinBudget(
     (list) =>
-      `⚠️ The background sync could not merge ${list}${because} and undid the pull. ` +
+      `⚠️ The background sync could not merge ${list}${because} ${outcome}. ` +
       `Before answering: explain in plain words that both copies changed the same file, load the ` +
-      `\`sync\` skill, redo the merge, keep BOTH contributions by default, and ask the owner only ` +
+      `\`sync\` skill, ${step}, keep BOTH contributions by default, and ask the owner only ` +
       `if the two versions genuinely contradict each other.`,
     blocked.files,
   );

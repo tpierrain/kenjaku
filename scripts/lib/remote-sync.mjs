@@ -67,6 +67,27 @@ const lines = (out) => out.split("\n").map((l) => l.trim()).filter(Boolean);
 const unique = (items) => [...new Set(items)];
 
 /**
+ * The sha `refs/heads/<branch>` sits at on the remote, or `""` when the remote does not carry
+ * that branch. Read from an `ls-remote --heads <remote> <branch>` payload, whose lines are
+ * `<sha>\t<ref>`.
+ *
+ * Why a parse and not `out.split(/\s+/)[0]`: the pattern given to `ls-remote` matches the TAIL
+ * of a ref on a path boundary, so a repo that also carries `archive/main` answers TWO lines for
+ * `main` — and the first one can be the sibling's. Comparing this branch's freshness against
+ * another branch's sha silences the sync, or makes it fetch on every tick, at the mercy of an
+ * order that is not ours to choose. `engine-fetch.mjs` already matches whole refs for tags; two
+ * spellings of this would be two opinions on which branch the remote answered about.
+ */
+export function remoteHeadSha(out, branch) {
+  const wanted = `refs/heads/${branch}`;
+  for (const line of lines(out ?? "")) {
+    const cut = line.search(/\s/);
+    if (cut > 0 && line.slice(cut).trim() === wanted) return line.slice(0, cut);
+  }
+  return "";
+}
+
+/**
  * The trace accumulates until the announcement path marks it announced: two ticks
  * between two messages must not lose the first one's files. A later successful tick
  * clears an earlier block (the conflict is gone: the other side, or a human, fixed it).
@@ -112,28 +133,46 @@ export function runTick({ git, gate, indexLockPresent, readTrace, writeTrace, ch
 }
 
 function synchronise({ git, parts, readTrace, writeTrace, checkNote, push, notify, now, identities }) {
-  const known = git(["rev-parse", "@{u}"]).out.trim();
   const probe = git(["ls-remote", "--heads", parts.remote, parts.branch]);
   if (!probe.ok) return "probe-failed";
-  const remoteSha = probe.out.trim().split(/\s+/)[0];
-  if (remoteSha === "" || remoteSha === known) return "up-to-date";
+  const remoteSha = remoteHeadSha(probe.out, parts.branch);
+  // NOT "is the remote where `@{u}` says it is": that ref is MY copy of the remote, and this
+  // brain's own `fetch` advances it. A tick that fetched and whose rebase then failed left it
+  // sitting at the remote's sha while HEAD stayed put — so every later tick found the two
+  // equal, answered "up to date", and said nothing at all. For ever. What the early return
+  // actually means is "there is nothing to pull", i.e. I ALREADY HAVE that commit. A sha this
+  // repo has never seen makes the question fail, which is the same answer as "no": pull it.
+  if (remoteSha === "" || git(["merge-base", "--is-ancestor", remoteSha, "HEAD"]).ok) return "up-to-date";
 
   if (!git(["fetch", parts.remote]).ok) return "fetch-failed";
+
+  // Where this tick starts, captured BY VALUE, one line before the rebase. Not `ORIG_HEAD`:
+  // that is a shared ref, a no-op rebase never writes it, and nothing serialises this tick
+  // against the auto-commit path — so by the time the undo runs it can name an arbitrary
+  // older commit, and `reset --hard` onto it destroys notes the owner just wrote. No other
+  // git can move a value.
+  const start = git(["rev-parse", "HEAD"]);
+  const base = start.out.trim();
+  // Every range below and, above all, the undo are built from this sha. A tick that cannot
+  // say where it started does not start: `reset --hard ""` is not a risk worth carrying.
+  if (!start.ok || base === "") return "failed";
 
   const rebase = git(["rebase", "@{u}"]);
   if (!rebase.ok) {
     const conflicting = lines(git(["diff", "--name-only", "--diff-filter=U"]).out);
-    git(["rebase", "--abort"]);
-    return record({ readTrace, writeTrace }, { arrivedAt: null, files: [], authors: [], blocked: { files: conflicting, reason: "conflict" } });
+    // The exit status, because the announcement states as a FACT that the pull was undone
+    // and that the owner's side is intact. An abort that failed leaves the rebase open.
+    const undone = git(["rebase", "--abort"]).ok;
+    return record({ readTrace, writeTrace }, { arrivedAt: null, files: [], authors: [], blocked: { files: conflicting, reason: "conflict", undone } });
   }
 
-  const files = lines(git(["diff", "--name-only", "ORIG_HEAD", "HEAD"]).out);
+  const files = lines(git(["diff", "--name-only", base, "HEAD"]).out);
   // The FILES are a tree comparison, so my own unpushed work — identical on both sides —
   // cancels out and only what changed shows. The AUTHORS cannot be read the same way:
-  // a rebase replays my local commits with new SHAs, so `ORIG_HEAD..HEAD` lists me among
-  // the arrivals. `@{u}` does not move during a rebase, so `ORIG_HEAD..@{u}` is exactly
+  // a rebase replays my local commits with new SHAs, so `<base>..HEAD` lists me among
+  // the arrivals. `@{u}` does not move during a rebase, so `<base>..@{u}` is exactly
   // what the other side pushed — and the announcement names people, not machines.
-  const authors = unique(lines(git(["log", "--format=%an", "ORIG_HEAD..@{u}"]).out));
+  const authors = unique(lines(git(["log", "--format=%an", `${base}..@{u}`]).out));
 
   const damaged = [];
   let reason = null;
@@ -145,8 +184,8 @@ function synchronise({ git, parts, readTrace, writeTrace, checkNote, push, notif
     }
   }
   if (damaged.length > 0) {
-    git(["reset", "--hard", "ORIG_HEAD"]);
-    return record({ readTrace, writeTrace }, { arrivedAt: null, files: [], authors: [], blocked: { files: damaged, reason } });
+    const undone = git(["reset", "--hard", base]).ok;
+    return record({ readTrace, writeTrace }, { arrivedAt: null, files: [], authors: [], blocked: { files: damaged, reason, undone } });
   }
 
   const outcome = record({ readTrace, writeTrace }, { arrivedAt: now().toISOString(), files, authors, blocked: null });

@@ -282,10 +282,66 @@ test("a conflict the union rule does not cover: the rebase is undone, the file n
 
   assert.equal(tick(root), "blocked");
 
-  assert.deepEqual(traceOf(root).blocked, { files: ["CLAUDE.md"], reason: "conflict" });
+  // `undone: true` is REAL git's verdict on the abort, not a fake's: the announcement tells
+  // the owner their side was restored, and the three assertions below are why it may.
+  assert.deepEqual(traceOf(root).blocked, { files: ["CLAUDE.md"], reason: "conflict", undone: true });
   assert.match(readFileSync(join(root, "CLAUDE.md"), "utf8"), /- a rule from HERE\n$/, "my version is untouched");
   assert.equal(git("status", "--porcelain"), "", "no rebase left half-done for a human to find");
   assert.equal(existsSync(join(root, ".git", "rebase-merge")), false);
+});
+
+// The interval has elapsed, without spending it: the gate's marker IS this machine's clock,
+// so removing it is the same event as the next window ticking 90 s later.
+const intervalElapsed = (root) => rmSync(join(root, ".cache", LAST_TICK_FILE), { force: true });
+
+// 🛑 THE ONE THAT COULD SILENCE A BRAIN FOR GOOD, and that only a REAL git can show: the
+// freshness question used to be asked of `@{u}`, and it is this repo's own `fetch` that moves
+// that ref. The first tick below fetches, fails to rebase, and undoes itself — leaving `@{u}`
+// at the remote's sha while HEAD stayed behind. Every tick after that compared the remote
+// against that advanced ref, found them equal, and said nothing. A fake git cannot see this:
+// it is the real `fetch` that writes the ref, and nothing in the sequence looks wrong.
+test("a fetch that landed under a rebase that did not: the brain still catches up on the next tick", (t) => {
+  const { root, git, bare } = makeBrain(t);
+  otherMachine(t, bare).pushes("CLAUDE.md", "- a rule from over there\n");
+  writeFileSync(join(root, "CLAUDE.md"), "# Constitution\n\n- rule one\n- a rule from HERE\n");
+  git("commit", "--quiet", "-am", "my own rule");
+
+  assert.equal(tick(root), "blocked", "the conflict is real: this tick brings nothing in");
+  intervalElapsed(root);
+  // The owner does what the announcement asks and drops their conflicting line: from here the
+  // pull is a fast-forward, and a brain that says "up to date" now never receives it at all.
+  git("reset", "--quiet", "--hard", "HEAD~1");
+
+  assert.equal(tick(root), "arrived", "the remote commit is not in HEAD, whatever this repo's own copy of the ref says");
+  assert.match(readFileSync(join(root, "CLAUDE.md"), "utf8"), /a rule from over there/);
+});
+
+// And its mirror, so the fix cannot be "fetch on every tick": a remote that is where we
+// already are must still cost one probe and nothing else (§5quater, alarm fatigue).
+test("a remote whose commit we already have is still total silence, tick after tick", (t) => {
+  const { root } = makeBrain(t);
+
+  assert.equal(tick(root), "up-to-date");
+  intervalElapsed(root);
+  assert.equal(tick(root), "up-to-date");
+  assert.equal(existsSync(join(root, "remote-arrivals.json")), false);
+});
+
+// 🛑 And the sibling branch, which no fake can prove either: whether `ls-remote --heads
+// origin main` really answers about `archive/main` too is git's behaviour, not ours. It
+// does — the pattern matches the tail of a ref on a path boundary — and refs come back
+// sorted, so the sibling comes FIRST. Reading line one compared this branch's freshness
+// against a branch nobody is working on.
+test("a remote that also carries `archive/main` still syncs `main`, not its namesake", (t) => {
+  const { root, bare } = makeBrain(t);
+  const other = otherMachine(t, bare);
+  // A branch left behind by an old rename or an archived import, parked where `main` was.
+  other.git("push", "--quiet", "origin", "main:archive/main");
+  other.pushes(join("vault", "people", "claire.md"), "---\ntitle: Claire\n---\n\n- met the notary\n");
+
+  assert.equal(tick(root), "arrived", "the sibling is parked at OUR sha: reading it would say 'nothing new' for ever");
+  assert.match(readFileSync(join(root, "vault", "people", "claire.md"), "utf8"), /met the notary/);
+  assert.deepEqual(traceOf(root).files, ["vault/people/claire.md"]);
 });
 
 test("a union merge that damages a note's header undoes the whole rebase, and says which note", NEEDS_ENGINE_PARSER, (t) => {

@@ -7,9 +7,14 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { DEFAULT_INTERVAL_MS, TRACE_IGNORE_COMMENT, TRACE_REL, mergeTrace, runTick, upstreamParts } from "./remote-sync.mjs";
+import { DEFAULT_INTERVAL_MS, TRACE_IGNORE_COMMENT, TRACE_REL, mergeTrace, remoteHeadSha, runTick, upstreamParts } from "./remote-sync.mjs";
 
 const NOW = new Date("2026-09-08T09:00:00.000Z");
+
+// Where this tick starts, read by VALUE before the rebase. Deliberately NOT the sha the
+// remote is at, and deliberately not a name: every range and the undo use this string, and
+// a test that mixed it up with `ORIG_HEAD` would be pinning the defect instead of the fix.
+const BASE = "cccc333";
 
 // Unknown commands THROW: a tick that runs something this script did not expect is
 // exactly what the sequence assertions exist to catch, and a silent {ok:false} would
@@ -39,12 +44,14 @@ function behindAnswers(overrides = {}) {
     "rev-parse --abbrev-ref --symbolic-full-name @{u}": "origin/main\n",
     "status --porcelain": "",
     ...IN_PROGRESS_PROBES,
-    "rev-parse @{u}": "aaaa111\n",
     "ls-remote --heads origin main": "bbbb222\trefs/heads/main\n",
+    // "I do not have that commit yet" — the question the early return actually asks.
+    "merge-base --is-ancestor bbbb222 HEAD": { out: "", ok: false },
     "fetch origin": "",
+    "rev-parse HEAD": `${BASE}\n`,
     "rebase @{u}": "Successfully rebased and updated refs/heads/main.\n",
-    "diff --name-only ORIG_HEAD HEAD": "vault/daily/2026-09-08.md\nvault/people/notaire.md\n",
-    "log --format=%an ORIG_HEAD..@{u}": "Claire\nClaire\n",
+    [`diff --name-only ${BASE} HEAD`]: "vault/daily/2026-09-08.md\nvault/people/notaire.md\n",
+    [`log --format=%an ${BASE}..@{u}`]: "Claire\nClaire\n",
     "config --get user.name": "Paul\n",
     ...overrides,
   };
@@ -147,13 +154,28 @@ test("another window ticked a moment ago (gate refused) → yield silently, befo
   assert.ok(!h.calls.some((c) => c.startsWith("ls-remote")), "the probe must not run");
 });
 
-test("probe equal to the known upstream → up to date: SILENCE, no fetch, no trace, no push, lock released", () => {
-  const h = harness(behindAnswers({ "ls-remote --heads origin main": "aaaa111\trefs/heads/main\n" }));
+test("the remote commit is already in HEAD → up to date: SILENCE, no fetch, no trace, no push, lock released", () => {
+  const h = harness(behindAnswers({ "merge-base --is-ancestor bbbb222 HEAD": "" }));
   assert.equal(runTick(h.deps), "up-to-date");
-  assert.deepEqual(h.calls.slice(-2), ["rev-parse @{u}", "ls-remote --heads origin main"]);
+  assert.deepEqual(h.calls.slice(-2), ["ls-remote --heads origin main", "merge-base --is-ancestor bbbb222 HEAD"]);
   assert.deepEqual(h.writes, [], "a 'nothing new' must never write a trace (alarm fatigue)");
   assert.deepEqual(h.pushes, []);
   assert.equal(h.gate.released, 1);
+});
+
+// 🛑 THE DEFECT THAT MADE A BRAIN GO SILENT FOR GOOD. The freshness question used to be
+// asked of `@{u}` — MY copy of where the remote was, which this brain's own `fetch`
+// advances. One tick fetched, its rebase then failed and was undone: `@{u}` stayed at the
+// remote's sha while HEAD stayed put. Every later tick compared the remote against that
+// advanced ref, answered "identical", and said nothing — for ever. The question that
+// actually means "there is nothing to pull" is whether I ALREADY HAVE that commit.
+test("a fetch that landed under a rebase that did not still leaves the brain behind: the next tick pulls anyway", () => {
+  // `@{u}` is already at bbbb222 here — and is never consulted, so the fake git would throw.
+  const h = harness(behindAnswers());
+
+  assert.equal(runTick(h.deps), "arrived");
+  assert.ok(h.calls.includes("fetch origin"), "a brain behind its remote must not be told it is up to date");
+  assert.ok(!h.calls.includes("rev-parse @{u}"), "the upstream ref is my own copy, not the question");
 });
 
 test("the probe fails (offline) → silence, lock released, next tick will retry", () => {
@@ -174,12 +196,13 @@ test("behind → fetch, rebase, trace of what arrived (files + authors), push, b
     "rev-parse -q --verify MERGE_HEAD",
     "rev-parse -q --verify REBASE_HEAD",
     "rev-parse -q --verify CHERRY_PICK_HEAD",
-    "rev-parse @{u}",
     "ls-remote --heads origin main",
+    "merge-base --is-ancestor bbbb222 HEAD",
     "fetch origin",
+    "rev-parse HEAD",
     "rebase @{u}",
-    "diff --name-only ORIG_HEAD HEAD",
-    "log --format=%an ORIG_HEAD..@{u}",
+    `diff --name-only ${BASE} HEAD`,
+    `log --format=%an ${BASE}..@{u}`,
     "config --get user.name",
   ]);
   assert.deepEqual(h.writes, [
@@ -205,8 +228,8 @@ test("behind → fetch, rebase, trace of what arrived (files + authors), push, b
 test("my own unpushed commits, replayed by the rebase, are NOT arrivals: only the other side's authors", () => {
   const h = harness(
     behindAnswers({
-      "log --format=%an ORIG_HEAD..HEAD": "Paul\nClaire\n",
-      "log --format=%an ORIG_HEAD..@{u}": "Claire\n",
+      [`log --format=%an ${BASE}..HEAD`]: "Paul\nClaire\n",
+      [`log --format=%an ${BASE}..@{u}`]: "Claire\n",
     }),
   );
   assert.equal(runTick(h.deps), "arrived");
@@ -215,7 +238,7 @@ test("my own unpushed commits, replayed by the rebase, are NOT arrivals: only th
 });
 
 test("notes from MYSELF (my other machine) arrive silently: trace and push, but no banner", () => {
-  const h = harness(behindAnswers({ "log --format=%an ORIG_HEAD..@{u}": "Paul\n" }));
+  const h = harness(behindAnswers({ [`log --format=%an ${BASE}..@{u}`]: "Paul\n" }));
   assert.equal(runTick(h.deps), "arrived");
   assert.deepEqual(h.notices, []);
   assert.equal(h.writes[0].authors[0], "Paul");
@@ -227,7 +250,7 @@ test("notes from MYSELF (my other machine) arrive silently: trace and push, but 
 // The registry is the only thing that can tell that apart, and it is consulted here
 // for the same reason the note paths consult it: one notion of "who", brain-wide.
 test("notes from a CONFIRMED alias of mine arrive silently too — no banner about my own Mac", () => {
-  const h = harness(behindAnswers({ "log --format=%an ORIG_HEAD..@{u}": "paulo\n" }), {
+  const h = harness(behindAnswers({ [`log --format=%an ${BASE}..@{u}`]: "paulo\n" }), {
     identities: () => [{ name: "Paul", aka: ["paulo"] }],
   });
 
@@ -248,7 +271,7 @@ test("a real second person still raises the banner, registry or not", () => {
 // Spellings were never two people either: without any registry at all, `paul` and
 // `Paul` are one human, and the raw comparison called them two.
 test("a difference of case alone is not a second person", () => {
-  const h = harness(behindAnswers({ "log --format=%an ORIG_HEAD..@{u}": "  PAUL \n" }));
+  const h = harness(behindAnswers({ [`log --format=%an ${BASE}..@{u}`]: "  PAUL \n" }));
 
   assert.equal(runTick(h.deps), "arrived");
   assert.deepEqual(h.notices, []);
@@ -257,7 +280,7 @@ test("a difference of case alone is not a second person", () => {
 // The registry is read off disk at tick time; a brain whose file is damaged must
 // still sync. The cost is one banner too many, never a tick.
 test("a registry that cannot be read costs the fusion, never the tick", () => {
-  const h = harness(behindAnswers({ "log --format=%an ORIG_HEAD..@{u}": "paulo\n" }), {
+  const h = harness(behindAnswers({ [`log --format=%an ${BASE}..@{u}`]: "paulo\n" }), {
     identities: () => {
       throw new Error("EACCES");
     },
@@ -267,20 +290,21 @@ test("a registry that cannot be read costs the fusion, never the tick", () => {
   assert.deepEqual(h.notices, [{ files: ["vault/daily/2026-09-08.md", "vault/people/notaire.md"], authors: ["paulo"] }]);
 });
 
-test("a merged note whose header no longer parses → the rebase is undone (reset to ORIG_HEAD), blocked trace, no push", () => {
-  const h = harness(
-    behindAnswers({ "reset --hard ORIG_HEAD": "" }),
-    { checkNote: (rel) => (rel === "vault/daily/2026-09-08.md" ? { ok: false, reason: "damaged front-matter key \"updated\"" } : { ok: true }) },
-  );
+// The damaged-note case is a `reset --hard`, the most destructive command this brain runs.
+const damagedNote = (rel) =>
+  rel === "vault/daily/2026-09-08.md" ? { ok: false, reason: "damaged front-matter key \"updated\"" } : { ok: true };
+
+test("a merged note whose header no longer parses → the rebase is undone (reset to where the tick started), blocked trace, no push", () => {
+  const h = harness(behindAnswers({ [`reset --hard ${BASE}`]: "" }), { checkNote: damagedNote });
   assert.equal(runTick(h.deps), "blocked");
-  assert.equal(h.calls.at(-1), "reset --hard ORIG_HEAD");
+  assert.equal(h.calls.at(-1), `reset --hard ${BASE}`);
   assert.ok(!h.calls.includes("config --get user.name"), "no banner path for a blocked tick");
   assert.deepEqual(h.writes, [
     {
       arrivedAt: null,
       files: [],
       authors: [],
-      blocked: { files: ["vault/daily/2026-09-08.md"], reason: "damaged front-matter key \"updated\"" },
+      blocked: { files: ["vault/daily/2026-09-08.md"], reason: "damaged front-matter key \"updated\"", undone: true },
       announcedAt: null,
     },
   ]);
@@ -289,10 +313,52 @@ test("a merged note whose header no longer parses → the rebase is undone (rese
   assert.equal(h.gate.released, 1);
 });
 
+// 🛑 THE ONE THAT COULD DELETE A NOTE THE OWNER JUST WROTE. `ORIG_HEAD` is a SHARED ref: a
+// no-op rebase never writes it, and nothing serialises this tick against the auto-commit
+// path, so it can name an arbitrary older commit by the time the undo runs — and
+// `reset --hard` onto it throws away everything committed since. What this tick started at
+// is a value it read itself, one line before the rebase, and no other git can move a value.
+test("no undo, no range and no diff ever names ORIG_HEAD: the tick works from the sha it read itself", () => {
+  const h = harness(behindAnswers({ [`reset --hard ${BASE}`]: "" }), { checkNote: damagedNote });
+
+  assert.equal(runTick(h.deps), "blocked");
+  assert.deepEqual(h.calls.filter((c) => c.includes("ORIG_HEAD")), [], "a shared ref another git can move");
+  assert.ok(h.calls.includes("rev-parse HEAD"), "…read by value, before the rebase");
+  assert.ok(h.calls.indexOf("rev-parse HEAD") < h.calls.indexOf("rebase @{u}"), "…and BEFORE, or it reads the new tip");
+});
+
+// The announcement (remote-arrivals.mjs) states as a FACT that the pull was undone, and
+// tells the owner their side is intact. A reset that failed leaves the merged notes in the
+// tree: repeating the sentence there would be a confident falsehood about their own files.
+test("a reset that FAILS is not an undo, and the trace says so", () => {
+  const h = harness(behindAnswers({ [`reset --hard ${BASE}`]: { out: "fatal: could not reset\n", ok: false } }), {
+    checkNote: damagedNote,
+  });
+
+  assert.equal(runTick(h.deps), "blocked");
+  assert.equal(h.writes[0].blocked.undone, false);
+  assert.deepEqual(h.writes[0].blocked.files, ["vault/daily/2026-09-08.md"]);
+  assert.deepEqual(h.pushes, [], "nothing is pushed out of a tree we could not restore");
+});
+
+test("an abort that FAILS is not an undo either: the rebase is still in progress", () => {
+  const h = harness(
+    behindAnswers({
+      "rebase @{u}": { out: "CONFLICT (content): Merge conflict in CLAUDE.md\n", ok: false },
+      "diff --name-only --diff-filter=U": "CLAUDE.md\n",
+      "rebase --abort": { out: "fatal: could not move back to refs/heads/main\n", ok: false },
+    }),
+  );
+
+  assert.equal(runTick(h.deps), "blocked");
+  assert.equal(h.writes[0].blocked.undone, false);
+  assert.deepEqual(h.writes[0].blocked, { files: ["CLAUDE.md"], reason: "conflict", undone: false });
+});
+
 test("the header check only looks at vault notes among the arrivals, never at engine files", () => {
   const looked = [];
   const h = harness(
-    behindAnswers({ "diff --name-only ORIG_HEAD HEAD": "scripts/lib/x.mjs\nvault/topics/lease.md\nREADME.md\n" }),
+    behindAnswers({ [`diff --name-only ${BASE} HEAD`]: "scripts/lib/x.mjs\nvault/topics/lease.md\nREADME.md\n" }),
     { checkNote: (rel) => (looked.push(rel), { ok: true }) },
   );
   runTick(h.deps);
@@ -311,7 +377,7 @@ test("a real conflict (outside the union rule) → abort, the conflicting files 
   assert.deepEqual(h.calls.slice(-3), ["rebase @{u}", "diff --name-only --diff-filter=U", "rebase --abort"]);
   assert.deepEqual(
     h.writes,
-    [{ arrivedAt: null, files: [], authors: [], blocked: { files: ["CLAUDE.md"], reason: "conflict" }, announcedAt: null }],
+    [{ arrivedAt: null, files: [], authors: [], blocked: { files: ["CLAUDE.md"], reason: "conflict", undone: true }, announcedAt: null }],
     "a conflict brings NOTHING in: an arrival recorded here would be announced as landed when it was undone",
   );
   assert.deepEqual(h.pushes, []);
@@ -341,6 +407,38 @@ test("a probe padded with whitespace still yields the sha", () => {
   assert.equal(runTick(h.deps), "arrived");
 });
 
+// ── Which branch the remote actually answered about (finding 1.3) ────────────
+// `ls-remote --heads <remote> main` matches the TAIL of a ref on a path boundary, so a repo
+// that also carries `archive/main` gets TWO lines back. Taking the first one compares this
+// branch against a sibling's sha — and since git's order is not this branch's to choose,
+// the brain can pull nothing forever, or fetch on every single tick, at random.
+test("remoteHeadSha reads the line whose ref is the branch, whole, and never a sibling's", () => {
+  const twoHeads = "dddd444\trefs/heads/archive/main\nbbbb222\trefs/heads/main\n";
+
+  assert.equal(remoteHeadSha(twoHeads, "main"), "bbbb222");
+  assert.equal(remoteHeadSha(twoHeads, "archive/main"), "dddd444", "and the sibling is reachable by its own name");
+  assert.equal(remoteHeadSha("bbbb222\trefs/heads/main\n", "main"), "bbbb222");
+  assert.equal(remoteHeadSha("", "main"), "", "a branch the remote does not carry");
+  assert.equal(remoteHeadSha("dddd444\trefs/heads/archive/main\n", "main"), "", "…and a near-miss is not a match");
+  assert.equal(remoteHeadSha("bbbb222\trefs/heads/mainline\n", "main"), "", "a longer name is another branch");
+  assert.equal(remoteHeadSha(undefined, "main"), "", "git answered nothing at all");
+  assert.equal(remoteHeadSha("\n  bbbb222\trefs/heads/main  \n", "main"), "bbbb222", "padding and CRLF are not the ref");
+  assert.equal(remoteHeadSha("bbbb222\trefs/heads/feature/x\n", "feature/x"), "bbbb222", "a branch name with a slash");
+});
+
+test("a sibling branch listed first does not decide this branch's freshness: still silent, still no fetch", () => {
+  const h = harness(
+    behindAnswers({
+      "ls-remote --heads origin main": "dddd444\trefs/heads/archive/main\nbbbb222\trefs/heads/main\n",
+      "merge-base --is-ancestor bbbb222 HEAD": "",
+    }),
+  );
+
+  assert.equal(runTick(h.deps), "up-to-date");
+  assert.ok(!h.calls.includes("fetch origin"), "the sibling's sha would have made this brain fetch on every tick");
+  assert.ok(!h.calls.some((c) => c.includes("dddd444")), "…and nothing downstream ever saw the sibling at all");
+});
+
 // Wherever core.autocrlf is on — which is the default on Windows — every line git prints
 // ends `\r\n`. Split on `\n` alone and each path keeps a trailing `\r`, so it matches no
 // note on disk: the header check looks at nothing and the announcement names ghosts.
@@ -348,8 +446,8 @@ test("paths arrive without the carriage return Windows puts on them", () => {
   const looked = [];
   const h = harness(
     behindAnswers({
-      "diff --name-only ORIG_HEAD HEAD": "vault/daily/2026-09-08.md\r\nvault/people/notaire.md\r\n",
-      "log --format=%an ORIG_HEAD..@{u}": "Claire\r\n",
+      [`diff --name-only ${BASE} HEAD`]: "vault/daily/2026-09-08.md\r\nvault/people/notaire.md\r\n",
+      [`log --format=%an ${BASE}..@{u}`]: "Claire\r\n",
     }),
     { checkNote: (rel) => (looked.push(rel), { ok: true }) },
   );
@@ -366,7 +464,7 @@ test("paths arrive without the carriage return Windows puts on them", () => {
 test("an attachment under vault/ is not put through the header check", () => {
   const looked = [];
   const h = harness(
-    behindAnswers({ "diff --name-only ORIG_HEAD HEAD": "vault/attachments/photo.png\nvault/topics/lease.md\n" }),
+    behindAnswers({ [`diff --name-only ${BASE} HEAD`]: "vault/attachments/photo.png\nvault/topics/lease.md\n" }),
     { checkNote: (rel) => (looked.push(rel), { ok: true }) },
   );
 
@@ -377,7 +475,7 @@ test("an attachment under vault/ is not put through the header check", () => {
 // A rebase can bring back a stretch containing BOTH my own commits from the other machine
 // and someone else's. One name that is not mine is reason enough to raise the banner.
 test("a pull carrying my commits AND someone else's still raises the banner", () => {
-  const h = harness(behindAnswers({ "log --format=%an ORIG_HEAD..@{u}": "Paul\nClaire\n" }));
+  const h = harness(behindAnswers({ [`log --format=%an ${BASE}..@{u}`]: "Paul\nClaire\n" }));
 
   assert.equal(runTick(h.deps), "arrived");
   assert.deepEqual(h.notices, [
@@ -388,6 +486,18 @@ test("a pull carrying my commits AND someone else's still raises the banner", ()
 test("the fetch fails after a positive probe → nothing rebased, nothing written, lock released", () => {
   const h = harness(behindAnswers({ "fetch origin": { out: "fatal: unable to access\n", ok: false } }));
   assert.equal(runTick(h.deps), "fetch-failed");
+  assert.ok(!h.calls.includes("rebase @{u}"));
+  assert.deepEqual(h.writes, []);
+  assert.equal(h.gate.released, 1);
+});
+
+// Everything after this point uses that sha: an empty one would make the diff range
+// meaningless and, far worse, turn the undo into `reset --hard ""`. A tick that cannot say
+// where it started does not start.
+test("a HEAD that will not resolve stops the tick before the rebase, rather than working from an empty sha", () => {
+  const h = harness(behindAnswers({ "rev-parse HEAD": { out: "", ok: false } }));
+
+  assert.equal(runTick(h.deps), "failed");
   assert.ok(!h.calls.includes("rebase @{u}"));
   assert.deepEqual(h.writes, []);
   assert.equal(h.gate.released, 1);

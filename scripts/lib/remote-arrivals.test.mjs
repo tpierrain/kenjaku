@@ -227,6 +227,30 @@ test("the cause is shown when it adds something, and suppressed when it only rep
   assert.equal(causeIn({ files: ["vault/a.md"], reason: "" }), "a.md", "an empty reason is not a reason");
 });
 
+// 🛑 "and undid the pull" is a statement of FACT about the owner's own files. The sync
+// now checks whether its `rebase --abort` / `reset --hard` actually worked, precisely so
+// this sentence can stop being told when it is false: a tree left mid-operation needs the
+// merge FINISHED, and a person told their side was restored will not look for it.
+test("an undo that did not happen is never announced as one: the message says the repo is mid-operation", () => {
+  const directive = blockedDirective(trace({ blocked: { files: ["CLAUDE.md"], reason: "conflict", undone: false } }));
+
+  assert.ok(!/undid the pull/.test(directive), "the pull was NOT undone");
+  assert.match(directive, /could NOT undo/);
+  assert.match(directive, /mid-operation/, "what the owner will find if they look at their repo");
+  assert.match(directive, /CLAUDE\.md/);
+  assert.match(directive, /finish the merge/i, "there is no merge to redo: it is still open");
+  assert.match(directive, /keep both/i);
+  assert.ok(directive.length <= DIRECTIVE_MAX, `${directive.length} > ${DIRECTIVE_MAX}`);
+});
+
+// A trace written by an older engine carries no verdict at all. Silence there means the
+// old code's behaviour — it aborted and never looked — and that path did work in the
+// ordinary case, so the ordinary sentence stays.
+test("a trace with no verdict on the undo keeps the sentence it has always had", () => {
+  assert.match(blockedDirective(trace({ blocked: { files: ["CLAUDE.md"], reason: "conflict" } })), /undid the pull/);
+  assert.match(blockedDirective(trace({ blocked: { files: ["CLAUDE.md"], reason: "conflict", undone: true } })), /undid the pull/);
+});
+
 test("no block → nothing", () => {
   assert.equal(blockedDirective(trace()), null);
   assert.equal(blockedDirective(null), null);
