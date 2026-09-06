@@ -406,7 +406,7 @@ test("readHookPayload: a payload that has NOT LANDED YET reads as nothing — th
   // constraint — a session start never blocks — beat the barrier rather than the race:
   // the universe hook's wait was REMOVED on the owner's call, and the one remaining
   // waiter is the engine-divergence hook, whose own call is open in
-  // `maintainers/plans/prospective/duo-v51-safeguards-action.md`.
+  // `maintainers/plans/archived/duo-v51-safeguards-action.md`.
   const notYet = new Error("EAGAIN: resource temporarily unavailable, read");
   notYet.code = "EAGAIN";
 

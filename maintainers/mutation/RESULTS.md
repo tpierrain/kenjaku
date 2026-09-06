@@ -236,7 +236,7 @@ local-mirror's `fs-state-store` and `content-hash`.
 ## v5.1 step 9 — the safeguards a duo owes the owner, and a flaky suite caught manufacturing a kill — 2026-09-05/06
 
 State owned by
-[`../plans/prospective/duo-v51-safeguards-action.md`](../plans/prospective/duo-v51-safeguards-action.md)
+[`../plans/archived/duo-v51-safeguards-action.md`](../plans/archived/duo-v51-safeguards-action.md)
 (step 9.5). Step 9 answers the owner's question after reading the shipped duo surface — *what stops
 the NEWCOMER from being the one who says "it's fine"* — and its one real hole was that a fusion
 recorded on the other machine made the owner's machine emit **nothing at all**. Registry entries now

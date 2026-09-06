@@ -8,7 +8,7 @@
   — this ADR is where that preference **stops**, because the mechanism already exists elsewhere);
   [`0041`](0041-a-captured-source-carries-its-identity.md) (the capture side of duo mode);
   [`0034`](0034-progressive-disclosure-of-universes.md) (nothing surfaces until a second one exists);
-  plan [`../plans/prospective/duo-v51-safeguards-action.md`](../plans/prospective/duo-v51-safeguards-action.md).
+  plan [`../plans/archived/duo-v51-safeguards-action.md`](../plans/archived/duo-v51-safeguards-action.md).
 
 ## Crux
 

@@ -23,8 +23,8 @@ that step landed too: ✅ NOTHING HERE HOLDS THE RELEASE ANY MORE** _(2026-09-06
 > ⛔ **The release IS held again, on a different file's list** _(2026-09-06)_. The `/code-review max`
 > found defects in code **this plan shipped** — the raw `author:` stamp written unquoted into YAML,
 > the two writers that spell `author:` differently, the `sources:` keys the skill teaches quoted while
-> the parser does not strip quotes. They are **not restated here**: they live as 10.4, 10.11 and 10.13
-> in [`duo-v51-safeguards-action.md`](duo-v51-safeguards-action.md) § 10, which owns that list.
+> the parser does not strip quotes. They are **not restated here**: they live as 1.4, 1.5 and 2.7 in
+> [`v5.1.0-code-review-fixes-action.md`](v5.1.0-code-review-fixes-action.md), which owns that list.
 
 - ✅ **~~THE RELEASE IS HELD ON THIS PLAN AGAIN, BY THE OWNER~~ — LIFTED, THE WORK LANDED**
   _(hold 2026-09-04, lifted 2026-09-06)_. His words at the time: *"On ne publie pas la release tant
@@ -32,7 +32,7 @@ that step landed too: ✅ NOTHING HERE HOLDS THE RELEASE ANY MORE** _(2026-09-06
   safeguards he asked for afterwards are done and measured as well. **Kept for the WHY, and because a
   hold is worth remembering; it instructs nobody now.** What this plan owns is the doctrine being
   refined and the work that refined it, below. Where the release itself stands:
-  [`duo-v51-safeguards-action.md`](duo-v51-safeguards-action.md).
+  [`v5.1.0-code-review-fixes-action.md`](v5.1.0-code-review-fixes-action.md).
 - ▶️ **STEP 8 — THE ANNOUNCEMENT BECOMES A QUESTION** _(opened 2026-09-04, the work resumes here; 6
   and 7 were already taken by the original run, so this is 8)_.
   **The defect:** `brain-author.mjs` compares git author names and nothing else, so one person whose
@@ -59,8 +59,10 @@ that step landed too: ✅ NOTHING HERE HOLDS THE RELEASE ANY MORE** _(2026-09-06
   after reading the duo surface (announce a fusion made elsewhere, say where the access came from, a
   page of its own for duo mode, attribution metadata laid before anyone starts) opened here and
   **moved out the same morning**, on his suggestion, into a deliberately small plan:
-  **[`duo-v51-safeguards-action.md`](duo-v51-safeguards-action.md)**, which also carries the release
-  cut. **Open this file only for the WHY** — the doctrine, the design calls, and what each step cost.
+  **[`../archived/duo-v51-safeguards-action.md`](../archived/duo-v51-safeguards-action.md)** — which
+  landed whole and was archived on 2026-09-06, the release cut passing on to
+  [`v5.1.0-code-review-fixes-action.md`](v5.1.0-code-review-fixes-action.md).
+  **Open this file only for the WHY** — the doctrine, the design calls, and what each step cost.
 - ✅ **THE CI WAS READ ON RESUMING** _(2026-09-04, 23:31 push)_: the checks for `9246e12` **and** for
   the plan commit after it both **passed**. Nothing red is outstanding, so a failure appearing from
   here belongs to the work below (`rules/ci.md`).
@@ -685,8 +687,10 @@ This is the honest statement of the perimeter.
 
 Opened here on 2026-09-05, then **moved out the same morning** at the owner's suggestion (*"partir
 sur un nouveau mini-plan"*): this file and its parent are ~2100 lines of closed work, and re-opening
-them at every resume spends context on history. **The four items, and the release cut, live in**
-[`duo-v51-safeguards-action.md`](duo-v51-safeguards-action.md). Nothing about them is restated here.
+them at every resume spends context on history. **The four items landed and are the record in**
+[`../archived/duo-v51-safeguards-action.md`](../archived/duo-v51-safeguards-action.md); **the release
+cut is now in** [`v5.1.0-code-review-fixes-action.md`](v5.1.0-code-review-fixes-action.md). Nothing
+about either is restated here.
 
 ## 🛑 The owner's call: duo mode is implicit, and the brain announces it once _(2026-09-02, before the run)_
 

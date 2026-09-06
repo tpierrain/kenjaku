@@ -437,4 +437,4 @@ test("…and it does not wait on its own stdin either, when the harness writes n
 // race to a `node` boot), and every mutant re-runs the whole suite, so an intermittent
 // failure did not add noise to a mutation score, it added points. Its story, both
 // rejected repairs and their measurements, live in
-// `maintainers/plans/prospective/duo-v51-safeguards-action.md`.
+// `maintainers/plans/archived/duo-v51-safeguards-action.md`.

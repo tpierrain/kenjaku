@@ -22,7 +22,7 @@ permanence des plans énormes qui sont déjà faits."* → **S3**.
   qu'on ferait après la release ? … c'est quoi l'arbitrage le plus intéressant"*)_. **The hold expired
   on its own terms** rather than being overridden: the condition was *finish 9.5 with the instrument
   as it is*, and 9.5 closed at 02:42 this morning. What changed the arithmetic is the code review —
-  [`duo-v51-safeguards-action.md`](duo-v51-safeguards-action.md) § 10 opens six fixes in files that
+  [`v5.1.0-code-review-fixes-action.md`](v5.1.0-code-review-fixes-action.md) § 1 opens six fixes in files that
   are **already measured**, so their published figures stop describing the shipped code and a
   re-measurement is owed **either way**. On the instrument as it stands that is ~80 min a batch,
   twice; behind S1 it is minutes. **S1 pays for itself inside this release instead of after it.**
@@ -34,7 +34,7 @@ permanence des plans énormes qui sont déjà faits."* → **S3**.
     instruments. It gets written as such, with the old figure and the new one side by side (S1.4
     already asks for exactly that pair).
   - **S2 and S3 stay held until the tag**, unchanged — with one free exception: **S2.1 is a re-read,
-    not a run**, so it is applied to the § 10 fixes' own test diff as they are written.
+    not a run**, so it is applied to the § 1 fixes' own test diff as they are written.
 - ⏸️ ~~**NOT STARTED, AND DELIBERATELY HELD until `v5.1.0` is tagged**~~ _(owner's call, 2026-09-05:
   "on valide cet ordre" — **superseded 2026-09-06, see above**)_. The order he validated is: **finish
   9.5 with the instrument as it is**, then S1, then S2. Changing the runner mid-measurement would put
@@ -44,30 +44,32 @@ permanence des plans énormes qui sont déjà faits."* → **S3**.
   is still right, and it is the measure of what had to change for the conclusion to move.)_
   - ⏳ **The tag moved further out on 2026-09-06**, and nothing here changes because of it: the
     `/code-review max` found blockers that must be answered before `v5.1.0` is cut. The list and the
-    go/no-go belong to [`duo-v51-safeguards-action.md`](duo-v51-safeguards-action.md) § 10; this plan
-    still resumes at S1, still after the tag.
+    go/no-go belong to [`v5.1.0-code-review-fixes-action.md`](v5.1.0-code-review-fixes-action.md);
+    this plan still resumes at S1 — **but now BEFORE the tag, see the entry above**.
 - 🔧 **"THE INSTRUMENT AS IT IS" CHANGED ONCE, ON 2026-09-05, AND ONLY FOR THE BETTER** _(`ae5f61b`)_.
   The suite carried a test that failed about 1 run in 8 under load, and since every mutant re-runs the
   whole suite, an intermittent failure did not add noise to a score, it added **points**. It is gone —
   deleted with the barrier it asserted, not stabilised. **Nothing here moves because of it**: this plan
   stays held until the tag and still resumes at S1. It is recorded because S1 and S2 both reason about
   the instrument, and they now reason about a sound one. Owner of that story:
-  [`duo-v51-safeguards-action.md`](duo-v51-safeguards-action.md).
+  [`../archived/duo-v51-safeguards-action.md`](../archived/duo-v51-safeguards-action.md).
   - ➕ **And a second time on 2026-09-06, same shape, same conclusion** (step 9.6 there): three tests
     that pinned a session-start wait were deleted and two clock-measured process-level ones took their
     place. **Nothing here moves because of it either** — this plan is still held until the tag, still
     resumes at S1. Recorded because the suite S1 will speed up is now three tests lighter, and because
     the owner's words that day are a **standing rule S1 and S2 both inherit**: *"on enlève cette attente
     qui pénalise tout le monde pour quelques rares cas"*.
-- ▶️ **RESUME HERE once the tag is published: S1 below**, the targeted test command. **The three are
-  independent** and may be done in any order: S1 is the speed of the instrument, S2 the quality of the
-  first pass, S3 the cost of reading the record. S1 first because it pays back on the very next run.
-- 🔗 **S3 has a natural moment, and it is R.4 of the v5.1 plan**: that step already archives the two
-  1200-and-905-line plans right after the tag. Doing S3 then costs almost nothing extra, and R.4 is the
-  step that will hit the broken-link problem S3.3 names.
-- **Blocked on:** the `v5.1.0` tag (§ *Cutting the release* in
-  [`duo-v51-safeguards-action.md`](duo-v51-safeguards-action.md), the owner's and only his). Nothing
-  else.
+- ▶️ **RESUME AT S1 BELOW**, the targeted test command — **now, before the tag** (first bullet). **The
+  three are independent** and may be done in any order: S1 is the speed of the instrument, S2 the
+  quality of the first pass, S3 the cost of reading the record. S1 goes first because it pays back on
+  the very next run, and the next run is this release's.
+- 🔗 **S3 has a natural moment, and it is § 3.4 of** [`v5.1.0-code-review-fixes-action.md`](v5.1.0-code-review-fixes-action.md):
+  that step already archives the two 1200-and-905-line plans right after the tag. Doing S3 then costs
+  almost nothing extra, and 3.4 is the step that will hit the broken-link problem S3.3 names.
+  **A first instalment was paid early**, on 2026-09-06 and on the owner's ask: the 158-line v5.1 plan
+  was split and archived the moment its work was done, which is S3.1's trigger applied by hand.
+- **Blocked on:** nothing, for S1. **S2 and S3 stay blocked on the `v5.1.0` tag** (§ 3 of
+  [`v5.1.0-code-review-fixes-action.md`](v5.1.0-code-review-fixes-action.md), the owner's and only his).
 - **A session may, alone**: do S1 and S2 test-first on a branch off `main`, pushing every green commit
   and **reading its CI** (rules/ci.md). **Not**: touch a measurement that is feeding an unpublished
   release note, nor weaken a test to make a number move.
@@ -162,7 +164,7 @@ and a five-minute re-read of my own test diff would have caught it without start
       flake gone, over identical code and identical tests, all ten survive and all ten are equivalents.
       So the named list did not merely confirm a re-run — **it is what made a false kill visible**, and
       it is the only reason a wrong equivalence verdict did not stay on the books. State and evidence:
-      [`duo-v51-safeguards-action.md`](duo-v51-safeguards-action.md) and
+      [`../archived/duo-v51-safeguards-action.md`](../archived/duo-v51-safeguards-action.md) and
       [`../../mutation/RESULTS.md`](../../mutation/RESULTS.md).
 
 ### S3. A finished plan stops being read as a plan _(the record lever)_
@@ -186,7 +188,7 @@ whose name means *what is ahead*:
 
 **And the remedy already exists — it was performed by hand this very morning and it worked.** The
 2105 lines of the first two were replaced, as the active plan, by
-[`duo-v51-safeguards-action.md`](duo-v51-safeguards-action.md): **158 lines**, opened on the owner's own
+[`../archived/duo-v51-safeguards-action.md`](../archived/duo-v51-safeguards-action.md): **158 lines**, opened on the owner's own
 suggestion *"est-ce que ça ne vaudrait pas le coup d'archiver le plan de tout ce que tu as déjà fait, et
 de partir sur un nouveau mini-plan ?"*. So S3 invents no mechanism. It turns **one act done when the
 pain got loud enough** into a **standing hygiene with a trigger**.

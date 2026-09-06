@@ -61,7 +61,7 @@ const PULLER_SCRIPT = "session-status.mjs";
  * next message (`remote-arrivals.mjs`). The last waiter, `session-engine-divergence.mjs`,
  * followed on 2026-09-06 (step 9.6, the owner's call: the wait penalised every session
  * start to protect a narrow window). **NOTHING WAITS ANY MORE**, so this read now serves
- * the marker alone. See `maintainers/plans/prospective/duo-v51-safeguards-action.md`.
+ * the marker alone. See `maintainers/plans/archived/duo-v51-safeguards-action.md`.
  */
 export function readHookPayload({
   readInput = () => readFileSync(0, "utf8"),
@@ -224,7 +224,7 @@ function writeMarker({ repo, sessionId, io, phase, now }) {
  * for the pull is now a decided-against design, not an unexplored option: whoever is tempted
  * to call this is re-opening a question that was answered twice, at the cost of up to 12 s on
  * every session start. The removal of this function and the plumbing under it is step 9.6.3
- * of `maintainers/plans/prospective/duo-v51-safeguards-action.md`, held back only because it
+ * of `maintainers/plans/archived/duo-v51-safeguards-action.md`, held back only because it
  * would edit the sync code on the eve of the v5.1.0 tag.
  */
 export function awaitStartupSync({ repo, io, now = Date.now, sleep = blockingSleep, readPayload = readHookPayload }) {

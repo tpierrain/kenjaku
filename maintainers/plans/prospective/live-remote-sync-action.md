@@ -23,8 +23,9 @@ the rehearsal against a copy of a real brain.
 > ⛔ **THE TAG IS HELD, ON A LIST THIS FILE DOES NOT OWN** _(2026-09-06)_. The `/code-review max`
 > found nine defects in the sync code **this plan shipped** — among them a `reset --hard ORIG_HEAD`
 > that can delete a note, and a freshness probe that answers *"up-to-date"* forever once an
-> integration has failed. **Not restated here**: they are 10.1 → 10.9 in
-> [`duo-v51-safeguards-action.md`](duo-v51-safeguards-action.md) § 10, which owns them and the go/no-go.
+> integration has failed. **Not restated here**: they are § 1.1 → 1.3 (fixed now) and § 2.1 → 2.5
+> (deferred) of [`v5.1.0-code-review-fixes-action.md`](v5.1.0-code-review-fixes-action.md), which owns
+> them and the go/no-go.
 >
 > ✅ **THE OWNER'S GO IS GIVEN, AND THE NUMBER IS `v5.1.0`** _(2026-09-03, in conversation)_. His
 > words: *"ok pour v5.1.0, go pour la release"*. So 8.3's "owner's call" is answered — **the tag is
@@ -125,7 +126,9 @@ the rehearsal against a copy of a real brain.
 > ✅🛑 **THIS PLAN IS CLOSED, AND THE LIVE STATE MOVED** _(2026-09-05, his suggestion)_. Everything
 > below is history: open it for the WHY, never for where things stand. What is still open on v5.1 —
 > the four safeguards he asked for after reading the duo surface, **and the release cut itself** —
-> lives in one deliberately small file, **[`duo-v51-safeguards-action.md`](duo-v51-safeguards-action.md)**,
+> lives in one deliberately small file — **[`../archived/duo-v51-safeguards-action.md`](../archived/duo-v51-safeguards-action.md)**
+> until it landed whole on 2026-09-06, then
+> **[`v5.1.0-code-review-fixes-action.md`](v5.1.0-code-review-fixes-action.md)** —
 > which `ACTIVE.md` now points at. ~~**The release is held on those four**; do not tag before they
 > land.~~ ✅ **THEY LANDED, AND THE MEASUREMENT BEHIND THEM IS CLOSED TOO** _(2026-09-06)_: step 9 is
 > done and its four mutation batches with it. **This file no longer holds anything back.** Whether to
@@ -141,7 +144,7 @@ the rehearsal against a copy of a real brain.
 > race — and the universe hook now **announces what is on disk at once**, with a switch that arrives
 > afterwards corrected at the owner's next message. Steps 5–7 of this plan describe a wait that **no
 > longer exists**; they are kept as the record of what it was for. The live state, the measurements
-> and what replaced it are in [`duo-v51-safeguards-action.md`](duo-v51-safeguards-action.md).
+> and what replaced it are in [`../archived/duo-v51-safeguards-action.md`](../archived/duo-v51-safeguards-action.md).
 >
 > 🐛 **~~THE BARRIER THIS PLAN BUILT HAD A HOLE, FOUND AND FIXED 2026-09-05~~** _(`045bd3f`, since
 > reverted — read the block above first)_. Steps 5–7
@@ -153,7 +156,8 @@ the rehearsal against a copy of a real brain.
 > read then failed with EAGAIN and was swallowed as *"no payload"*. The guard against hanging at a
 > terminal was what broke reading from a pipe. **The WHY lives here because the barrier does**; the
 > measurement fallout and the owner's call are in
-> [`duo-v51-safeguards-action.md`](duo-v51-safeguards-action.md), which owns the live state.
+> [`../archived/duo-v51-safeguards-action.md`](../archived/duo-v51-safeguards-action.md); the live state
+> is now [`v5.1.0-code-review-fixes-action.md`](v5.1.0-code-review-fixes-action.md)'s.
 >
 > ✍️ **ONE DOC THREAD IS OPEN, AND IT IS NOT A BLOCKER** _(2026-09-05, from the owner reading the duo
 > surface aloud)_. Two ambiguities he found in the perimeter prose, both about *whose* tools are

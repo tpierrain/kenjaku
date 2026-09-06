@@ -1,52 +1,41 @@
 <!-- ════════════════════════════════════════════════════════════════════════ -->
-<!-- THE canonical plan for what is still OPEN on v5.1.0. Opened 2026-09-05,  -->
-<!-- deliberately SMALL: the two plans that carried this release to here are  -->
-<!-- ~2100 lines between them, all of it closed, and re-opening them at every -->
-<!-- resume spends context on history. This file owns the live state; they    -->
-<!-- keep the reasoning. Branch: `feat/live-remote-sync`.                     -->
+<!-- ARCHIVED 2026-09-06 — step 9 in full, and nothing else. This file is a   -->
+<!-- RECORD: it holds no live state, and no session resumes here. The work    -->
+<!-- that outlived it is in                                                    -->
+<!--   ../prospective/v5.1.0-code-review-fixes-action.md                       -->
+<!-- plan-carrier-guard: delegates-only — an archived record by construction, -->
+<!-- and the guard cannot tell that from staleness, so it is told here. What  -->
+<!-- this file DOES own: the reasoning of step 9 and the four 9.5 batches.    -->
+<!-- Branch it shipped on: `feat/live-remote-sync`.                            -->
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 
-# Action plan — what a duo owes the person whose brain it is, then the release is cut
+# Action plan (ARCHIVED) — what a duo owes the person whose brain it is
 
 Opened at the owner's suggestion, 2026-09-05: *"est-ce que ça ne vaudrait pas le coup d'archiver le
 plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"* Yes, and this is it.
 
-## 📍 STATE — the only perishable block in this file · opened 2026-09-05
+## 📍 STATE — CLOSED · opened 2026-09-05, archived 2026-09-06
 
-> ▶️ **ON RESUMING (2026-09-06 10:00). THE CODE REVIEW HAS RUN, AND IT FOUND *DES TRUCS GRAVES*.
-> THE RELEASE IS HELD. THE WORK IS `### 10` BELOW — start at 10.1.** His own sequence was *"tu
-> corriges ce comportement, on lance une code review max et on cut ensuite (sauf si des trucs
-> graves)"*: the exception clause is the one that fired, so **R.1 → R.4 do not open yet**.
+> ✅ **THIS PLAN IS DONE AND ARCHIVED. IT HOLDS NO LIVE STATE — DO NOT RESUME HERE.**
+> Step 9 landed whole, green, pushed, CI read on every commit. What the code review then opened, and
+> the tag behind it, moved to a small plan of its own on the owner's ask _("est-ce que ça ne vaut pas
+> le coup de faire un plan dédié un peu plus petit qui contient que ça, et d'archiver le reste ?")_:
+> **[`../prospective/v5.1.0-code-review-fixes-action.md`](../prospective/v5.1.0-code-review-fixes-action.md)**.
 >
-> - **The review's 15 findings are written out in `### 10`**, grouped by what they cost, with the
->   line numbers it verified. **Four of them can lose or hide a note** and are the reason the tag
->   waits; the review's own verification ran real `git` and `node`, and the four blockers were
->   re-read against the code here before being believed.
-> - **THE SCOPE IS SETTLED** _(2026-09-06, "on suit ta recommandation")_: **10.1 → 10.4 plus 10.13
->   and 10.15**, six fixes. The nine others are real and stay written above; they go to v5.2.
-> - **AND THE ORDER CHANGED, HIS ASK, SAME BREATH**: the harness-speed step **S1 runs FIRST**, before
->   the six fixes. Those fixes land in already-measured files, so a re-measurement is owed either way,
->   and on the instrument as it stands that is ~80 min a batch. Reasoning and the accepted cost:
->   [`harness-speed-and-test-quality-action.md`](harness-speed-and-test-quality-action.md) § STATE,
->   which owns it. **Next: S1.1 there, then 10.1 here.**
-> - **9.6 is DONE** (the last session-start wait is gone, ~104 ms instead of a 12 s ceiling), green,
->   pushed, **CI read and green** on both commits and on #86. Nothing else was left over.
-> - ⛔ **NO MUTATION RUN, his explicit call this morning**: *"pas de mutation testing encore pendant
->   des heures"*.
->
-> **9.5 is closed on four batches** — A **97.76 %**, B **96.32 %**, C **100 %**, D **95.98 %** — and
-> the figures are already in the release note and in #86's body on GitHub (both edited together, and
-> GitHub's copy re-read to confirm). Four tests closed everything the measurement owed; **no production
-> line changed.** Every remaining survivor is a named equivalent. The reading of each one, and the
-> lessons the night bought, are in [`../../mutation/RESULTS.md`](../../mutation/RESULTS.md).
->
-> **What is left after 9.6 is the owner's, and only his: `## Cutting the release` below (R.1 → R.4).**
-> X.1/X.2 at the foot of the plan are open and gate nothing.
->
-> ⚠️ **If a mutation run is ever in flight again, the rule that cost this release two wasted hours:**
-> read the runner's own ✅/❌ line, never *"is the process alive"* — a starved run comes back looking
-> like a result. `ps aux | grep input-type=module` for orphans **before** launching, one run at a time,
-> and the machine must stay awake (`caffeinate` does not survive a closed lid).
+> Everything below is the **record** of step 9: what a duo owes the person whose brain it is, the four
+> mutation batches of 9.5, and the session-start wait of 9.6. Read it for the WHY, never for a status.
+
+**9.5 is closed on four batches** — A **97.76 %**, B **96.32 %**, C **100 %**, D **95.98 %** — and
+the figures are already in the release note and in #86's body on GitHub (both edited together, and
+GitHub's copy re-read to confirm). Four tests closed everything the measurement owed; **no production
+line changed.** Every remaining survivor is a named equivalent. The reading of each one, and the
+lessons the night bought, are in [`../../mutation/RESULTS.md`](../../mutation/RESULTS.md).
+
+⚠️ **If a mutation run is ever in flight again, the rule that cost this release two wasted hours:**
+read the runner's own ✅/❌ line, never *"is the process alive"* — a starved run comes back looking
+like a result. `ps aux | grep input-type=module` for orphans **before** launching, one run at a time,
+and the machine must stay awake (`caffeinate` does not survive a closed lid). _(Kept here because it
+is a lesson, not a status: the next mutation run is S1's, one plan over.)_
 
 - ✅ **9.0 THROUGH 9.4 ARE DONE, GREEN AND PUSHED, CI READ AND GREEN ON EVERY COMMIT** _(2026-09-05)_
   — the whole suite (3157 tests) and the duo rehearsal (16/16) pass on each. **ONLY 9.5 REMAINS.**
@@ -319,7 +308,7 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
   release note keeps the **figures only**, since it is read by people who do not run the suite.
 - ⚠️ **Always one run at a time**: two at once starve each other and return a meaningless score.
 - 📎 **This batch is evidence for the OTHER plan** —
-  [`harness-speed-and-test-quality-action.md`](harness-speed-and-test-quality-action.md) § S2: a first
+  [`harness-speed-and-test-quality-action.md`](../prospective/harness-speed-and-test-quality-action.md) § S2: a first
   pass at 92.83 % whose 25 killable survivors are, without exception, the shapes catalogued since
   2026-07-15 (the absent twin, the collection under 2 elements, the boundary, the constant asserted
   against itself). Recorded there rather than re-derived.
@@ -336,15 +325,15 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
 - 📇 **THE FOUR OTHER FILES THAT NAME THIS BRANCH, AND WHY EACH NEEDS NOTHING** _(checked 2026-09-05
   by opening them, not by grepping)_. The carrier guard names them at every hand-back on this branch;
   it judges no content, so the answer has to be written once rather than re-derived each time:
-  - [`live-remote-sync-action.md`](live-remote-sync-action.md) and
-    [`duo-source-identity-action.md`](duo-source-identity-action.md) — **both say, in their own STATE
+  - [`live-remote-sync-action.md`](../prospective/live-remote-sync-action.md) and
+    [`duo-source-identity-action.md`](../prospective/duo-source-identity-action.md) — **both say, in their own STATE
     block, that they are CLOSED and that the live state moved here.** They are records. They stop
     being carriers at R.4, which archives them.
-  - [`harness-speed-and-test-quality-action.md`](harness-speed-and-test-quality-action.md) — owns its
+  - [`harness-speed-and-test-quality-action.md`](../prospective/harness-speed-and-test-quality-action.md) — owns its
     own state and it is **current**: held until the tag, resuming at S1, and the order the owner
     validated is *finish 9.5 with the instrument as it is, then S1*. Which is exactly what is
     happening.
-  - [`release-v5.1.0-pr-body.md`](release-v5.1.0-pr-body.md) — a **frozen copy of what #86 was told**,
+  - [`release-v5.1.0-pr-body.md`](../prospective/release-v5.1.0-pr-body.md) — a **frozen copy of what #86 was told**,
     which is its whole point. It owes an edit only when the PR body itself is edited on GitHub, and
     the next such edit is already named above: 9.5's figures, alongside the release note's.
 - **A session may, alone**: run step 9 test-first on `feat/live-remote-sync`, **pushing every green
@@ -478,139 +467,26 @@ branch protection are the git host's job, not this brain's.
     alert … never open a session with it, mention it only if they ask"*. Pushing it in front of the
     owner's next prompt would break the rule the module exists to keep, to advance a fact by one
     session. **Delayed, not lost.**
-  - [ ] **9.6.3** _(follow-up, does NOT gate the tag)_ **The plumbing is dead the moment 9.6.1 lands**:
-        `waitForStartupSync`, `awaitStartupSync`, `blockingSleep`, `pullerIsWired`/`pullerWiredIn`, the
-        three timing constants, and then the marker itself (`markSyncRunning`/`markSyncDone` in
-        `session-status.mjs`) which no longer has a reader. **Not swept in the same breath on purpose**:
-        it would edit the very sync code this release ships, for zero behaviour change, on the eve of
-        the tag. The gate's own ⚠️ blocks are updated to say the question is settled and the wait is
-        unused, so nobody wires it back by reading a stale comment.
+  - ➡️ **9.6.3 — MOVED, 2026-09-06.** The dead-plumbing sweep was the one item still open when this
+        plan was archived, and an archived plan may not hold one. It is **§ 2.10 of**
+        [`../prospective/v5.1.0-code-review-fixes-action.md`](../prospective/v5.1.0-code-review-fixes-action.md).
 
-### 10. What the code review found _(2026-09-06, `/code-review max` on the branch)_
+### 10, the release cut, and the leftovers — MOVED, 2026-09-06
 
-**Fifteen findings, every line number verified by the review against the working tree, most of them
-reproduced with real `git` and `node` rather than argued.** Four refuted candidates and a page of
-lower-severity near-misses are not carried here; what follows is what it stood behind.
-
-**The four blockers were re-read against `scripts/lib/remote-sync.mjs` before being written down**,
-and the code says what the review says: `known` is `@{u}` at line 115, the probe takes `[0]` of a
-glob match at 118, and 148 hard-resets to `ORIG_HEAD`. They chain: the glob defeats the early
-return, which makes the no-op rebase reachable, which leaves `ORIG_HEAD` stale under the reset.
-
-#### 10.a — Blocking: a note can be lost, or the sync can stop without saying so
-
-- [ ] **10.1** `remote-sync.mjs:148` — **`git reset --hard ORIG_HEAD` can delete a note the owner
-      just wrote.** A no-op rebase leaves `ORIG_HEAD` untouched, so the ref can name an arbitrary
-      older commit; nothing serialises the tick against `auto-commit.mjs`, which fires from
-      `PostToolUse`. The exit status of both the reset and the `rebase --abort` (126) is discarded,
-      while `remote-arrivals.mjs:195` tells the owner as a fact that the pull was undone.
-- [ ] **10.2** `remote-sync.mjs:115` — **the freshness probe compares the remote against `@{u}`, the
-      ref this tick's own `fetch` already advanced.** Neither `rebase --abort` nor `reset --hard`
-      rewinds it, so after any failed integration every later tick answers *"up-to-date"* — which is
-      defined as total silence — and the brain stays behind until someone pushes again. The suite
-      cannot see it: `remote-sync.test.mjs:42` stubs `rev-parse @{u}` as a constant.
-- [ ] **10.3** `remote-sync.mjs:116-118` — **`git ls-remote --heads <remote> <branch>` glob-matches
-      the ref tail**, so a repo carrying `archive/main` or `wip/main` gets several lines and `[0]`
-      reads the sibling's SHA. The cheap early return then never fires, every tick does a full
-      fetch + no-op rebase, and that is exactly 10.1's precondition. The correct parse already
-      exists at `engine-fetch.mjs:75-83`.
-- [ ] **10.4** `filed-note.mjs:216` — **the `author:` stamp interpolates raw `git config user.name`
-      into YAML unquoted.** A name starting with a YAML indicator (`@tpierrain`, `*thomas`, `- tp`)
-      makes every note that machine files unparseable — written, committed, invisible to search — and
-      on the partner's machine it fails `checkNote`, so 10.1's reset undoes their whole pull. The
-      write is `writeFileSync` from a Bash-run script, so the `Write|Edit` guard never sees it.
-
-#### 10.b — Serious: the owner is told the wrong thing, or nothing
-
-- [ ] **10.5** `remote-sync.mjs:124` — **every rebase failure is filed as `reason: "conflict"` with
-      the output of `--diff-filter=U`, which is empty when the failure was not a conflict** (an
-      `index.lock`, an unstaged change). `remote-arrivals.mjs:190` returns null on an empty file
-      list, so the tick reports *"blocked"* and **nothing at all reaches the owner**. Compounds
-      10.2: silent, and never retried.
-- [ ] **10.6** `remote-sync.mjs:130` — **`git diff --name-only` octal-escapes non-ASCII paths**, so
-      `vault/réunion.md` comes back quoted, fails `isNote()`, skips the damaged-frontmatter check
-      entirely, and is shown to the owner mangled. On a French-first product that is the normal
-      case; `repo-status.mjs:26` already carries `stripQuotes` and nothing here imports it.
-- [ ] **10.7** `remote-sync-gate.mjs:154` — **reclaiming a stale lock is an unconditional `rmSync`,
-      not a compare-and-delete**, so two windows can both emerge from `acquire()` holding it and run
-      concurrent git — the very `index.lock` collision this file documents having measured.
-- [ ] **10.8** `rag/src/lib/remote-sync-interval.ts:27` — **`REMOTE_SYNC_INTERVAL` has no upper
-      bound**; above ~22 days it overflows `setTimeout`'s 32-bit delay, Node rewrites it to 1 ms, and
-      the scheduler's `finally` re-arm turns *"sync rarely"* into an unbounded spawn loop.
-- [ ] **10.9** `session-status.mjs:256` — **the startup pull writes no arrivals trace**, so the
-      next-message correction that was traded for removing the session-start barrier (9.4bis/9.6)
-      can never fire. A session that starts as the other machine's universe switch lands announces
-      the wrong universe **for its whole life**, and scopes every search to the wrong sphere.
-
-#### 10.c — Correctness and consistency
-
-- [ ] **10.10** `remote-arrivals.mjs:197` — `blockedDirective` orders *"keep BOTH contributions"*
-      without filtering to notes, so it is issued verbatim for `.vault-rag/active-universe` and
-      `.vault-rag/authors.json`, where obeying it corrupts them. `arrivalsDirective` one function up
-      draws exactly this line; the blocked half does not.
-- [ ] **10.11** `dated-note-path.mjs:99` — **two writers stamp `author:` two different ways**: this
-      CLI resolves through the fusion registry, `filed-note.mjs:211` stamps the raw git name and its
-      own comment forbids resolving. The raw fact is destroyed at write time, and the CLI can then
-      announce a false attribution that `--different` cannot undo.
-- [ ] **10.12** `.gitattributes:46` — the narrowed `merge=union` **still covers daily and raw-capture
-      notes**, which `CLAUDE.engine.md:96` requires to carry frontmatter, so the duplicated-YAML-key
-      damage the narrowing was meant to remove is still reachable on today's daily note.
-      `notes-union-merge.test.mjs` cannot catch it: both sides share the header as common context.
-- [ ] **10.13** `.claude/skills/sync-sources/SKILL.md:371` (also 549, and 395/581 in the French
-      template) — **the skill teaches `sources:` keys quoted, and `note-parse.mjs:21` does not strip
-      quotes**, so the ADR 0041 duplicate check silently never fires for the notes the skill itself
-      produces, and the same Drive doc is captured again at every sync.
-
-#### 10.d — Conventions
-
-- [ ] **10.14** The four new/changed plans open with `## 📍 STATE` blocks of **33 to 334 lines**
-      against `CONVENTIONS.md` §3ter's *"≤ 20 lines"*, drop the mandatory `Next:` and
-      `Owner's call pending:` keys, and state CI-green facts §3ter says to link. **This file is one
-      of them.**
-- [ ] **10.15** One French em dash added in
-      `templates/fr/.claude/skills/sync-sources/SKILL.md:154` — the global no-em-dash-in-French rule.
-
-> ✅ **What the review checked and found clean**: artifacts in English, both new ADRs carry every
-> mandatory field, every new production file has its test twin, and all five new entry points are
-> driven as a real process.
-
-### Cutting the release — the owner's, and only his
-
-> ⛔ **HELD until `### 10` is answered** (2026-09-06). The owner's condition was *"sauf si des trucs
-> graves"*, and 10.1 → 10.4 are that exception.
-
-- [ ] **R.1** Merge [#86](https://github.com/tpierrain/kenjaku/pull/86), titled **"v5.1.0 — The One
-      with the Duo Mode"**.
-- [ ] **R.2** Tag `v5.1.0` **on `main`**, `git push --tags`, publish the release with the body of
-      [`release-v5.1.0-note.md`](release-v5.1.0-note.md).
-- [ ] **R.3** Tracker sweep: close [#84](https://github.com/tpierrain/kenjaku/issues/84) when a real
-      brain has received the feature.
-- [ ] **R.4** **Then, and only then, archive the two big plans** —
-      [`live-remote-sync-action.md`](live-remote-sync-action.md) and
-      [`duo-source-identity-action.md`](duo-source-identity-action.md) — into `../archived/` with
-      today's date, and this file with them. **Not before**: #86's body links the first by path and
-      ADR 0041 links the second, and both links must stay alive while the PR is open.
-      📌 **Read [`harness-speed-and-test-quality-action.md`](harness-speed-and-test-quality-action.md)
-      § S3 before doing this** _(2026-09-05, the owner's ask on how we work)_: it turns this one-off
-      archiving into a standing hygiene, and its **S3.3 is exactly the broken-link problem** the
-      sentence above describes. Doing both here costs almost nothing extra.
-
-### Also outstanding, and neither gates the tag
-
-- [ ] **X.1** Two measurements only the owner's own machines can make: whether `git` can authenticate
-      without stopping for a passphrase, and how many `vault-rag` servers live when several
-      conversations are open on one brain.
-- [ ] **X.2** A broken link to settle after the release: `live-remote-sync-action.md`'s header points
-      at `../../studies/two-humans-one-brain-study.md`, which lives only on the unmerged branch
-      `docs/study-two-humans-one-brain`. Merge that branch, or repoint the link.
+The `/code-review max` of 2026-09-06 found fifteen defects on this branch, and the owner asked for
+them to live in a plan of their own rather than as a new chapter of a finished one. **Nothing about
+them is restated here** — the list, the six that gate the tag, the nine deferred to v5.2, the release
+steps and the two leftover measurements all live in
+**[`../prospective/v5.1.0-code-review-fixes-action.md`](../prospective/v5.1.0-code-review-fixes-action.md)**,
+which owns them.
 
 ## Where the reasoning lives — open these only when you need the WHY
 
 Both are closed and hold no live state. They are long on purpose: they are the record.
 
-- [`live-remote-sync-action.md`](live-remote-sync-action.md) — the live sync between machines (#84):
+- [`live-remote-sync-action.md`](../prospective/live-remote-sync-action.md) — the live sync between machines (#84):
   the merge rule, the tick, the gate, the announcement, the risks, the field rehearsal, and why duo
   mode needed it.
-- [`duo-source-identity-action.md`](duo-source-identity-action.md) — duo mode itself: source
+- [`duo-source-identity-action.md`](../prospective/duo-source-identity-action.md) — duo mode itself: source
   identity (ADR 0041), per-person dated notes, the narrowed merge rule, the owner's call that duo
   mode is implicit, and step 8's *a brain may file on a guess, it may not assert one*.
