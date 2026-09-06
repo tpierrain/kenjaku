@@ -13,8 +13,12 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-05
 
-> ▶️ **ON RESUMING (2026-09-06 03:00). THERE IS NO ENGINEERING WORK LEFT ON THIS PLAN. Everything
-> that is not the owner's own hand is done, green, pushed, and CI-read on every commit.**
+> ▶️ **ON RESUMING (2026-09-06 08:00). ONE ENGINEERING STEP IS OPEN AGAIN — 9.6 — AND IT NOW GATES
+> THE TAG.** The owner stopped the release on it, in his own words: *"on ne cut pas tant que le
+> démarrage est ralenti ou bloqué"*, then *"oui, on enlève cette attente qui pénalise tout le monde
+> pour quelques rares cas"*. **The ❓ below is therefore ANSWERED: the second waiter comes out too.**
+> Everything else that is not his own hand is done, green, pushed, and CI-read on every commit.
+> **R.1 → R.4 wait for 9.6.**
 >
 > **9.5 is closed on four batches** — A **97.76 %**, B **96.32 %**, C **100 %**, D **95.98 %** — and
 > the figures are already in the release note and in #86's body on GitHub (both edited together, and
@@ -22,9 +26,8 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
 > line changed.** Every remaining survivor is a named equivalent. The reading of each one, and the
 > lessons the night bought, are in [`../../mutation/RESULTS.md`](../../mutation/RESULTS.md).
 >
-> **What is left is the owner's, and only his: `## Cutting the release` below (R.1 → R.4).** Nothing
-> else gates the tag. Two things are open and neither blocks anything: the ❓ entry below (the second
-> waiter, a question he has not been asked yet) and X.1/X.2 at the foot of the plan.
+> **What is left after 9.6 is the owner's, and only his: `## Cutting the release` below (R.1 → R.4).**
+> X.1/X.2 at the foot of the plan are open and gate nothing.
 >
 > ⚠️ **If a mutation run is ever in flight again, the rule that cost this release two wasted hours:**
 > read the runner's own ✅/❌ line, never *"is the process alive"* — a starved run comes back looking
@@ -198,13 +201,13 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
      with the payload handed over instantly (the case where the barrier really held — this one failed
      red before the change, at the 8 s kill) and once with a stdin nobody ever writes (which would
      catch any future "repair" that blocks on fd 0). **9.5 is unblocked.**
-- ❓ **THE ONE THING THAT IS THE OWNER'S TO ANSWER, AND NOTHING IS BLOCKED ON IT.** A **second waiter**
-  exists and was never part of his question: `session-engine-divergence.mjs:63` (`awaitStartupSync`,
-  now the last caller of the barrier). Same shape, same tension with ADR 0028 — but the failure mode is
-  different, and that is why it is not decided by analogy: a stale read there announces a **false**
-  *"your engine is behind"* rather than a stale universe. Keep its wait, or remove it the same way?
-  Recorded in the code itself (`startup-sync-gate.mjs`, both ⚠️ blocks) so the next reader meets the
-  question where the wait is.
+- ✅ **~~THE ONE THING THAT IS THE OWNER'S TO ANSWER~~ — ASKED AND ANSWERED, 2026-09-06, AND IT HELD
+  THE RELEASE.** The **second waiter** was `session-engine-divergence.mjs:63` (`awaitStartupSync`, the
+  last caller of the barrier): up to 3 s for the puller to appear, then up to 12 s for the pull to land,
+  at a session start ADR 0028 says must never block. Put to the owner while the tag was being cut, he
+  **stopped the cut**: *"on ne cut pas tant que le démarrage est ralenti ou bloqué"*, then *"oui, on
+  enlève cette attente qui pénalise tout le monde pour quelques rares cas"* — which is also the
+  **rule** to apply the next time this trade comes up. **The work is 9.6.**
 - 🛑🛑 **THE FIX WAS REVERTED, AND WHAT REPLACES IT IS A QUESTION FOR THE OWNER** _(2026-09-05,
   `162ec93`)_. Both repairs of the stdin race break something that outranks the race, and the
   constraint they break is **already written down**: **ADR 0028** — *"the check must **never slow
@@ -431,6 +434,38 @@ branch protection are the git host's job, not this brain's.
       `maintainers/mutation/RESULTS.md`. **A 97.76 %, B 96.32 %, C 100 %, D 95.98 %** — a batch D the
       original list did not name, because 9.4bis wrote production after it. **Four tests closed
       everything owed, no production line changed, every remaining survivor a named equivalent.**
+
+- [ ] **9.6** **THE LAST WAIT COMES OUT OF THE SESSION START** _(2026-09-06, the owner's call, and it
+      **holds the tag**: "on ne cut pas tant que le démarrage est ralenti ou bloqué")_.
+      `session-engine-divergence.mjs` reads what is on disk **at once**, exactly as
+      `session-universe.mjs` has since 9.4bis. After this, **nothing in a session start waits on the
+      network**, which is ADR 0028 honoured rather than argued with.
+  - [ ] **9.6.1** The wait is gone: the import, the `awaitSync` seam and the call. The T11 comment that
+        justified it is replaced by what is true now, including the cost accepted below.
+  - [ ] **9.6.2** The tests that pinned the wait are **deleted, not skipped** (9.4bis's rule), and
+        replaced by their opposite: the hook run **as a process** with a stdin nobody ever writes must
+        still answer promptly. That is the test that fails if anyone ever "repairs" this into a wait.
+  - **WHAT THIS COSTS, DELIBERATELY ACCEPTED, so nobody re-opens it as a defect.** The hook can read
+    the state as it was **before** this session's pull. Two shapes, both bounded:
+    - **Stale but consistent** (the common one, because the hook boots in ~100 ms and a pull needs a
+      network round-trip first): the standing fact is one session out of date. It self-corrects at the
+      next start.
+    - **Torn** (a narrow window: the read lands *during* the checkout): the manifest half is already
+      fail-soft, so it goes quiet; the file comparison could call a file *"yours"* that the pull was
+      mid-write on. Calm sentence, mentioned only if the owner asks, gone next session.
+  - **AND WHY NO NEXT-MESSAGE CORRECTION IS BUILT, unlike 9.4bis.** The universe pointer had to have
+    one: a wrong sphere is **used** all session long, so shipping the removal alone would have LOST the
+    information. This surface is the opposite by its own written contract — *"a standing fact, not an
+    alert … never open a session with it, mention it only if they ask"*. Pushing it in front of the
+    owner's next prompt would break the rule the module exists to keep, to advance a fact by one
+    session. **Delayed, not lost.**
+  - [ ] **9.6.3** _(follow-up, does NOT gate the tag)_ **The plumbing is dead the moment 9.6.1 lands**:
+        `waitForStartupSync`, `awaitStartupSync`, `blockingSleep`, `pullerIsWired`/`pullerWiredIn`, the
+        three timing constants, and then the marker itself (`markSyncRunning`/`markSyncDone` in
+        `session-status.mjs`) which no longer has a reader. **Not swept in the same breath on purpose**:
+        it would edit the very sync code this release ships, for zero behaviour change, on the eve of
+        the tag. The gate's own ⚠️ blocks are updated to say the question is settled and the wait is
+        unused, so nobody wires it back by reading a stale comment.
 
 ### Cutting the release — the owner's, and only his
 
