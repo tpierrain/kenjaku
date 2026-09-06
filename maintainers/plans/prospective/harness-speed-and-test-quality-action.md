@@ -30,6 +30,18 @@ permanence des plans énormes qui sont déjà faits."* → **S3**.
   false timeouts and starved scores. **Its wall-clock is meaningless and its score is suspect.**
   - **Redo it properly**: one run, nothing else running, and compare against the baseline above. The
     score must come back **equal or lower**, never higher (S1.2's property).
+  - 🚨 **AND THE FIRST ATTEMPT DID NOT MERELY GET A BAD NUMBER — IT NEVER FINISHED.** It was stopped
+    at **19 min 18** on a batch whose baseline is **3 min 46**, with no score. Two competing suite runs
+    (~12 s each) do not explain a 5x. **Something else is going on, and it must be understood before S1
+    is called done** — a narrowing that makes a run slower is worse than no narrowing.
+  - ✅ **One suspicion CHECKED and cleared, so nobody re-checks it**: the judge set really is a subset
+    of what the whole suite runs (50 judges for batch C, **0 outside** `scripts/*.test.mjs` +
+    `scripts/lib/*.test.mjs`). So the slowness is not "we run tests the suite never ran".
+  - [ ] **BUT the subset property holds by ACCIDENT, not by construction**, and that is a hole to
+    close: `readSources` walks `scripts/` **recursively** while the fallback command globs only two
+    levels. The day a test file lands in a deeper directory, the judges stop being a subset and S1.2's
+    safety property is silently false. **Pin it with a test** that asserts every judge matches the
+    fallback's own globs.
   - **A number worth having first, and it is cheap**: the whole suite standalone takes **~12 s**. At
     concurrency 5 that predicts ~19 min for a 487-mutant batch, not the 81 min measured — so part of
     the bill is **CPU oversubscription** (each worker's `node --test` forks per file, ~28 processes
