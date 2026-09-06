@@ -20,7 +20,7 @@ server with its knob and its shutdown, the announcement that reaches the convers
 next message, the banner for notes written by someone else, the doctrine and docs that say so, and
 the rehearsal against a copy of a real brain.
 
-> ⛔ **THE TAG IS HELD, ON A LIST THIS FILE DOES NOT OWN** _(2026-09-06)_. The `/code-review max`
+> 🔗 **THE TAG'S CONDITION LIVES IN A LIST THIS FILE DOES NOT OWN** _(2026-09-06)_. The `/code-review max`
 > found nine defects in the sync code **this plan shipped** — among them a `reset --hard ORIG_HEAD`
 > that can delete a note, and a freshness probe that answers *"up-to-date"* forever once an
 > integration has failed. **Not restated here**: they are § 1.1 → 1.3 and § 2.1 → 2.5 of
