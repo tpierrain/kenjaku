@@ -10,8 +10,9 @@ the active plan, never directly.
 
 ## The active plan
 
-- **Subject:** six defects a code review found on v5.1.0, then cutting it. The features themselves are
-  done and green: two machines stay in step (#84) and two people can share one brain.
+- **Subject:** six defects a code review found on v5.1.0 (all fixed), then re-reading the
+  documentation against them, then cutting the release. The features themselves are done and green:
+  two machines stay in step (#84) and two people can share one brain.
 - **Plan:** [`prospective/v5.1.0-code-review-fixes-action.md`](prospective/v5.1.0-code-review-fixes-action.md)
 - **Active since:** 2026-09-06 _(it replaces `duo-v51-safeguards-action.md`, whose work landed whole
   and which is now in `archived/`. Same owner's call as the day before, in his words: split the
