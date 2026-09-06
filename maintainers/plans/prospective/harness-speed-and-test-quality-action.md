@@ -17,7 +17,27 @@ permanence des plans énormes qui sont déjà faits."* → **S3**.
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-05
 
-- ▶️ **S1 IS UNHELD AND IS THE NEXT THING TO DO, BEFORE THE TAG** _(2026-09-06, the owner's ask:
+- ✅ **S1.1 → S1.3 HAVE LANDED** _(2026-09-06, `2876954`, 115 tests green in the mutation workspace)_.
+  `judges.mjs` works out who can observe a target — imports transitively **plus plain string mentions**,
+  because the entry-point rule tests every executable by SPAWNING it and such a test is invisible to an
+  import graph — grown to a fixed point, and the list reaches Stryker through the environment (its CLI
+  has no flag for the runner's command). On this repo: **203 test files down to 37-50**. It never
+  narrows to nothing: an unobservable or mistyped target falls back to the whole suite and says why.
+- ⚠️ **S1.4 IS NOT DONE, AND THE FIRST ATTEMPT MUST NOT BE QUOTED.** A proving run was launched on
+  batch C (`scripts/lib/filed-note.mjs` + `scripts/file-back-note.mjs`, baseline **3 min 46** on
+  2026-09-06 01:07, log `reports/s1-proof-batch-c.log`) **while two full test-suite runs were competing
+  for the same CPU** — which is exactly the condition this repo has already measured as manufacturing
+  false timeouts and starved scores. **Its wall-clock is meaningless and its score is suspect.**
+  - **Redo it properly**: one run, nothing else running, and compare against the baseline above. The
+    score must come back **equal or lower**, never higher (S1.2's property).
+  - **A number worth having first, and it is cheap**: the whole suite standalone takes **~12 s**. At
+    concurrency 5 that predicts ~19 min for a 487-mutant batch, not the 81 min measured — so part of
+    the bill is **CPU oversubscription** (each worker's `node --test` forks per file, ~28 processes
+    seen at once), not only the breadth of the suite. Measure the narrowed subset's standalone time
+    before concluding what S1 bought.
+- [ ] **S1.5 — `CONVENTIONS.md` §5quinquies still says "1-3 minutes"**, and it is still not true.
+  Update it once S1.4 has a real figure to put there.
+- ▶️ ~~**S1 IS UNHELD AND IS THE NEXT THING TO DO, BEFORE THE TAG**~~ _(the decision, kept)_ _(2026-09-06, the owner's ask:
   *"est-ce que les modifications là ne seraient pas pertinentes à faire avant le truc qu'on avait dit
   qu'on ferait après la release ? … c'est quoi l'arbitrage le plus intéressant"*)_. **The hold expired
   on its own terms** rather than being overridden: the condition was *finish 9.5 with the instrument
