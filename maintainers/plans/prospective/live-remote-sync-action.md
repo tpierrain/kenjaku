@@ -28,9 +28,10 @@ the rehearsal against a copy of a real brain.
 > status and the go/no-go. **Open that file for where they stand** — this one deliberately says
 > nothing about it.
 >
-> ⚠️ _This line used to read "§ 1.1 → 1.3 (fixed now)", and it was false: those three are still open,
-> their tests written and not yet passing. Two words of status, copied into a file that does not own
-> it, and the copy went stale the same day. Kept as the reason this block now carries a link only._
+> ⚠️ _This line used to read "§ 1.1 → 1.3 (fixed now)". Two words of status, copied into a file that
+> does not own it, and within the same day they were wrong, then right again, without this file being
+> opened once. That is the whole argument for a link: a copy has no way of knowing when it stops being
+> true. Kept as the reason this block states nothing._
 >
 > ✅ **THE OWNER'S GO IS GIVEN, AND THE NUMBER IS `v5.1.0`** _(2026-09-03, in conversation)_. His
 > words: *"ok pour v5.1.0, go pour la release"*. So 8.3's "owner's call" is answered — **the tag is
