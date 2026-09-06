@@ -120,7 +120,10 @@ the rehearsal against a copy of a real brain.
 > below is history: open it for the WHY, never for where things stand. What is still open on v5.1 —
 > the four safeguards he asked for after reading the duo surface, **and the release cut itself** —
 > lives in one deliberately small file, **[`duo-v51-safeguards-action.md`](duo-v51-safeguards-action.md)**,
-> which `ACTIVE.md` now points at. **The release is held on those four**; do not tag before they land.
+> which `ACTIVE.md` now points at. ~~**The release is held on those four**; do not tag before they
+> land.~~ ✅ **THEY LANDED, AND THE MEASUREMENT BEHIND THEM IS CLOSED TOO** _(2026-09-06)_: step 9 is
+> done and its four mutation batches with it. **This file no longer holds anything back.** Whether to
+> tag is the owner's, and the checklist is `## Cutting the release` in the small plan.
 >
 > ✅ **THAT LAST THING IS DONE TOO** _(2026-09-05)_ — the sub-plan's **8.8**, the mutation measurement
 > of what step 8 wrote, with its figures in the release note's *Quality* paragraph and in #86's body.

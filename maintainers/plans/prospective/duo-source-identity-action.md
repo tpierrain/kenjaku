@@ -17,13 +17,16 @@ the owner's decision).
 
 **EVERY STEP THIS PLAN ORIGINALLY CARRIED IS DONE** _(2026-09-03, `415cd7c`)_. The French-twin block
 is lifted: the owner gave the go-ahead, both twins were written in the same commit, and steps
-3.1–3.3, 4.4, 4.5 and 5.2 landed with it. **But the plan reopened on 2026-09-04 with one more step,
-below, and the release is held until it lands.**
+3.1–3.3, 4.4, 4.5 and 5.2 landed with it. **The plan reopened on 2026-09-04 with one more step, and
+that step landed too: ✅ NOTHING HERE HOLDS THE RELEASE ANY MORE** _(2026-09-06)_.
 
-- 🛑 **THE RELEASE IS HELD ON THIS PLAN AGAIN, BY THE OWNER** _(2026-09-04)_: *"On ne publie pas la
-  release tant qu'on n'a pas amélioré le mode Duo."* The parent plan's `## 📍 STATE` holds the hold
-  itself and the evidence behind it; **what this plan owns is the doctrine being refined and the work
-  that refines it**, below.
+- ✅ **~~THE RELEASE IS HELD ON THIS PLAN AGAIN, BY THE OWNER~~ — LIFTED, THE WORK LANDED**
+  _(hold 2026-09-04, lifted 2026-09-06)_. His words at the time: *"On ne publie pas la release tant
+  qu'on n'a pas amélioré le mode Duo."* Duo mode was improved (step 8 whole), measured, and the
+  safeguards he asked for afterwards are done and measured as well. **Kept for the WHY, and because a
+  hold is worth remembering; it instructs nobody now.** What this plan owns is the doctrine being
+  refined and the work that refined it, below. Where the release itself stands:
+  [`duo-v51-safeguards-action.md`](duo-v51-safeguards-action.md).
 - ▶️ **STEP 8 — THE ANNOUNCEMENT BECOMES A QUESTION** _(opened 2026-09-04, the work resumes here; 6
   and 7 were already taken by the original run, so this is 8)_.
   **The defect:** `brain-author.mjs` compares git author names and nothing else, so one person whose
