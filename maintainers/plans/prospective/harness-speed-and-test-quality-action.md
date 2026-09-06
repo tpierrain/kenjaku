@@ -55,6 +55,15 @@ permanence des plans énormes qui sont déjà faits."* → **S3**.
   **`filed-note.mjs:216` is the exact line a survivor was recorded on** (RESULTS.md, batch C, scored
   100 %) — the `author:` stamp, which now goes through `yamlScalar`.
   - **`lib/yaml-scalar.mjs` is BRAND NEW and has never been measured at all.**
+  - 📣 **AND THE RELEASE NOTE NOW SAYS THIS OUT LOUD, WHICH TURNS IT INTO A PROMISE** _(2026-09-06,
+    the § 1bis documentation pass, `64e898f`)_. Its *Quality* paragraph keeps every figure and adds
+    the sentence that keeps it honest: **measured 3 September, on the code as it then stood**, before
+    a review that changed four of the files those runs covered — *the score of the work, not of the
+    exact bytes the tag ships* — with the reason no re-measurement was run (the instrument changed
+    mid-release and **S1.4 is still open**). So the debt is public now: when S1.4 lands and the five
+    files are re-measured behind the faster instrument, `RESULTS.md` is not the only carrier to
+    update — the published note has told readers a figure is owed. Add `lib/source-key.mjs` to the
+    list above: the § 1 fix changed it too.
   - ⛔ **Not now, and it is the owner's call, not a session's**: he asked for no mutation run before
     S1 landed (*"j'aimerais éviter de passer toute la journée à faire du mutation testing"*), and the
     honest order is **S1.4 first** — redo the proving run properly, get a real figure, and only then
