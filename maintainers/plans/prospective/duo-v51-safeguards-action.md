@@ -13,12 +13,17 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-05
 
-> ▶️ **ON RESUMING (2026-09-06 08:00). ONE ENGINEERING STEP IS OPEN AGAIN — 9.6 — AND IT NOW GATES
-> THE TAG.** The owner stopped the release on it, in his own words: *"on ne cut pas tant que le
-> démarrage est ralenti ou bloqué"*, then *"oui, on enlève cette attente qui pénalise tout le monde
-> pour quelques rares cas"*. **The ❓ below is therefore ANSWERED: the second waiter comes out too.**
-> Everything else that is not his own hand is done, green, pushed, and CI-read on every commit.
-> **R.1 → R.4 wait for 9.6.**
+> ▶️ **ON RESUMING (2026-09-06 09:00). THERE IS NO ENGINEERING WORK LEFT. THE NEXT EVENT IS A CODE
+> REVIEW THE OWNER LAUNCHES HIMSELF, AND ITS FINDINGS ARE THE WORK.** His sequence, given in his own
+> words: *"tu corriges ce comportement, on lance une code review max et on cut ensuite (sauf si des
+> trucs graves)"*. He cleared the context to launch it, so **the review's output is the first thing
+> to ask for on resuming** — if it is not to hand, ask for it rather than guessing what it said.
+>
+> - **9.6 is DONE** (the last session-start wait is gone, ~104 ms instead of a 12 s ceiling), green,
+>   pushed, **CI read and green** on both commits and on #86. Nothing else was left over.
+> - **Then R.1 → R.4 below, which are his and only his.** A session may not tag, merge or publish.
+> - ⛔ **NO MUTATION RUN, his explicit call this morning**: *"pas de mutation testing encore pendant
+>   des heures"*. None is owed anyway — 9.6 only deleted production code.
 >
 > **9.5 is closed on four batches** — A **97.76 %**, B **96.32 %**, C **100 %**, D **95.98 %** — and
 > the figures are already in the release note and in #86's body on GitHub (both edited together, and
