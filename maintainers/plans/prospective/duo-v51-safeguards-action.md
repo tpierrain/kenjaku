@@ -92,10 +92,10 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
     coerces (the batch B class again). The rest: a `null` default swapped for `undefined` behind a
     falsy test, the planted-string fallbacks, and `rmSync`'s `force` on a path that always exists at
     that point.
-  - 🔮 **PREDICTION FOR THE CONFIRMING RUN, WRITTEN BEFORE LAUNCHING IT: 9 survivors, ~95.98 %**
-    (215 of 224 killed). **Named, so the run can fail**: `remote-arrivals` 98:20, 98:70, 154:25, 209:63,
-    236:46, 245:69, 249:25, 249:34, and `prompt-restart-nudge` 47:75. Anything else that comes back is a
-    hole, not an equivalent.
+  - ✅ **PREDICTED, THEN CONFIRMED — THE NUMBER, THE COUNT AND EVERY LINE** _(02:42, 40 min, on
+    `8e130fb`; **214 killed, 9 survived, 1 timeout**, `remote-arrivals.mjs` 95.90 %,
+    `prompt-restart-nudge.mjs` 96.55 %)_. Nine survivors were named by file and line before launching:
+    **the nine that came back are the nine.** **Batch D is closed, and with it 9.5.**
 - ▶️ **BATCH C IS THE ONE THAT OWED TESTS: 78.95 %, four survivors, and all four were REAL**
   _(2026-09-06 01:07, 3 min 46, on `a745f08`; 15 killed, 4 survived, 0 timeout. `filed-note.mjs`
   **92.86 %**, `file-back-note.mjs` **40 %** — 5 mutants in range, so the percentage is theatre and the
@@ -424,10 +424,12 @@ branch protection are the git host's job, not this brain's.
       ⚠️ **One thing is left for the owner, and it blocks nothing**: `session-engine-divergence.mjs`
       still waits. See the ❓ entry in STATE.
 
-- [ ] **9.5** **Measure what step 9 changed** (CONVENTIONS §5quinquies), once 9.3 and 9.4 have landed,
-      the way 8.8 did it: the changed ranges of `author-identities.mjs`, `brain-author.mjs`,
-      `session-authors.mjs` and `author-identity.mjs`, **one run at a time** (two at once starved each
-      other and returned a meaningless score), findings into `maintainers/mutation/RESULTS.md`.
+- [x] **9.5** **DONE** _(2026-09-06 02:42 — four batches, `RESULTS.md` § "Step 9.5, whole")_ **Measure
+      what step 9 changed** (CONVENTIONS §5quinquies), the way 8.8 did it, **one run at a time** (two at
+      once starved each other and returned a meaningless score), findings into
+      `maintainers/mutation/RESULTS.md`. **A 97.76 %, B 96.32 %, C 100 %, D 95.98 %** — a batch D the
+      original list did not name, because 9.4bis wrote production after it. **Four tests closed
+      everything owed, no production line changed, every remaining survivor a named equivalent.**
 
 ### Cutting the release — the owner's, and only his
 

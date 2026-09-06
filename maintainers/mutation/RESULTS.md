@@ -400,6 +400,61 @@ factory were genuinely equivalent: the shape flags where to look, it does not se
 100 %, and no equivalent claimed"* was written into the plan **before** the confirming run was launched.
 It came back exactly that. A re-run that could have failed, and did not.
 
+### Batch D — 95.09 % → 95.98 %, and the two real holes were both silent ones — 2026-09-06 02:42
+
+Whole-file on the code step 9.4bis wrote **after** 9.5's target list existed: `scripts/lib/
+remote-arrivals.mjs` (the universe-arrival directive, the pointer lifted out of the file list, the name
+budget) and `scripts/prompt-restart-nudge.mjs`. 40 min each pass. Logs `reports/v510-95-batch-d.stdout.log`
+and `-d2`.
+
+| File (scope) | First pass | Confirmed | Survivors left |
+|---|---|---|---|
+| `lib/remote-arrivals.mjs` (whole) | 94.87 % | **95.90 %** | 8, all equivalents |
+| `prompt-restart-nudge.mjs` (whole) | 96.55 % | **96.55 %** | 1, an equivalent |
+| **Batch D** | **95.09 %** | **95.98 %** | 214 killed, 9 survived, 1 timeout, of 224 |
+
+**Eleven survivors split 9 equivalent / 2 killable**, and both killable ones fail *silently* — the class
+that no amount of reading the output catches:
+
+- **`remote-arrivals.mjs` 98:39** — `text.length > DIRECTIVE_MAX` → `>=` in `withinBudget`, the loop
+  that gives up file NAMES one at a time so the directive fits the prompt budget. Firing one character
+  early costs a name the sentence had room for, **every time**, and the result still reads perfectly.
+  ⚠️ **The trap that made this survivable**: a boundary test for the *other* budget already existed
+  (`withinNameBudget`, which cuts a universe **name**), and it is the kind of neighbour that makes a
+  reviewer feel covered. **Two budgets, two boundaries, and only one was pinned.**
+- **`remote-arrivals.mjs` 248:23** — the whole `catch` of the atomic write emptied. Two guarantees die
+  together: the staging copy survives (**the next run renames a stale trace into place** and announces
+  arrivals that already happened), and the error never reaches the caller, which believes the trace was
+  written. Only the happy path had ever been driven.
+
+The nine equivalents, for the next reader: the loop's start value and its `limit >= 0` guard (both
+unreachable — the loop always terminates at limit 0, where naming *nothing* fits any budget), a `null`
+default swapped for `undefined` behind a falsy test, two planted-string fallbacks, `rmSync`'s `force` on
+a path that always exists at that point (twice), and the **empty-encoding class again**, on both a read
+and a **write** — the write probed too: `writeFileSync(p, text, "")` produces byte-identical output.
+
+➡️ **The method point, and it is the one to keep**: each new test was seen red against its mutant **and
+the two neighbouring equivalents were seen still green**. Red alone proves the test runs; red *here* and
+green *there* proves it judges the **operator** rather than merely the line. That second half is what a
+mutation score cannot tell you, and it costs one extra run of one file.
+
+📌 **And the prediction lever, fourth use, its most demanding yet**: *"9 survivors, ~95.98 %"* with all
+nine **named by file and line** before launching. It came back 9 survivors, 95.98 %, and the nine were
+the nine.
+
+### Step 9.5, whole — the four batches
+
+| Batch | Scope | Final | Owed tests? |
+|---|---|---|---|
+| A | `lib/author-identities.mjs` + `lib/brain-author.mjs` | **97.76 %** | no — 10 equivalents |
+| B | `session-authors.mjs` + `author-identity.mjs` | **96.32 %** | no — 6 equivalents |
+| C | 9.4's ranges in `lib/filed-note.mjs` + `file-back-note.mjs` | **100 %** | **yes — 2 tests** |
+| D | `lib/remote-arrivals.mjs` + `prompt-restart-nudge.mjs` | **95.98 %** | **yes — 2 tests** |
+
+**Four tests in total closed everything step 9 owed, and not one line of production changed.** Every
+remaining survivor is a named equivalent. **Effective score on non-equivalents: 100 %, all four
+batches.**
+
 ## #84 duo — the announcement became a question, and half its survivors were code to DELETE — 2026-09-05
 
 State owned by
