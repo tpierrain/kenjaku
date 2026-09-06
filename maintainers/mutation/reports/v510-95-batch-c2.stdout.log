@@ -1,0 +1,12 @@
+▶ git worktree prune   (in /Users/tpierrain/Dev/kenjaku)
+▶ git reset --hard 9ed0ebe3f8910f4fa4507a5f06da20f4691c5c0c   (in /Users/tpierrain/Dev/kenjaku-mut-one)
+▶ git clean -qfd -e rag/node_modules   (in /Users/tpierrain/Dev/kenjaku-mut-one)
+▶ symlink /Users/tpierrain/Dev/kenjaku/rag/node_modules → /Users/tpierrain/Dev/kenjaku-mut-one/rag/node_modules
+▶ node --test scripts/lib/vault-write-guard.test.mjs   (in /Users/tpierrain/Dev/kenjaku-mut-one)
+   ✓ write guard: 22 pass, 0 skipped
+▶ discard stale log /Users/tpierrain/Dev/kenjaku/maintainers/mutation/reports/mutate-one-filed-note-208-216+2.log
+▶ node /Users/tpierrain/Dev/kenjaku/maintainers/mutation/node_modules/@stryker-mutator/core/bin/stryker.js run maintainers/mutation/stryker.scripts.batch.config.mjs --mutate scripts/lib/filed-note.mjs:208-216,scripts/file-back-note.mjs:99-102,scripts/file-back-note.mjs:139-142   (in /Users/tpierrain/Dev/kenjaku-mut-one)
+✅ Mutation score 100 % — 19 killed, 0 survived, 0 timeout
+   filed-note.mjs: 100 % (0 survived, 0 timeout)
+   file-back-note.mjs: 100 % (0 survived, 0 timeout)
+   log: /Users/tpierrain/Dev/kenjaku/maintainers/mutation/reports/mutate-one-filed-note-208-216+2.log

@@ -1,0 +1,12 @@
+▶ git worktree prune   (in /Users/tpierrain/Dev/kenjaku)
+▶ git reset --hard 9ed0ebe3f8910f4fa4507a5f06da20f4691c5c0c   (in /Users/tpierrain/Dev/kenjaku-mut-one)
+▶ git clean -qfd -e rag/node_modules   (in /Users/tpierrain/Dev/kenjaku-mut-one)
+▶ symlink /Users/tpierrain/Dev/kenjaku/rag/node_modules → /Users/tpierrain/Dev/kenjaku-mut-one/rag/node_modules
+▶ node --test scripts/lib/vault-write-guard.test.mjs   (in /Users/tpierrain/Dev/kenjaku-mut-one)
+   ✓ write guard: 22 pass, 0 skipped
+▶ discard stale log /Users/tpierrain/Dev/kenjaku/maintainers/mutation/reports/mutate-one-remote-arrivals+1.log
+▶ node /Users/tpierrain/Dev/kenjaku/maintainers/mutation/node_modules/@stryker-mutator/core/bin/stryker.js run maintainers/mutation/stryker.scripts.batch.config.mjs --mutate scripts/lib/remote-arrivals.mjs,scripts/prompt-restart-nudge.mjs   (in /Users/tpierrain/Dev/kenjaku-mut-one)
+✅ Mutation score 95.09 % — 212 killed, 11 survived, 1 timeout
+   remote-arrivals.mjs: 94.87 % (10 survived, 1 timeout)
+   prompt-restart-nudge.mjs: 96.55 % (1 survived, 0 timeout)
+   log: /Users/tpierrain/Dev/kenjaku/maintainers/mutation/reports/mutate-one-remote-arrivals+1.log
