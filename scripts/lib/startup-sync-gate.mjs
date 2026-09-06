@@ -58,9 +58,10 @@ const PULLER_SCRIPT = "session-status.mjs";
  * tension with it whether or not the race is fixed — so on 2026-09-05 the owner's
  * call (*"enlève l'attente"*) removed the universe hook's wait outright: it announces
  * what is on disk at once, and a switch that arrives afterwards is corrected at the
- * next message (`remote-arrivals.mjs`). ONE waiter is left, `session-engine-divergence
- * .mjs`, and the same question is open for it. See
- * `maintainers/plans/prospective/duo-v51-safeguards-action.md`.
+ * next message (`remote-arrivals.mjs`). The last waiter, `session-engine-divergence.mjs`,
+ * followed on 2026-09-06 (step 9.6, the owner's call: the wait penalised every session
+ * start to protect a narrow window). **NOTHING WAITS ANY MORE**, so this read now serves
+ * the marker alone. See `maintainers/plans/prospective/duo-v51-safeguards-action.md`.
  */
 export function readHookPayload({
   readInput = () => readFileSync(0, "utf8"),
@@ -217,11 +218,14 @@ function writeMarker({ repo, sessionId, io, phase, now }) {
  * without the seam held a CI runner 2 h 46 min on 2026-08-23 and queued three hours of
  * jobs behind it. Every caller that is not a real hook must pass it.
  *
- * ⚠️ There is exactly ONE caller left, and that is the whole live question about this file.
- * `session-universe.mjs` used to be the other one; its wait was removed on 2026-09-05 (ADR
- * 0028, the owner's call) in favour of announce-now-correct-later. The same trade is open
- * for the divergence hook, where a stale read produces a FALSE "your engine is behind"
- * rather than a stale universe — put it to the owner rather than assume.
+ * 🛑 **DEAD, AND DELIBERATELY NOT REVIVED.** It has NO caller: `session-universe.mjs` gave up
+ * its wait on 2026-09-05 and `session-engine-divergence.mjs` on 2026-09-06, both on the
+ * owner's call, both under ADR 0028 — *a session start never blocks on the network*. Waiting
+ * for the pull is now a decided-against design, not an unexplored option: whoever is tempted
+ * to call this is re-opening a question that was answered twice, at the cost of up to 12 s on
+ * every session start. The removal of this function and the plumbing under it is step 9.6.3
+ * of `maintainers/plans/prospective/duo-v51-safeguards-action.md`, held back only because it
+ * would edit the sync code on the eve of the v5.1.0 tag.
  */
 export function awaitStartupSync({ repo, io, now = Date.now, sleep = blockingSleep, readPayload = readHookPayload }) {
   return waitForStartupSync({

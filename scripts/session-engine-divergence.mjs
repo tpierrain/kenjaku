@@ -22,7 +22,6 @@ import { fileURLToPath } from "node:url";
 import { readAnswers } from "./lib/engine-answers.mjs";
 import { readEngineDivergence } from "./lib/engine-base-fs.mjs";
 import { runAsEntrypoint } from "./lib/entrypoint.mjs";
-import { awaitStartupSync } from "./lib/startup-sync-gate.mjs";
 import { buildEngineDivergenceHookOutput, engineDivergenceNudge } from "./lib/engine-divergence-nudge.mjs";
 import { installRef } from "./lib/engine-version.mjs";
 
@@ -60,20 +59,22 @@ export function sessionEngineDivergence({ brainDir, readDivergence, readRef, rea
 // measured at 0 % — see `entrypoint.mjs`.
 export function runSessionEngineDivergence({
   brainDir = resolve(dirname(fileURLToPath(import.meta.url)), ".."),
-  awaitSync = awaitStartupSync,
 } = {}) {
-  // WAIT FOR THE STARTUP PULL BEFORE READING A SINGLE TRACKED BYTE (T11, third review
-  // pass). SessionStart hooks run in PARALLEL and the pull lives in `session-status.mjs`,
-  // so this hook — a manifest, every merge file and the whole of `.engine-base/`, all of
-  // them tracked — raced it and usually won. A manifest caught mid-rewrite parses as
-  // nothing, `readEngineDivergence` is fail-soft about exactly that, and the surface
-  // whose ONLY job is to speak about a freeze at rest went silent. Worse than a stale
-  // read: a stale read says something.
+  // 🚫 NOTHING HERE WAITS. This hook used to hold the session start for the startup pull
+  // (T11: SessionStart hooks run in PARALLEL, the pull rewrites the manifest and all of
+  // `.engine-base/`, and a read caught mid-rewrite made this surface go quiet). The wait
+  // cost up to 3 s for the puller to appear plus a 12 s ceiling — on the critical path of
+  // EVERY session start, to protect a narrow window. ADR 0028 forbids exactly that, and
+  // the owner settled it on 2026-09-06, while the tag was being cut: *"on enlève cette
+  // attente qui pénalise tout le monde pour quelques rares cas"*.
   //
-  // Every verdict the barrier can return means "read what is on disk anyway", so the
-  // answer is deliberately not consulted — waiting is the whole contribution. Wrapped
-  // because this now runs BEFORE the try/catch below, and fail-open is the contract.
-  awaitSync({ repo: brainDir, io: { existsSync, readFileSync } });
+  // What that costs, accepted deliberately: this reads the state as it stood BEFORE this
+  // session's pull. Almost always stale-but-consistent (a hook boots in ~100 ms, a pull
+  // needs a network round-trip first), so the standing fact is one session out of date and
+  // the next start corrects it. DELAYED, NOT LOST — and unlike the universe pointer, which
+  // every search of the session is scoped to, this surface may not be pushed at the owner:
+  // its own contract is "a standing fact, not an alert … mention it only if they ask", so
+  // no next-message correction is built. See the plan's step 9.6.
   let nudge = null;
   sessionEngineDivergence({
     brainDir,

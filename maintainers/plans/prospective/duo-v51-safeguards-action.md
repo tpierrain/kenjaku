@@ -435,14 +435,19 @@ branch protection are the git host's job, not this brain's.
       original list did not name, because 9.4bis wrote production after it. **Four tests closed
       everything owed, no production line changed, every remaining survivor a named equivalent.**
 
-- [ ] **9.6** **THE LAST WAIT COMES OUT OF THE SESSION START** _(2026-09-06, the owner's call, and it
-      **holds the tag**: "on ne cut pas tant que le démarrage est ralenti ou bloqué")_.
+- [x] **9.6** **THE LAST WAIT COMES OUT OF THE SESSION START** _(DONE 2026-09-06, the owner's call, and
+      it **held the tag**: "on ne cut pas tant que le démarrage est ralenti ou bloqué")_. **Measured on
+      the clock, through the hook run as a PROCESS: it was killed at the 8 s guard before, it answers
+      in ~104 ms after.** Whole suite green (3196 tests, 3193 pass / 0 fail / 3 pre-existing skips),
+      duo rehearsal 16/16. **No mutation run, on his explicit call of the same morning** _("pas de
+      mutation testing encore pendant des heures")_ — and none is owed either: CONVENTIONS §5quinquies
+      asks for one when production is WRITTEN, and this step only deletes.
       `session-engine-divergence.mjs` reads what is on disk **at once**, exactly as
       `session-universe.mjs` has since 9.4bis. After this, **nothing in a session start waits on the
       network**, which is ADR 0028 honoured rather than argued with.
-  - [ ] **9.6.1** The wait is gone: the import, the `awaitSync` seam and the call. The T11 comment that
+  - [x] **9.6.1** _(2026-09-06)_ The wait is gone: the import, the `awaitSync` seam and the call. The T11 comment that
         justified it is replaced by what is true now, including the cost accepted below.
-  - [ ] **9.6.2** The tests that pinned the wait are **deleted, not skipped** (9.4bis's rule), and
+  - [x] **9.6.2** _(2026-09-06)_ The tests that pinned the wait are **deleted, not skipped** (9.4bis's rule), and
         replaced by their opposite: the hook run **as a process** with a stdin nobody ever writes must
         still answer promptly. That is the test that fails if anyone ever "repairs" this into a wait.
   - **WHAT THIS COSTS, DELIBERATELY ACCEPTED, so nobody re-opens it as a defect.** The hook can read
