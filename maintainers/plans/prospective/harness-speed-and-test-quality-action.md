@@ -30,6 +30,12 @@ permanence des plans énormes qui sont déjà faits."* → **S3**.
   stays held until the tag and still resumes at S1. It is recorded because S1 and S2 both reason about
   the instrument, and they now reason about a sound one. Owner of that story:
   [`duo-v51-safeguards-action.md`](duo-v51-safeguards-action.md).
+  - ➕ **And a second time on 2026-09-06, same shape, same conclusion** (step 9.6 there): three tests
+    that pinned a session-start wait were deleted and two clock-measured process-level ones took their
+    place. **Nothing here moves because of it either** — this plan is still held until the tag, still
+    resumes at S1. Recorded because the suite S1 will speed up is now three tests lighter, and because
+    the owner's words that day are a **standing rule S1 and S2 both inherit**: *"on enlève cette attente
+    qui pénalise tout le monde pour quelques rares cas"*.
 - ▶️ **RESUME HERE once the tag is published: S1 below**, the targeted test command. **The three are
   independent** and may be done in any order: S1 is the speed of the instrument, S2 the quality of the
   first pass, S3 the cost of reading the record. S1 first because it pays back on the very next run.
