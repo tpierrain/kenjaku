@@ -68,8 +68,24 @@ subject.)
   plan artefact and the release is the **union** of them: the search-server half **82.89 % → 97.37 %**,
   the harness half **97.22 %** (batch A) and **82.14 % → 100 %** (batch B), and the duo-mode question
   the release was held for — **84.60 % → 98.92 %** on the three files it adds, **92.02 % → 95.45 %** on
-  the ranges it changed elsewhere. Every survivor left is a named equivalent, in three classes.
+  the ranges it changed elsewhere. And the **safeguards** step (3. above), measured whole across four
+  batches: **97.76 %**, **96.32 %**, **100 %** and **95.98 %** — closed by **four tests and not one
+  line of production changed**. Every survivor left is a named equivalent, in three classes.
   Findings in `maintainers/mutation/RESULTS.md`, newest-first.
+- **Two more silent defects, both found by that last measurement and both invisible in the output.**
+  The directive that announces what arrived gives up file **names** one at a time to fit the prompt
+  budget, and its boundary was pinned nowhere: a shrink firing one character early costs a name the
+  sentence had room for, every time, while the sentence still reads perfectly. And the trace's atomic
+  write had only ever been driven on the half that succeeds — empty its failure path and the staging
+  copy survives, so the **next run renames a stale trace into place** and announces arrivals that
+  already happened, while the caller believes it wrote.
+- **And a measurement was withdrawn rather than quoted.** A test that failed about one run in eight
+  under load sat in the suite while a score was taken. Because a mutant is judged killed when the suite
+  exits non-zero, an intermittent failure does not add noise to a mutation score — it adds **points**,
+  and here it manufactured one kill and, with it, a *wrong* written conclusion about the code. The test
+  is gone (deleted with the barrier it asserted, not stabilised), the run was redone, and the register
+  says what the disowned instrument had talked us into. The rule it earned: when an instrument is
+  disowned, re-read what it made you conclude, not only what it measured.
 - **Five findings worth a reviewer's minute**, all recorded there: a guard whose three riders no test
   ever saw apart (the arrivals-only case is the migration that reaches a brain predating the feature —
   the rehearsal proved it, no unit did); a type check that judged a `Buffer` it should have stood down
