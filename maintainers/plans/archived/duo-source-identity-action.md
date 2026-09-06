@@ -1,4 +1,12 @@
 <!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- ARCHIVED 2026-09-06 — SHIPPED IN v5.1.0, tag cut the same day. This file -->
+<!-- is a RECORD: it holds no live state and no session resumes here. Where   -->
+<!-- work goes next is the one door, ../ACTIVE.md.                            -->
+<!-- plan-carrier-guard: delegates-only — an archived record by construction, -->
+<!-- and the guard cannot tell that from staleness, so it is told here.       -->
+<!-- What it OWNS: the WHY of source identity and the duo question (ADR 0041/0042). -->
+<!-- ─────────────────────────────────────────────────────────────────────── -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
 <!-- THE canonical plan for the duo-mode duplication work. Opened 2026-09-02.  -->
 <!-- A SUB-PLAN of live-remote-sync-action.md (#84): it blocks that plan's     -->
 <!-- step 8, and is reached THROUGH it, never directly from ACTIVE.md.        -->

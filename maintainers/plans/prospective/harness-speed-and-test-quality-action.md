@@ -49,7 +49,7 @@ permanence des plans énormes qui sont déjà faits."* → **S3**.
     before concluding what S1 bought.
 - 🎯 **THE RE-MEASUREMENT THIS PLAN PREDICTED IS NOW ACTUALLY DUE** _(2026-09-06)_. The bullet below
   argued S1 pays for itself because the code review would change already-measured files. § 1 of
-  [`v5.1.0-code-review-fixes-action.md`](v5.1.0-code-review-fixes-action.md) **is now done**, and it
+  [`v5.1.0-code-review-fixes-action.md`](../archived/v5.1.0-code-review-fixes-action.md) **is now done**, and it
   changed **four files that all carry a published figure** in `RESULTS.md`: `lib/filed-note.mjs`,
   `lib/remote-sync.mjs`, `lib/remote-arrivals.mjs` and `dated-note-path.mjs`. Sharpest of all,
   **`filed-note.mjs:216` is the exact line a survivor was recorded on** (RESULTS.md, batch C, scored
@@ -76,7 +76,7 @@ permanence des plans énormes qui sont déjà faits."* → **S3**.
   qu'on ferait après la release ? … c'est quoi l'arbitrage le plus intéressant"*)_. **The hold expired
   on its own terms** rather than being overridden: the condition was *finish 9.5 with the instrument
   as it is*, and 9.5 closed at 02:42 this morning. What changed the arithmetic is the code review —
-  [`v5.1.0-code-review-fixes-action.md`](v5.1.0-code-review-fixes-action.md) § 1 opens six fixes in files that
+  [`v5.1.0-code-review-fixes-action.md`](../archived/v5.1.0-code-review-fixes-action.md) § 1 opens six fixes in files that
   are **already measured**, so their published figures stop describing the shipped code and a
   re-measurement is owed **either way**. On the instrument as it stands that is ~80 min a batch,
   twice; behind S1 it is minutes. **S1 pays for itself inside this release instead of after it.**
@@ -98,7 +98,7 @@ permanence des plans énormes qui sont déjà faits."* → **S3**.
   is still right, and it is the measure of what had to change for the conclusion to move.)_
   - ⏳ **The tag moved further out on 2026-09-06**, and nothing here changes because of it: the
     `/code-review max` found blockers that must be answered before `v5.1.0` is cut. The list and the
-    go/no-go belong to [`v5.1.0-code-review-fixes-action.md`](v5.1.0-code-review-fixes-action.md);
+    go/no-go belong to [`v5.1.0-code-review-fixes-action.md`](../archived/v5.1.0-code-review-fixes-action.md);
     this plan still resumes at S1 — **but now BEFORE the tag, see the entry above**.
 - 🔧 **"THE INSTRUMENT AS IT IS" CHANGED ONCE, ON 2026-09-05, AND ONLY FOR THE BETTER** _(`ae5f61b`)_.
   The suite carried a test that failed about 1 run in 8 under load, and since every mutant re-runs the
@@ -117,13 +117,13 @@ permanence des plans énormes qui sont déjà faits."* → **S3**.
   three are independent** and may be done in any order: S1 is the speed of the instrument, S2 the
   quality of the first pass, S3 the cost of reading the record. S1 goes first because it pays back on
   the very next run, and the next run is this release's.
-- 🔗 **S3 has a natural moment, and it is § 3.4 of** [`v5.1.0-code-review-fixes-action.md`](v5.1.0-code-review-fixes-action.md):
+- 🔗 **S3 has a natural moment, and it is § 3.4 of** [`v5.1.0-code-review-fixes-action.md`](../archived/v5.1.0-code-review-fixes-action.md):
   that step already archives the two 1200-and-905-line plans right after the tag. Doing S3 then costs
   almost nothing extra, and 3.4 is the step that will hit the broken-link problem S3.3 names.
   **A first instalment was paid early**, on 2026-09-06 and on the owner's ask: the 158-line v5.1 plan
   was split and archived the moment its work was done, which is S3.1's trigger applied by hand.
 - **Blocked on:** nothing, for S1. **S2 and S3 stay blocked on the `v5.1.0` tag** (§ 3 of
-  [`v5.1.0-code-review-fixes-action.md`](v5.1.0-code-review-fixes-action.md), the owner's and only his).
+  [`v5.1.0-code-review-fixes-action.md`](../archived/v5.1.0-code-review-fixes-action.md), the owner's and only his).
 - **A session may, alone**: do S1 and S2 test-first on a branch off `main`, pushing every green commit
   and **reading its CI** (rules/ci.md). **Not**: touch a measurement that is feeding an unpublished
   release note, nor weaken a test to make a number move.

@@ -11,7 +11,15 @@
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-08-23
 
-- **Next:** **v5.1, and nothing else.** Three issues, all reported from the field by an outside
+- 🏷️ **THE NAME "v5.1" IN THIS FILE NO LONGER MATCHES THE RELEASE THAT WENT OUT** _(2026-09-06)_.
+  **v5.1.0 was cut today** — *The One with the Duo Mode*, two people on one brain and two machines
+  staying in step — and it carried **none** of the three issues below. That is not a slip: this plan
+  was deliberately parked behind that work, by the door's own ordering. So read every *"v5.1"* here
+  as **"the next bugfix release"**, whose number (`v5.1.1`? folded into `v5.2`?) is the owner's call
+  and is **not** being asked of him again — the three issues are ready to work whatever it ends up
+  being called. Record of the tag:
+  [`../archived/v5.1.0-code-review-fixes-action.md`](../archived/v5.1.0-code-review-fixes-action.md).
+- **Next:** **the three field-reported issues, and nothing else.** All reported by an outside
   contributor, all one subject: [#71](https://github.com/tpierrain/kenjaku/issues/71),
   [#73](https://github.com/tpierrain/kenjaku/issues/73),
   [#74](https://github.com/tpierrain/kenjaku/issues/74) → § *v5.1*. Nothing is started.
@@ -25,6 +33,9 @@
     he can answer: *is a brain's copy of the launcher README meant to link to the launcher's own docs
     at all?* (2) The `concurrency` group for `ci.yml` (recommendation: yes) — offered three times,
     gating nothing. **Do not offer either a fourth time**; they wait here until he raises them.
+- 🎯 **INHERITED FROM THE v5.1.0 TAG, and it is this plan's now** _(2026-09-06)_: close
+  [#84](https://github.com/tpierrain/kenjaku/issues/84) **when a real brain has received the live
+  sync** — the tag alone does not prove that, which is why it was not closed on publication.
 - **A session may, alone:** work **v5.1** test-first end to end, and write the macOS flake's
   instrument (§ *Inherited from v5.0.0*). **Not** tag, publish, push to `main`, write into
   `templates/fr/**`, or write into either of his two real brains.

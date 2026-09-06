@@ -458,7 +458,7 @@ batches.**
 ## #84 duo — the announcement became a question, and half its survivors were code to DELETE — 2026-09-05
 
 State owned by
-[`../plans/prospective/duo-source-identity-action.md`](../plans/prospective/duo-source-identity-action.md)
+[`../plans/archived/duo-source-identity-action.md`](../plans/archived/duo-source-identity-action.md)
 (step 8.8). The release was **held by the owner** on this step: a brain that reads who writes from git
 author names alone told an owner with two Macs that *"a second person now writes here"*, and split
 their day into one file per machine. The fix makes the announcement a **question**, remembered in a
@@ -572,7 +572,7 @@ separate without testing the mutant itself:
 ## #84 — the `scripts/` files this branch changed after their own last run — 2026-09-03
 
 State owned by
-[`../plans/prospective/live-remote-sync-action.md`](../plans/prospective/live-remote-sync-action.md)
+[`../plans/archived/live-remote-sync-action.md`](../plans/archived/live-remote-sync-action.md)
 (step 3.7b). Run through `mutate-one.mjs` in a disposable worktree — hunk-scoped for the files that
 already had a measurement, whole for the one this branch creates — in **two batches**, so neither
 exceeds the runner's window. Logs: `reports/v510-scripts-batch-a.log`,
@@ -649,7 +649,7 @@ conservative guard, it is a disabled one.
 ## #84 — the half the target list never named: the clock inside the search server — 2026-09-03
 
 State owned by
-[`../plans/prospective/live-remote-sync-action.md`](../plans/prospective/live-remote-sync-action.md)
+[`../plans/archived/live-remote-sync-action.md`](../plans/archived/live-remote-sync-action.md)
 (step 3.7 — a box added the day of the cut, because step 3 never had one). Config:
 `stryker.rag.config.mjs`. Logs: `reports/v510-rag-changed.log`, then
 `reports/v510-rag-changed-recheck.log`.
@@ -733,7 +733,7 @@ well under the 25 % share that means a starved runner rather than a detected mut
 ## #84 duo — per-person paths and the writer guard: the refusals nobody had read — 2026-09-03
 
 State owned by
-[`../plans/prospective/duo-source-identity-action.md`](../plans/prospective/duo-source-identity-action.md)
+[`../plans/archived/duo-source-identity-action.md`](../plans/archived/duo-source-identity-action.md)
 (steps 2.3 / 4.7). The four files step 4 wrote, plus the one step 2 changed. Two passes.
 Log: `reports/mutate-one-dated-note-path+4.log`.
 
@@ -782,7 +782,7 @@ the hook's fail-open path.
 ## #84 duo — the source identity, and half the survivors were a design smell — 2026-09-03
 
 State owned by
-[`../plans/prospective/duo-source-identity-action.md`](../plans/prospective/duo-source-identity-action.md)
+[`../plans/archived/duo-source-identity-action.md`](../plans/archived/duo-source-identity-action.md)
 (steps 1.4 / 2.3). Two new files, measured whole the day they were written, then again after their
 survivors were closed. Log: `reports/mutate-one-source-key+1.log`.
 
@@ -855,7 +855,7 @@ answers `false` too. Same outcome, two ways.
 ## #84 — live sync between machines, the six files it writes — 2026-09-02
 
 State owned by
-[`../plans/prospective/live-remote-sync-action.md`](../plans/prospective/live-remote-sync-action.md)
+[`../plans/archived/live-remote-sync-action.md`](../plans/archived/live-remote-sync-action.md)
 (step 2.7). New files → measured whole, in one batch, twice: once the day they were written, once
 after their survivors were closed. Logs: `reports/sync-84-batchA.log`, `reports/sync-84-recheck.log`.
 

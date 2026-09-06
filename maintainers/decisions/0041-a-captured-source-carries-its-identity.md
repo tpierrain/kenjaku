@@ -9,7 +9,7 @@
   [`0022`](0022-golden-source-sync-separate-file-writing-mcp.md) (the Notion mirror, which already
   keys a note on its source and is idempotent because of it);
   [`0034`](0034-progressive-disclosure-of-universes.md) (nothing surfaces until a second one exists);
-  plan [`../plans/prospective/duo-source-identity-action.md`](../plans/prospective/duo-source-identity-action.md).
+  plan [`../plans/archived/duo-source-identity-action.md`](../plans/archived/duo-source-identity-action.md).
 
 ## Crux
 
