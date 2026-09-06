@@ -13,24 +13,23 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-05
 
-> ▶️ **ON RESUMING (2026-09-05 23:30, context cleared here).** A mutation run is **detached and
-> running** on `a89af5a` (batch A, `reports/v510-95-batch-a5.stdout.log`, launched 23:19, ~1 h).
-> **First thing: read that log's own ✅/❌ line** — never *"is the process alive"*, a starved run comes
-> back looking like a result. If it holds a score, read each survivor against the code before calling
-> any of them equivalent, record it in `../../mutation/RESULTS.md`, then run batch B, then C, then D,
-> **one at a time and detached**. Everything else about the release is green, pushed and CI-read
-> through `e4b4032`. The only thing waiting on the owner is the ❓ entry below (the second waiter), and
-> it blocks nothing.
+> ▶️ **ON RESUMING (2026-09-06 03:00). THERE IS NO ENGINEERING WORK LEFT ON THIS PLAN. Everything
+> that is not the owner's own hand is done, green, pushed, and CI-read on every commit.**
 >
-> 🌙 **OVERNIGHT, 2026-09-06 — A, B AND C ARE IN AND CLOSED. ONLY D IS LEFT, AND IT IS RUNNING.**
-> All three are answered below (**97.76 %**, **96.32 %**, **100 %**); C is the only one that owed tests,
-> two of them, and they are written, green and pushed with CI read. **D** (`lib/remote-arrivals.mjs` +
-> `prompt-restart-nudge.mjs`, whole-file) was launched **01:14 on `9ed0ebe`**, log
-> `reports/v510-95-batch-d.stdout.log`; the machine was checked clear of orphans before each run.
-> **When D lands, 9.5 is done** and what remains is the 📌 below: the figures join the release note's
-> *Quality* paragraph and #86's body. **The one thing the
-> machine owes a run is to stay awake: `caffeinate` does not survive a closed lid**, and a sleeping
-> laptop does not kill a mutation run, it starves it into a number that looks like a result.
+> **9.5 is closed on four batches** — A **97.76 %**, B **96.32 %**, C **100 %**, D **95.98 %** — and
+> the figures are already in the release note and in #86's body on GitHub (both edited together, and
+> GitHub's copy re-read to confirm). Four tests closed everything the measurement owed; **no production
+> line changed.** Every remaining survivor is a named equivalent. The reading of each one, and the
+> lessons the night bought, are in [`../../mutation/RESULTS.md`](../../mutation/RESULTS.md).
+>
+> **What is left is the owner's, and only his: `## Cutting the release` below (R.1 → R.4).** Nothing
+> else gates the tag. Two things are open and neither blocks anything: the ❓ entry below (the second
+> waiter, a question he has not been asked yet) and X.1/X.2 at the foot of the plan.
+>
+> ⚠️ **If a mutation run is ever in flight again, the rule that cost this release two wasted hours:**
+> read the runner's own ✅/❌ line, never *"is the process alive"* — a starved run comes back looking
+> like a result. `ps aux | grep input-type=module` for orphans **before** launching, one run at a time,
+> and the machine must stay awake (`caffeinate` does not survive a closed lid).
 
 - ✅ **9.0 THROUGH 9.4 ARE DONE, GREEN AND PUSHED, CI READ AND GREEN ON EVERY COMMIT** _(2026-09-05)_
   — the whole suite (3157 tests) and the duo rehearsal (16/16) pass on each. **ONLY 9.5 REMAINS.**
@@ -296,9 +295,11 @@ plan de tout ce que tu as déjà fait, et de partir sur un nouveau mini-plan ?"*
   live in `RESULTS.md`** — they were kept here only until the re-run could be checked against them,
   and it has been. Not copied back: a list that has done its job is history, and history belongs in
   the register.
-- 📌 **STILL OWED WHEN ALL THREE BATCHES ARE IN**: the figures join the release note's *Quality*
-  paragraph **and #86's body on GitHub**, as 8.8's did — the PR body's file copy and GitHub's own copy
-  are edited in the same breath, then GitHub's is re-read to confirm.
+- ✅ **DONE 2026-09-06** _(`4e47e3b`)_ **the figures joined the release note's *Quality* paragraph and
+  #86's body on GitHub**, as 8.8's did — both edited in the same breath, and GitHub's copy **re-read
+  after the edit**: byte-identical to the file's. The PR body also gained what a reviewer's minute is
+  worth (the two silent defects batch D found, and the measurement withdrawn rather than quoted); the
+  release note keeps the **figures only**, since it is read by people who do not run the suite.
 - ⚠️ **Always one run at a time**: two at once starve each other and return a meaningless score.
 - 📎 **This batch is evidence for the OTHER plan** —
   [`harness-speed-and-test-quality-action.md`](harness-speed-and-test-quality-action.md) § S2: a first
