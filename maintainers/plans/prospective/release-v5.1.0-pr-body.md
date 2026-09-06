@@ -84,8 +84,14 @@ is the piece a defect would hurt most, and three of those four could **lose or h
   frontmatter value that comes from outside the brain. Written raw, `@tpierrain` opens on a reserved
   character: the note does not parse, its owner cannot find it, and **on a shared brain the partner's
   header check undoes their entire pull over a name.** Quoted now — and only when needed, so no
-  ordinary name's bytes change. The fix reaches **both** doors: the writer, and the command that
-  hands that line back to be pasted into a header rather than writing it itself.
+  ordinary name's bytes change. The fix reaches **all three** doors: the writer; the command that
+  hands that line back to be pasted into a header rather than writing it itself; and — found by the
+  documentation pass that followed — **the instructions themselves**, both constitutions and both
+  `sync-sources` skills, which still taught the raw spelling, so a brain following its own
+  constitution wrote the unparseable header the other two doors had just stopped producing. Pinned
+  end to end as well: what those doors emit is read back by the brain's OWN note reader, which does
+  not unquote, and must still name the same person — it does, because names are compared as slugs,
+  and now something says so.
 - Plus two one-liners: the `sources:` keys the skill taught **quoted** while the reader never
   unquoted them, so ADR 0041's duplicate check silently never fired for the notes that skill produced;
   and a French em dash in prose.
