@@ -9,17 +9,19 @@ No memory lookup, no ROADMAP scan, no grep. Sub-plans are reached **through** it
 
 ## The active plan
 
-- **Subject:** clearing the tracker — the three defects an outside contributor reported, then the rest.
-- **Plan:** [`prospective/clear-the-tracker-action.md`](prospective/clear-the-tracker-action.md)
-- **Active since:** 2026-09-06 _(v5.1.0 shipped that day and carried none of them; its plan and the
-  two behind it are in `archived/`)_
+- **Subject:** the instrument — making a mutation run cost minutes instead of 81, and the first pass
+  land near 97 % instead of 84 %.
+- **Plan:** [`prospective/harness-speed-and-test-quality-action.md`](prospective/harness-speed-and-test-quality-action.md)
+- **Active since:** 2026-09-06 _(owner's call, "ok pour suivre ta reco": the re-measurement the
+  release note promised is owed either way, and paying it on the 81-minute instrument is the bill
+  this plan exists to avoid)_
 
 ## Open, but NOT active
 
 Links only — each one's own `## 📍 STATE` block says whose it is and where it stands.
 
-- [`prospective/harness-speed-and-test-quality-action.md`](prospective/harness-speed-and-test-quality-action.md)
-  — **its hold expired with the tag**; it also owns the re-measurement the release note made public.
+- [`prospective/clear-the-tracker-action.md`](prospective/clear-the-tracker-action.md) — **was active
+  until 2026-09-06**, paused by the call above; nothing in it was started, so nothing is in flight.
 - [`../studies/plan-state-single-source-study.md`](../studies/plan-state-single-source-study.md) —
   its queued items come due now that the tag is cut.
 - [`prospective/harness-universe-blindspot-hardening-action.md`](prospective/harness-universe-blindspot-hardening-action.md)

@@ -17,6 +17,12 @@ permanence des plans énormes qui sont déjà faits."* → **S3**.
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-05
 
+- 🚦 **THIS IS THE ACTIVE PLAN SINCE 2026-09-06** _(owner: "ok pour suivre ta reco")_. It took the door
+  from [`clear-the-tracker-action.md`](clear-the-tracker-action.md), which is paused with nothing in
+  flight. The arbitration he validated: the release note has made a re-measurement public, so it is
+  owed either way, and running it on the 81-minute instrument pays twice the exact bill this plan
+  exists to remove. **Resume at S1.4**, and the first move is the cheap number below (the narrowed
+  subset's standalone time), not another 80-minute run.
 - ✅ **S1.1 → S1.3 HAVE LANDED** _(2026-09-06, `2876954`, 115 tests green in the mutation workspace)_.
   `judges.mjs` works out who can observe a target — imports transitively **plus plain string mentions**,
   because the entry-point rule tests every executable by SPAWNING it and such a test is invisible to an
