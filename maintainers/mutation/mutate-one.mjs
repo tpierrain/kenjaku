@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 // ─────────────────────────────────────────────────────────────────────────────
-// mutate-one.mjs — mutate ONE `scripts/**` file, safely, in 1-3 minutes.
+// mutate-one.mjs — mutate ONE `scripts/**` file, safely. Budget it by MUTANT COUNT,
+// not by file: ~36 s per mutant at concurrency 5 (measured 2026-09-07), so a changed
+// hunk is minutes and a whole mature file is tens of them. CONVENTIONS §5quinquies.
 //
 // This is the day-of runner CONVENTIONS §5quinquies prescribes: a new production
 // file gets mutated the day it is written, not at the release tail. Everything it
@@ -761,7 +763,7 @@ export async function defaultDeps() {
     sha: execFileSync("git", ["rev-parse", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim(),
     config: (await import("./stryker.scripts.batch.config.mjs")).default,
     exists: (path) => existsSync(path),
-    // Buffered rather than streamed: a one-file run is 1-3 minutes, and the whole
+    // Buffered rather than streamed: a run is minutes to tens of minutes, and the whole
     // output has to be captured to be written to the log and parsed for a score.
     run: ({ command, args, cwd, env }) => {
       const done = spawnSync(command, args, {

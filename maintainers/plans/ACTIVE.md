@@ -9,17 +9,19 @@ No memory lookup, no ROADMAP scan, no grep. Sub-plans are reached **through** it
 
 ## The active plan
 
-- **Subject:** clearing the tracker — the three defects an outside contributor reported, then the rest.
-- **Plan:** [`prospective/clear-the-tracker-action.md`](prospective/clear-the-tracker-action.md)
-- **Active since:** 2026-09-06 _(v5.1.0 shipped that day and carried none of them; its plan and the
-  two behind it are in `archived/`)_
+- **Subject:** the restart nudge loops forever, and obeying it is what keeps it alive
+  ([#90](https://github.com/tpierrain/kenjaku/issues/90)) — the owner is blocked by it in real use.
+- **Plan:** [`prospective/restart-nudge-loop-action.md`](prospective/restart-nudge-loop-action.md)
+- **Active since:** 2026-09-07 _(owner's call: "on fait le bug fix ASAP")_
 
 ## Open, but NOT active
 
 Links only — each one's own `## 📍 STATE` block says whose it is and where it stands.
 
 - [`prospective/harness-speed-and-test-quality-action.md`](prospective/harness-speed-and-test-quality-action.md)
-  — **its hold expired with the tag**; it also owns the re-measurement the release note made public.
+  — **its speed half is done and shipped**; the quality and record halves are where it resumes.
+- [`prospective/clear-the-tracker-action.md`](prospective/clear-the-tracker-action.md) — **was active
+  until 2026-09-06**; nothing in it was started, so nothing is in flight.
 - [`../studies/plan-state-single-source-study.md`](../studies/plan-state-single-source-study.md) —
   its queued items come due now that the tag is cut.
 - [`prospective/harness-universe-blindspot-hardening-action.md`](prospective/harness-universe-blindspot-hardening-action.md)

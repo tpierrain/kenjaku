@@ -354,8 +354,19 @@ healthy notes declared broken**. The vault was fine; the checker was wrong.
 ## 5quinquies. Mutate a NEW production file the day it is written — not at the release tail
 
 **The rule.** When a new production file is finished — the tests are green and you are about to move on
-to the next thing — mutate **that one file** before you do. One file is 1-3 minutes. Both commands run
-from the repo root:
+to the next thing — mutate **that one file** before you do. Both commands run from the repo root:
+
+> ⏱️ **WHAT IT COSTS, MEASURED RATHER THAN PROMISED** _(2026-09-07)_. This section said "one file is
+> 1-3 minutes" for a year, and that is true of a **small new file** and of nothing else. The honest
+> unit is **per mutant**: **~36 s each at concurrency 5**, since a mutant is now judged only by the
+> tests that can observe it. So the cost of a run is the **mutant count**, and that is the number to
+> look at before starting one: a freshly-changed hunk is ~20 mutants (**minutes**), a whole mature
+> file is ~180 (**tens of minutes**).
+>
+> The pair that fixed the figure, same targets and same commit, `filed-note.mjs` + `file-back-note.mjs`
+> whole: **357 mutants, 42 min 39 narrowed against 1 h 03 min 43 on the whole suite — and the SAME
+> score, 98.04 %, down to the same seven survivors.** A third of the wall clock for an identical
+> verdict. Evidence: `mutation/reports/s1-proof-batch-c.log` and `-unnarrowed.log`.
 
 > ⚠️ **AN EXISTING FILE IS MEASURED BY ITS CHANGED LINES, NEVER WHOLE** _(2026-08-21, measured)_. The
 > scope of a run is the scope of the change; the discipline's own statement of it lives in

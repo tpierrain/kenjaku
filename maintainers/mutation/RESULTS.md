@@ -455,6 +455,56 @@ the nine.
 remaining survivor is a named equivalent. **Effective score on non-equivalents: 100 %, all four
 batches.**
 
+### The instrument itself, measured — the same targets judged both ways — 2026-09-07
+
+The first re-measurement the v5.1.0 note owes, and the proof that the narrowed judges are safe. Both
+runs: `scripts/lib/filed-note.mjs` + `scripts/file-back-note.mjs` **whole** (not 9.4's ranges), commit
+`6ca2bf9`, machine idle, one after the other.
+
+| | Narrowed to the 50 tests that can observe the targets | The whole suite, 204 files |
+|---|---|---|
+| Wall clock | **42 min 39** | **1 h 03 min 43** |
+| Mutants | 357 | 357 |
+| Score | **98.04 %** | **98.04 %** |
+| Killed / survived / timeout | 350 / 7 / 0 | 350 / 7 / 0 |
+| Survivor lines | the same seven | the same seven |
+
+Logs `reports/s1-proof-batch-c.log` and `reports/s1-proof-batch-c-unnarrowed.log`.
+
+**A third of the wall clock for a byte-identical verdict.** The safety property (narrowing removes
+kills, it cannot invent one, so a score can only come back equal or lower) is not merely respected
+here — nothing at all was lost: same score, same survivors, line for line.
+
+⚠️ **DO NOT COMPARE THIS 98.04 % WITH BATCH C'S 100 % ABOVE.** They are different jobs: batch C
+measured **19 mutants**, the three ranges step 9.4 had changed; this measures the **357 mutants** of
+the two whole files. Quoting batch C's *3 min 46* against a whole-file run is what sent a session
+hunting a twenty-fold "slowdown" that never existed. **A baseline is a pair: a duration AND the job it
+measured**, and the mutant count is the tell.
+
+**The seven survivors, six of them provable equivalents** — and every one of the six is proved by a
+line that runs **earlier in the same function**, not by staring at the mutated line:
+
+- `filed-note.mjs:37` ×2 (`^-+`→`^-`, `-+$`→`-$`) — the statement above collapses every run of
+  non-alphanumerics into **one** hyphen, so two consecutive hyphens cannot exist by the time the trim
+  runs.
+- `filed-note.mjs:257` (`/\.md$/`→`/\.md/`) — the anchor is free: card paths are **slugified**, and a
+  `.` cannot survive slugification, so `.md` occurs only at the end.
+- `file-back-note.mjs:193` (`\s+`→`\s`) — `.trim()` runs first and only `[0]` is read, so the empty
+  strings the mutant creates sit after the element taken.
+- `file-back-note.mjs:85` and `:88` (`"utf-8"`→`""`) — **the composition root, and the interesting
+  pair.** `""` is falsy, so `readFileSync` returns a **Buffer** rather than throwing. It looks exactly
+  like a wiring seam no test traverses — and the line's own comment even records a real field defect
+  ("a Buffer has no `.trim()`, it threw on any brain past one universe"). **It is still an
+  equivalent**: the defence was put in the READER, `readRawActiveUniverse` does
+  `String(io.readFileSync(path)).trim()` on purpose, and `JSON.parse` coerces a Buffer identically.
+  ➡️ **The lesson for the next survivor read: a comment describes the line, not the system.** One
+  `grep` one level down is what separates "untested hole" from "belt over braces".
+
+**The one that is not an equivalent**: `filed-note.mjs:114` (`>`→`>=` picking the weakest source
+tier). It is reachable only when **two tiers absent from the declared ranking** meet — `indexOf`
+returns -1 for both and the two versions then disagree. The honest answer is probably a guard on an
+undeclared tier rather than a test of one. **No production change is owed by this run.**
+
 ## #84 duo — the announcement became a question, and half its survivors were code to DELETE — 2026-09-05
 
 State owned by
