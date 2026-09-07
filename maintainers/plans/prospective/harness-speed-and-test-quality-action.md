@@ -62,15 +62,22 @@ permanence des plans énormes qui sont déjà faits."* → **S3**.
       **composition root**, `"utf-8"` → `""` at `file-back-note.mjs:85` and `:88` — a wiring seam no
       test traverses, and `:88` is the **stdin** read whose test was deliberately deleted for hanging
       on Windows. Recorded, not silently accepted.
-    - 🚨 **AND `:85` IS NOT AN ORDINARY WIRING SURVIVOR — IT REPLAYS A BUG THIS REPO ALREADY SHIPPED.**
-      The line's own comment says why the encoding is there: *"readFileSync as TEXT, not the raw
-      Buffer form: the pointer reader trims what it reads, and a Buffer has no `.trim()` (it threw on
-      any brain past one universe)."* So a defect was met in the field, fixed by that argument, the
-      reason was written down beside it — **and no test was added**. The mutant removes exactly that
-      argument and walks away alive. **This is the strongest single argument in the whole plan for
-      S2**: the catalogue's "wiring seam no test traverses" is not a theoretical shape here, it is the
-      shape of a bug that reached a real brain, and the mutation run is the only thing that noticed
-      the hole is still open.
+    - ↩️ **CORRECTED WITHIN THE HOUR, AND THE CORRECTION IS THE INTERESTING PART.** This entry first
+      claimed `:85` *"replays a bug this repo already shipped, and no test was ever added"* — read off
+      the line's own comment, which does describe a real field defect (a Buffer has no `.trim()`, and
+      it threw on any brain past one universe). **That claim was wrong, and one `grep` one level down
+      is what settled it.** `readRawActiveUniverse` (`scripts/lib/universes.mjs:259`) reads
+      `String(io.readFileSync(path)).trim()` — **the defence was put in the READER**, deliberately,
+      with its own comment saying callers pass no encoding. So the `"utf-8"` at the composition root is
+      belt-and-braces, and deleting it changes nothing: **a true equivalent**. Same verdict for `:88`:
+      `JSON.parse` coerces its argument, so a Buffer parses exactly like a string.
+      - 🪞 **Twice in one night, the same failure shape**: a confident conclusion drawn from what a
+        line *says about itself* instead of from what the surrounding code *does* — first the baseline
+        quoted without its job, now a comment quoted without its reader. **The survivor analysis is
+        only worth what the one-level-down read is worth**, and that read costs seconds.
+      - ✅ **So the tally is better than first written**: of 7 survivors, **6 are provable equivalents**
+        and the seventh (`filed-note.mjs:114`) needs two undeclared tiers to be reachable at all —
+        effectively **100 % on non-equivalents**, and no production change owed.
     - 📊 **The shape of the count is the whole S2 argument again**: 357 mutants, 7 survivors, **4 of
       them provable equivalents by reading one line up**, and **zero** requiring a production change.
   - 📌 **So S1.4 IS STILL NOT PROVEN, for the honest reason and not the invented one.** The score
