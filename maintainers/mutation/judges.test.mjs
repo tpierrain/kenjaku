@@ -18,7 +18,7 @@
 // Every fixture here is hand-written, never produced by the code under test.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { JUDGES_ENV, WHOLE_SUITE, commandFrom, judgeCommand, judgingTests } from "./judges.mjs";
+import { JUDGES_ENV, WHOLE_SUITE, commandFrom, judgeCommand, judgingTests, runsInWholeSuite } from "./judges.mjs";
 
 // A small brain-shaped corpus: a target, its twin, a helper that reaches it, a
 // process-level test that only NAMES it, and a stranger that ignores it all.
@@ -93,6 +93,55 @@ test("judgingTests — the chosen set is always a SUBSET of the files the whole 
   for (const file of files) assert.ok(everyTest.includes(file), `${file} is not a test of the corpus`);
 });
 
+// 🚨 THE SUBSET ABOVE HELD BY ACCIDENT, and this is the hole it left. The corpus is
+// every `.mjs` under `scripts/`, walked RECURSIVELY, while the whole suite globs only
+// two levels — so "a test of the corpus" and "a test the baseline runs" are two
+// different sets, and the first is the larger one. The day a test file lands in a
+// deeper directory it becomes a legitimate judge that the baseline NEVER RAN, and the
+// narrowed score can then come back HIGHER than the whole suite's: the one direction
+// the safety property forbids, arriving silently, on a run nobody thinks to doubt.
+
+test("runsInWholeSuite — the two levels the baseline command actually globs, and nothing under them", () => {
+  // Derived from WHOLE_SUITE itself rather than restated: a predicate that repeats the
+  // globs as a literal is a constant asserted against itself, and it would go on
+  // agreeing with a command that had drifted underneath it.
+  assert.equal(runsInWholeSuite("scripts/entry.test.mjs"), true);
+  assert.equal(runsInWholeSuite("scripts/lib/target.test.mjs"), true);
+  // `*` never crosses a separator — this is the whole point of the guard.
+  assert.equal(runsInWholeSuite("scripts/lib/deep/down.test.mjs"), false);
+  assert.equal(runsInWholeSuite("scripts/lib/deep/nested/further.test.mjs"), false);
+  // Not a test, and not under the two globbed directories.
+  assert.equal(runsInWholeSuite("scripts/lib/target.mjs"), false);
+  assert.equal(runsInWholeSuite("rag/search.test.mjs"), false);
+});
+
+test("judgingTests — an observer the whole suite NEVER RUNS refuses the narrowing, and names it", () => {
+  // Refusing, rather than quietly dropping it: dropping keeps the arithmetic safe and
+  // hides a real defect — a test file that no run of the suite has ever executed. The
+  // fallback is slow and correct, and the message is the only place that fact surfaces.
+  const corpus = {
+    "scripts/lib/target.mjs": "export const answer = () => 42;\n",
+    "scripts/lib/target.test.mjs": 'import { answer } from "./target.mjs";\n',
+    "scripts/lib/deep/down.test.mjs": 'import { answer } from "../target.mjs";\n',
+  };
+  const verdict = judgingTests(corpus, ["scripts/lib/target.mjs"]);
+  assert.equal(verdict.files, null);
+  assert.match(verdict.why, /scripts\/lib\/deep\/down\.test\.mjs/);
+});
+
+test("judgingTests — the stranger refuses the WHOLE run, not just the target that has one", () => {
+  // Same shape as the unobservable target one door up: a partial answer would measure
+  // the good target honestly and the other against a baseline it never shared.
+  const corpus = {
+    "scripts/lib/target.mjs": "export const answer = () => 42;\n",
+    "scripts/lib/target.test.mjs": 'import { answer } from "./target.mjs";\n',
+    "scripts/stranger.mjs": "export const nothing = () => null;\n",
+    "scripts/stranger.test.mjs": 'import { nothing } from "./stranger.mjs";\n',
+    "scripts/lib/deep/down.test.mjs": 'import { answer } from "../target.mjs";\n',
+  };
+  assert.equal(judgingTests(corpus, ["scripts/stranger.mjs", "scripts/lib/target.mjs"]).files, null);
+});
+
 test("judgingTests — a target NO test can observe is refused, and the refusal names it", () => {
   // Never narrow to nothing: a run with no judges kills no mutant and reports a
   // score of 0 % that looks like a measurement. Refusing hands the caller back to
@@ -128,16 +177,19 @@ test("judgingTests — a package import is not an edge, and does not crash the s
 });
 
 test("judgingTests — `../` climbs out of lib, the way scripts/ actually imports", () => {
+  // 🔁 The climb used to be shown by `scripts/lib/deep/down.test.mjs` reaching
+  // `../target.mjs`, and that fixture PINNED the hole above: a judge two directories
+  // deep, which the baseline command never runs. The assertion is unchanged in
+  // strength — still the whole set, still deepEqual — and the climb is now shown by
+  // the shape `scripts/` really has: a test in `lib/` reaching a script one level up.
   const corpus = {
-    "scripts/lib/target.mjs": "export const answer = () => 42;\n",
-    "scripts/lib/target.test.mjs": 'import { answer } from "./target.mjs";\n',
-    "scripts/up.test.mjs": 'import { answer } from "./lib/target.mjs";\n',
-    "scripts/lib/deep/down.test.mjs": 'import { answer } from "../target.mjs";\n',
+    "scripts/target.mjs": "export const answer = () => 42;\n",
+    "scripts/target.test.mjs": 'import { answer } from "./target.mjs";\n',
+    "scripts/lib/climb.test.mjs": 'import { answer } from "../target.mjs";\n',
   };
-  assert.deepEqual(judgingTests(corpus, ["scripts/lib/target.mjs"]).files, [
-    "scripts/lib/deep/down.test.mjs",
-    "scripts/lib/target.test.mjs",
-    "scripts/up.test.mjs",
+  assert.deepEqual(judgingTests(corpus, ["scripts/target.mjs"]).files, [
+    "scripts/lib/climb.test.mjs",
+    "scripts/target.test.mjs",
   ]);
 });
 

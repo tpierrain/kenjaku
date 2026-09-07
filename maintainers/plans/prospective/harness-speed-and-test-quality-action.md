@@ -29,7 +29,27 @@ permanence des plans énormes qui sont déjà faits."* → **S3**.
   import graph — grown to a fixed point, and the list reaches Stryker through the environment (its CLI
   has no flag for the runner's command). On this repo: **203 test files down to 37-50**. It never
   narrows to nothing: an unobservable or mistyped target falls back to the whole suite and says why.
-- ⚠️ **S1.4 IS NOT DONE, AND THE FIRST ATTEMPT MUST NOT BE QUOTED.** A proving run was launched on
+- ❌🔁 **THE "19-MINUTE ANOMALY" NEVER EXISTED — IT WAS TWO DIFFERENT JOBS COMPARED AS ONE**
+  _(2026-09-07, and everything below it that reasons about a slowdown is WRONG; kept, struck through,
+  because the mistake is the lesson)_. The run finished: **357 mutants, 42 min 39, 98.04 %** (350
+  killed, 7 survived, **0 timeout**). The `3 min 46` it was being measured against is the run of
+  **19 mutants** — the three line ranges step 9.4 had changed (`filed-note.mjs:208-216`,
+  `file-back-note.mjs:99-102` and `:139-142`), as `RESULTS.md` § *Batch C* says in full. **Naming the
+  two files without their ranges is a twenty-fold bigger job**, and this plan wrote them that way.
+  - **What the numbers actually say, and they say S1 WORKS**: 42 min 39 over 357 mutants at
+    concurrency 5 is **35.8 s per mutant**. The whole-suite instrument costs **49.9 s per mutant**
+    (batch A: 487 mutants in 81 min). That is **28 % cheaper**, which is the 25 % the standalone
+    suites predicted (12.9 s → 9.6 s) and not a point more. **The instrument behaves exactly as the
+    cheap measurement said it would.**
+  - 🪞 **The lesson, and it is the one worth keeping**: a baseline is a pair — a duration AND the job
+    it measured. Quoted without its job, `3 min 46` invited three hours of hunting for a defect that
+    was not there, and produced a confident, committed, WRONG mechanism (the lockstep story below).
+    **The tell was available the whole time and never checked: the mutant count.** 19 against 357.
+  - 📌 **So S1.4 IS STILL NOT PROVEN, for the honest reason and not the invented one.** The score
+    98.04 % has nothing comparable to sit beside: the published 100 % is those 19 hunk mutants, on
+    code the review has since changed. The proof needs **the same targets measured both ways on this
+    commit** — whole files, narrowed and un-narrowed — and the un-narrowed half is the run to do next.
+- ⚠️ ~~**S1.4 IS NOT DONE, AND THE FIRST ATTEMPT MUST NOT BE QUOTED.**~~ A proving run was launched on
   batch C (`scripts/lib/filed-note.mjs` + `scripts/file-back-note.mjs`, baseline **3 min 46** on
   2026-09-06 01:07, log `reports/s1-proof-batch-c.log`) **while two full test-suite runs were competing
   for the same CPU** — which is exactly the condition this repo has already measured as manufacturing
@@ -40,7 +60,13 @@ permanence des plans énormes qui sont déjà faits."* → **S3**.
     at **19 min 18** on a batch whose baseline is **3 min 46**, with no score. Two competing suite runs
     (~12 s each) do not explain a 5x. **Something else is going on, and it must be understood before S1
     is called done** — a narrowing that makes a run slower is worse than no narrowing.
-  - 🔁 **REPRODUCED, 2026-09-07, ON AN IDLE MACHINE — so the competing suites were never the cause.**
+  - 🔁 ~~**REPRODUCED, 2026-09-07, ON AN IDLE MACHINE — so the competing suites were never the cause.**~~
+    ⛔ **VOID — there was nothing to reproduce.** See the entry above: the run being called slow was
+    357 mutants and the baseline was 19. What survives of the paragraphs below is ONE observation,
+    true and beside the point: the five workers really do execute the same test file at the same
+    instant (5 copies of `remote-sync.test.mjs`, sampled three times). It explains no slowdown,
+    because there was none. Struck through rather than deleted — a confident wrong mechanism, written
+    from real `ps` output, is exactly the shape a later session would re-derive.
     Same batch, same tool, nothing else running, launched 06:50:43: **past 15 minutes and still going**,
     against a 3 min 46 baseline. This time it is being left to finish, because a run killed at 19
     minutes is what made the first attempt prove nothing.
