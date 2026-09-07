@@ -29,10 +29,14 @@ marker. So the instruction guarantees its own repetition, on every prompt, unbou
   named with it** (below), which is why step 2 opens with measuring, not with wiring.
 - **Next:** step 2a, the instrument. Nothing decides on the boot trace until a real restart on a real
   machine has been watched writing it. **Do not skip to 2b.**
-- ⚠️ **PAUSED, and it LOST THE DOOR** _(2026-09-07)_: [#92](https://github.com/tpierrain/kenjaku/issues/92)
-  took the active slot the same day, because it bills real money to real owners every day it is not
-  shipped. This plan is intact and resumes at 2a; its branch is pushed and green. Nothing here was
-  abandoned, it was outranked.
+- ▶️ **THE DOOR IS BACK — and this plan holds the active slot again** _(2026-09-07 night)_.
+  [#92](https://github.com/tpierrain/kenjaku/issues/92) took the slot the same day, because it billed
+  real money to real owners every day it was not shipped; it shipped as
+  [v5.1.1](https://github.com/tpierrain/kenjaku/releases/tag/v5.1.1), and `ACTIVE.md` on `main` now
+  points here. Nothing here was abandoned, it was outranked, and the outranking is over.
+- 🌿 **This branch carries the live plan, and `main` carries a stale copy of it.** `main`'s door says
+  so out loud. It resolves the day this branch merges; until then, **read and write the plan here**.
+  `main` was merged in on 2026-09-07 night so the branch is current and stays mergeable.
 - **Decided while doing step 1** _(2026-09-07)_: the escape hatch is **conditional in prose**, not
   gated on a delivery counter. "Has the owner already restarted?" is answered by the conversation,
   which the model reads and `.cache/` cannot; a counter would call five messages typed *before* a
