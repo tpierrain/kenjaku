@@ -53,8 +53,9 @@ resuming here finishes alone, in this order, and needs nothing from him.
 
 - 🔥 **THIS IS THE ACTIVE PLAN.** The owner's words: *"c'est assez grave"*. It costs real money to
   real people **every day it is not shipped**, and they are the ones who followed the documentation.
-- **Next:** step 1, on the branch `fix/no-ci-in-generated-brains` (it exists, and carries this plan
-  and nothing else). No engine code is written yet.
+- **Next:** 👉 **read the HAND-OFF block above, not this line.** Steps 1 and 2 are DONE and pushed on
+  `fix/no-ci-in-generated-brains`; what remains is the doc sentence, the rehearsal, the merge and the
+  release.
 - 🪤 **A TRAP FOUND BY READING THE CODE, 2026-09-07, and it invalidates step 2 as it was first
   written.** The existing tombstone bucket cannot be merely *widened* to cover a workflow file: it
   deletes only what it can **prove** it delivered, byte for byte, from the brain's recorded
@@ -89,8 +90,10 @@ resuming here finishes alone, in this order, and needs nothing from him.
     would keep running the workflows: this was the second way the fix could have been a no-op.
   - A brain sees an update because of a **semver git tag** (`resolveLatestTag`). So the fix travels
     the moment a tag exists, and not before — the tag IS the delivery.
-- **A session may, alone:** work test-first on a branch off `main`, push every green commit and read
-  its CI. **Not:** touch either of the owner's two real brains, tag, or push to `main`.
+- **A session may, alone:** everything through to the published release — the owner gave that
+  go-ahead explicitly on 2026-09-07 before going to bed, and the hand-off block carries its terms.
+  **Still not:** modify either of his real brains (the rehearsal's read-only copy of `~/mind-palace`
+  is the one sanctioned contact), or close #92 on the merge.
 
 ## 🚑 The emergency question, asked and answered — 2026-09-07
 
