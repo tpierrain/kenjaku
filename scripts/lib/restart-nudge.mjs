@@ -52,12 +52,24 @@ export function restartNudgeSegment(pending) {
 //
 // Wording deliberately reuses the update-engine skill's: a FULL close + reopen, then back to
 // THIS conversation — never a new one, which is the distinct initial-rooting rule.
+//
+// And it carries its own way out (#90). That same instruction — come back to THIS
+// conversation — is what makes the nudge unbounded: resuming a conversation runs no
+// SessionStart, and SessionStart is the only code that erases the marker. Until the marker
+// learns to notice that the app really did restart, the last two sentences are what stops an
+// owner from being told to restart forever by a brain that is already converged.
+//
+// The escape hatch is CONDITIONAL, in prose, and it comes last. "Have they already
+// restarted?" is a question only the conversation can answer — the disk cannot see it — and
+// an owner who reads the exit before doing the restart would silence a nudge they still
+// need, and keep working on the old engine without knowing it.
 export function restartPromptDirective(pending) {
   if (!pending) return null;
   return (
-    "🛑 This conversation is running the OLD engine: newer code is on disk, and a session " +
-    "loads its hooks, skills and servers only at start. Open your reply by telling the " +
-    "owner, calmly and in their own language: fully CLOSE Claude and REOPEN it, then come " +
-    "back to THIS same conversation — do not open a new conversation. Then answer them."
+    "🛑 This conversation is running the OLD engine: a session loads its hooks, skills and " +
+    "servers only at start, and newer code is on disk. Open your reply by telling the owner, " +
+    "calmly and in their own language: fully CLOSE Claude and REOPEN it, then come back to " +
+    "THIS same conversation — do not open a new conversation. If they already did, the marker " +
+    "is stale, not the engine: offer to delete .cache/restart-needed. Then answer them."
   );
 }

@@ -77,6 +77,33 @@ test("restartPromptDirective — nothing pending → nothing injected, on every 
   assert.equal(restartPromptDirective(false), null);
 });
 
+// ─── #90: the loop, and the sentence that ends it ────────────────────────────
+// The directive tells the owner to restart and come back to THIS conversation — and
+// resuming a conversation runs no SessionStart, which is the only place the marker is
+// erased. So obeying the instruction is exactly what keeps it firing, on every prompt,
+// unbounded. The mechanism that will make the marker honest is a separate fix; this is
+// the belt: an owner must never be locked inside a loop whose exit is unwritten.
+//
+// The condition is stated in prose ON PURPOSE, and it is the one thing the disk cannot
+// check: "did they already restart?" is answered by the conversation, which the model
+// reads and `.cache/` does not. Counting deliveries would have been a poor proxy — five
+// messages typed BEFORE a legitimate restart are five repeats, and telling that owner
+// their marker is stale would send them back to work on the old engine.
+test("restartPromptDirective — an owner who already restarted is told the marker is stale, and how to clear it", () => {
+  const directive = restartPromptDirective(true);
+
+  assert.match(directive, /already/i, "the escape hatch is conditioned on the restart having happened");
+  assert.match(directive, /stale/i, "and it names what is actually wrong: the marker, not the engine");
+  assert.match(directive, /\.cache\/restart-needed/, "the marker is named, so the exit is actionable");
+  // Order is the safety. Read the other way round, the first thing an owner sees is a way
+  // to silence a nudge they have not acted on yet — which leaves them on the old engine,
+  // silently, which is the whole failure this nudge exists to prevent.
+  assert.ok(
+    directive.indexOf("REOPEN") < directive.indexOf(".cache/restart-needed"),
+    "the restart is asked for first; the escape hatch is the fallback, never the offer",
+  );
+});
+
 // Its LENGTH is bounded where it is emitted (`scripts/prompt-restart-nudge.test.mjs`),
 // per the F5 audit's convention: the bound belongs to the file that puts the text in the
 // owner's channel, so the guard that hunts unbounded emitters can find it.

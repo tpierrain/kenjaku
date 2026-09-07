@@ -310,9 +310,15 @@ test("what it injects stays short — volume IS the defect (F5)", () => {
   // Harsher than the bound on a session start: this rides EVERY prompt while the restart is
   // pending, so an owner who keeps working reads it again and again. Long enough to say what
   // to do, short enough that re-reading it costs nothing.
+  //
+  // Raised from 360 to 440 for #90, deliberately and once. The sentences bought are the ones
+  // that END the repetition — an owner who already restarted is told the marker is stale and
+  // how to clear it — so the extra volume is what stops the message from being read forever.
+  // Paying ~70 characters per prompt to bound an unbounded nudge is the right side of F5, and
+  // the ceiling stays a ceiling: it does not move again without the same kind of reason.
   const d = deps({ pending: true });
   runPromptNudge(d);
 
   const injected = d.emitted[0].hookSpecificOutput.additionalContext;
-  assert.ok(injected.length <= 360, `the injected directive grew to ${injected.length} chars:\n${injected}`);
+  assert.ok(injected.length <= 440, `the injected directive grew to ${injected.length} chars:\n${injected}`);
 });
