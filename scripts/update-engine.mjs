@@ -417,7 +417,7 @@ function ancestorLines({ unreachable, unmatched }) {
 }
 
 export function formatReport(report) {
-  const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, committed, installedSkills = [], skillsRefreshed = [], skillsPreserved = [], skillsMerged = [], conflicts = [], scriptsRefreshed = [], scriptsPreserved = [], scriptsMerged = [], scriptConflicts = [], doctrineRefreshed = [], doctrinePreserved = [], doctrineMerged = [], doctrineConflicts = [], skillsRetired = [], skillsRetirePreserved = [], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [], statusLineRemoved = false, pointerUnignored = false, divergence = [], divergenceUnreadable = [], healed = [], ancestorsUnreachable = [], ancestorsUnmatched = [] } = report;
+  const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, committed, installedSkills = [], skillsRefreshed = [], skillsPreserved = [], skillsMerged = [], conflicts = [], scriptsRefreshed = [], scriptsPreserved = [], scriptsMerged = [], scriptConflicts = [], doctrineRefreshed = [], doctrinePreserved = [], doctrineMerged = [], doctrineConflicts = [], skillsRetired = [], skillsRetirePreserved = [], workflowsRetired = [], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [], statusLineRemoved = false, pointerUnignored = false, divergence = [], divergenceUnreadable = [], healed = [], ancestorsUnreachable = [], ancestorsUnmatched = [] } = report;
   // F-B2 (ADR 0026): the engine-owned SessionStart hooks wired into an upgrader's
   // settings.json, by their bare name (scripts/session-health.mjs → session-health).
   const wiredHooks = hooksAdded.map(bareHookName);
@@ -481,6 +481,19 @@ export function formatReport(report) {
     );
   }
   lines.push(...skillsRetirePreserved.map(retiredPreservedLine));
+  // #92 — and this one is said in MONEY, not in filenames. The owner's experience of the
+  // defect was a bill and a flood of failure mail from the repository holding their notes;
+  // "2 workflow files removed" would be the one report that fails to connect the fix to
+  // the thing they actually noticed. Silent when nothing was removed, which is almost
+  // every update: an owner must not be told about a rescue that did not happen.
+  if (workflowsRetired.length > 0) {
+    lines.push(
+      "   • your brain has stopped running builds in your GitHub account: it used to carry" +
+        " the launcher's own automated checks, so every note you saved started one (and made" +
+        " it fail). A brain stores and syncs your notes, it never builds anything. The failure" +
+        " mail stops, and so does the cost.",
+    );
+  }
   // S7-3 — the migration's own event, and it belongs HERE: with what appeared, moved on
   // and went, and BEFORE the preserved/merged family lines, because its whole point is
   // that files which would have been listed as "preserved, we cannot tell" no longer are.
@@ -662,6 +675,9 @@ export async function updateEngine({
     // skill that vanished with no sentence beside it is the worst shape of that.
     skillsRetired,
     skillsRetirePreserved,
+    // #92: the other subtractive door's list, carried for the same reason as the pair
+    // above — a field this does not name is a verdict the owner never hears.
+    workflowsRetired,
     skillsRefreshed,
     skillsPreserved,
     skillsMerged,
@@ -868,6 +884,9 @@ export async function updateEngine({
     installedSkills,
     skillsRetired,
     skillsRetirePreserved,
+    // #92: the other subtractive door's list, carried for the same reason as the pair
+    // above — a field this does not name is a verdict the owner never hears.
+    workflowsRetired,
     skillsRefreshed,
     skillsPreserved,
     skillsMerged,
