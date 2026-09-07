@@ -23,8 +23,15 @@ marker. So the instruction guarantees its own repetition, on every prompt, unbou
   mini bug qui est très pénible à fixer … on fait le bug fix ASAP")_. Speed matters more here than on
   anything else open.
 - **The branch is `fix/restart-nudge-escape-hatch`**, off `main`, pushed. It carries step 1 only.
-- **Next:** the owner answers **the one question** below. Until he does, nothing more can be built:
-  step 2 IS the question, and step 3's regression test can only pass once step 2's mechanism exists.
+- ✅ **THE QUESTION IS ANSWERED — the owner chose direction 1** _(2026-09-07)_: the search server
+  leaves a timestamped trace when it is respawned, and a trace newer than the marker means the
+  restart really happened, so the nudge falls silent on its own. He chose it **knowing the unknown
+  named with it** (below), which is why step 2 opens with measuring, not with wiring.
+- **Next:** step 2a, the instrument. Nothing decides on the boot trace until a real restart on a real
+  machine has been watched writing it. **Do not skip to 2b.**
+- ⚠️ **PAUSED, and not for a technical reason** _(2026-09-07)_: the owner switched the session to a
+  live field problem (Romain's duo brain, Aline on Windows, the iCloud Drive question). This plan
+  resumes at 2a, untouched, whenever he comes back to it.
 - **Decided while doing step 1** _(2026-09-07)_: the escape hatch is **conditional in prose**, not
   gated on a delivery counter. "Has the owner already restarted?" is answered by the conversation,
   which the model reads and `.cache/` cannot; a counter would call five messages typed *before* a
@@ -55,7 +62,22 @@ marker. So the instruction guarantees its own repetition, on every prompt, unbou
       above, both recorded in STATE: no delivery counter (the condition is prose), and the "one NEW
       conversation also clears it" half was dropped — the same message forbids opening a new
       conversation two sentences earlier, and one paragraph cannot say both.
-- [ ] **2. The real fix — a marker with an identity** _(pending the owner's call, see STATE)_.
+- [ ] **2. The real fix — the nudge falls silent once the restart has really happened**
+      _(direction 1, the owner's call, 2026-09-07)_.
+  - [ ] **2a. The instrument, and it decides NOTHING.** The search server stamps a boot trace under
+        `.cache/` when it is respawned. Write-only: no verdict reads it yet, so shipping it cannot
+        silence a nudge that is still true. Then a real restart is watched, on a real machine, and
+        the two timestamps are read back.
+  - [ ] **2b. The verdict, wired only on what 2a measured.** A boot trace newer than the marker means
+        the app really restarted → stay silent. Fail towards the nudge: an unreadable or missing
+        trace keeps today's behaviour exactly.
+  - 🙋 **The unknown 2a exists to answer, and it is the whole reason 2b waits**: does coming back to a
+        conversation **without quitting the app** also respawn the search server? If it does, the
+        trace would say "restarted" when nothing restarted, and 2b would silence a true nudge — the
+        false alarm traded for a silent one, which is the worse of the two.
+  - **Why the field evidence already points this way**: #90 shows a full quit + reopen where no
+        SessionStart ran, in a conversation whose search tools still worked. Something was respawned
+        that the session-start path never saw. That gap is exactly what the trace makes visible.
 - [ ] **3. The regression test that would have caught this**: a resumed conversation, marker present,
       no `SessionStart` — the nudge must not repeat forever.
 - [ ] **4. Close [#90](https://github.com/tpierrain/kenjaku/issues/90) only when a real brain has
