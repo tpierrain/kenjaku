@@ -42,6 +42,23 @@ export const JUDGES_ENV = "KENJAKU_MUTATION_JUDGES";
  */
 export const WHOLE_SUITE = 'node --test "scripts/*.test.mjs" "scripts/lib/*.test.mjs"';
 
+/**
+ * The globs {@link WHOLE_SUITE} actually hands `node --test`, read off the command
+ * itself. DERIVED, never restated: a second spelling of `scripts/*.test.mjs` would go
+ * on agreeing with a command that had drifted underneath it — the constant asserted
+ * against itself, which this repo's own catalogue lists as a survivor shape.
+ */
+const SUITE_GLOBS = [...WHOLE_SUITE.matchAll(/"([^"]+)"/g)].map(([, glob]) => glob);
+
+/** `*` matches inside ONE segment and never crosses a `/`. That is the whole guard. */
+const globToRegExp = (glob) =>
+  new RegExp(`^${glob.replace(/[.+^${}()|[\]\\?]/g, "\\$&").replace(/\*/g, "[^/]*")}$`);
+
+const SUITE_MATCHERS = SUITE_GLOBS.map(globToRegExp);
+
+/** Would the baseline command run this file at all? */
+export const runsInWholeSuite = (path) => SUITE_MATCHERS.some((matcher) => matcher.test(path));
+
 const isTest = (path) => path.endsWith(".test.mjs");
 
 /**
@@ -123,6 +140,20 @@ export function judgingTests(sources, targets) {
     const observers = observersOf(target, sources, known);
     if (observers.size === 0) {
       return { files: null, why: `no test can observe ${target} — refusing to narrow the judges` };
+    }
+    // 🚨 A JUDGE THE BASELINE NEVER RAN COULD RAISE A SCORE, and raising is the one
+    // direction this module exists to forbid. The corpus is walked RECURSIVELY while
+    // the suite globs two levels, so the subset property held by accident until here.
+    // Refusing rather than dropping: dropping keeps the arithmetic safe and buries the
+    // real news, which is a test file no run of the suite has ever executed.
+    const stranger = [...observers].find((file) => !runsInWholeSuite(file));
+    if (stranger) {
+      return {
+        files: null,
+        why:
+          `${stranger} can observe ${target}, but the whole suite never runs it (${WHOLE_SUITE}) — ` +
+          "refusing to narrow: a judge the baseline never ran could RAISE a score",
+      };
     }
     for (const observer of observers) all.add(observer);
   }
