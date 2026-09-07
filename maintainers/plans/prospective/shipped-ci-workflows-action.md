@@ -21,7 +21,17 @@ in the owner's own account, and bills it to them.
 
 - 🔥 **THIS IS THE ACTIVE PLAN.** The owner's words: *"c'est assez grave"*. It costs real money to
   real people **every day it is not shipped**, and they are the ones who followed the documentation.
-- **Next:** step 1. Nothing is started, no code is written, no branch exists yet.
+- **Next:** step 1, on the branch `fix/no-ci-in-generated-brains` (it exists, and carries this plan
+  and nothing else). No engine code is written yet.
+- 🪤 **A TRAP FOUND BY READING THE CODE, 2026-09-07, and it invalidates step 2 as it was first
+  written.** The existing tombstone bucket cannot be merely *widened* to cover a workflow file: it
+  deletes only what it can **prove** it delivered, byte for byte, from the brain's recorded
+  provenance (`decideSkillRetirement` → `verifyBase`). A brain in the field records **no provenance
+  at all** for `.github/workflows/**` — those files were in no regime, so nothing ever recorded them
+  — and `engine-fingerprints.json` (the disk-heal table, 15 files) does not carry them either. Every
+  such file would therefore return `preserve / no-provenance` and **step 2 would ship a silent
+  no-op**: the exact failure the whole step exists to avoid. Step 2 below is rewritten for a proof
+  rule that a deployed brain can actually satisfy.
 - ❌ **Warning them by hand is OFF THE TABLE** _(owner's call, 2026-09-07)_. There is no list of
   installed brains, and he judged the human route not workable. **So the fix has to travel by
   itself, through the engine update, and the plan is written for that.** Do not re-propose a Slack
@@ -30,6 +40,13 @@ in the owner's own account, and bills it to them.
   only reaches an existing brain when its owner **updates**. Step 1 alone saves nobody who already
   has a brain. **Step 2 is the one that stops the bleeding**, and step 3 is what makes step 2 arrive.
 - **Blocked on:** nothing. A session may start step 1 immediately.
+- ⏱️ **What a SHORT sitting buys, measured against the code and not guessed** _(asked 2026-09-07:
+  "is half an hour realistic?")_. **Step 1 is a half-hour piece**: one prefix, one test on the real
+  tracked list, one assertion in the installer's end-to-end check. **Step 2 is not**: it is the first
+  thing in this product to delete a file outside `.claude/skills/`, it needs its own module, its own
+  refusals and its own tests, and it only reaches anyone through a release. Treat them as two
+  sittings, and do not let the second be rushed because the first was quick — the plan already says
+  a deletion inside someone's brain is pinned by tests before it ships.
 - **A session may, alone:** work test-first on a branch off `main`, push every green commit and read
   its CI. **Not:** touch either of the owner's two real brains, tag, or push to `main`.
 
@@ -53,16 +70,25 @@ in the owner's own account, and bills it to them.
         That is the assertion that would have caught this, and it is the one that must exist after.
 - [ ] **2. A brain already installed loses them at its next engine update** _(the step that actually
       stops the bleeding)_.
-  - [ ] Today the update has exactly ONE subtractive bucket, `retireSkills` in
-        `scripts/lib/engine-apply-plan.mjs`, and it is scoped to `.claude/skills/`. Widen the
-        tombstone so it can retire a **shipped file outside the skills tree**, keeping every guard
-        that bucket already earned (declared in the manifest, never inferred from an absence,
-        `climbsOut` refused).
+  - **The proof rule, decided 2026-09-07 after the trap above.** The retirement is **by declared
+    path**, not by proven authorship: a deployed brain cannot prove authorship of a file that was
+    never in a regime, so demanding that proof is the same as never deleting. What replaces it is a
+    tombstone that names **exactly the two files the launcher has ever shipped** —
+    `.github/workflows/ci.yml` and `.github/workflows/mutation-nightly.yml` — and nothing else. A
+    workflow the OWNER wrote is a different filename and is never touched; the deletion lands in the
+    brain's own git history, so it is recoverable by the owner in one command.
+  - [ ] Its own narrow module, on the shape of `status-line-retreat.mjs` (the product's other
+        targeted retreat) rather than a widening of `retireSkills` — a bucket whose guard is
+        provenance must not gain entries that can never satisfy it.
+  - [ ] It keeps the guards that are still meaningful: **declared** in the manifest (never inferred
+        from an absence), `climbsOut` refused, and it runs at **update time only** (never at the
+        SessionStart self-heal, whose output goes nowhere).
   - [ ] A hard refusal, tested: a tombstone that names anything under `vault/` is rejected, loudly.
         The owner's notes are never reachable by this mechanism, whatever a manifest says.
-  - [ ] `engine-manifest.json` declares `.github/workflows/**` retired.
   - [ ] The removal is **idempotent and silent when there is nothing to remove**: the overwhelming
         majority of updates must not pay for this, and must say nothing about it.
+  - [ ] When it DOES remove, it says so in one plain sentence: the brain no longer runs a build, and
+        that is why the failure mail stops.
 - [ ] **3. An owner who never opens an update prompt still gets there.** Check what the session-start
       divergence nudge already says when a newer engine exists, and whether it is enough to make
       someone act. If it is, say so here and tick; if it is not, this is where it gets loud, **once**.
