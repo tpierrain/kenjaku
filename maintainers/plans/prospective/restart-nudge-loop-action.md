@@ -29,9 +29,10 @@ marker. So the instruction guarantees its own repetition, on every prompt, unbou
   named with it** (below), which is why step 2 opens with measuring, not with wiring.
 - **Next:** step 2a, the instrument. Nothing decides on the boot trace until a real restart on a real
   machine has been watched writing it. **Do not skip to 2b.**
-- ⚠️ **PAUSED, and not for a technical reason** _(2026-09-07)_: the owner switched the session to a
-  live field problem (Romain's duo brain, Aline on Windows, the iCloud Drive question). This plan
-  resumes at 2a, untouched, whenever he comes back to it.
+- ⚠️ **PAUSED, and it LOST THE DOOR** _(2026-09-07)_: [#92](https://github.com/tpierrain/kenjaku/issues/92)
+  took the active slot the same day, because it bills real money to real owners every day it is not
+  shipped. This plan is intact and resumes at 2a; its branch is pushed and green. Nothing here was
+  abandoned, it was outranked.
 - **Decided while doing step 1** _(2026-09-07)_: the escape hatch is **conditional in prose**, not
   gated on a delivery counter. "Has the owner already restarted?" is answered by the conversation,
   which the model reads and `.cache/` cannot; a counter would call five messages typed *before* a
