@@ -45,6 +45,25 @@ permanence des plans énormes qui sont déjà faits."* → **S3**.
     it measured. Quoted without its job, `3 min 46` invited three hours of hunting for a defect that
     was not there, and produced a confident, committed, WRONG mechanism (the lockstep story below).
     **The tell was available the whole time and never checked: the mutant count.** 19 against 357.
+  - 🔍 **THE SEVEN SURVIVORS, READ AGAINST THE CODE BEFORE THE COMPARISON RUN FINISHES** — named here
+    so the second run is a *verdict* and not a vibe (the one-minute lever S2.0bis found). **Four are
+    provable equivalents, and the proof is a line that runs EARLIER in the same function**:
+    - `filed-note.mjs:37` (twice, `^-+` → `^-` and `-+$` → `-$`). The line above collapses every run of
+      non-alphanumerics into **one** hyphen, so two consecutive hyphens cannot exist by the time the
+      trim runs. Equivalent, and only by reading the previous statement.
+    - `filed-note.mjs:257` (`/\.md$/` → `/\.md/`). The anchor is free because card paths are
+      **slugified**: a `.` cannot survive slugification, so `.md` can only occur at the end.
+    - `file-back-note.mjs:193` (`split(/\s+/)` → `split(/\s/)`). `.trim()` runs first and only `[0]` is
+      taken, so the empty strings the mutant creates sit after the element that is read.
+    - ⚠️ **The three that are NOT equivalents, and none needs a production change**:
+      `filed-note.mjs:114` (`>` → `>=`) is reachable only when **two tiers absent from the declared
+      ranking** meet — `indexOf` returns -1 for both, and the two versions then disagree; the honest
+      answer is probably a guard on an undeclared tier rather than a test of it. The other two are the
+      **composition root**, `"utf-8"` → `""` at `file-back-note.mjs:85` and `:88` — a wiring seam no
+      test traverses, and `:88` is the **stdin** read whose test was deliberately deleted for hanging
+      on Windows. Recorded, not silently accepted.
+    - 📊 **The shape of the count is the whole S2 argument again**: 357 mutants, 7 survivors, **4 of
+      them provable equivalents by reading one line up**, and **zero** requiring a production change.
   - 📌 **So S1.4 IS STILL NOT PROVEN, for the honest reason and not the invented one.** The score
     98.04 % has nothing comparable to sit beside: the published 100 % is those 19 hunk mutants, on
     code the review has since changed. The proof needs **the same targets measured both ways on this
