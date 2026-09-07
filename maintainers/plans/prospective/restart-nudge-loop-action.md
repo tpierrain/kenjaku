@@ -22,8 +22,14 @@ marker. So the instruction guarantees its own repetition, on every prompt, unbou
 - 🔥 **THIS IS THE ACTIVE PLAN, and the owner is BLOCKED BY IT in real use** _(2026-09-07: "j'ai un
   mini bug qui est très pénible à fixer … on fait le bug fix ASAP")_. Speed matters more here than on
   anything else open.
-- **Next:** read [#90](https://github.com/tpierrain/kenjaku/issues/90) in full, then answer **the one
-  design question** below. Nothing is started, no code is written, no branch exists yet.
+- **The branch is `fix/restart-nudge-escape-hatch`**, off `main`, pushed. It carries step 1 only.
+- **Next:** the owner answers **the one question** below. Until he does, nothing more can be built:
+  step 2 IS the question, and step 3's regression test can only pass once step 2's mechanism exists.
+- **Decided while doing step 1** _(2026-09-07)_: the escape hatch is **conditional in prose**, not
+  gated on a delivery counter. "Has the owner already restarted?" is answered by the conversation,
+  which the model reads and `.cache/` cannot; a counter would call five messages typed *before* a
+  legitimate restart a repeat, and send that owner back to work on the old engine. The emitted-length
+  ceiling was raised **360 → 440** once, deliberately, to pay for those sentences.
 - 🙋 **THE ONE QUESTION, and it is the owner's** — the issue lists three directions and deliberately
   decides none:
   1. **Give the marker an identity** the app restart necessarily invalidates (a boot marker the MCP
@@ -42,9 +48,13 @@ marker. So the instruction guarantees its own repetition, on every prompt, unbou
 
 ## Tracking
 
-- [ ] **1. The escape hatch in the directive** _(the belt — smallest thing that unblocks a human)_.
-      After a repeat, the message names the manual way out (`.cache/restart-needed`) and the fact that
-      one NEW conversation also clears it. Test-first on `restartPromptDirective`.
+- [x] **1. The escape hatch in the directive** _(the belt — smallest thing that unblocks a human)_
+      _(2026-09-07 · `596fa20`)_. The message now names the manual way out (`.cache/restart-needed`),
+      **after** the restart instruction and conditioned on the owner having already restarted — so it
+      never silences a nudge that is still true. Shipped as written, with two departures from the line
+      above, both recorded in STATE: no delivery counter (the condition is prose), and the "one NEW
+      conversation also clears it" half was dropped — the same message forbids opening a new
+      conversation two sentences earlier, and one paragraph cannot say both.
 - [ ] **2. The real fix — a marker with an identity** _(pending the owner's call, see STATE)_.
 - [ ] **3. The regression test that would have caught this**: a resumed conversation, marker present,
       no `SessionStart` — the nudge must not repeat forever.
