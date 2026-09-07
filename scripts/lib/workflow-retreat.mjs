@@ -48,6 +48,23 @@ export const SHIPPED_WORKFLOWS = [".github/workflows/ci.yml", ".github/workflows
 // The one directory a retreat may ever reach into.
 const WORKFLOWS_DIR = ".github/workflows/";
 
+// 🗣️ THE SENTENCE, said in MONEY rather than in filenames — the owner's experience of this
+// defect was a bill and a flood of failure mail from the repository holding their notes, so
+// "2 workflow files removed" would be the one report that fails to connect the fix to the
+// thing they actually noticed.
+//
+// It lives HERE, beside the deletion, because two voices say it and they must not drift:
+// `update-engine.mjs` prints it in the update recap, and `reconcile-brain.mjs`'s child
+// process prints it on the ONE run where that recap cannot — the update that performs the
+// rescue is driven by the OLD engine, which has never heard of this sentence, and by the
+// next update there is nothing left to remove. Two copies of a sentence is how one of them
+// quietly becomes false.
+export const BUILDS_STOPPED =
+  "Your brain has stopped running builds in your GitHub account: it used to carry the" +
+  " launcher's own automated checks, so every note you saved started one (and made it fail)." +
+  " A brain stores and syncs your notes, it never builds anything. The failure mail stops," +
+  " and so does the cost.";
+
 /**
  * May this path be removed from a brain? Two refusals, and the second is the one that
  * matters: `startsWith` says where a path BEGINS and has nothing whatever to say about

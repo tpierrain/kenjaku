@@ -27,7 +27,7 @@ import { matchesAny } from "./glob-match.mjs";
 import { installStagedSkills, readStagedProvenance } from "./staged-skills.mjs";
 import { refreshUntouchedSkills } from "./engine-skill-refresh.mjs";
 import { retireDeclaredSkills } from "./skill-retirement-fs.mjs";
-import { retireShippedWorkflows } from "./workflow-retreat.mjs";
+import { retireShippedWorkflows, BUILDS_STOPPED } from "./workflow-retreat.mjs";
 import { refreshEngineScripts } from "./engine-script-refresh.mjs";
 import { refreshEngineDoctrine } from "./engine-doctrine-refresh.mjs";
 import { seedHealthNote } from "./staged-health-note.mjs";
@@ -805,6 +805,16 @@ export function announceWhatTheOldRecapCannot({ brainDir, sourceDir, delivered, 
   // comparison, and a misspelled self-heal would tell a converged brain it was "catching
   // up" every single morning. Not a deletion, but the same defect and the same fix.
   if (isSelfHeal({ brainDir, sourceDir })) return;
+
+  // #92 — AND IT LEADS, because on the release that performs this rescue the catch-up half
+  // below is silent: nothing else arrives, so an owner whose brain just stopped being billed
+  // would hear nothing at all. Its own line rather than a third clause of the sentence
+  // below: what it says is not "you caught up", it is "you have stopped being billed", and
+  // the wording is `BUILDS_STOPPED` so this voice and the update recap's cannot drift.
+  // Silent from the second update on, when there is nothing left to remove — which is the
+  // same silence every other clause here keeps.
+  if ((report.workflowsRetired ?? []).length > 0) emit(`🏗️ ${BUILDS_STOPPED}\n`);
+
   const arrived = Object.keys(delivered).sort();
   const gone = report.skillsRetired ?? [];
   if (arrived.length === 0 && gone.length === 0) return;
