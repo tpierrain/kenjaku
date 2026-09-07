@@ -53,6 +53,20 @@ permanence des plans énormes qui sont déjà faits."* → **S3**.
     the bill is **CPU oversubscription** (each worker's `node --test` forks per file, ~28 processes
     seen at once), not only the breadth of the suite. Measure the narrowed subset's standalone time
     before concluding what S1 bought.
+  - 📏 **TAKEN, 2026-09-07, and it is the number that reframes S1.** In the very worktree Stryker
+    uses, machine otherwise idle, two runs each: **whole suite 12.94 / 12.92 s**, **narrowed to batch
+    C's 50 judges 9.65 / 9.64 s**. So cutting **204 test files down to 50** buys **25 %** of the wall
+    clock, not an order of magnitude.
+    - **What that means, and it is not "S1 failed"**: the suite's cost is **not proportional to the
+      number of test files**. It sits in a handful of heavy ones — the tests that SPAWN a process,
+      exactly the judges the name-matching edge is right to keep (a spawned entry point is invisible
+      to an import graph, and dropping it manufactures a false survivor). **Counting files was the
+      wrong proxy for counting seconds**, all along.
+    - ➡️ **So the speed lever is one level down**: what costs is `node --test` **forking a process per
+      file**, 5 Stryker workers deep, on a 14-core machine. The lever worth measuring next is not a
+      shorter list, it is **the per-mutant process bill** — one runner process reusing a loaded suite
+      rather than 50 fresh ones. Recorded here rather than acted on: S1.4 must first say whether the
+      narrowing is even sound, and the 19-minute anomaly is still unexplained.
 - 🎯 **THE RE-MEASUREMENT THIS PLAN PREDICTED IS NOW ACTUALLY DUE** _(2026-09-06)_. The bullet below
   argued S1 pays for itself because the code review would change already-measured files. § 1 of
   [`v5.1.0-code-review-fixes-action.md`](../archived/v5.1.0-code-review-fixes-action.md) **is now done**, and it
