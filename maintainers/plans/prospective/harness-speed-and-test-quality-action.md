@@ -23,8 +23,13 @@ permanence des plans énormes qui sont déjà faits."* → **S3**.
   owed either way, and running it on the 81-minute instrument pays twice the exact bill this plan
   exists to remove. ✅ **S1 IS DONE — all five steps, 2026-09-07.** The instrument is a third cheaper
   for an identical verdict, and the subset property is now held by construction rather than by luck.
-  🌿 **The work lives on `perf/mutation-instrument-proof`** (branched off `main` at `3f7107e`), green
-  in CI, **not merged — that is the owner's call**. ▶️ **RESUME AT S2**, the quality lever: S2.1 (the re-read of one's own test diff, catalogue in hand)
+  🌿 **The work lives on `perf/mutation-instrument-proof`**, opened as
+  [PR #91](https://github.com/tpierrain/kenjaku/pull/91) on the owner's word (2026-09-07), green in CI.
+  **It goes in BEFORE the #90 bugfix, deliberately**: he asked whether the optimisation would land
+  first, and the answer is that the bugfix branches off `main`, so merging is what makes it inherit
+  the faster instrument.
+  ⏸️ **This plan is no longer the active one** — [#90](https://github.com/tpierrain/kenjaku/issues/90)
+  took the door on 2026-09-07 ("on fait le bug fix ASAP"). Nothing here is in flight. ▶️ **RESUME AT S2**, the quality lever: S2.1 (the re-read of one's own test diff, catalogue in hand)
   and S2.2 (the greppable shapes) are unstarted; S2.0 and S2.0bis already say what they would buy.
   **S3 is untouched** and its trigger is written.
 - ✅ **S1.1 → S1.3 HAVE LANDED** _(2026-09-06, `2876954`, 115 tests green in the mutation workspace)_.
