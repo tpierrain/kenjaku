@@ -1,6 +1,14 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { parseLsFilesZ, filterCopyable, parseLsFilesEolZ, deliversAsLf } from "./tracked-files.mjs";
+
+// The launcher's root, from this file rather than from the runner's cwd: `node --test`
+// is invoked from several places in this repo and a relative root would make the one
+// test that reads the real listing pass or fail on who ran it.
+const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 // ═══════════════════════════════════════════════════════════════════════════
 // W2 — the installer delivers WHAT THE OBJECT STORE HOLDS, not what the
@@ -299,6 +307,36 @@ test("filterCopyable — excludes the eval-set tooling (dev-only: used to choose
     ]),
     ["scripts/verify-rag.mjs", "rag/src/index.ts"],
   );
+});
+
+test("filterCopyable — excludes .github/ (issue #92: a brain that carries the launcher's CI runs a build on every note saved)", () => {
+  assert.deepEqual(
+    filterCopyable([
+      "README.md",
+      ".github/workflows/ci.yml",
+      ".github/workflows/mutation-nightly.yml",
+      ".github/ISSUE_TEMPLATE/bug.md",
+      "rag/src/index.ts",
+    ]),
+    ["README.md", "rag/src/index.ts"],
+  );
+});
+
+test("filterCopyable — NO tracked .github/ path survives, asked of the REAL repo listing", () => {
+  // 🛑 THE ASSERTION THAT WOULD HAVE CAUGHT #92, and it is deliberately not a fixture:
+  // the defect was never that a KNOWN workflow slipped through, it was that nobody had
+  // ever asked the question of the actual file list. A fixture answers about the paths
+  // its author thought of; this answers about the ones the repo really has, so a third
+  // workflow added next year is covered by a test written today.
+  //
+  // Real bytes, real cost measured in the field: 19 runs a day, ~720 GitHub Actions
+  // minutes billed to an owner who had only written notes.
+  const tracked = parseLsFilesZ(execFileSync("git", ["ls-files", "-z"], { cwd: REPO_ROOT, encoding: "utf8" }));
+  // The listing itself must be believable: an empty one would make the real assertion
+  // below pass while proving nothing at all (the silent-negative trap).
+  assert.ok(tracked.some((p) => p.startsWith(".github/")), "the repo really does track .github/ files");
+
+  assert.deepEqual(filterCopyable(tracked).filter((p) => p.startsWith(".github/")), []);
 });
 
 test("filterCopyable — the table BUILDER stays home, the TABLE itself ships", () => {

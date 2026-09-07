@@ -48,6 +48,7 @@ import {
 } from "./lib/engine-seams.mjs";
 import { defaultFinalizeReconcile } from "./lib/auto-finalize.mjs";
 import { defaultCommitEngineWrites } from "./lib/engine-commit.mjs";
+import { BUILDS_STOPPED } from "./lib/workflow-retreat.mjs";
 
 // Re-export so the engine's own tests keep importing the count seam from here.
 export { defaultCountVaultNotes };
@@ -417,7 +418,7 @@ function ancestorLines({ unreachable, unmatched }) {
 }
 
 export function formatReport(report) {
-  const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, committed, installedSkills = [], skillsRefreshed = [], skillsPreserved = [], skillsMerged = [], conflicts = [], scriptsRefreshed = [], scriptsPreserved = [], scriptsMerged = [], scriptConflicts = [], doctrineRefreshed = [], doctrinePreserved = [], doctrineMerged = [], doctrineConflicts = [], skillsRetired = [], skillsRetirePreserved = [], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [], statusLineRemoved = false, pointerUnignored = false, divergence = [], divergenceUnreadable = [], healed = [], ancestorsUnreachable = [], ancestorsUnmatched = [] } = report;
+  const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, committed, installedSkills = [], skillsRefreshed = [], skillsPreserved = [], skillsMerged = [], conflicts = [], scriptsRefreshed = [], scriptsPreserved = [], scriptsMerged = [], scriptConflicts = [], doctrineRefreshed = [], doctrinePreserved = [], doctrineMerged = [], doctrineConflicts = [], skillsRetired = [], skillsRetirePreserved = [], workflowsRetired = [], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [], statusLineRemoved = false, pointerUnignored = false, divergence = [], divergenceUnreadable = [], healed = [], ancestorsUnreachable = [], ancestorsUnmatched = [] } = report;
   // F-B2 (ADR 0026): the engine-owned SessionStart hooks wired into an upgrader's
   // settings.json, by their bare name (scripts/session-health.mjs → session-health).
   const wiredHooks = hooksAdded.map(bareHookName);
@@ -481,6 +482,11 @@ export function formatReport(report) {
     );
   }
   lines.push(...skillsRetirePreserved.map(retiredPreservedLine));
+  // #92 — and this one is said in MONEY, not in filenames; the wording lives beside the
+  // deletion (`BUILDS_STOPPED`), because the reconcile child says the same sentence on the
+  // one run where THIS recap cannot. Silent when nothing was removed, which is almost every
+  // update: an owner must not be told about a rescue that did not happen.
+  if (workflowsRetired.length > 0) lines.push(`   • ${BUILDS_STOPPED}`);
   // S7-3 — the migration's own event, and it belongs HERE: with what appeared, moved on
   // and went, and BEFORE the preserved/merged family lines, because its whole point is
   // that files which would have been listed as "preserved, we cannot tell" no longer are.
@@ -662,6 +668,9 @@ export async function updateEngine({
     // skill that vanished with no sentence beside it is the worst shape of that.
     skillsRetired,
     skillsRetirePreserved,
+    // #92: the other subtractive door's list, carried for the same reason as the pair
+    // above — a field this does not name is a verdict the owner never hears.
+    workflowsRetired,
     skillsRefreshed,
     skillsPreserved,
     skillsMerged,
@@ -868,6 +877,9 @@ export async function updateEngine({
     installedSkills,
     skillsRetired,
     skillsRetirePreserved,
+    // #92: the other subtractive door's list, carried for the same reason as the pair
+    // above — a field this does not name is a verdict the owner never hears.
+    workflowsRetired,
     skillsRefreshed,
     skillsPreserved,
     skillsMerged,

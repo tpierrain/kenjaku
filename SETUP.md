@@ -513,6 +513,11 @@ git config secondbrain.autopush true   # ← enables the hook's automatic push
 The brain will then push **once per turn** (the `Stop` hook), bundling that turn's commits; a failed
 push is non-blocking and retried at the next turn.
 
+> 🏗️ **That repository stores and syncs your notes. It never builds anything.** A brain is data, not
+> software under development: there is no test suite to run on it, so nothing there should ever start
+> a job on GitHub, cost you money, or mail you a failure. If you see Actions running in your brain's
+> repository, that is a defect — update your engine (§10), which removes them.
+
 ### On the second machine — clone, then **rehydrate**
 
 A clone is **not** a working brain yet, and that is normal: two of the files your brain runs on
