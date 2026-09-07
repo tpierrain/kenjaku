@@ -40,6 +40,15 @@ permanence des plans énormes qui sont déjà faits."* → **S3**.
     at **19 min 18** on a batch whose baseline is **3 min 46**, with no score. Two competing suite runs
     (~12 s each) do not explain a 5x. **Something else is going on, and it must be understood before S1
     is called done** — a narrowing that makes a run slower is worse than no narrowing.
+  - 🔁 **REPRODUCED, 2026-09-07, ON AN IDLE MACHINE — so the competing suites were never the cause.**
+    Same batch, same tool, nothing else running, launched 06:50:43: **past 15 minutes and still going**,
+    against a 3 min 46 baseline. This time it is being left to finish, because a run killed at 19
+    minutes is what made the first attempt prove nothing.
+    - 🧩 **And the arithmetic says the test command cannot be the culprit.** The narrowed set is a
+      SUBSET of the whole suite, so its total work is smaller by construction — standalone, 9.6 s
+      against 12.9 s. No uniform slowdown can make the smaller set take longer. **So the cost is not
+      in what the tests do, it is in how the run is driven**, and the next measurement is the one that
+      separates them: both commands timed under 5-way concurrency, the way Stryker actually runs them.
   - ✅ **One suspicion CHECKED and cleared, so nobody re-checks it**: the judge set really is a subset
     of what the whole suite runs (50 judges for batch C, **0 outside** `scripts/*.test.mjs` +
     `scripts/lib/*.test.mjs`). So the slowness is not "we run tests the suite never ran".
