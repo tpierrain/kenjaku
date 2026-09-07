@@ -30,22 +30,43 @@ resuming here finishes alone, in this order, and needs nothing from him.
   tracked listing) and the retreat (`scripts/lib/workflow-retreat.mjs` + 12 tests, wired into
   `reconcile-brain.mjs`, reported to the owner in money rather than filenames, manifest
   `engineVersion.scripts` → `1.16.0`). Every test touching this ran green: 185 + 121 + 39.
+- **✅ Also done, 2026-09-07 night:** step 4's sentence (SETUP §7 + duo mode §2), the field rehearsal
+  (below), the marketing re-read (below), and the defect the rehearsal found — the owner never HEARD
+  the rescue.
 - **▶️ Remaining, in order:**
-  1. Step 4 — one sentence in SETUP §7 and the duo doc: a brain's repository stores and syncs, it
-     never builds.
-  2. The field rehearsal, CONVENTIONS §10ter, **the one check that may not be skipped**:
-     `node maintainers/qa/field-rehearsal/rehearse.mjs --brain ~/mind-palace`. He named that brain
-     himself for this. It **reads the original only** (the copy is taken without `.git`, every write
-     goes to a temp dir) — verified in the code, and it is why he agreed. Exit `0`, and the report
-     must show the two workflow files GONE from the copy.
-  3. PR → merge to `main`. From that moment every newly created brain is clean, with no release.
-  4. Tag `v5.1.1` + `gh release create`, note written for a non-developer first (CONVENTIONS §11):
+  1. PR → merge to `main`. From that moment every newly created brain is clean, with no release.
+  2. Tag `v5.1.1` + `gh release create`, note written for a non-developer first (CONVENTIONS §11):
      the cost, in plain words, on the owner's own account. **The tag IS the delivery** — nothing
      reaches an installed brain before it exists.
-  5. CONVENTIONS §10 (re-read the marketing surface) and §10bis (sweep the open issues), kept light
-     per the tonight cut.
-  6. Comment on [#92](https://github.com/tpierrain/kenjaku/issues/92) — **and do NOT close it**: step
+  3. Comment on [#92](https://github.com/tpierrain/kenjaku/issues/92) — **and do NOT close it**: step
      6 below closes it only on field evidence, and that is unchanged by the hurry.
+
+### 🔬 The rehearsal, and the defect it found — 2026-09-07 night
+
+Run twice, `--tag v5.1.1` (the first run, at the default `--tag v5.0.0`, proved nothing: the copy is
+installed at **v5.1.0**, so `resolveLatestTag` picked the published v5.1.0 over the forced tag and the
+trial updated the brain to the code it already had. **A rehearsal must force a tag ABOVE the copy's
+installed version, or it silently rehearses nothing** — worth knowing before the next one).
+
+- ✅ **Exit `0`. Both workflow files GONE from the copy**, and the deletion is inside the update's own
+  commit (`engine: update to v5.1.1`, 217 deletions) — so it survives, and GitHub stops running them.
+- ✅ **The owner's territory byte-identical.** The update touched nothing he owns.
+- 🚨 **And the report said NOTHING about it** — the one thing no unit test could see. The recap an
+  owner reads is printed by the engine that RAN the update, the **old** one, which has never heard of
+  this release's sentence; by the next update there is nothing left to remove, so the sentence would
+  have landed **never**. The rescue would have been a silent deletion of two files inside someone's
+  repository. Fixed where the codebase already solved this exact problem: the reconcile child's
+  stdout is inherited by the old parent, and `announceWhatTheOldRecapCannot` exists for precisely
+  that moment. Four tests, red first; the wording moved to `BUILDS_STOPPED` beside the deletion so
+  the two voices cannot drift. Re-rehearsed: the sentence is on screen.
+
+### 📣 CONVENTIONS §10 — the marketing surface, re-read 2026-09-07 night
+
+**Verdict: nothing to change, and no board to re-render.** README, EN-QUOI-C-EST-DIFFERENT, SETUP,
+CONNECTORS and the board copy were swept for every claim about builds, CI, Actions and workflows: the
+only hits are *"builds your brain"* (the installer) and *"the index rebuilds itself"*. Neither is
+about this. Nothing became false, and there is nothing new to sell — a defect removed is not a
+capability. Recorded per §10 because *"checked"* and *"not looked at"* must be distinguishable.
 - **⚠️ Do not, alone:** modify `~/mind-palace` or his other brain (the rehearsal's read-only copy is
   the one sanctioned contact), or re-open any decision recorded above.
 
@@ -53,9 +74,9 @@ resuming here finishes alone, in this order, and needs nothing from him.
 
 - 🔥 **THIS IS THE ACTIVE PLAN.** The owner's words: *"c'est assez grave"*. It costs real money to
   real people **every day it is not shipped**, and they are the ones who followed the documentation.
-- **Next:** 👉 **read the HAND-OFF block above, not this line.** Steps 1 and 2 are DONE and pushed on
-  `fix/no-ci-in-generated-brains`; what remains is the doc sentence, the rehearsal, the merge and the
-  release.
+- **Next:** 👉 **read the HAND-OFF block above, not this line.** Steps 1, 2 and 4 are DONE and pushed
+  on `fix/no-ci-in-generated-brains`, the rehearsal passed and the marketing re-read is recorded;
+  what remains is the merge, the tag, the release note and the comment on #92.
 - 🪤 **A TRAP FOUND BY READING THE CODE, 2026-09-07, and it invalidates step 2 as it was first
   written.** The existing tombstone bucket cannot be merely *widened* to cover a workflow file: it
   deletes only what it can **prove** it delivered, byte for byte, from the brain's recorded
@@ -203,9 +224,16 @@ blast radius.
 - [ ] **3. An owner who never opens an update prompt still gets there.** Check what the session-start
       divergence nudge already says when a newer engine exists, and whether it is enough to make
       someone act. If it is, say so here and tick; if it is not, this is where it gets loud, **once**.
-- [ ] **4. Setting up a remote says what the repository will and will not do.** One sentence in
-      SETUP §7 and in the duo doc: a brain's repository stores and syncs, it never builds. Cheap, and
-      it is the sentence whose absence let this run for days without anyone suspecting the product.
+  - ⏸️ **NOT in the tonight cut, and deliberately** _(2026-09-07 night)_. It is the one step that
+    changes a **standing** surface — a line every owner reads at every session start — so it is the
+    one place a hurried judgement would cost the most, and it stops nobody's bleeding tonight: an
+    owner who does update gets the fix regardless. It waits for a session with room to read what the
+    nudge says today before making it louder. **The release ships without it.**
+- [x] **4. Setting up a remote says what the repository will and will not do.** _(2026-09-07 · `fix/no-ci-in-generated-brains`)_
+      One sentence in SETUP §7 and in the duo doc: a brain's repository stores and syncs, it never
+      builds. Cheap, and it is the sentence whose absence let this run for days without anyone
+      suspecting the product. Said in the owner's own terms (cost, failure mail) and paired with what
+      to do about it — updating the engine — so it reads as a defect to fix, never as a fact of life.
 - [ ] **5. Release it, and treat it as the reason for the release.** The release note names the cost
       in plain words (money, on the owner's account) rather than filing it as a fix among others.
 - [ ] **6. Close [#92](https://github.com/tpierrain/kenjaku/issues/92) only when a real brain that had
