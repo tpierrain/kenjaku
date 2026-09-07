@@ -17,7 +17,22 @@
 and `mutation-nightly.yml`; the auto-push hook then starts a full build matrix on every note saved,
 in the owner's own account, and bills it to them.
 
-## 🌙 HAND-OFF — written to survive a cleared context, 2026-09-07 evening
+## ✅ SHIPPED — [v5.1.1](https://github.com/tpierrain/kenjaku/releases/tag/v5.1.1), 2026-09-07 night
+
+**The release is published and the hand-off below is spent.** Merged as
+[#93](https://github.com/tpierrain/kenjaku/pull/93) (`c10e4b5`, checks green on `main` before the
+tag), tagged `v5.1.1 — The One Where Your Brain Stops Running Builds`, note published and verified
+**with the real parser** (`extractWhatYouGet` quotes all 13 lines of `What you get`, so the consent
+prose is the note and not a fallback to the title). Commented on
+[#92](https://github.com/tpierrain/kenjaku/issues/92) **without closing it**.
+
+**Two things remain, and neither is tonight's:**
+
+- **Step 6 — closing #92**, on field evidence: a real brain that had the workflows, seen losing them
+  at an actual update. The rehearsal is not that, by the issue's own closing condition.
+- **Step 3 — the nudge**, deliberately left out of the tonight cut; the reason is under its checkbox.
+
+## 🌙 HAND-OFF — spent, kept for the record — 2026-09-07 evening
 
 The owner gave the go-ahead **including publishing the release**, then went to bed. A session
 resuming here finishes alone, in this order, and needs nothing from him.
@@ -72,11 +87,12 @@ capability. Recorded per §10 because *"checked"* and *"not looked at"* must be 
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-07
 
-- 🔥 **THIS IS THE ACTIVE PLAN.** The owner's words: *"c'est assez grave"*. It costs real money to
-  real people **every day it is not shipped**, and they are the ones who followed the documentation.
-- **Next:** 👉 **read the HAND-OFF block above, not this line.** Steps 1, 2 and 4 are DONE and pushed
-  on `fix/no-ci-in-generated-brains`, the rehearsal passed and the marketing re-read is recorded;
-  what remains is the merge, the tag, the release note and the comment on #92.
+- ✅ **NO LONGER THE ACTIVE PLAN — the release is out.** Read the SHIPPED block above. What is left
+  is a **wait**, not work: #92 closes on field evidence (step 6), and the nudge (step 3) waits for a
+  session with room. Nothing here is blocking, and nothing here is in flight.
+- **Next:** 👉 nothing to resume here. The one thing a future session does with this file is close
+  #92 the day a real brain is seen losing the workflows at an update — or pick step 3 up
+  deliberately, having read what the nudge says today.
 - 🪤 **A TRAP FOUND BY READING THE CODE, 2026-09-07, and it invalidates step 2 as it was first
   written.** The existing tombstone bucket cannot be merely *widened* to cover a workflow file: it
   deletes only what it can **prove** it delivered, byte for byte, from the brain's recorded
@@ -234,8 +250,11 @@ blast radius.
       builds. Cheap, and it is the sentence whose absence let this run for days without anyone
       suspecting the product. Said in the owner's own terms (cost, failure mail) and paired with what
       to do about it — updating the engine — so it reads as a defect to fix, never as a fact of life.
-- [ ] **5. Release it, and treat it as the reason for the release.** The release note names the cost
-      in plain words (money, on the owner's account) rather than filing it as a fix among others.
+- [x] **5. Release it, and treat it as the reason for the release.** _(2026-09-07 · `c10e4b5` ·
+      [v5.1.1](https://github.com/tpierrain/kenjaku/releases/tag/v5.1.1))_ The release note names the
+      cost in plain words (money, on the owner's account) rather than filing it as a fix among
+      others. §11 shape honoured, and the `What you get` section verified quotable by running the
+      real `extractWhatYouGet` over the **published** body, not the draft.
 - [ ] **6. Close [#92](https://github.com/tpierrain/kenjaku/issues/92) only when a real brain that had
       the workflows has been seen losing them on update** — not on the merge. The issue's evidence is
       field evidence, and so is its closure.
