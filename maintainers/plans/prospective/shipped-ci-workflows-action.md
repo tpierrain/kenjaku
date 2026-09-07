@@ -40,6 +40,9 @@ in the owner's own account, and bills it to them.
   only reaches an existing brain when its owner **updates**. Step 1 alone saves nobody who already
   has a brain. **Step 2 is the one that stops the bleeding**, and step 3 is what makes step 2 arrive.
 - **Blocked on:** nothing. A session may start step 1 immediately.
+- 🚑 **Do not re-propose an emergency kill switch.** There is none, and why is written below, in
+  *The emergency question*: we cannot reach anyone's GitHub, and no engine code reaches a brain
+  without its owner updating. The `[skip ci]` half-measure was weighed there and left conditional.
 - ⏱️ **What a SHORT sitting buys, measured against the code and not guessed** _(asked 2026-09-07:
   "is half an hour realistic?")_. **Step 1 is a half-hour piece**: one prefix, one test on the real
   tracked list, one assertion in the installer's end-to-end check. **Step 2 is not**: it is the first
@@ -49,6 +52,44 @@ in the owner's own account, and bills it to them.
   a deletion inside someone's brain is pinned by tests before it ships.
 - **A session may, alone:** work test-first on a branch off `main`, push every green commit and read
   its CI. **Not:** touch either of the owner's two real brains, tag, or push to `main`.
+
+## 🚑 The emergency question, asked and answered — 2026-09-07
+
+> *"Can't we urgently disable the ability to run actions in all the second brains?"*
+
+**There is no fast lane, and the reason is worth stating once so it is never re-hoped for.**
+
+- **We cannot reach anyone's GitHub.** Each brain lives in its owner's own account. There is no list
+  of them, no credential, no fleet control. Nothing we write can turn Actions off over there.
+- **And nothing arrives in a brain by itself.** Checked in the code rather than assumed: the only
+  automatic mechanism a brain runs at session start is the self-heal, and it re-converges the brain
+  **from its own on-disk files, with no network** (`sourceDir === brainDir`). New engine code reaches
+  a brain **only** when its owner runs an update. By design (updates are opt-in), and that design is
+  not being re-opened over this.
+- **So every candidate fix reaches the same person, at the same moment, through the same door.**
+  "Urgent" therefore cannot mean *reach people sooner*; it can only mean *be publishable sooner*.
+
+**The cheap candidate, considered seriously and NOT retained by default.** Mark the brain's automatic
+commits with `[skip ci]` (one constant, `COMMIT_MESSAGE` in `scripts/lib/vault-commit.mjs`, already
+in the `merge` regime so it already travels). GitHub starts no run on a commit carrying that mark.
+
+- ✅ It would kill the ~19 push-triggered matrix runs a day, which is nearly the whole bill, for one
+  line and no new deletion machinery at all.
+- ❌ It does **not** stop `mutation-nightly.yml`: that one is on a schedule and fires with no push.
+  The failure mail keeps arriving, nightly, from the repository holding someone's notes.
+- ❌ It brands **every** note commit in **every** brain, forever, with a CI marker that describes a
+  problem those brains will no longer have.
+- ❌ And it spends the one thing that is actually scarce: **a release**. Both halves travel only in a
+  published engine version, so shipping the half-measure first means the real fix waits for the
+  release after it.
+
+**Decision:** the deletion (step 2) stays the fix. `[skip ci]` becomes worth its cost **only if step
+2 cannot be done within a few days** — a longer wait is what would buy back its downsides. That
+condition is the owner's to evaluate, and it is recorded here rather than re-derived.
+
+**What DOES land immediately:** step 1 needs no release at all. A brain is installed from a clone of
+the launcher's default branch, so the moment step 1 is merged to `main`, **every brain created from
+then on is clean**. That is the one half with no delivery problem, and it is why it goes first.
 
 ## What this plan is NOT allowed to become
 
