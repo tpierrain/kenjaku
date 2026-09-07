@@ -47,8 +47,28 @@ permanence des plans énormes qui sont déjà faits."* → **S3**.
     - 🧩 **And the arithmetic says the test command cannot be the culprit.** The narrowed set is a
       SUBSET of the whole suite, so its total work is smaller by construction — standalone, 9.6 s
       against 12.9 s. No uniform slowdown can make the smaller set take longer. **So the cost is not
-      in what the tests do, it is in how the run is driven**, and the next measurement is the one that
-      separates them: both commands timed under 5-way concurrency, the way Stryker actually runs them.
+      in what the tests do, it is in how the run is driven.**
+    - 🔬 **THE MECHANISM, WATCHED LIVE AND SAMPLED THREE TIMES RUNNING — THE FIVE WORKERS MARCH IN
+      LOCKSTEP.** `ps` during the run shows 5 copies of `scripts/remote-sync.test.mjs`, 4 of
+      `scripts/lib/notes-union-merge.test.mjs` and 4 of `scripts/author-identity.test.mjs` executing
+      **at the same instant**, 36 node processes, load 29 on 14 cores. Individual test files that take
+      under 9.6 s for the whole set when alone are taking **12 to 24 s each** in there.
+      - **Why narrowing made it worse, and it is not a paradox.** Stryker runs 5 workers, each
+        executing the *same* sorted list from the same start. The tests that dominate are the ones
+        that spawn real `git` and real processes, and they contend **superlinearly** — disk, process
+        spawn, locks — so N simultaneous copies cost far more than N times one. With 204 files those
+        heavy tests are diluted: each worker has 13 files in flight, mostly cheap, and the heavy ones
+        drift apart. With 50 files the same 13 slots are mostly heavy, so ~13 heavy processes collide
+        instead of ~5. **The cheap tests were acting as a desynchroniser**, and the narrowing deleted
+        them.
+      - ➡️ **So S1's lever was aimed one level too high.** What costs is not which tests run, it is
+        **5 concurrent copies of the same spawn-heavy tests**. The candidates to measure next, in
+        order of expected payback: (a) drop `concurrency` for spawn-heavy batches and see the wall
+        clock *fall*; (b) make the heavy tests cheap or isolate their contention; (c) only then think
+        about the list of judges.
+      - ⚠️ **And the narrowing is still worth keeping** — the safety property is what it buys, not the
+        speed: judges that cannot observe a target manufacture no kills. But **S1.5 must not be
+        written as if a speed promise had been kept.**
   - ✅ **One suspicion CHECKED and cleared, so nobody re-checks it**: the judge set really is a subset
     of what the whole suite runs (50 judges for batch C, **0 outside** `scripts/*.test.mjs` +
     `scripts/lib/*.test.mjs`). So the slowness is not "we run tests the suite never ran".
