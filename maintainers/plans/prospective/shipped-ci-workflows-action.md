@@ -17,6 +17,38 @@
 and `mutation-nightly.yml`; the auto-push hook then starts a full build matrix on every note saved,
 in the owner's own account, and bills it to them.
 
+## 🌙 HAND-OFF — written to survive a cleared context, 2026-09-07 evening
+
+The owner gave the go-ahead **including publishing the release**, then went to bed. A session
+resuming here finishes alone, in this order, and needs nothing from him.
+
+- **Branch:** `fix/no-ci-in-generated-brains`. **Release to cut:** `v5.1.1` (a fix on `v5.1.0`).
+- **Release title:** `v5.1.1 — The One Where Your Notes Stop Costing You Money` _(the series is
+  Friends-style, `vX.Y.Z — The One …`, and the em dash is the series convention: English title, do
+  not strip it)_. If he answered with another title before clearing, HIS wins.
+- **✅ Done and pushed:** the copy fix (`.github/` is dev-only, pinned by a test that asks the real
+  tracked listing) and the retreat (`scripts/lib/workflow-retreat.mjs` + 12 tests, wired into
+  `reconcile-brain.mjs`, reported to the owner in money rather than filenames, manifest
+  `engineVersion.scripts` → `1.16.0`). Every test touching this ran green: 185 + 121 + 39.
+- **▶️ Remaining, in order:**
+  1. Step 4 — one sentence in SETUP §7 and the duo doc: a brain's repository stores and syncs, it
+     never builds.
+  2. The field rehearsal, CONVENTIONS §10ter, **the one check that may not be skipped**:
+     `node maintainers/qa/field-rehearsal/rehearse.mjs --brain ~/mind-palace`. He named that brain
+     himself for this. It **reads the original only** (the copy is taken without `.git`, every write
+     goes to a temp dir) — verified in the code, and it is why he agreed. Exit `0`, and the report
+     must show the two workflow files GONE from the copy.
+  3. PR → merge to `main`. From that moment every newly created brain is clean, with no release.
+  4. Tag `v5.1.1` + `gh release create`, note written for a non-developer first (CONVENTIONS §11):
+     the cost, in plain words, on the owner's own account. **The tag IS the delivery** — nothing
+     reaches an installed brain before it exists.
+  5. CONVENTIONS §10 (re-read the marketing surface) and §10bis (sweep the open issues), kept light
+     per the tonight cut.
+  6. Comment on [#92](https://github.com/tpierrain/kenjaku/issues/92) — **and do NOT close it**: step
+     6 below closes it only on field evidence, and that is unchanged by the hurry.
+- **⚠️ Do not, alone:** modify `~/mind-palace` or his other brain (the rehearsal's read-only copy is
+  the one sanctioned contact), or re-open any decision recorded above.
+
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-07
 
 - 🔥 **THIS IS THE ACTIVE PLAN.** The owner's words: *"c'est assez grave"*. It costs real money to
@@ -133,14 +165,17 @@ blast radius.
 
 ## Tracking
 
-- [ ] **1. A newly created brain carries no CI at all.**
-  - [ ] `.github/` joins `DEV_ONLY_PREFIXES` in `scripts/lib/tracked-files.mjs`, the way
+- [x] **1. A newly created brain carries no CI at all.** _(2026-09-07 · `fix/no-ci-in-generated-brains`)_
+  - [x] `.github/` joins `DEV_ONLY_PREFIXES` in `scripts/lib/tracked-files.mjs`, the way
         `maintainers/` already does.
-  - [ ] Test-first in `tracked-files.test.mjs`: `filterCopyable` keeps no `.github/` path. Assert on
-        the real tracked list, not a fixture, so a workflow added later is caught too.
-  - [ ] The installer's end-to-end check asserts the generated brain has **no `.github/` directory**.
+  - [x] Test-first in `tracked-files.test.mjs`: `filterCopyable` keeps no `.github/` path. Asserted on
+        the real tracked list, not a fixture, so a workflow added later is caught too. It first
+        asserts the repo really tracks `.github/` files, so an empty listing cannot pass for a clean
+        one.
+  - [ ] _(deferred past the tonight cut, and it is the one deferral: the real-listing test above
+        covers the same defect without a Windows install run.)_ The installer's end-to-end check asserts the generated brain has **no `.github/` directory**.
         That is the assertion that would have caught this, and it is the one that must exist after.
-- [ ] **2. A brain already installed loses them at its next engine update** _(the step that actually
+- [x] **2. A brain already installed loses them at its next engine update** _(2026-09-07 · same branch)_ _(the step that actually
       stops the bleeding)_.
   - **The proof rule, decided 2026-09-07 after the trap above.** The retirement is **by declared
     path**, not by proven authorship: a deployed brain cannot prove authorship of a file that was
@@ -149,17 +184,18 @@ blast radius.
     `.github/workflows/ci.yml` and `.github/workflows/mutation-nightly.yml` — and nothing else. A
     workflow the OWNER wrote is a different filename and is never touched; the deletion lands in the
     brain's own git history, so it is recoverable by the owner in one command.
-  - [ ] Its own narrow module, on the shape of `status-line-retreat.mjs` (the product's other
+  - [x] Its own narrow module, on the shape of `status-line-retreat.mjs` (the product's other
         targeted retreat) rather than a widening of `retireSkills` — a bucket whose guard is
         provenance must not gain entries that can never satisfy it.
-  - [ ] It keeps the guards that are still meaningful: **declared** in the manifest (never inferred
+  - [x] It keeps the guards that are still meaningful: **declared** in the manifest (never inferred
         from an absence), `climbsOut` refused, and it runs at **update time only** (never at the
         SessionStart self-heal, whose output goes nowhere).
-  - [ ] A hard refusal, tested: a tombstone that names anything under `vault/` is rejected, loudly.
+  - [x] A hard refusal, tested: anything not anchored under `.github/workflows/` is refused, and a
+        path that begins there and climbs back out to `vault/` with it.
         The owner's notes are never reachable by this mechanism, whatever a manifest says.
-  - [ ] The removal is **idempotent and silent when there is nothing to remove**: the overwhelming
+  - [x] The removal is **idempotent and silent when there is nothing to remove**: the overwhelming
         majority of updates must not pay for this, and must say nothing about it.
-  - [ ] When it DOES remove, it says so in one plain sentence: the brain no longer runs a build, and
+  - [x] When it DOES remove, it says so in one plain sentence: the brain no longer runs a build, and
         that is why the failure mail stops.
 - [ ] **3. An owner who never opens an update prompt still gets there.** Check what the session-start
       divergence nudge already says when a newer engine exists, and whether it is enough to make
