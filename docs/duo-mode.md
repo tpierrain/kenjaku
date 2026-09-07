@@ -86,6 +86,11 @@ only administrative gesture, and it is a real decision.
 > That has been true since the day you wired a remote, and it is why the repository is **private**.
 > Sharing a brain is the decision to share a machine, not the decision to share a document.
 
+> 🏗️ **The repository stores and syncs. It never builds.** Two people writing notes all day is still
+> just notes arriving: nothing there should ever start a job on GitHub, bill either of you, or mail
+> anyone a failure. If Actions are running in a shared brain, that is a defect — update the engine
+> and they go away.
+
 ## 3. Joining — about ten minutes, once
 
 From the person joining, on their own computer:

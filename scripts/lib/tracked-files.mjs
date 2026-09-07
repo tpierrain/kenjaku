@@ -97,6 +97,18 @@ export function deliversAsLf(info) {
 const DEV_ONLY_FILES = new Set(["DEVELOPING.md", "EN-QUOI-C-EST-DIFFERENT.md"]);
 const DEV_ONLY_PREFIXES = [
   "maintainers/",
+  // 🔥 .github/ — the launcher's OWN continuous integration, and issue #92 is what its
+  // absence from this list cost. A brain is DATA: there is no build to run and no test
+  // to gate. But a brain wired to a remote pushes once per turn, so every note saved
+  // started a full build matrix in the OWNER'S GitHub account — measured in the field at
+  // 19 runs a day and ~720 Actions minutes billed, against a free allowance of 2,000, to
+  // someone who had only written notes. The scheduled nightly ran on top, forever, and
+  // every run was red because a brain is not the launcher.
+  // The whole directory, not the two workflow files: an issue template or a funding file
+  // has no more business in a brain, and naming the tree means the next thing added under
+  // it is covered without anyone remembering this. Pinned by a test that asks the REAL
+  // tracked listing rather than a fixture.
+  ".github/",
   "scripts/run-eval.mjs",
   "scripts/lib/eval-",
   "scripts/lib/mcp-search",

@@ -779,6 +779,63 @@ test("T8 — a launcher path that merely starts with the brain's still announces
   );
 });
 
+// ── #92: THE BUILDS SENTENCE, and why it can only be said HERE ───────────────
+//
+// The rescue itself is proven elsewhere (workflow-retreat.test.mjs, and the field
+// rehearsal): the two workflow files are deleted and the deletion is committed. What is
+// proven here is that the owner HEARS it — and the field rehearsal on a real brain is
+// what showed that they did not. `update-engine.mjs` carries the sentence, but the engine
+// that RUNS this update is the old one, which does not have it; the sentence would land
+// only on a second update, where there is nothing left to remove. So it never lands at
+// all. This child's stdout is inherited by that old parent: the same one voice the
+// catch-up line already uses, for the same one reason.
+//
+// It is a SEPARATE line, not a third clause of the catch-up sentence, because on this
+// release the catch-up half is silent — nothing else arrives — and because what it says
+// is not "you caught up", it is "you have stopped being billed".
+
+test("#92 — the builds sentence is said even when nothing else arrived", async () => {
+  const said = await catchUp({ report: { workflowsRetired: [".github/workflows/ci.yml", ".github/workflows/mutation-nightly.yml"] } });
+  assert.deepEqual(said, [
+    "🏗️ Your brain has stopped running builds in your GitHub account: it used to carry the " +
+      "launcher's own automated checks, so every note you saved started one (and made it fail). " +
+      "A brain stores and syncs your notes, it never builds anything. The failure mail stops, " +
+      "and so does the cost.\n",
+  ]);
+});
+
+test("#92 — the builds sentence leads, and the catch-up line follows it", async () => {
+  // Order is the contract, not an accident: this is the headline of the release the owner
+  // just installed, and a line about refreshed engine files is not.
+  const said = await catchUp({
+    delivered: { "CLAUDE.engine.md": "a1" },
+    report: { skillsRetired: [], workflowsRetired: [".github/workflows/ci.yml"] },
+  });
+  assert.equal(said.length, 2);
+  assert.ok(said[0].startsWith("🏗️ Your brain has stopped running builds"), said[0]);
+  assert.deepEqual(said[1], [
+    "🔓 Catching up: your brain just received 1 engine file it had stopped getting updates for " +
+      "(CLAUDE.engine.md). Your own edits were kept.\n",
+  ][0]);
+});
+
+test("#92 — an update that removed no workflow says nothing about builds", async () => {
+  // The overwhelming majority of updates, forever after this one. An owner must not be
+  // told about a rescue that did not happen.
+  assert.deepEqual(await catchUp({ report: { skillsRetired: [], workflowsRetired: [] } }), []);
+});
+
+test("#92 — a self-heal never says it, whatever it thinks it removed", async () => {
+  assert.deepEqual(
+    await catchUp({
+      brainDir: "/brain",
+      sourceDir: "/brain",
+      report: { workflowsRetired: [".github/workflows/ci.yml"] },
+    }),
+    [],
+  );
+});
+
 // The negative pole, and it is the load-bearing one: this line may never appear on the
 // steady state. A converged brain re-opened every day would otherwise be told, at every
 // session start, about an update that happened once.

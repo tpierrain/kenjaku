@@ -9,15 +9,18 @@ No memory lookup, no ROADMAP scan, no grep. Sub-plans are reached **through** it
 
 ## The active plan
 
-- **Subject:** the restart nudge loops forever, and obeying it is what keeps it alive
-  ([#90](https://github.com/tpierrain/kenjaku/issues/90)) — the owner is blocked by it in real use.
-- **Plan:** [`prospective/restart-nudge-loop-action.md`](prospective/restart-nudge-loop-action.md)
-- **Active since:** 2026-09-07 _(owner's call: "on fait le bug fix ASAP")_
+- **Subject:** a generated brain ships the launcher's CI, so every note saved runs a build matrix in
+  the owner's own GitHub account ([#92](https://github.com/tpierrain/kenjaku/issues/92)) — it bills
+  real money to real people, every day it is not shipped.
+- **Plan:** [`prospective/shipped-ci-workflows-action.md`](prospective/shipped-ci-workflows-action.md)
+- **Active since:** 2026-09-07 _(owner's call: "c'est assez grave")_
 
 ## Open, but NOT active
 
 Links only — each one's own `## 📍 STATE` block says whose it is and where it stands.
 
+- [`prospective/restart-nudge-loop-action.md`](prospective/restart-nudge-loop-action.md) — **was
+  active earlier the same day**; its belt is shipped on a branch, and it resumes at its step 2a.
 - [`prospective/harness-speed-and-test-quality-action.md`](prospective/harness-speed-and-test-quality-action.md)
   — **its speed half is done and shipped**; the quality and record halves are where it resumes.
 - [`prospective/clear-the-tracker-action.md`](prospective/clear-the-tracker-action.md) — **was active
