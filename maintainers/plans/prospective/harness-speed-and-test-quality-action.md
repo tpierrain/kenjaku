@@ -62,6 +62,15 @@ permanence des plans énormes qui sont déjà faits."* → **S3**.
       **composition root**, `"utf-8"` → `""` at `file-back-note.mjs:85` and `:88` — a wiring seam no
       test traverses, and `:88` is the **stdin** read whose test was deliberately deleted for hanging
       on Windows. Recorded, not silently accepted.
+    - 🚨 **AND `:85` IS NOT AN ORDINARY WIRING SURVIVOR — IT REPLAYS A BUG THIS REPO ALREADY SHIPPED.**
+      The line's own comment says why the encoding is there: *"readFileSync as TEXT, not the raw
+      Buffer form: the pointer reader trims what it reads, and a Buffer has no `.trim()` (it threw on
+      any brain past one universe)."* So a defect was met in the field, fixed by that argument, the
+      reason was written down beside it — **and no test was added**. The mutant removes exactly that
+      argument and walks away alive. **This is the strongest single argument in the whole plan for
+      S2**: the catalogue's "wiring seam no test traverses" is not a theoretical shape here, it is the
+      shape of a bug that reached a real brain, and the mutation run is the only thing that noticed
+      the hole is still open.
     - 📊 **The shape of the count is the whole S2 argument again**: 357 mutants, 7 survivors, **4 of
       them provable equivalents by reading one line up**, and **zero** requiring a production change.
   - 📌 **So S1.4 IS STILL NOT PROVEN, for the honest reason and not the invented one.** The score
