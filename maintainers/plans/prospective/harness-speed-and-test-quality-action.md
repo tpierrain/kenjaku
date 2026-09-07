@@ -184,15 +184,19 @@ and a five-minute re-read of my own test diff would have caught it without start
 
 ### S1. A mutation run judges a file with the tests that can SEE it _(the speed lever)_
 
-- [ ] **S1.1** `mutate-one.mjs` composes the runner's command from its targets: the target's own
+- [x] **S1.1** `mutate-one.mjs` composes the runner's command from its targets: the target's own
       `*.test.mjs` twin **plus every test file whose import graph reaches the target** (transitive, not
       just the twin). A mutant killed only by a distant test must not read as a survivor.
-- [ ] **S1.2** The safety property is stated in the file and asserted by a test: **narrowing the judges
+      _(2026-09-06 · `2876954` — plus the name edge, for the tests that SPAWN a script and import nothing)_
+- [x] **S1.2** The safety property is stated in the file and asserted by a test: **narrowing the judges
       can only lower a score, never raise it.** Removing tests removes kills; it cannot invent one. This
       is the one direction this repo's whole warning apparatus (T13, the flaky-suite box, the false-timeout
-      guard) exists to protect, and the change moves *with* it.
-- [ ] **S1.3** A false survivor costs analysis, not trust, and the remedy is already written: *no
+      guard) exists to protect, and the change moves *with* it. _(2026-09-06 · `2876954`; **the hole in
+      it closed 2026-09-07** — the subset was asserted against the corpus, which is walked recursively,
+      not against the two levels the baseline command globs)_
+- [x] **S1.3** A false survivor costs analysis, not trust, and the remedy is already written: *no
       survivor is acted on until it reproduces or is hand-applied.* Nothing new to invent.
+      _(2026-09-06 · `2876954`)_
 - [ ] **S1.4** Proven on a file with a known figure — re-measure one of the 8.8 targets and show the
       score is **equal or lower**, never higher, and the wall-clock a fraction. Both numbers recorded here.
 - [ ] **S1.5** `CONVENTIONS.md` §5quinquies updated: its "1-3 minutes" becomes true again, and the
