@@ -21,8 +21,11 @@ permanence des plans énormes qui sont déjà faits."* → **S3**.
   from [`clear-the-tracker-action.md`](clear-the-tracker-action.md), which is paused with nothing in
   flight. The arbitration he validated: the release note has made a re-measurement public, so it is
   owed either way, and running it on the 81-minute instrument pays twice the exact bill this plan
-  exists to remove. **Resume at S1.4**, and the first move is the cheap number below (the narrowed
-  subset's standalone time), not another 80-minute run.
+  exists to remove. ✅ **S1 IS DONE — all five steps, 2026-09-07.** The instrument is a third cheaper
+  for an identical verdict, and the subset property is now held by construction rather than by luck.
+  ▶️ **RESUME AT S2**, the quality lever: S2.1 (the re-read of one's own test diff, catalogue in hand)
+  and S2.2 (the greppable shapes) are unstarted; S2.0 and S2.0bis already say what they would buy.
+  **S3 is untouched** and its trigger is written.
 - ✅ **S1.1 → S1.3 HAVE LANDED** _(2026-09-06, `2876954`, 115 tests green in the mutation workspace)_.
   `judges.mjs` works out who can observe a target — imports transitively **plus plain string mentions**,
   because the entry-point rule tests every executable by SPAWNING it and such a test is invisible to an
@@ -80,10 +83,21 @@ permanence des plans énormes qui sont déjà faits."* → **S3**.
         effectively **100 % on non-equivalents**, and no production change owed.
     - 📊 **The shape of the count is the whole S2 argument again**: 357 mutants, 7 survivors, **4 of
       them provable equivalents by reading one line up**, and **zero** requiring a production change.
-  - 📌 **So S1.4 IS STILL NOT PROVEN, for the honest reason and not the invented one.** The score
-    98.04 % has nothing comparable to sit beside: the published 100 % is those 19 hunk mutants, on
-    code the review has since changed. The proof needs **the same targets measured both ways on this
-    commit** — whole files, narrowed and un-narrowed — and the un-narrowed half is the run to do next.
+  - ✅ **S1.4 IS PROVEN — THE PAIR WAS RUN, SAME TARGETS, SAME COMMIT, BOTH INSTRUMENTS**
+    _(2026-09-07, machine idle, one after the other)_:
+
+    | | Narrowed (50 judges) | Whole suite (204) |
+    |---|---|---|
+    | Wall clock | **42 min 39** | **1 h 03 min 43** |
+    | Mutants | 357 | 357 |
+    | Score | **98.04 %** | **98.04 %** |
+    | Killed / survived / timeout | 350 / 7 / 0 | 350 / 7 / 0 |
+    | Survivors | the same seven lines | the same seven lines |
+
+    **A third of the wall clock for a byte-identical verdict.** The safety property is not merely
+    respected (equal or lower) — on this pair the narrowing lost **nothing at all**: same score, same
+    survivor list, line for line. Per mutant, 35.8 s against 53.5 s.
+    Logs: `../../mutation/reports/s1-proof-batch-c.log` and `-unnarrowed.log`.
 - ⚠️ ~~**S1.4 IS NOT DONE, AND THE FIRST ATTEMPT MUST NOT BE QUOTED.**~~ A proving run was launched on
   batch C (`scripts/lib/filed-note.mjs` + `scripts/file-back-note.mjs`, baseline **3 min 46** on
   2026-09-06 01:07, log `reports/s1-proof-batch-c.log`) **while two full test-suite runs were competing
@@ -133,7 +147,10 @@ permanence des plans énormes qui sont déjà faits."* → **S3**.
   - ✅ **One suspicion CHECKED and cleared, so nobody re-checks it**: the judge set really is a subset
     of what the whole suite runs (50 judges for batch C, **0 outside** `scripts/*.test.mjs` +
     `scripts/lib/*.test.mjs`). So the slowness is not "we run tests the suite never ran".
-  - [ ] **BUT the subset property holds by ACCIDENT, not by construction**, and that is a hole to
+  - [x] **BUT the subset property holds by ACCIDENT, not by construction** _(closed 2026-09-07 —
+        `runsInWholeSuite` derives the baseline's own globs from `WHOLE_SUITE` and an observer outside
+        them refuses the narrowing rather than being dropped; the `../` fixture that PINNED the deep
+        judge was moved off it)_, and that is a hole to
     close: `readSources` walks `scripts/` **recursively** while the fallback command globs only two
     levels. The day a test file lands in a deeper directory, the judges stop being a subset and S1.2's
     safety property is silently false. **Pin it with a test** that asserts every judge matches the
@@ -287,10 +304,15 @@ and a five-minute re-read of my own test diff would have caught it without start
 - [x] **S1.3** A false survivor costs analysis, not trust, and the remedy is already written: *no
       survivor is acted on until it reproduces or is hand-applied.* Nothing new to invent.
       _(2026-09-06 · `2876954`)_
-- [ ] **S1.4** Proven on a file with a known figure — re-measure one of the 8.8 targets and show the
+- [x] **S1.4** Proven on a file with a known figure — re-measure one of the 8.8 targets and show the
       score is **equal or lower**, never higher, and the wall-clock a fraction. Both numbers recorded here.
-- [ ] **S1.5** `CONVENTIONS.md` §5quinquies updated: its "1-3 minutes" becomes true again, and the
-      reason it had stopped being true is written beside it.
+      _(2026-09-07 — the PAIR, same targets and same commit: 42 min 39 against 1 h 03 min 43, and the
+      **same** 98.04 % with the **same** seven survivors. See STATE for the table and the logs.)_
+- [x] **S1.5** `CONVENTIONS.md` §5quinquies updated: its "1-3 minutes" becomes true again, and the
+      reason it had stopped being true is written beside it. _(2026-09-07 — it did not become true
+      again, it was **replaced by the right unit**: ~36 s per mutant, so the cost of a run is its
+      mutant count. `mutate-one.mjs`'s own header carried the same stale promise and now says the
+      same thing.)_
 
 ### S2. The first pass lands at ~97 %, not 84 % _(the quality lever)_
 
