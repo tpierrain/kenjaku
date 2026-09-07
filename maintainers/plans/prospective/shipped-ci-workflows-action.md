@@ -43,13 +43,20 @@ in the owner's own account, and bills it to them.
 - 🚑 **Do not re-propose an emergency kill switch.** There is none, and why is written below, in
   *The emergency question*: we cannot reach anyone's GitHub, and no engine code reaches a brain
   without its owner updating. The `[skip ci]` half-measure was weighed there and left conditional.
-- ⏱️ **What a SHORT sitting buys, measured against the code and not guessed** _(asked 2026-09-07:
-  "is half an hour realistic?")_. **Step 1 is a half-hour piece**: one prefix, one test on the real
-  tracked list, one assertion in the installer's end-to-end check. **Step 2 is not**: it is the first
-  thing in this product to delete a file outside `.claude/skills/`, it needs its own module, its own
-  refusals and its own tests, and it only reaches anyone through a release. Treat them as two
-  sittings, and do not let the second be rushed because the first was quick — the plan already says
-  a deletion inside someone's brain is pinned by tests before it ships.
+- ⏱️ **SHIP TONIGHT, at a deliberately reduced ceremony** _(owner's call, 2026-09-07: "c'est un cas
+  majeur… je veux un truc rapide, très localisé, ce soir")_. The scope is cut to the two changes that
+  stop the bleeding, and the ceremony is cut to the two checks that actually prove they work. See
+  *The tonight cut* below for what is kept, what is dropped, and why the dropped half is affordable
+  **here specifically** rather than in general.
+- 🔎 **Three findings from reading the delivery path, and all three say the plan is smaller than it
+  looked** _(verified 2026-09-07, not assumed)_:
+  - `scripts/lib/**` is already in the manifest's `replace` regime, so **a new module under it ships
+    into every updating brain with no manifest edit at all**, and so does the reconcile that calls it.
+  - `commitEngineUpdate` stages with `git add -A`, so **the deletion is committed by the update
+    itself** and pushed by the end-of-turn hook. Without that it would vanish locally and GitHub
+    would keep running the workflows: this was the second way the fix could have been a no-op.
+  - A brain sees an update because of a **semver git tag** (`resolveLatestTag`). So the fix travels
+    the moment a tag exists, and not before — the tag IS the delivery.
 - **A session may, alone:** work test-first on a branch off `main`, push every green commit and read
   its CI. **Not:** touch either of the owner's two real brains, tag, or push to `main`.
 
@@ -90,6 +97,30 @@ condition is the owner's to evaluate, and it is recorded here rather than re-der
 **What DOES land immediately:** step 1 needs no release at all. A brain is installed from a clone of
 the launcher's default branch, so the moment step 1 is merged to `main`, **every brain created from
 then on is clean**. That is the one half with no delivery problem, and it is why it goes first.
+
+## ⚡ The tonight cut — what ceremony is dropped, and what may never be
+
+Decided 2026-09-07 with the owner, who asked for a fast, very localized hotfix and explicitly waived
+re-running the full suites and the mutation runs.
+
+**Dropped, and affordable HERE:** the mutation run, the whole-repo suite, and waiting on the full
+cross-platform matrix. The argument is not "we are in a hurry" — it is that this change has **no
+input**. The deletion takes no glob, no manifest entry, no user data: it names **two literal paths**,
+both anchored under `.github/workflows/`. There is no space of values for a mutation run to explore,
+so the checks being skipped are the ones with the least to say about this particular diff.
+
+**Kept, because these two are what "it really works" means:**
+
+- the focused unit test on the new module, run directly (seconds, not a suite);
+- **the field rehearsal** — `node maintainers/qa/field-rehearsal/rehearse.mjs --brain <a real brain>`.
+  Non-negotiable and it is CONVENTIONS §10ter: this release changes the update path, and no test in
+  this repo can see the path the fleet runs (in the field, the OLD engine drives the new one). The
+  last release that skipped this landed **nothing** on two brains while telling their owners they
+  were up to date. It reads the originals only, and copies without `.git`.
+
+**And two things the hurry may never touch:** the deletion still refuses anything outside
+`.github/workflows/`, and it still runs at update time only. Those are not ceremony, they are the
+blast radius.
 
 ## What this plan is NOT allowed to become
 
