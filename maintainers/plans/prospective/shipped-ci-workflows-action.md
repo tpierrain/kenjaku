@@ -23,9 +23,9 @@ The owner gave the go-ahead **including publishing the release**, then went to b
 resuming here finishes alone, in this order, and needs nothing from him.
 
 - **Branch:** `fix/no-ci-in-generated-brains`. **Release to cut:** `v5.1.1` (a fix on `v5.1.0`).
-- **Release title:** `v5.1.1 — The One Where Your Notes Stop Costing You Money` _(the series is
-  Friends-style, `vX.Y.Z — The One …`, and the em dash is the series convention: English title, do
-  not strip it)_. If he answered with another title before clearing, HIS wins.
+- **Release title, HIS pick, 2026-09-07:** `v5.1.1 — The One Where Your Brain Stops Running Builds`
+  _(the series is Friends-style, `vX.Y.Z — The One …`, and the em dash is the series convention:
+  English title, never strip it)_. He was offered three and chose this one; it is settled.
 - **✅ Done and pushed:** the copy fix (`.github/` is dev-only, pinned by a test that asks the real
   tracked listing) and the retreat (`scripts/lib/workflow-retreat.mjs` + 12 tests, wired into
   `reconcile-brain.mjs`, reported to the owner in money rather than filenames, manifest
