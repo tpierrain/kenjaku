@@ -109,6 +109,9 @@ marker. So the instruction guarantees its own repetition, on every prompt, unbou
           that would make a trace-based verdict UNSAFE, and it must be recorded here either way.
           **The three readings go in this file as they land**, not at the end.
           - Reading 0 (post-flight, install): `18:11:25.429Z` · pid `42352`.
+          - Reading 1 (a new Desktop conversation on the throwaway brain): `18:14:55.473Z` ·
+            pid `42711`, **alive** — so opening a conversation spawns a server of its own, and
+            the post-flight's was not reused. This is the reference the next two compare against.
   - [ ] **2b. The verdict, wired only on what 2a measured.** A boot trace newer than the marker means
         the app really restarted → stay silent. Fail towards the nudge: an unreadable or missing
         trace keeps today's behaviour exactly.
