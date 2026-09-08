@@ -34,9 +34,20 @@ marker. So the instruction guarantees its own repetition, on every prompt, unbou
   the foot of step 2a. **Do not skip to 2b** — the unknown it answers is what makes 2b safe or not.
 - 🧪 **HOW 2a-ii will be measured — the owner chose a THROWAWAY brain** _(2026-09-08)_, installed
   from this branch rather than touching either of his two real brains. He gave the go-ahead and it is
-  being installed at **`~/kenjaku-throwaway`** (fully-local `in-process` embedder, no key, no
-  connectors, demo notes kept). It is disposable by construction: `rm -rf` when the measurement is
-  read, and nothing in it is ever merged back.
+  installed and **verified green** at **`~/kenjaku-throwaway`** _(2026-09-08)_ — fully-local
+  `in-process` embedder, no key, no connectors, demo notes kept. It is disposable by construction:
+  `rm -rf` when the measurement is read, and nothing in it is ever merged back. The first install run
+  died on a **network cut** mid-download of the model weights and the installer refused to declare
+  success; `scripts/verify-rag.mjs` from the brain folder finished the job (9 notes indexed, canary
+  found). **Baseline already stamped**: `rag/.cache/engine-boot.json` = `2026-09-08T18:11:25.429Z`,
+  pid **42352**, written by the post-flight's real spawned server — the instrument works outside its
+  own test.
+- 🔭 **THE SUBJECT IS CLAUDE DESKTOP, THE OBSERVER IS A CLI WINDOW ON THE LAUNCHER** _(2026-09-08,
+  the owner's refinement, and it is better than the protocol as first written)_. He uses his brains
+  from **Desktop**, which is also where #90 was lived, so Desktop is what must be restarted. A CLI
+  session rooted in the **launcher** is a different working directory, so it spawns no server for the
+  throwaway brain and **cannot pollute the trace** — it just reads the file between his steps. He
+  therefore types nothing technical, and no window of his has to be closed but Desktop itself.
 - ▶️ **THE DOOR IS BACK — and this plan holds the active slot again** _(2026-09-07 night)_.
   [#92](https://github.com/tpierrain/kenjaku/issues/92) took the slot the same day, because it billed
   real money to real owners every day it was not shipped; it shipped as
@@ -88,13 +99,16 @@ marker. So the instruction guarantees its own repetition, on every prompt, unbou
           REAL server and reading the trace back (entry-point rule), not through a seam. The pid is
           load-bearing: it is what separates "respawned" from "rewritten by the same process", which
           IS the unknown below.
-    - [ ] **2a-ii. The watched restart** _(the owner's, on one of his brains)_. Protocol, in a
-          conversation rooted in a brain running this branch: (1) `cat rag/.cache/engine-boot.json`
-          and note the pid; (2) fully quit Claude, reopen it, come back to **that same conversation**,
-          and read the file again; (3) then, WITHOUT quitting, open a **new** conversation in the same
-          brain and read it a third time. Reading 2 with a **new pid** is what makes 2b possible at
-          all; reading 3 with a new pid too is the answer that would make a trace-based verdict
-          UNSAFE, and it must be recorded here either way.
+    - [ ] **2a-ii. The watched restart** _(the owner's hands, on the throwaway brain, in **Claude
+          Desktop**)_. He acts, a launcher-rooted CLI window reads `rag/.cache/engine-boot.json`
+          between his steps. (1) A **new** Desktop conversation rooted on `~/kenjaku-throwaway`, one
+          message typed → read the pid; (2) **fully quit Desktop** (⌘Q, not the window), reopen, come
+          back to **that same conversation**, type a message → read again; (3) then, WITHOUT quitting,
+          a **new** conversation on the same brain, one message → read a third time. Reading 2 with a
+          **new pid** is what makes 2b possible at all; reading 3 with a new pid too is the answer
+          that would make a trace-based verdict UNSAFE, and it must be recorded here either way.
+          **The three readings go in this file as they land**, not at the end.
+          - Reading 0 (post-flight, install): `18:11:25.429Z` · pid `42352`.
   - [ ] **2b. The verdict, wired only on what 2a measured.** A boot trace newer than the marker means
         the app really restarted → stay silent. Fail towards the nudge: an unreadable or missing
         trace keeps today's behaviour exactly.
