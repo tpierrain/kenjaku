@@ -32,6 +32,10 @@ marker. So the instruction guarantees its own repetition, on every prompt, unbou
   proven against the real spawned server and shipped write-only; what remains of 2a is watching a real
   restart on a real machine, and this session may not touch either of his brains. The protocol is at
   the foot of step 2a. **Do not skip to 2b** — the unknown it answers is what makes 2b safe or not.
+- 🧪 **HOW 2a-ii will be measured — the owner chose a THROWAWAY brain** _(2026-09-08)_, installed
+  from this branch rather than touching either of his two real brains. It was not created: he paused the
+  session on it ("attends un instant") before any folder was made or any installer was run. So the next
+  session starts from nothing on that front, and needs his go-ahead before installing anything.
 - ▶️ **THE DOOR IS BACK — and this plan holds the active slot again** _(2026-09-07 night)_.
   [#92](https://github.com/tpierrain/kenjaku/issues/92) took the slot the same day, because it billed
   real money to real owners every day it was not shipped; it shipped as
