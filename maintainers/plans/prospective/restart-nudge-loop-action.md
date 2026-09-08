@@ -112,6 +112,15 @@ marker. So the instruction guarantees its own repetition, on every prompt, unbou
           - Reading 1 (a new Desktop conversation on the throwaway brain): `18:14:55.473Z` ·
             pid `42711`, **alive** — so opening a conversation spawns a server of its own, and
             the post-flight's was not reused. This is the reference the next two compare against.
+          - Reading 2 (⌘Q on Desktop, reopen, **same** conversation): `18:16:47.252Z` · pid `43079`,
+            and **42711 is dead**. ✅ **A real app restart does respawn the server and does stamp a
+            new trace** — the thing 2b needs in order to exist at all.
+          - 🔎 **Free evidence taken at reading 2 — the ancestry.** The server's process chain is
+            `Claude.app` (pid `42902`, started `18:16:39Z`) → `disclaimer` → `claude` (the
+            per-conversation process) → `tsx` → the server. So the **app's own process** is visible
+            from the server, and it is the one thing a new conversation cannot change. If reading 3
+            shows a fresh server pid under that **same** app pid, the trace can still tell the two
+            apart — by stamping the app ancestor's identity, not only its own pid.
   - [ ] **2b. The verdict, wired only on what 2a measured.** A boot trace newer than the marker means
         the app really restarted → stay silent. Fail towards the nudge: an unreadable or missing
         trace keeps today's behaviour exactly.
