@@ -22,13 +22,16 @@ marker. So the instruction guarantees its own repetition, on every prompt, unbou
 - 🔥 **THIS IS THE ACTIVE PLAN, and the owner is BLOCKED BY IT in real use** _(2026-09-07: "j'ai un
   mini bug qui est très pénible à fixer … on fait le bug fix ASAP")_. Speed matters more here than on
   anything else open.
-- **The branch is `fix/restart-nudge-escape-hatch`**, off `main`, pushed. It carries step 1 only.
+- **The branch is `fix/restart-nudge-escape-hatch`**, off `main`, pushed. It carries step 1 and the
+  **instrument half of 2a** (`d87a7f9`), both green.
 - ✅ **THE QUESTION IS ANSWERED — the owner chose direction 1** _(2026-09-07)_: the search server
   leaves a timestamped trace when it is respawned, and a trace newer than the marker means the
   restart really happened, so the nudge falls silent on its own. He chose it **knowing the unknown
   named with it** (below), which is why step 2 opens with measuring, not with wiring.
-- **Next:** step 2a, the instrument. Nothing decides on the boot trace until a real restart on a real
-  machine has been watched writing it. **Do not skip to 2b.**
+- **Next: THE MEASUREMENT, and it needs the owner's hands** _(2026-09-08)_. The instrument is written,
+  proven against the real spawned server and shipped write-only; what remains of 2a is watching a real
+  restart on a real machine, and this session may not touch either of his brains. The protocol is at
+  the foot of step 2a. **Do not skip to 2b** — the unknown it answers is what makes 2b safe or not.
 - ▶️ **THE DOOR IS BACK — and this plan holds the active slot again** _(2026-09-07 night)_.
   [#92](https://github.com/tpierrain/kenjaku/issues/92) took the slot the same day, because it billed
   real money to real owners every day it was not shipped; it shipped as
@@ -73,6 +76,20 @@ marker. So the instruction guarantees its own repetition, on every prompt, unbou
         `.cache/` when it is respawned. Write-only: no verdict reads it yet, so shipping it cannot
         silence a nudge that is still true. Then a real restart is watched, on a real machine, and
         the two timestamps are read back.
+    - [x] **2a-i. The instrument itself** _(2026-09-08 · `d87a7f9`)_. `rag/src/lib/boot-trace.ts`
+          stamps `rag/.cache/engine-boot.json` (an ISO instant **and the pid**) when the server
+          starts serving — never in CLI mode, because a reindex is not an app start and
+          `update-engine`, the installer and a refresh all take that path. Proven by spawning the
+          REAL server and reading the trace back (entry-point rule), not through a seam. The pid is
+          load-bearing: it is what separates "respawned" from "rewritten by the same process", which
+          IS the unknown below.
+    - [ ] **2a-ii. The watched restart** _(the owner's, on one of his brains)_. Protocol, in a
+          conversation rooted in a brain running this branch: (1) `cat rag/.cache/engine-boot.json`
+          and note the pid; (2) fully quit Claude, reopen it, come back to **that same conversation**,
+          and read the file again; (3) then, WITHOUT quitting, open a **new** conversation in the same
+          brain and read it a third time. Reading 2 with a **new pid** is what makes 2b possible at
+          all; reading 3 with a new pid too is the answer that would make a trace-based verdict
+          UNSAFE, and it must be recorded here either way.
   - [ ] **2b. The verdict, wired only on what 2a measured.** A boot trace newer than the marker means
         the app really restarted → stay silent. Fail towards the nudge: an unreadable or missing
         trace keeps today's behaviour exactly.
