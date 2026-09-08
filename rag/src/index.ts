@@ -46,6 +46,7 @@ import { startVaultWatcher } from "./lib/vault-watcher.js";
 import type { FSWatcher } from "chokidar";
 import { vaultShutdownPlan } from "./lib/shutdown-plan.js";
 import { installShutdown, realShutdownHooks } from "../../shared/mcp-shutdown.js";
+import { stampBootTrace } from "./lib/boot-trace.js";
 import {
   buildScriptRunner,
   persistenceApplies,
@@ -58,7 +59,7 @@ import { resolveRemoteSyncIntervalSeconds } from "./lib/remote-sync-interval.js"
 import { runCatchUpCampaign } from "./lib/campaign-run.js";
 import { FileProgressStorage } from "./lib/reindex-reporter.js";
 import { formatLastRunMarkdown } from "./lib/progress-report.js";
-import { writeFileSync, appendFileSync, existsSync } from "fs";
+import { writeFileSync, appendFileSync, existsSync, mkdirSync } from "fs";
 import { spawn, execFile } from "child_process";
 import { promisify } from "util";
 import { capExceededSearchMessage } from "./lib/search-degradation.js";
@@ -400,6 +401,13 @@ async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
   console.error("[vault-rag] MCP server running on stdio");
+
+  // #90, step 2a — an instrument, and it decides NOTHING yet. A full quit and reopen of the
+  // app respawns this process, which is the one event the restart marker could learn to
+  // notice (a SessionStart, the only thing that erases it today, does not run when a
+  // conversation is resumed). Stamped HERE and not in CLI mode: a reindex is not an app
+  // start, and a trace left by one would later read as "the owner restarted".
+  stampBootTrace({ cacheDir: CACHE_DIR, now: () => new Date(), pid: process.pid, mkdirSync, writeFileSync });
 
   // Wired BEFORE the first indexing run, not after: the sessions that died in the field died
   // during startup, waiting on a lock held by the previous survivor. A shutdown that only arms
