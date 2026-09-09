@@ -14,11 +14,11 @@ No memory lookup, no ROADMAP scan, no grep. Sub-plans are reached **through** it
 - **Plan:** [`prospective/restart-nudge-loop-action.md`](prospective/restart-nudge-loop-action.md)
 - **Active since:** 2026-09-07 night — **restored, not newly chosen**: it was the active plan that
   morning, the CI hotfix pre-empted it, and that hotfix shipped as
-  [v5.1.1](https://github.com/tpierrain/kenjaku/releases/tag/v5.1.1). It resumes at its **step 2b**.
-- ⚠️ **Read that plan FROM ITS BRANCH — `git checkout fix/restart-nudge-escape-hatch`.** The copy on
-  `main` predates the day's work and still says nothing is started; the branch's copy carries the
-  owner's answer (direction 1) and the real next step. The branch also holds step 1 and the instrument half of
-  step 2a, green and **unmerged on purpose**: merging it was never part of the night's go-ahead.
+  [v5.1.1](https://github.com/tpierrain/kenjaku/releases/tag/v5.1.1).
+- ⚠️ **Read that plan FROM ITS BRANCH — `git checkout fix/restart-nudge-escape-hatch`** (draft PR
+  [#94](https://github.com/tpierrain/kenjaku/pull/94)). The copy on `main` predates the work and says
+  nothing is started; the branch's copy carries the decisions, the measurement and the step to resume
+  at. Unmerged on purpose — its own `## 📍 STATE` says what is still owed before it can merge.
 
 ## Open, but NOT active
 
