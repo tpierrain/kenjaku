@@ -59,10 +59,14 @@ marker. So the instruction guarantees its own repetition, on every prompt, unbou
   **only by case** — so the match is case-sensitive and additionally refuses anything under
   `/claude-code/`. Matching it would have called every new conversation a restart, which is exactly
   the silent failure 2a was run to avoid.
-- **Next: step 3, the regression test** _(2026-09-09)_ — a resumed conversation, marker present, no
-  `SessionStart`, and the nudge must fall silent. Then the boot-trace call at the foot of 2b, then
-  the PR leaves draft. **Nothing needs the owner's hands until the field check of step 4**; the
-  throwaway brain at `~/kenjaku-throwaway` is still installed and is where that check would run.
+- ✅ **STEP 3 IS DONE TOO — the fix is complete, and it is code-green** _(2026-09-09)_. What is left
+  is **not code**: the boot-trace call at the foot of 2b (recommendation: remove it, it is read by
+  nothing), then the PR leaves draft, then step 4's field check.
+- **Next, and it is the OWNER's hands: the field check of step 4** _(2026-09-09)_. Nothing proves the
+  loop is dead but a real brain that stops looping — the issue's own evidence is field evidence, and
+  a suite cannot quit an app. The throwaway brain at `~/kenjaku-throwaway` is still installed, so
+  the rehearsal is: install this branch there, arm the marker, quit Desktop, come back to **the same
+  conversation**, and the nudge must be gone. Until that runs, this stays a draft PR.
 - 🧪 **HOW 2a-ii will be measured — the owner chose a THROWAWAY brain** _(2026-09-08)_, installed
   from this branch rather than touching either of his two real brains. He gave the go-ahead and it is
   installed and **verified green** at **`~/kenjaku-throwaway`** _(2026-09-08)_ — fully-local
@@ -205,7 +209,7 @@ marker. So the instruction guarantees its own repetition, on every prompt, unbou
   - **Why the field evidence already points this way**: #90 shows a full quit + reopen where no
         SessionStart ran, in a conversation whose search tools still worked. Something was respawned
         that the session-start path never saw. That gap is exactly what the trace makes visible.
-- [ ] **3. The regression test that would have caught this**: a resumed conversation, marker present,
+- [x] **3. The regression test that would have caught this** _(2026-09-09 · the lived sequence, through the hook's own entry function, on a real brain folder: marker armed, app restarted, no SessionStart, two prompts, silence)_: a resumed conversation, marker present,
       no `SessionStart` — the nudge must not repeat forever.
 - [ ] **4. Close [#90](https://github.com/tpierrain/kenjaku/issues/90) only when a real brain has
       stopped looping**, not on the merge. The issue's own evidence is field evidence.

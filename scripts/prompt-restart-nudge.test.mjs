@@ -294,6 +294,45 @@ test("realNudgeDeps.pending — a marker armed by the app that is STILL running 
   }
 });
 
+// ─── #90, step 3: the regression test that would have caught the loop ────────
+// Not a unit of the verdict — the LIVED sequence, through the hook's own entry
+// function, against a real brain folder on a real disk. Marker armed, the app
+// restarted, and NO SessionStart anywhere: that last part is the bug's whole
+// mechanism, since SessionStart was the only thing that ever erased the marker.
+// Two prompts, because "it repeated forever" is the symptom, and one silent
+// prompt would not have distinguished a fix from a fluke.
+test("a resumed conversation after a real restart: the nudge is silent, twice, with no SessionStart in sight", () => {
+  const dir = mkdtempSync(join(tmpdir(), "prompt-nudge-loop-"));
+  try {
+    armRestartPending({
+      repo: dir,
+      mkdirSync,
+      writeFileSync,
+      appIdentity: { pid: "75093", startedAt: "Wed Sep  9 09:20:39 2026" },
+    });
+
+    const emitted = [];
+    const afterTheRestart = {
+      brainDir: () => dir,
+      pending: (repo) =>
+        realNudgeDeps.pending(repo, {
+          readAppIdentity: () => ({ pid: "80412", startedAt: "Wed Sep  9 11:04:02 2026" }),
+        }),
+      trace: () => ({ read: () => null, write: () => {} }),
+      universe: () => "default",
+      now: () => new Date("2026-09-09T11:05:00.000Z"),
+      emit: (payload) => emitted.push(payload),
+    };
+
+    assert.equal(runPromptNudge(afterTheRestart), 0);
+    assert.equal(runPromptNudge(afterTheRestart), 0);
+
+    assert.deepEqual(emitted, [], "before the fix, this was the same directive on every prompt, unbounded");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 test("realNudgeDeps.pending — a marker armed by an app that is gone falls silent, and takes the marker with it", () => {
   // The other direction, and the one that ends #90's loop. Forcing it means naming the two
   // apps, because the real ones cannot be conjured: quitting the app running these tests is
