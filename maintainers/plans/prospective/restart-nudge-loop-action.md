@@ -62,11 +62,28 @@ marker. So the instruction guarantees its own repetition, on every prompt, unbou
 - ✅ **STEP 3 IS DONE TOO — the fix is complete, and it is code-green** _(2026-09-09)_. What is left
   is **not code**: the boot-trace call at the foot of 2b (recommendation: remove it, it is read by
   nothing), then the PR leaves draft, then step 4's field check.
-- **Next, and it is the OWNER's hands: the field check of step 4** _(2026-09-09)_. Nothing proves the
-  loop is dead but a real brain that stops looping — the issue's own evidence is field evidence, and
-  a suite cannot quit an app. The throwaway brain at `~/kenjaku-throwaway` is still installed, so
-  the rehearsal is: install this branch there, arm the marker, quit Desktop, come back to **the same
-  conversation**, and the nudge must be gone. Until that runs, this stays a draft PR.
+- **Next, and it is the OWNER's hands: the field check of step 4. He said yes; the rig is READY and
+  waiting** _(2026-09-09)_. Nothing proves the loop is dead but a real brain that stops looping — the
+  issue's own evidence is field evidence, and a suite cannot quit an app.
+  - 🧪 **The rig: `~/kenjaku-qa`, a FRESH throwaway brain on THIS Mac**, installed from this branch
+    (`85e9b79`), fully-local `in-process` embedder, post-flight green (canary "Quibblethorne"
+    found). ⚠️ `~/kenjaku-throwaway` from 2026-09-08 was on the **other** Mac and does not exist
+    here — that is why a new one was installed rather than reused. Disposable by construction:
+    `rm -rf` when the reading is in, nothing in it is ever merged back.
+  - 🔑 **The marker MUST be armed from inside the Desktop conversation**, never from a terminal. A
+    terminal has no Claude app above it, so the marker would record nobody, the verdict would have
+    nothing to compare, and the rehearsal would prove nothing while looking like a failure.
+    `~/kenjaku-qa/scripts/qa-arm-restart.mjs` (throwaway, brain-side only) arms it through the real
+    `armRestartPending` and **says out loud which of the two happened** — verified from a terminal,
+    where it correctly refuses to claim an app.
+  - **The sequence, four gestures:** (1) a NEW Desktop conversation rooted on `~/kenjaku-qa`, run
+    the arming script; (2) an ordinary message → the reply **must** open with the restart
+    instruction (this is the counter-check: without it the run proves nothing); (3) **⌘Q**, reopen,
+    come back to **that same conversation**; (4) an ordinary message → **no restart instruction**,
+    and `.cache/restart-needed` must be **gone** from disk.
+  - The observer stays a launcher-rooted CLI window reading `.cache/restart-needed` between his
+    steps, exactly as on 2026-09-08 — a different working directory, so it cannot pollute anything.
+  - Until this reading is in, the PR stays a **draft**.
 - 🧪 **HOW 2a-ii will be measured — the owner chose a THROWAWAY brain** _(2026-09-08)_, installed
   from this branch rather than touching either of his two real brains. He gave the go-ahead and it is
   installed and **verified green** at **`~/kenjaku-throwaway`** _(2026-09-08)_ — fully-local
