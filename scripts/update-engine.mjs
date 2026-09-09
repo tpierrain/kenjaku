@@ -24,6 +24,7 @@ import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { currentClaudeApp } from "./lib/claude-app-identity.mjs";
 import { armRestartPending } from "./lib/restart-signal.mjs";
 import { isEntrypoint } from "./lib/entrypoint.mjs";
 import { agreeing, countOf, itIsOrTheyAre, itOrThem } from "./lib/plural.mjs";
@@ -912,7 +913,7 @@ export function armRestartFlag(brainDir) {
   // One owner for the flag's path and body (restart-signal.mjs): three surfaces arm it —
   // this updater, the self-heal, and the pull detection (F20) — and a fourth spelling of
   // the same file is a signal nobody reads.
-  armRestartPending({ repo: brainDir, mkdirSync, writeFileSync });
+  armRestartPending({ repo: brainDir, mkdirSync, writeFileSync, appIdentity: currentClaudeApp() });
 }
 
 // The real I/O the CLI runs on: the brain the script lives in

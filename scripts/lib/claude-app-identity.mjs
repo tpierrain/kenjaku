@@ -1,3 +1,5 @@
+import { execFileSync } from "node:child_process";
+
 // ─────────────────────────────────────────────────────────────────────────────
 // claude-app-identity.mjs — "which Claude app am I running under, and is it the
 // same one that armed the restart marker?" (#90).
@@ -115,6 +117,21 @@ function complete(identity) {
 }
 
 /**
+ * The `ps` call as a VALUE, built before anyone runs it (CONVENTIONS.md §5ter): a request
+ * a test can read is a request a test can hold to its terms, and the terms here matter.
+ *
+ * The DEADLINE above all. This runs in front of every prompt the owner types, and a `ps`
+ * that never returns would not slow their brain down, it would stop it. And stderr is
+ * discarded rather than inherited: `ps` complaining on a locked-down machine must not land
+ * in the owner's terminal, since the answer we want from that case is `null` anyway.
+ */
+export function psInvocation() {
+  return { command: "ps", args: PS_ARGS, options: { encoding: "utf8", timeout: 2000, stdio: STDIO } };
+}
+
+const STDIO = ["ignore", "pipe", "ignore"];
+
+/**
  * The identity of the Claude app above `pid`, read from the real process table by
  * running `ps` ONCE — the whole table, then the walk in memory, never a spawn per
  * hop. Returns `null` and stays silent when `ps` is absent or refuses (Windows, a
@@ -122,8 +139,21 @@ function complete(identity) {
  */
 export function readClaudeAppIdentity({ pid, runPs }) {
   try {
-    return findClaudeApp({ startPid: pid, table: parseProcessTable(runPs("ps", PS_ARGS, { encoding: "utf8" })) });
+    return findClaudeApp({ startPid: pid, table: parseProcessTable(runPs(psInvocation())) });
   } catch {
     return null;
   }
+}
+
+/**
+ * The one call the engine's hooks make: "which Claude app is above ME, right now?" — or
+ * `null`. It exists so the call sites do not each re-decide how `ps` is run.
+ */
+export function currentClaudeApp({ pid = process.pid, runPs = spawnPs } = {}) {
+  return readClaudeAppIdentity({ pid, runPs });
+}
+
+// The thin runner: it decides nothing, which is the point of building the request first.
+function spawnPs({ command, args, options }) {
+  return execFileSync(command, args, options);
 }

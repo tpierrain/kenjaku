@@ -281,10 +281,12 @@ test("a pull that lands frozen wiring ARMS the restart flag", () => {
 
   h.run();
 
-  assert.deepEqual(
-    disk.written.filter((w) => w.path === FLAG_PATH).map((w) => w.body),
-    ["restart needed to finish the engine update\n"],
-  );
+  const armings = disk.written.filter((w) => w.path === FLAG_PATH);
+  assert.equal(armings.length, 1);
+  // The body is JSON since #90 (it also records which Claude app armed it, and that
+  // depends on the machine running this test), so what is pinned here is the sentence a
+  // human sees on opening it — not a literal the identity half would make machine-specific.
+  assert.match(JSON.parse(armings[0].body).note, /restart needed to finish the engine update/);
 });
 
 test("a pull that lands ONLY notes arms nothing", () => {

@@ -33,8 +33,18 @@ export const RESTART_FLAG_REL = ".cache/restart-needed";
 //   • flagExists — an explicit marker the self-heal / new core writes when it converged code
 //     this session predates. Covers "converged on disk, but this conversation hasn't loaded it".
 // Pure so the OR-policy is unit-pinned; the I/O (flag read, gap derivation) is the caller's.
-export function isRestartPending({ flagExists, gapNeeded }) {
-  return Boolean(flagExists || gapNeeded);
+//
+// `appRestarted` (#90) is the third input, and it disarms the FLAG half only. The flag means
+// "converged on disk, but THIS conversation predates it" — a claim a real app restart makes
+// false, and which nothing could refute before, because the flag's only eraser was a
+// SessionStart and resuming a conversation runs none. That is what made obeying the nudge
+// the very thing that kept it alive.
+//
+// It may never touch `gapNeeded`. A gap is a skill or a server sitting on disk uninstalled
+// RIGHT NOW: restarting does not install it, so cancelling it here would turn a loud false
+// alarm into a silent true one, which is the trade this whole fix exists to refuse.
+export function isRestartPending({ flagExists, gapNeeded, appRestarted = false }) {
+  return Boolean(gapNeeded || (flagExists && !appRestarted));
 }
 
 // Given whether a restart is pending, return the loud statusLine segment, or null when

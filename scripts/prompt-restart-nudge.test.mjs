@@ -6,7 +6,9 @@ import { dirname, join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { runPromptNudge, realNudgeDeps } from "./prompt-restart-nudge.mjs";
+import { currentClaudeApp } from "./lib/claude-app-identity.mjs";
 import { RESTART_FLAG_REL } from "./lib/restart-nudge.mjs";
+import { armRestartPending } from "./lib/restart-signal.mjs";
 
 // This test file sits in scripts/, exactly like the hook — so the brain root is one
 // level up from HERE too, computed independently of the code under test.
@@ -267,6 +269,50 @@ test("realNudgeDeps.pending reads the flag on disk, for the brain it is handed",
     assert.equal(realNudgeDeps.pending(dir), true);
   } finally {
     rmSync(dir, { recursive: true });
+  }
+});
+
+// #90, at the real seam: this hook is the one surface that repeats, and the only one that
+// runs where no SessionStart ever will — so it is the one that reads the app identity and
+// the one that erases a marker proven stale. What is asserted here is the direction that
+// must never break: NOT restarted (or not knowable) → the nudge stays, and the marker with
+// it. The erasure itself is pinned against a real filesystem in lib/restart-signal.test.mjs,
+// because forcing "the app has changed" would mean quitting the app running these tests.
+test("realNudgeDeps.pending — a marker armed by the app that is STILL running keeps nudging, and is not erased", () => {
+  const dir = mkdtempSync(join(tmpdir(), "prompt-nudge-"));
+  const flag = join(dir, RESTART_FLAG_REL);
+  try {
+    // Armed exactly as the three real writers arm it, with the app that is running right
+    // now — which is `null` under a terminal and the desktop app under Claude. Both are the
+    // "no restart proven" case, so this test says the same thing on either machine.
+    armRestartPending({ repo: dir, mkdirSync, writeFileSync, appIdentity: currentClaudeApp() });
+
+    assert.equal(realNudgeDeps.pending(dir), true);
+    assert.equal(existsSync(flag), true, "nothing was proven, so nothing is erased");
+  } finally {
+    rmSync(dir, { recursive: true });
+  }
+});
+
+test("realNudgeDeps.pending — a marker armed by an app that is gone falls silent, and takes the marker with it", () => {
+  // The other direction, and the one that ends #90's loop. Forcing it means naming the two
+  // apps, because the real ones cannot be conjured: quitting the app running these tests is
+  // not a thing a test may do. So the answers are handed in — which is exactly what proves
+  // this hook ASKS the question at all. Wire nothing here and `pending` ignores them both.
+  const dir = mkdtempSync(join(tmpdir(), "prompt-nudge-"));
+  const flag = join(dir, RESTART_FLAG_REL);
+  try {
+    const armedBy = { pid: "75093", startedAt: "Wed Sep  9 09:20:39 2026" };
+    armRestartPending({ repo: dir, mkdirSync, writeFileSync, appIdentity: armedBy });
+
+    const pending = realNudgeDeps.pending(dir, {
+      readAppIdentity: () => ({ pid: "80412", startedAt: "Wed Sep  9 11:04:02 2026" }),
+    });
+
+    assert.equal(pending, false, "the owner did what the nudge asked, so the nudge stops");
+    assert.equal(existsSync(flag), false, "and the marker no SessionStart could reach is gone");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
   }
 });
 

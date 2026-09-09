@@ -41,6 +41,7 @@ import { hookSessionId, markSyncDone, markSyncRunning, readHookPayload } from ".
 import { bootstrapSessionHooks } from "./lib/hook-bootstrap.mjs";
 import { bootstrapReassuranceMessage } from "./lib/self-heal-message.mjs";
 import { restartNudgeSegment } from "./lib/restart-nudge.mjs";
+import { currentClaudeApp } from "./lib/claude-app-identity.mjs";
 import { restartPendingOnDisk, armRestartPending } from "./lib/restart-signal.mjs";
 import { pulledPaths, frozenWiringIn } from "./lib/frozen-wiring.mjs";
 import { readStartupVersionLine } from "./lib/engine-version.mjs";
@@ -266,7 +267,7 @@ export function runSessionStatus(argv, deps = realSessionStatusDeps) {
   // from disk, a few lines further) leads the banner as it already does for the other causes.
   // A brain with no remote pulls nothing, so this stays silent there, by construction.
   if (frozenWiringIn(pulled).length > 0) {
-    armRestartPending({ repo, mkdirSync, writeFileSync });
+    armRestartPending({ repo, mkdirSync, writeFileSync, appIdentity: currentClaudeApp() });
   }
   const repoLine = repoStatusLine({ pullOk, pullOut, short, changedCount, uncommittedVault, conflictedCount });
 

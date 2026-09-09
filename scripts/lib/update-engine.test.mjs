@@ -1495,9 +1495,12 @@ test("armRestartFlag — drops the nudge file under the brain, creating .cache/ 
 
   armRestartFlag(brainDir);
 
-  assert.equal(
-    readFileSync(join(brainDir, RESTART_FLAG_REL), "utf8"),
-    "restart needed to finish the engine update\n",
+  // The sentence a human sees on opening the file. Not the whole body: since #90 that is
+  // JSON, and it also records which Claude app armed the flag — which depends on the
+  // machine these tests run on, so a literal would pass here and fail on a laptop.
+  assert.match(
+    JSON.parse(readFileSync(join(brainDir, RESTART_FLAG_REL), "utf8")).note,
+    /restart needed to finish the engine update/,
   );
 });
 
@@ -1511,9 +1514,12 @@ test("armRestartFlag — re-arms in a brain whose .cache/ already exists", () =>
 
   armRestartFlag(brainDir);
 
-  assert.equal(
-    readFileSync(join(brainDir, RESTART_FLAG_REL), "utf8"),
-    "restart needed to finish the engine update\n",
+  // The sentence a human sees on opening the file. Not the whole body: since #90 that is
+  // JSON, and it also records which Claude app armed the flag — which depends on the
+  // machine these tests run on, so a literal would pass here and fail on a laptop.
+  assert.match(
+    JSON.parse(readFileSync(join(brainDir, RESTART_FLAG_REL), "utf8")).note,
+    /restart needed to finish the engine update/,
   );
 });
 

@@ -27,6 +27,7 @@ import { fileURLToPath } from "node:url";
 import { detectSelfHealGap } from "./lib/self-heal-detect.mjs";
 import { computeApplyPlan } from "./lib/engine-apply-plan.mjs";
 import { RESTART_FLAG_REL } from "./lib/restart-nudge.mjs";
+import { currentClaudeApp } from "./lib/claude-app-identity.mjs";
 import { armRestartPending } from "./lib/restart-signal.mjs";
 import { rehydrationPlan, unwiredFiles } from "./lib/brain-rehydrate.mjs";
 import { runAsEntrypoint } from "./lib/entrypoint.mjs";
@@ -231,7 +232,10 @@ runAsEntrypoint(import.meta.url, process.argv, () => {
       // now that three surfaces write it (this self-heal, the updater, and the pull detection
       // of F20). Clearing stays here: it is this hook's own job, and only its own.
       if (pending) {
-        armRestartPending({ repo: brainDir, mkdirSync, writeFileSync });
+        // #90: the flag also records WHICH Claude app is running as it is armed. That is what
+        // lets a later prompt notice the owner really did restart — the thing no SessionStart
+        // was ever going to see, because resuming a conversation runs none.
+        armRestartPending({ repo: brainDir, mkdirSync, writeFileSync, appIdentity: currentClaudeApp() });
         return;
       }
       try {

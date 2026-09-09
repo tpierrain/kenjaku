@@ -4,8 +4,10 @@ import { execFileSync } from "node:child_process";
 
 import {
   appRestartedSince,
+  currentClaudeApp,
   findClaudeApp,
   parseProcessTable,
+  psInvocation,
   PS_ARGS,
   readClaudeAppIdentity,
 } from "./claude-app-identity.mjs";
@@ -127,14 +129,26 @@ test("the identity is read by running ps once, from the given pid", () => {
   const calls = [];
   const found = readClaudeAppIdentity({
     pid: "75400",
-    runPs: (...args) => {
-      calls.push(args);
+    runPs: (invocation) => {
+      calls.push(invocation);
       return REAL_TABLE;
     },
   });
 
   assert.deepEqual(found, THE_APP);
   assert.equal(calls.length, 1, "one process table read, not one per hop");
+});
+
+test("the ps request is built as a value, and it carries a deadline", () => {
+  const { command, args, options } = psInvocation();
+
+  assert.equal(command, "ps");
+  assert.deepEqual(args, PS_ARGS);
+  // A hang is worse than a failure here: this sits in front of every prompt, so a
+  // `ps` that never returns would not slow the owner's brain, it would stop it.
+  assert.ok(options.timeout > 0 && options.timeout <= 5000, `expected a short deadline, got ${options.timeout}`);
+  assert.equal(options.encoding, "utf8", "a Buffer would parse into nothing and answer null forever");
+  assert.deepEqual(options.stdio, ["ignore", "pipe", "ignore"], "ps must never write to the owner's terminal");
 });
 
 test("a machine with no usable ps answers nothing, in silence — Windows, a locked-down box", () => {
@@ -146,6 +160,47 @@ test("a machine with no usable ps answers nothing, in silence — Windows, a loc
   });
   assert.equal(found, null);
 });
+
+test("currentClaudeApp — asks about the pid it is given, through the built request", () => {
+  const calls = [];
+  const found = currentClaudeApp({
+    pid: "75400",
+    runPs: (invocation) => {
+      calls.push(invocation);
+      return REAL_TABLE;
+    },
+  });
+
+  assert.deepEqual(found, THE_APP);
+  assert.deepEqual(calls, [psInvocation()]);
+});
+
+test("currentClaudeApp — with nothing said, it asks about the running process", () => {
+  const asked = [];
+  currentClaudeApp({
+    runPs: () => {
+      asked.push(true);
+      return `${process.pid} ${process.ppid} Wed Sep  9 09:20:39 2026     node the-test`;
+    },
+  });
+  assert.deepEqual(asked, [true], "it ran, which it could not have done without a pid to start from");
+});
+
+test(
+  "currentClaudeApp — run for real on this machine, it answers or shrugs, and never throws",
+  { skip: process.platform === "win32" ? "no ps on Windows" : false },
+  () => {
+    const found = currentClaudeApp();
+
+    // Under a terminal this is null; under Claude Desktop it is the app. Both are
+    // correct answers, and the only thing that would not be is an exception in a
+    // hook that runs before every prompt.
+    if (found !== null) {
+      assert.match(found.pid, /^\d+$/);
+      assert.match(found.startedAt, /\d{4}$/);
+    }
+  },
+);
 
 // The real seam: `ps` is a foreign program whose output format is the one thing
 // no fixture can prove. This runs it for real and checks the parser against THIS

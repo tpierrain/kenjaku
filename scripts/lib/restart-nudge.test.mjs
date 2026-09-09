@@ -25,6 +25,28 @@ test("isRestartPending — both signals → still just pending (idempotent)", ()
   assert.equal(isRestartPending({ flagExists: true, gapNeeded: true }), true);
 });
 
+// ─── #90: the third input, and the one that ends the loop ────────────────────
+// The flag means "on disk is converged, but THIS conversation predates it". Until
+// now nothing could tell it that the conversation had since been restarted — the
+// only eraser was a SessionStart, which resuming a conversation never runs. The
+// app identity (claude-app-identity.mjs) answers exactly that, and only that.
+test("isRestartPending — the flag, on an app that has since restarted → NOT pending, and the loop ends", () => {
+  assert.equal(isRestartPending({ flagExists: true, gapNeeded: false, appRestarted: true }), false);
+});
+
+test("isRestartPending — a restart NEVER cancels a real convergence gap", () => {
+  // The two signals are not interchangeable. `gapNeeded` is a skill or a server
+  // sitting on disk, uninstalled, RIGHT NOW: no amount of restarting makes that
+  // untrue, and silencing it here would be the silent failure, dressed up as a fix.
+  assert.equal(isRestartPending({ flagExists: true, gapNeeded: true, appRestarted: true }), true);
+  assert.equal(isRestartPending({ flagExists: false, gapNeeded: true, appRestarted: true }), true);
+});
+
+test("isRestartPending — no restart proven → exactly today's behaviour, whether it is said or left unsaid", () => {
+  assert.equal(isRestartPending({ flagExists: true, gapNeeded: false, appRestarted: false }), true);
+  assert.equal(isRestartPending({ flagExists: true, gapNeeded: false }), true);
+});
+
 // F-B7d (ship-blocker A2): the SessionStart self-heal nudge must reach Desktop, which
 // drops `systemMessage` — so it rides the PERSISTENT statusLine instead. status-line.mjs
 // calls this pure decider with "is a restart pending?" (the on-disk flag), and shows a
