@@ -23,10 +23,11 @@
 // verdicts in lib/restart-signal.mjs and the arrivals trace. This file is only the
 // contract with the harness.
 // ─────────────────────────────────────────────────────────────────────────────
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, rmSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { currentClaudeApp } from "./lib/claude-app-identity.mjs";
 import { restartPromptDirective } from "./lib/restart-nudge.mjs";
 import { buildTrace, markAnnounced, remoteArrivalsDirective } from "./lib/remote-arrivals.mjs";
 import { restartPendingOnDisk } from "./lib/restart-signal.mjs";
@@ -38,7 +39,15 @@ export const realNudgeDeps = {
   // The brain root is derived from THIS module's location (one level up from
   // scripts/), never from the hook's cwd — same rule as auto-commit.mjs.
   brainDir: () => resolve(dirname(fileURLToPath(import.meta.url)), ".."),
-  pending: (repo) => restartPendingOnDisk({ repo, deriveWanted, existsSync, readFileSync }),
+  // #90 — this hook is the ONLY surface that both repeats and runs where no `SessionStart`
+  // ever will, so it is the one that asks "is the app above me still the app that armed the
+  // marker?", and the one that erases a marker the answer has just made stale. The two
+  // answers are parameters so a test can hand them in: forcing a real restart would mean
+  // quitting the app running the tests. status-line and session-status deliberately ask
+  // neither — both run only where a fresh session already clears the marker, and paying for
+  // a process-table read there would buy nothing.
+  pending: (repo, { readAppIdentity = currentClaudeApp, onStale = eraseStaleMarker } = {}) =>
+    restartPendingOnDisk({ repo, deriveWanted, existsSync, readFileSync, readAppIdentity, onStale }),
   trace: (repo) => buildTrace(repo),
   // Read HERE, after the pull, and through the VALIDATED reader: a pointer left aimed at a
   // universe that is gone resolves to the default scope, which is where the searches really
@@ -48,6 +57,16 @@ export const realNudgeDeps = {
   now: () => new Date(),
   emit: (payload) => console.log(JSON.stringify(payload)),
 };
+
+// Best-effort, like every other write on this path: an owner whose marker cannot be removed
+// gets the nudge once more, which is a nuisance. One that crashed here would get no prompt.
+function eraseStaleMarker(flagPath) {
+  try {
+    rmSync(flagPath, { force: true });
+  } catch {
+    /* the verdict already stands; the file is just a leftover */
+  }
+}
 
 /**
  * Asks the two questions this hook exists for and injects what they answer. Always returns

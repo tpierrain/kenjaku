@@ -6,7 +6,9 @@ import { dirname, join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { runPromptNudge, realNudgeDeps } from "./prompt-restart-nudge.mjs";
+import { currentClaudeApp } from "./lib/claude-app-identity.mjs";
 import { RESTART_FLAG_REL } from "./lib/restart-nudge.mjs";
+import { armRestartPending } from "./lib/restart-signal.mjs";
 
 // This test file sits in scripts/, exactly like the hook — so the brain root is one
 // level up from HERE too, computed independently of the code under test.
@@ -270,6 +272,89 @@ test("realNudgeDeps.pending reads the flag on disk, for the brain it is handed",
   }
 });
 
+// #90, at the real seam: this hook is the one surface that repeats, and the only one that
+// runs where no SessionStart ever will — so it is the one that reads the app identity and
+// the one that erases a marker proven stale. What is asserted here is the direction that
+// must never break: NOT restarted (or not knowable) → the nudge stays, and the marker with
+// it. The erasure itself is pinned against a real filesystem in lib/restart-signal.test.mjs,
+// because forcing "the app has changed" would mean quitting the app running these tests.
+test("realNudgeDeps.pending — a marker armed by the app that is STILL running keeps nudging, and is not erased", () => {
+  const dir = mkdtempSync(join(tmpdir(), "prompt-nudge-"));
+  const flag = join(dir, RESTART_FLAG_REL);
+  try {
+    // Armed exactly as the three real writers arm it, with the app that is running right
+    // now — which is `null` under a terminal and the desktop app under Claude. Both are the
+    // "no restart proven" case, so this test says the same thing on either machine.
+    armRestartPending({ repo: dir, mkdirSync, writeFileSync, appIdentity: currentClaudeApp() });
+
+    assert.equal(realNudgeDeps.pending(dir), true);
+    assert.equal(existsSync(flag), true, "nothing was proven, so nothing is erased");
+  } finally {
+    rmSync(dir, { recursive: true });
+  }
+});
+
+// ─── #90, step 3: the regression test that would have caught the loop ────────
+// Not a unit of the verdict — the LIVED sequence, through the hook's own entry
+// function, against a real brain folder on a real disk. Marker armed, the app
+// restarted, and NO SessionStart anywhere: that last part is the bug's whole
+// mechanism, since SessionStart was the only thing that ever erased the marker.
+// Two prompts, because "it repeated forever" is the symptom, and one silent
+// prompt would not have distinguished a fix from a fluke.
+test("a resumed conversation after a real restart: the nudge is silent, twice, with no SessionStart in sight", () => {
+  const dir = mkdtempSync(join(tmpdir(), "prompt-nudge-loop-"));
+  try {
+    armRestartPending({
+      repo: dir,
+      mkdirSync,
+      writeFileSync,
+      appIdentity: { pid: "75093", startedAt: "Wed Sep  9 09:20:39 2026" },
+    });
+
+    const emitted = [];
+    const afterTheRestart = {
+      brainDir: () => dir,
+      pending: (repo) =>
+        realNudgeDeps.pending(repo, {
+          readAppIdentity: () => ({ pid: "80412", startedAt: "Wed Sep  9 11:04:02 2026" }),
+        }),
+      trace: () => ({ read: () => null, write: () => {} }),
+      universe: () => "default",
+      now: () => new Date("2026-09-09T11:05:00.000Z"),
+      emit: (payload) => emitted.push(payload),
+    };
+
+    assert.equal(runPromptNudge(afterTheRestart), 0);
+    assert.equal(runPromptNudge(afterTheRestart), 0);
+
+    assert.deepEqual(emitted, [], "before the fix, this was the same directive on every prompt, unbounded");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("realNudgeDeps.pending — a marker armed by an app that is gone falls silent, and takes the marker with it", () => {
+  // The other direction, and the one that ends #90's loop. Forcing it means naming the two
+  // apps, because the real ones cannot be conjured: quitting the app running these tests is
+  // not a thing a test may do. So the answers are handed in — which is exactly what proves
+  // this hook ASKS the question at all. Wire nothing here and `pending` ignores them both.
+  const dir = mkdtempSync(join(tmpdir(), "prompt-nudge-"));
+  const flag = join(dir, RESTART_FLAG_REL);
+  try {
+    const armedBy = { pid: "75093", startedAt: "Wed Sep  9 09:20:39 2026" };
+    armRestartPending({ repo: dir, mkdirSync, writeFileSync, appIdentity: armedBy });
+
+    const pending = realNudgeDeps.pending(dir, {
+      readAppIdentity: () => ({ pid: "80412", startedAt: "Wed Sep  9 11:04:02 2026" }),
+    });
+
+    assert.equal(pending, false, "the owner did what the nudge asked, so the nudge stops");
+    assert.equal(existsSync(flag), false, "and the marker no SessionStart could reach is gone");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 // The whole hook, run the way the harness runs it: a real child process, the payload on
 // stdout. The only test that exercises the entrypoint guard — i.e. that the file DOES
 // something when executed. The flag is planted in the real brain root (it lives under the
@@ -310,9 +395,15 @@ test("what it injects stays short — volume IS the defect (F5)", () => {
   // Harsher than the bound on a session start: this rides EVERY prompt while the restart is
   // pending, so an owner who keeps working reads it again and again. Long enough to say what
   // to do, short enough that re-reading it costs nothing.
+  //
+  // Raised from 360 to 440 for #90, deliberately and once. The sentences bought are the ones
+  // that END the repetition — an owner who already restarted is told the marker is stale and
+  // how to clear it — so the extra volume is what stops the message from being read forever.
+  // Paying ~70 characters per prompt to bound an unbounded nudge is the right side of F5, and
+  // the ceiling stays a ceiling: it does not move again without the same kind of reason.
   const d = deps({ pending: true });
   runPromptNudge(d);
 
   const injected = d.emitted[0].hookSpecificOutput.additionalContext;
-  assert.ok(injected.length <= 360, `the injected directive grew to ${injected.length} chars:\n${injected}`);
+  assert.ok(injected.length <= 440, `the injected directive grew to ${injected.length} chars:\n${injected}`);
 });

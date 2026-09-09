@@ -1,5 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { restartPendingOnDisk, armRestartPending } from "./restart-signal.mjs";
 import { RESTART_FLAG_REL } from "./restart-nudge.mjs";
@@ -7,7 +9,9 @@ import { RESTART_FLAG_REL } from "./restart-nudge.mjs";
 // The two on-disk reads the signal is made of, faked: which files exist, and what
 // `.mcp.json` registers. `deriveWanted` is injected because it belongs to the
 // self-heal, not here.
-function deps({ files = [], servers = [], wanted = { wantedSkillDirs: [], wantedServerIds: [] } } = {}) {
+const FLAG_PATH = join("/brain", RESTART_FLAG_REL);
+
+function deps({ files = [], servers = [], wanted = { wantedSkillDirs: [], wantedServerIds: [] }, flagBody = null } = {}) {
   const present = new Set(files);
   return {
     repo: "/brain",
@@ -19,6 +23,7 @@ function deps({ files = [], servers = [], wanted = { wantedSkillDirs: [], wanted
     readFileSync: (p, encoding) => {
       if (encoding !== "utf8") throw new Error(`Unknown encoding: ${encoding}`);
       if (!present.has(p)) throw new Error(`ENOENT: no such file, open '${p}'`);
+      if (p === FLAG_PATH) return flagBody ?? "";
       return JSON.stringify({ mcpServers: Object.fromEntries(servers.map((s) => [s, {}])) });
     },
   };
@@ -120,4 +125,146 @@ test("armRestartPending — a write that blows up is swallowed, and says so (a h
   });
 
   assert.equal(armed, false);
+});
+
+// ─── #90: the marker remembers WHICH app armed it ────────────────────────────
+// Until now the marker's existence was the whole signal, and only a SessionStart
+// could erase it — which resuming a conversation never runs, so obeying the nudge
+// kept it alive forever. Now the marker also carries the identity of the Claude
+// app that was running when it was armed, and every reader compares it with the
+// app running now. A DIFFERENT app is the only proof that the owner really
+// restarted (measured 2026-09-08: a new conversation changes everything else).
+const APP_A = { pid: "75093", startedAt: "Wed Sep  9 09:20:39 2026" };
+const APP_B = { pid: "80412", startedAt: "Wed Sep  9 11:04:02 2026" };
+
+function armedBody(appIdentity) {
+  const writes = [];
+  armRestartPending({ repo: "/brain", mkdirSync: () => {}, writeFileSync: (p, body) => writes.push(body), appIdentity });
+  return writes[0];
+}
+
+test("armRestartPending — the marker records the app that armed it, and still reads as a sentence", () => {
+  const body = armedBody(APP_A);
+
+  assert.deepEqual(JSON.parse(body).armedByApp, APP_A);
+  // A human who opens this file deserves to understand it without our source. The
+  // three writers must not each invent that sentence, so it is asserted here.
+  assert.match(body, /restart/i);
+});
+
+test("armRestartPending — no app to name (every CLI session) still arms, it just records nobody", () => {
+  const body = armedBody(null);
+
+  assert.equal(JSON.parse(body).armedByApp, undefined);
+  assert.match(body, /restart/i);
+  // And the verdict on such a marker is the one that predates this whole fix.
+  assert.equal(restartPendingOnDisk({ ...deps({ files: [FLAG_PATH], flagBody: body }), readAppIdentity: () => APP_B }), true);
+});
+
+test("the marker was armed by an app that is gone → the restart HAPPENED, so no nudge", () => {
+  const stale = [];
+  const pending = restartPendingOnDisk({
+    ...deps({ files: [FLAG_PATH], flagBody: armedBody(APP_A) }),
+    readAppIdentity: () => APP_B,
+    onStale: () => stale.push(true),
+  });
+
+  assert.equal(pending, false);
+  assert.deepEqual(stale, [true], "and the marker is handed to its owner to erase, exactly once");
+});
+
+test("the marker was armed by the app still running → the nudge stays, and nothing is erased", () => {
+  const stale = [];
+  const pending = restartPendingOnDisk({
+    ...deps({ files: [FLAG_PATH], flagBody: armedBody(APP_A) }),
+    readAppIdentity: () => ({ ...APP_A }),
+    onStale: () => stale.push(true),
+  });
+
+  assert.equal(pending, true);
+  assert.deepEqual(stale, []);
+});
+
+test("the app cannot be named right now → the nudge stays (an unanswerable question proves nothing)", () => {
+  const pending = restartPendingOnDisk({
+    ...deps({ files: [FLAG_PATH], flagBody: armedBody(APP_A) }),
+    readAppIdentity: () => null,
+  });
+
+  assert.equal(pending, true);
+});
+
+test("a marker written by an older engine is prose, not JSON — and it still nudges", () => {
+  // Every brain updating into this version has one of these on disk. Reading it must
+  // not throw, and must not be mistaken for "no app armed it, therefore restarted".
+  const pending = restartPendingOnDisk({
+    ...deps({ files: [FLAG_PATH], flagBody: "restart needed to finish the engine update\n" }),
+    readAppIdentity: () => APP_B,
+  });
+
+  assert.equal(pending, true);
+});
+
+test("a restart erases the marker but NEVER the gap — a skill uninstalled on disk is still uninstalled", () => {
+  const stale = [];
+  const pending = restartPendingOnDisk({
+    ...deps({
+      files: [FLAG_PATH],
+      flagBody: armedBody(APP_A),
+      wanted: { wantedSkillDirs: [".claude/skills/switch"], wantedServerIds: [] },
+    }),
+    readAppIdentity: () => APP_B,
+    onStale: () => stale.push(true),
+  });
+
+  assert.equal(pending, true, "the gap is present tense: no restart makes it untrue");
+  assert.deepEqual(stale, [true], "the marker is stale all the same, and saying so costs nothing");
+});
+
+test("reading the app blows up → the nudge stays, and the hook lives (fail-soft, both halves)", () => {
+  const pending = restartPendingOnDisk({
+    ...deps({ files: [FLAG_PATH], flagBody: armedBody(APP_A) }),
+    readAppIdentity: () => {
+      throw new Error("spawn ps ENOENT");
+    },
+  });
+
+  assert.equal(pending, true);
+});
+
+// Against a REAL filesystem, because `onStale` exists to make a file disappear and a fake
+// `rmSync` would only prove we called our own spy. This is also the shape the prompt hook
+// wires: arm it the way the three writers arm it, come back as a different app, and the
+// marker that could not be erased without a SessionStart is gone.
+test("the marker is really erased from a real disk once the restart is proven", () => {
+  const dir = mkdtempSync(join(tmpdir(), "restart-signal-"));
+  const flag = join(dir, RESTART_FLAG_REL);
+  try {
+    armRestartPending({ repo: dir, mkdirSync, writeFileSync, appIdentity: APP_A });
+    assert.equal(existsSync(flag), true, "armed, on disk, before anything is judged");
+
+    const pending = restartPendingOnDisk({
+      repo: dir,
+      deriveWanted: () => ({ wantedSkillDirs: [], wantedServerIds: [] }),
+      existsSync,
+      readFileSync,
+      readAppIdentity: () => APP_B,
+      onStale: (path) => rmSync(path, { force: true }),
+    });
+
+    assert.equal(pending, false);
+    assert.equal(existsSync(flag), false, "and the next prompt of that conversation pays nothing");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("with no marker at all, the app is never even looked up — the normal case stays free", () => {
+  const looks = [];
+  restartPendingOnDisk({ ...deps(), readAppIdentity: () => looks.push(true) });
+
+  // This runs in front of every prompt of every session on a converged brain.
+  // Reading the whole process table there would be a cost paid forever, for an
+  // answer nothing asks for.
+  assert.deepEqual(looks, []);
 });

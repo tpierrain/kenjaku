@@ -33,8 +33,18 @@ export const RESTART_FLAG_REL = ".cache/restart-needed";
 //   • flagExists — an explicit marker the self-heal / new core writes when it converged code
 //     this session predates. Covers "converged on disk, but this conversation hasn't loaded it".
 // Pure so the OR-policy is unit-pinned; the I/O (flag read, gap derivation) is the caller's.
-export function isRestartPending({ flagExists, gapNeeded }) {
-  return Boolean(flagExists || gapNeeded);
+//
+// `appRestarted` (#90) is the third input, and it disarms the FLAG half only. The flag means
+// "converged on disk, but THIS conversation predates it" — a claim a real app restart makes
+// false, and which nothing could refute before, because the flag's only eraser was a
+// SessionStart and resuming a conversation runs none. That is what made obeying the nudge
+// the very thing that kept it alive.
+//
+// It may never touch `gapNeeded`. A gap is a skill or a server sitting on disk uninstalled
+// RIGHT NOW: restarting does not install it, so cancelling it here would turn a loud false
+// alarm into a silent true one, which is the trade this whole fix exists to refuse.
+export function isRestartPending({ flagExists, gapNeeded, appRestarted = false }) {
+  return Boolean(gapNeeded || (flagExists && !appRestarted));
 }
 
 // Given whether a restart is pending, return the loud statusLine segment, or null when
@@ -52,12 +62,24 @@ export function restartNudgeSegment(pending) {
 //
 // Wording deliberately reuses the update-engine skill's: a FULL close + reopen, then back to
 // THIS conversation — never a new one, which is the distinct initial-rooting rule.
+//
+// And it carries its own way out (#90). That same instruction — come back to THIS
+// conversation — is what makes the nudge unbounded: resuming a conversation runs no
+// SessionStart, and SessionStart is the only code that erases the marker. Until the marker
+// learns to notice that the app really did restart, the last two sentences are what stops an
+// owner from being told to restart forever by a brain that is already converged.
+//
+// The escape hatch is CONDITIONAL, in prose, and it comes last. "Have they already
+// restarted?" is a question only the conversation can answer — the disk cannot see it — and
+// an owner who reads the exit before doing the restart would silence a nudge they still
+// need, and keep working on the old engine without knowing it.
 export function restartPromptDirective(pending) {
   if (!pending) return null;
   return (
-    "🛑 This conversation is running the OLD engine: newer code is on disk, and a session " +
-    "loads its hooks, skills and servers only at start. Open your reply by telling the " +
-    "owner, calmly and in their own language: fully CLOSE Claude and REOPEN it, then come " +
-    "back to THIS same conversation — do not open a new conversation. Then answer them."
+    "🛑 This conversation is running the OLD engine: a session loads its hooks, skills and " +
+    "servers only at start, and newer code is on disk. Open your reply by telling the owner, " +
+    "calmly and in their own language: fully CLOSE Claude and REOPEN it, then come back to " +
+    "THIS same conversation — do not open a new conversation. If they already did, the marker " +
+    "is stale, not the engine: offer to delete .cache/restart-needed. Then answer them."
   );
 }

@@ -25,6 +25,28 @@ test("isRestartPending — both signals → still just pending (idempotent)", ()
   assert.equal(isRestartPending({ flagExists: true, gapNeeded: true }), true);
 });
 
+// ─── #90: the third input, and the one that ends the loop ────────────────────
+// The flag means "on disk is converged, but THIS conversation predates it". Until
+// now nothing could tell it that the conversation had since been restarted — the
+// only eraser was a SessionStart, which resuming a conversation never runs. The
+// app identity (claude-app-identity.mjs) answers exactly that, and only that.
+test("isRestartPending — the flag, on an app that has since restarted → NOT pending, and the loop ends", () => {
+  assert.equal(isRestartPending({ flagExists: true, gapNeeded: false, appRestarted: true }), false);
+});
+
+test("isRestartPending — a restart NEVER cancels a real convergence gap", () => {
+  // The two signals are not interchangeable. `gapNeeded` is a skill or a server
+  // sitting on disk, uninstalled, RIGHT NOW: no amount of restarting makes that
+  // untrue, and silencing it here would be the silent failure, dressed up as a fix.
+  assert.equal(isRestartPending({ flagExists: true, gapNeeded: true, appRestarted: true }), true);
+  assert.equal(isRestartPending({ flagExists: false, gapNeeded: true, appRestarted: true }), true);
+});
+
+test("isRestartPending — no restart proven → exactly today's behaviour, whether it is said or left unsaid", () => {
+  assert.equal(isRestartPending({ flagExists: true, gapNeeded: false, appRestarted: false }), true);
+  assert.equal(isRestartPending({ flagExists: true, gapNeeded: false }), true);
+});
+
 // F-B7d (ship-blocker A2): the SessionStart self-heal nudge must reach Desktop, which
 // drops `systemMessage` — so it rides the PERSISTENT statusLine instead. status-line.mjs
 // calls this pure decider with "is a restart pending?" (the on-disk flag), and shows a
@@ -75,6 +97,33 @@ test("restartPromptDirective — pending → the agent is told to raise the rest
 
 test("restartPromptDirective — nothing pending → nothing injected, on every prompt of every session", () => {
   assert.equal(restartPromptDirective(false), null);
+});
+
+// ─── #90: the loop, and the sentence that ends it ────────────────────────────
+// The directive tells the owner to restart and come back to THIS conversation — and
+// resuming a conversation runs no SessionStart, which is the only place the marker is
+// erased. So obeying the instruction is exactly what keeps it firing, on every prompt,
+// unbounded. The mechanism that will make the marker honest is a separate fix; this is
+// the belt: an owner must never be locked inside a loop whose exit is unwritten.
+//
+// The condition is stated in prose ON PURPOSE, and it is the one thing the disk cannot
+// check: "did they already restart?" is answered by the conversation, which the model
+// reads and `.cache/` does not. Counting deliveries would have been a poor proxy — five
+// messages typed BEFORE a legitimate restart are five repeats, and telling that owner
+// their marker is stale would send them back to work on the old engine.
+test("restartPromptDirective — an owner who already restarted is told the marker is stale, and how to clear it", () => {
+  const directive = restartPromptDirective(true);
+
+  assert.match(directive, /already/i, "the escape hatch is conditioned on the restart having happened");
+  assert.match(directive, /stale/i, "and it names what is actually wrong: the marker, not the engine");
+  assert.match(directive, /\.cache\/restart-needed/, "the marker is named, so the exit is actionable");
+  // Order is the safety. Read the other way round, the first thing an owner sees is a way
+  // to silence a nudge they have not acted on yet — which leaves them on the old engine,
+  // silently, which is the whole failure this nudge exists to prevent.
+  assert.ok(
+    directive.indexOf("REOPEN") < directive.indexOf(".cache/restart-needed"),
+    "the restart is asked for first; the escape hatch is the fallback, never the offer",
+  );
 });
 
 // Its LENGTH is bounded where it is emitted (`scripts/prompt-restart-nudge.test.mjs`),
