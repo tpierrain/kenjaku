@@ -22,7 +22,10 @@ marker. So the instruction guarantees its own repetition, on every prompt, unbou
 - 🔥 **THIS IS THE ACTIVE PLAN, and the owner is BLOCKED BY IT in real use** _(2026-09-07: "j'ai un
   mini bug qui est très pénible à fixer … on fait le bug fix ASAP")_. Speed matters more here than on
   anything else open.
-- **The branch is `fix/restart-nudge-escape-hatch`**, off `main`, pushed. It carries step 1 and the
+- **The branch is `fix/restart-nudge-escape-hatch`**, off `main`, pushed, and it now has a **draft
+  PR: [#94](https://github.com/tpierrain/kenjaku/pull/94)** _(2026-09-09, so the work can be
+  picked up from another machine)_. Draft on purpose: the instrument is write-only and step 2b
+  is not decided, so this must not merge as a fix. It carries step 1 and the
   **instrument half of 2a** (`d87a7f9`), both green.
 - ✅ **THE QUESTION IS ANSWERED — the owner chose direction 1** _(2026-09-07)_: the search server
   leaves a timestamped trace when it is respawned, and a trace newer than the marker means the
