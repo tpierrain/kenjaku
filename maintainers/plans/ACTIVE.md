@@ -22,10 +22,11 @@ No memory lookup, no ROADMAP scan, no grep. Sub-plans are reached **through** it
 Links only — each one's own `## 📍 STATE` block says whose it is and where it stands.
 
 - [`archived/2026-09-09-restart-nudge-loop-action.md`](archived/2026-09-09-restart-nudge-loop-action.md)
-  — **shipped as v5.1.2**; [#90](https://github.com/tpierrain/kenjaku/issues/90) is deliberately still
-  open, waiting on the fix running in a real brain.
+  — **shipped as v5.1.2**, and [#90](https://github.com/tpierrain/kenjaku/issues/90) is now closed.
+  Worth reading for **how** it closed: a keyword, not the rule this plan wrote.
 - [`prospective/shipped-ci-workflows-action.md`](prospective/shipped-ci-workflows-action.md) —
-  **shipped as v5.1.1**; what is left there is a wait, not work (#92 closes on field evidence).
+  **shipped as v5.1.1**, and [#92](https://github.com/tpierrain/kenjaku/issues/92) is now closed on
+  measured field evidence. Only its optional step 3 (the nudge) is left.
 - [`prospective/harness-speed-and-test-quality-action.md`](prospective/harness-speed-and-test-quality-action.md)
   — **its speed half is done and shipped**; the quality and record halves are where it resumes.
 - [`../studies/plan-state-single-source-study.md`](../studies/plan-state-single-source-study.md) —

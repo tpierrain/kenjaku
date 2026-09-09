@@ -25,10 +25,20 @@ Claude Desktop passed (the four readings below), and the update-path rehearsal (
 of two real brains installed at **v3.4.0** and **v5.1.1**: both converged to v5.1.2, both reported
 owner territory **byte-identical**. The QA brain was deleted at the owner's ask.
 
-**Still owed, and it is the one thing this plan does not close:**
-[#90](https://github.com/tpierrain/kenjaku/issues/90) stays open until the fix has run on a real
-owner's brain. Its evidence is field evidence, and a rehearsal brain, however faithful, is not the
-field.
+**#90 is closed — but read HOW, because the rule below was defeated by a keyword** _(2026-09-09)_.
+This plan said, twice and deliberately, that #90 must stay open until the fix ran on a real owner's
+brain. **GitHub closed it at the merge anyway**, at `14:37:17Z`, from a closing keyword carried in
+commit `4b0ffe5`. Nobody decided that; a word in a commit message did.
+
+- **The evidence arrived a few hours later regardless**, which is why it is left closed rather than
+  re-opened: the owner updated `~/mind-palace` to **v5.1.2** himself at **23:18** (`65727dd`, his
+  authorship, no QA commit anywhere in that repo), and used the brain across the next quarter of an
+  hour with **no restart marker on disk** and no loop.
+- 🪤 **The transferable lesson**: *"close it only on field evidence"* is a rule about **the tracker**,
+  and it is enforced nowhere — a `Closes #NN` written days earlier, in a branch commit, overrides it
+  silently at merge time. **If an issue must survive its own fix, the closing keyword must not be
+  written in the first place** (say `Refs #NN`). Worth a line in CONVENTIONS §10bis the next time that
+  section is touched.
 
 ## 📍 STATE (historical — the plan closed on 2026-09-09)
 
@@ -94,8 +104,11 @@ field.
   A session may not merge it or tag — that is the owner's. **#90 itself stays open until the fix has
   run on one of his two REAL brains**, because its evidence is field evidence and `~/kenjaku-qa` is a
   rehearsal brain, however faithful.
+  → ⏭️ **Superseded the same evening**: merged, tagged, #90 closed by a keyword rather than by this
+  rule, and the field evidence arrived after all. See the SHIPPED block.
 - 🧹 **`~/kenjaku-qa` is still on disk, deliberately.** Disposable by construction and safe to remove
   once he wants it gone; it is not deleted by a session unasked.
+  → ✅ **Deleted 2026-09-09 at the owner's explicit ask**, along with the release cut.
   - It was installed fresh from this branch (`85e9b79`), fully-local `in-process` embedder,
     post-flight green. ⚠️ `~/kenjaku-throwaway` from 2026-09-08 lives on the **other** Mac, which is
     why a new one was built rather than reused — a lesson in itself for the next rehearsal.
@@ -249,5 +262,9 @@ field.
         that the session-start path never saw. That gap is exactly what the trace makes visible.
 - [x] **3. The regression test that would have caught this** _(2026-09-09 · the lived sequence, through the hook's own entry function, on a real brain folder: marker armed, app restarted, no SessionStart, two prompts, silence)_: a resumed conversation, marker present,
       no `SessionStart` — the nudge must not repeat forever.
-- [ ] **4. Close [#90](https://github.com/tpierrain/kenjaku/issues/90) only when a real brain has
-      stopped looping**, not on the merge. The issue's own evidence is field evidence.
+- [x] **4. Close [#90](https://github.com/tpierrain/kenjaku/issues/90) only when a real brain has
+      stopped looping**, not on the merge. The issue's own evidence is field evidence. _(2026-09-09 ·
+      **closed, but not by this step**: a closing keyword in commit `4b0ffe5` shut it at merge time,
+      `14:37:17Z`. The field evidence landed anyway a few hours later — `~/mind-palace` on v5.1.2 by
+      the owner's own hand, no marker on disk, no loop — so it stays closed. The way it closed is
+      written up in the SHIPPED block above, because the rule it broke is reusable.)_

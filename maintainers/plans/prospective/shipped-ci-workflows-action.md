@@ -26,11 +26,13 @@ tag), tagged `v5.1.1 — The One Where Your Brain Stops Running Builds`, note pu
 prose is the note and not a fallback to the title). Commented on
 [#92](https://github.com/tpierrain/kenjaku/issues/92) **without closing it**.
 
-**Two things remain, and neither is tonight's:**
+**Two things remained after the tag. One is now settled:**
 
-- **Step 6 — closing #92**, on field evidence: a real brain that had the workflows, seen losing them
-  at an actual update. The rehearsal is not that, by the issue's own closing condition.
+- ✅ **Step 6 — #92 is CLOSED** (2026-09-09), on the field evidence it was waiting for: the owner's own
+  `mind-palace` updated itself, lost its workflow files, and has triggered **0** CI runs across **28**
+  pushes since. Figures under step 6's checkbox.
 - **Step 3 — the nudge**, deliberately left out of the tonight cut; the reason is under its checkbox.
+  **This is now the only thing this file still owes.**
 
 ## 🌙 HAND-OFF — spent, kept for the record — 2026-09-07 evening
 
@@ -87,12 +89,11 @@ capability. Recorded per §10 because *"checked"* and *"not looked at"* must be 
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-07
 
-- ✅ **NO LONGER THE ACTIVE PLAN — the release is out.** Read the SHIPPED block above. What is left
-  is a **wait**, not work: #92 closes on field evidence (step 6), and the nudge (step 3) waits for a
-  session with room. Nothing here is blocking, and nothing here is in flight.
-- **Next:** 👉 nothing to resume here. The one thing a future session does with this file is close
-  #92 the day a real brain is seen losing the workflows at an update — or pick step 3 up
-  deliberately, having read what the nudge says today.
+- ✅ **NO LONGER THE ACTIVE PLAN — the release is out, and the wait is over.** Read the SHIPPED block
+  above. **#92 is closed** (2026-09-09, field evidence under step 6). Nothing here is blocking, and
+  nothing here is in flight.
+- **Next:** 👉 the only thing left in this file is **step 3, the nudge** — optional, and to be picked
+  up deliberately after reading what the nudge says today. There is no wait left to satisfy.
 - 🪤 **A TRAP FOUND BY READING THE CODE, 2026-09-07, and it invalidates step 2 as it was first
   written.** The existing tombstone bucket cannot be merely *widened* to cover a workflow file: it
   deletes only what it can **prove** it delivered, byte for byte, from the brain's recorded
@@ -255,6 +256,11 @@ blast radius.
       cost in plain words (money, on the owner's account) rather than filing it as a fix among
       others. §11 shape honoured, and the `What you get` section verified quotable by running the
       real `extractWhatYouGet` over the **published** body, not the draft.
-- [ ] **6. Close [#92](https://github.com/tpierrain/kenjaku/issues/92) only when a real brain that had
+- [x] **6. Close [#92](https://github.com/tpierrain/kenjaku/issues/92) only when a real brain that had
       the workflows has been seen losing them on update** — not on the merge. The issue's evidence is
-      field evidence, and so is its closure.
+      field evidence, and so is its closure. _(2026-09-09 · closed on measured field evidence:
+      `tpierrain/mind-palace`, a brain that predates the fix, updated itself to v5.1.2 and now carries
+      **no** `.github/workflows/` at all. Its **last CI run ever** is `2026-09-07T17:03:00Z`; the **28**
+      auto-commit pushes to `main` since the update triggered **0**. `tpierrain/inqom-brain` carries no
+      workflow files either. The billing engine is off, in the field, on a brain the fix had to heal
+      rather than merely install clean.)_

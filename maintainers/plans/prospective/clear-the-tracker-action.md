@@ -11,6 +11,13 @@
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-08-23
 
+- 📉 **THE TRACKER IS AT 16 OPEN ISSUES, not 18** _(2026-09-09, on the owner's ask to close what
+  deserved closing)_. Two came off, **both on evidence and neither by this plan's sweep**:
+  [#90](https://github.com/tpierrain/kenjaku/issues/90) (restart nudge, v5.1.2) and
+  [#92](https://github.com/tpierrain/kenjaku/issues/92) (brains shipping the launcher's CI, v5.1.1) —
+  the latter closed on measured field evidence from `~/mind-palace`. **Zero PRs were open.** Every
+  other issue was left open deliberately: this plan says they are not started, and *not started* is
+  not *closeable*. The sweep proper is still entirely ahead.
 - 🏷️ **THE NAME "v5.1" IN THIS FILE NO LONGER MATCHES THE RELEASE THAT WENT OUT** _(2026-09-06)_.
   **v5.1.0 was cut today** — *The One with the Duo Mode*, two people on one brain and two machines
   staying in step — and it carried **none** of the three issues below. That is not a slip: this plan
