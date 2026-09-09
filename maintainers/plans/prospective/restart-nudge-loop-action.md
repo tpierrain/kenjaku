@@ -22,11 +22,10 @@ marker. So the instruction guarantees its own repetition, on every prompt, unbou
 - 🔥 **THIS IS THE ACTIVE PLAN, and the owner is BLOCKED BY IT in real use** _(2026-09-07: "j'ai un
   mini bug qui est très pénible à fixer … on fait le bug fix ASAP")_. Speed matters more here than on
   anything else open.
-- **The branch is `fix/restart-nudge-escape-hatch`**, off `main`, pushed, and it now has a **draft
-  PR: [#94](https://github.com/tpierrain/kenjaku/pull/94)** _(2026-09-09, so the work can be
-  picked up from another machine)_. Draft on purpose: the instrument is write-only and step 2b
-  is not decided, so this must not merge as a fix. It carries step 1 and the
-  **instrument half of 2a** (`d87a7f9`), both green.
+- **The branch is `fix/restart-nudge-escape-hatch`**, off `main`, pushed, and it carries the whole
+  fix in **PR [#94](https://github.com/tpierrain/kenjaku/pull/94)** — **no longer a draft since
+  2026-09-09**, because the two things that kept it one are settled: the field rehearsal passed and
+  the write-only instrument is gone.
 - ✅ **THE QUESTION IS ANSWERED — the owner chose direction 1** _(2026-09-07)_: the search server
   leaves a timestamped trace when it is respawned, and a trace newer than the marker means the
   restart really happened, so the nudge falls silent on its own. He chose it **knowing the unknown
@@ -59,31 +58,40 @@ marker. So the instruction guarantees its own repetition, on every prompt, unbou
   **only by case** — so the match is case-sensitive and additionally refuses anything under
   `/claude-code/`. Matching it would have called every new conversation a restart, which is exactly
   the silent failure 2a was run to avoid.
-- ✅ **STEP 3 IS DONE TOO — the fix is complete, and it is code-green** _(2026-09-09)_. What is left
-  is **not code**: the boot-trace call at the foot of 2b (recommendation: remove it, it is read by
-  nothing), then the PR leaves draft, then step 4's field check.
-- **Next, and it is the OWNER's hands: the field check of step 4. He said yes; the rig is READY and
-  waiting** _(2026-09-09)_. Nothing proves the loop is dead but a real brain that stops looping — the
-  issue's own evidence is field evidence, and a suite cannot quit an app.
-  - 🧪 **The rig: `~/kenjaku-qa`, a FRESH throwaway brain on THIS Mac**, installed from this branch
-    (`85e9b79`), fully-local `in-process` embedder, post-flight green (canary "Quibblethorne"
-    found). ⚠️ `~/kenjaku-throwaway` from 2026-09-08 was on the **other** Mac and does not exist
-    here — that is why a new one was installed rather than reused. Disposable by construction:
-    `rm -rf` when the reading is in, nothing in it is ever merged back.
-  - 🔑 **The marker MUST be armed from inside the Desktop conversation**, never from a terminal. A
-    terminal has no Claude app above it, so the marker would record nobody, the verdict would have
-    nothing to compare, and the rehearsal would prove nothing while looking like a failure.
-    `~/kenjaku-qa/scripts/qa-arm-restart.mjs` (throwaway, brain-side only) arms it through the real
-    `armRestartPending` and **says out loud which of the two happened** — verified from a terminal,
-    where it correctly refuses to claim an app.
-  - **The sequence, four gestures:** (1) a NEW Desktop conversation rooted on `~/kenjaku-qa`, run
-    the arming script; (2) an ordinary message → the reply **must** open with the restart
-    instruction (this is the counter-check: without it the run proves nothing); (3) **⌘Q**, reopen,
-    come back to **that same conversation**; (4) an ordinary message → **no restart instruction**,
-    and `.cache/restart-needed` must be **gone** from disk.
-  - The observer stays a launcher-rooted CLI window reading `.cache/restart-needed` between his
-    steps, exactly as on 2026-09-08 — a different working directory, so it cannot pollute anything.
-  - Until this reading is in, the PR stays a **draft**.
+- ✅ **STEP 3 IS DONE TOO — the fix is complete, and it is code-green** _(2026-09-09)_: the loop's own
+  sequence, replayed through the hook's entry function against a real brain folder.
+- ✅ **THE REHEARSAL RAN, AND IT IS CONCLUSIVE** _(2026-09-09, the owner at the keyboard, on
+  `~/kenjaku-qa`)_. The four readings, and they leave no other explanation:
+  1. Armed from inside the Desktop conversation → the marker recorded app pid **`75093`**, started
+     `Wed Sep 9 09:20:39 2026`. The script confirmed an app was named, so the verdict had something
+     to compare.
+  2. An ordinary message, no restart yet → **the nudge fired**, leading the reply. The
+     counter-check: without it the rest would prove nothing.
+  3. ⌘Q, reopen, back to **that same conversation** → **the nudge is silent**, and the reply is an
+     ordinary one.
+  4. Read from the launcher-rooted CLI: `75093` is **dead**, the app now running is **`97906`**
+     (started `11:58:50`), and `.cache/restart-needed` is **gone from disk**.
+  - 🔒 **And no `SessionStart` can be credited with it**: he returned to the SAME conversation, which
+    runs none — that is #90's entire mechanism. The only code that could have erased that marker is
+    the corrected `UserPromptSubmit` hook. The loop is dead at the exact spot it used to restart.
+  - 🗑️ **2a's instrument is therefore removed** _(`7d8980b`)_: the fix that shipped never reads it,
+    and a file every owner's server writes on every boot for no reader is dead weight. RAG suite
+    green (539), scripts suite green (3268).
+- **What is left, and it is a decision, not work** _(2026-09-09)_: the PR is out of draft and ready.
+  A session may not merge it or tag — that is the owner's. **#90 itself stays open until the fix has
+  run on one of his two REAL brains**, because its evidence is field evidence and `~/kenjaku-qa` is a
+  rehearsal brain, however faithful.
+- 🧹 **`~/kenjaku-qa` is still on disk, deliberately.** Disposable by construction and safe to remove
+  once he wants it gone; it is not deleted by a session unasked.
+  - It was installed fresh from this branch (`85e9b79`), fully-local `in-process` embedder,
+    post-flight green. ⚠️ `~/kenjaku-throwaway` from 2026-09-08 lives on the **other** Mac, which is
+    why a new one was built rather than reused — a lesson in itself for the next rehearsal.
+  - 🔑 **The one thing to remember if this is ever replayed: the marker MUST be armed from inside the
+    Desktop conversation**, never from a terminal. A terminal has no Claude app above it, so the
+    marker records nobody, the verdict has nothing to compare, and the rehearsal proves nothing
+    **while looking like a failure**. `~/kenjaku-qa/scripts/qa-arm-restart.mjs` (throwaway,
+    brain-side only) arms it through the real `armRestartPending` and says out loud which of the two
+    happened — it was checked from a terminal first, where it correctly refuses to claim an app.
 - 🧪 **HOW 2a-ii will be measured — the owner chose a THROWAWAY brain** _(2026-09-08)_, installed
   from this branch rather than touching either of his two real brains. He gave the go-ahead and it is
   installed and **verified green** at **`~/kenjaku-throwaway`** _(2026-09-08)_ — fully-local
@@ -138,9 +146,9 @@ marker. So the instruction guarantees its own repetition, on every prompt, unbou
       above, both recorded in STATE: no delivery counter (the condition is prose), and the "one NEW
       conversation also clears it" half was dropped — the same message forbids opening a new
       conversation two sentences earlier, and one paragraph cannot say both.
-- [ ] **2. The real fix — the nudge falls silent once the restart has really happened**
+- [x] **2. The real fix — the nudge falls silent once the restart has really happened**
       _(direction 1, the owner's call, 2026-09-07)_.
-  - [ ] **2a. The instrument, and it decides NOTHING.** The search server stamps a boot trace under
+  - [x] **2a. The instrument, and it decided NOTHING** _(done 2026-09-08; the instrument itself was REMOVED on 2026-09-09 · `7d8980b`, once the fix it pointed to turned out not to need it)_. The search server stamps a boot trace under
         `.cache/` when it is respawned. Write-only: no verdict reads it yet, so shipping it cannot
         silence a nudge that is still true. Then a real restart is watched, on a real machine, and
         the two timestamps are read back.
