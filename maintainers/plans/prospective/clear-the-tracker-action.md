@@ -11,8 +11,17 @@
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-08-23
 
-- 📉 **THE TRACKER IS AT 16 OPEN ISSUES, not 18** _(2026-09-09, on the owner's ask to close what
-  deserved closing)_. Two came off, **both on evidence and neither by this plan's sweep**:
+- 🆕 **A NEW ISSUE LANDED THE SAME EVENING, AND IT IS NOT SCHEDULED** _(2026-09-09)_:
+  [#96](https://github.com/tpierrain/kenjaku/issues/96) — a **second machine silently misses part of
+  an engine update**. The owner suspected it out loud, and reading the code confirmed it: the Layer B
+  self-heal gate (`self-heal-detect.mjs`) asks only *"is a skill missing?"* and *"is an MCP server
+  missing?"*, so a release that ships **a new hook**, **a new allowlist entry** or **a new npm
+  dependency** never triggers a reconcile on the machine that merely pulled. He asked for it to be
+  **filed, not worked**. It is the same shape as the harness drift he hit the day before: the files
+  travel, the wiring that makes them run does not.
+- 📉 **THE TRACKER IS AT 17 OPEN ISSUES, not 18** _(2026-09-09, on the owner's ask to close what
+  deserved closing; 16, plus #96 above)_. Two came off, **both on evidence and neither by this plan's
+  sweep**:
   [#90](https://github.com/tpierrain/kenjaku/issues/90) (restart nudge, v5.1.2) and
   [#92](https://github.com/tpierrain/kenjaku/issues/92) (brains shipping the launcher's CI, v5.1.1) —
   the latter closed on measured field evidence from `~/mind-palace`. **Zero PRs were open.** Every
