@@ -58,7 +58,7 @@ import { resolveRemoteSyncIntervalSeconds } from "./lib/remote-sync-interval.js"
 import { runCatchUpCampaign } from "./lib/campaign-run.js";
 import { FileProgressStorage } from "./lib/reindex-reporter.js";
 import { formatLastRunMarkdown } from "./lib/progress-report.js";
-import { writeFileSync, appendFileSync, existsSync, mkdirSync } from "fs";
+import { writeFileSync, appendFileSync, existsSync } from "fs";
 import { spawn, execFile } from "child_process";
 import { promisify } from "util";
 import { capExceededSearchMessage } from "./lib/search-degradation.js";
