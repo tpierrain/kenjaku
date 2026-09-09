@@ -28,10 +28,19 @@ marker. So the instruction guarantees its own repetition, on every prompt, unbou
   leaves a timestamped trace when it is respawned, and a trace newer than the marker means the
   restart really happened, so the nudge falls silent on its own. He chose it **knowing the unknown
   named with it** (below), which is why step 2 opens with measuring, not with wiring.
-- **Next: THE MEASUREMENT, and it needs the owner's hands** _(2026-09-08)_. The instrument is written,
-  proven against the real spawned server and shipped write-only; what remains of 2a is watching a real
-  restart on a real machine, and this session may not touch either of his brains. The protocol is at
-  the foot of step 2a. **Do not skip to 2b** — the unknown it answers is what makes 2b safe or not.
+- ✅ **2a IS DONE — the measurement ran, on 2026-09-08 evening, and it answered NO** _(the three
+  readings and their verdict are at the foot of 2a-ii)_. Coming back to a conversation without
+  quitting **does** respawn a server and **does** stamp a fresh trace, so the trace as shipped is not
+  a restart detector and **2b may not be wired on `bootedAt`/`pid` alone**. The same measurement
+  handed over the fix: the **Claude app ancestor** (pid + start time) is what a new conversation
+  cannot change, and it is reachable by walking up from `process.ppid`.
+- **Next: 2b, and it opens with a QUESTION, not with code** _(2026-09-09)_. Reading 3 also showed
+  that a new conversation runs the new engine already — which would make the nudge's own instruction
+  the harder of two ways out, and could shrink the whole fix to **rewording the nudge** instead of
+  teaching it to detect a restart. Settle that first (it is written at the foot of 2a-ii), then
+  choose: reword, or stamp the app ancestor. Both are test-first from `main`'s discipline; neither
+  needs the owner's hands again, and the throwaway brain at `~/kenjaku-throwaway` is still installed
+  if another measurement is wanted.
 - 🧪 **HOW 2a-ii will be measured — the owner chose a THROWAWAY brain** _(2026-09-08)_, installed
   from this branch rather than touching either of his two real brains. He gave the go-ahead and it is
   installed and **verified green** at **`~/kenjaku-throwaway`** _(2026-09-08)_ — fully-local
@@ -99,15 +108,15 @@ marker. So the instruction guarantees its own repetition, on every prompt, unbou
           REAL server and reading the trace back (entry-point rule), not through a seam. The pid is
           load-bearing: it is what separates "respawned" from "rewritten by the same process", which
           IS the unknown below.
-    - [ ] **2a-ii. The watched restart** _(the owner's hands, on the throwaway brain, in **Claude
-          Desktop**)_. He acts, a launcher-rooted CLI window reads `rag/.cache/engine-boot.json`
-          between his steps. (1) A **new** Desktop conversation rooted on `~/kenjaku-throwaway`, one
+    - [x] **2a-ii. The watched restart** _(2026-09-08 evening · measured; the verdict is at the foot
+          of this step)_. Run on the throwaway brain, in **Claude Desktop**: the owner acted, and a
+          launcher-rooted CLI window read `rag/.cache/engine-boot.json` between his steps. (1) A **new** Desktop conversation rooted on `~/kenjaku-throwaway`, one
           message typed → read the pid; (2) **fully quit Desktop** (⌘Q, not the window), reopen, come
           back to **that same conversation**, type a message → read again; (3) then, WITHOUT quitting,
           a **new** conversation on the same brain, one message → read a third time. Reading 2 with a
           **new pid** is what makes 2b possible at all; reading 3 with a new pid too is the answer
-          that would make a trace-based verdict UNSAFE, and it must be recorded here either way.
-          **The three readings go in this file as they land**, not at the end.
+          that would make a trace-based verdict UNSAFE. **Both landed, and reading 3 is the unsafe
+          one** — see the verdict below.
           - Reading 0 (post-flight, install): `18:11:25.429Z` · pid `42352`.
           - Reading 1 (a new Desktop conversation on the throwaway brain): `18:14:55.473Z` ·
             pid `42711`, **alive** — so opening a conversation spawns a server of its own, and
@@ -121,6 +130,28 @@ marker. So the instruction guarantees its own repetition, on every prompt, unbou
             from the server, and it is the one thing a new conversation cannot change. If reading 3
             shows a fresh server pid under that **same** app pid, the trace can still tell the two
             apart — by stamping the app ancestor's identity, not only its own pid.
+          - Reading 3 (**no quit**, a brand-new Desktop conversation on the same brain):
+            `18:20:06.384Z` · pid `43452` — a fresh trace, under the **same** app pid `42902`
+            (started `18:16:39Z`, unchanged). And `43079`, reading 2's server, is **still alive**:
+            a new conversation does not replace the previous server, it **adds** one, and the last
+            one to boot is the one that owns the file.
+          - 🛑 **VERDICT — the trace as it stands is NOT a restart detector**, and 2b may not be wired
+            on it as written. A new conversation stamps a trace indistinguishable from a real restart,
+            so a verdict reading only `bootedAt`/`pid` would call "restarted" something that never
+            restarted. This is the unsafe answer the step existed to catch, and it was worth catching.
+          - ✅ **AND THE MEASUREMENT ALREADY CARRIES ITS OWN FIX.** Across the three readings the
+            **app process** is the discriminator, and the only one: it changed at reading 2 (a real
+            ⌘Q → new app pid) and held at reading 3 (new conversation → same app pid `42902`). So the
+            trace must stamp **the Claude app ancestor's identity** (its pid *and* its start time —
+            a pid alone is recycled), walking up from `process.ppid` past the per-conversation
+            `claude` process. "The app that spawned me is not the app that was running when the marker
+            was written" is a true restart, and nothing else is.
+          - 🔔 **A second finding, and it may matter more than the fix**: a **new conversation spawns
+            its own server**, i.e. it already runs the NEW engine code without quitting anything. If
+            that holds, the nudge's own instruction ("quit the app and come back to this
+            conversation") is not merely self-perpetuating, it is **the harder of two ways out** —
+            and opening a new conversation also runs `SessionStart`, which is what clears the marker.
+            To be checked before 2b is designed: it could shrink the fix to rewording the nudge.
   - [ ] **2b. The verdict, wired only on what 2a measured.** A boot trace newer than the marker means
         the app really restarted → stay silent. Fail towards the nudge: an unreadable or missing
         trace keeps today's behaviour exactly.
