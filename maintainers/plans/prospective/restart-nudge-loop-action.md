@@ -37,13 +37,24 @@ marker. So the instruction guarantees its own repetition, on every prompt, unbou
   a restart detector and **2b may not be wired on `bootedAt`/`pid` alone**. The same measurement
   handed over the fix: the **Claude app ancestor** (pid + start time) is what a new conversation
   cannot change, and it is reachable by walking up from `process.ppid`.
-- **Next: 2b, and it opens with a QUESTION, not with code** _(2026-09-09)_. Reading 3 also showed
-  that a new conversation runs the new engine already — which would make the nudge's own instruction
-  the harder of two ways out, and could shrink the whole fix to **rewording the nudge** instead of
-  teaching it to detect a restart. Settle that first (it is written at the foot of 2a-ii), then
-  choose: reword, or stamp the app ancestor. Both are test-first from `main`'s discipline; neither
-  needs the owner's hands again, and the throwaway brain at `~/kenjaku-throwaway` is still installed
-  if another measurement is wanted.
+- ✅ **2b'S QUESTION IS ANSWERED — the owner chose "teach the nudge to recognise a real restart"**
+  _(2026-09-09)_, over the cheap reword. **Why the reword lost, and it is worth keeping**: telling
+  the owner to open a NEW conversation does clear the marker by itself, but on Desktop a new
+  conversation must be re-rooted on the brain folder, and that is the trap the install stub already
+  shouts about. It would trade a nudge that loops for a brain that does not load. The wording
+  therefore stays as it is, and the code learns to shut up.
+- 🔎 **AND THE CHOSEN FIX IS SMALLER THAN THE ROUTE 2a TOOK — the marker stamps the app, and the
+  search server is not involved at all** _(2026-09-09, decided while designing 2b)_. 2a's instrument
+  asked the *search server* to leave a trace, then hoped a verdict could compare two files. But the
+  hook that repeats the nudge (`prompt-restart-nudge.mjs`) runs inside the conversation process,
+  whose ancestor **is** the Claude app — so it can read the app's identity **itself**, with no trace
+  and no second file. So: `armRestartPending` records the app identity **into the marker** at the
+  moment it arms, and `restartPendingOnDisk` compares it with today's. Different app → the restart
+  really happened → silence. This also fixes the loop without any `SessionStart`, which is the whole
+  point (#90: resuming a conversation runs none).
+- **Next: 2b-i, the pure decider, test-first** _(2026-09-09)_ — then 2b-ii (reading the real process
+  ancestry), then 2b-iii (wiring arm + verdict). Neither needs the owner's hands; the throwaway brain
+  at `~/kenjaku-throwaway` is still installed if a field re-measurement is wanted at the end.
 - 🧪 **HOW 2a-ii will be measured — the owner chose a THROWAWAY brain** _(2026-09-08)_, installed
   from this branch rather than touching either of his two real brains. He gave the go-ahead and it is
   installed and **verified green** at **`~/kenjaku-throwaway`** _(2026-09-08)_ — fully-local
@@ -155,13 +166,34 @@ marker. So the instruction guarantees its own repetition, on every prompt, unbou
             conversation") is not merely self-perpetuating, it is **the harder of two ways out** —
             and opening a new conversation also runs `SessionStart`, which is what clears the marker.
             To be checked before 2b is designed: it could shrink the fix to rewording the nudge.
-  - [ ] **2b. The verdict, wired only on what 2a measured.** A boot trace newer than the marker means
-        the app really restarted → stay silent. Fail towards the nudge: an unreadable or missing
-        trace keeps today's behaviour exactly.
-  - 🙋 **The unknown 2a exists to answer, and it is the whole reason 2b waits**: does coming back to a
-        conversation **without quitting the app** also respawn the search server? If it does, the
-        trace would say "restarted" when nothing restarted, and 2b would silence a true nudge — the
-        false alarm traded for a silent one, which is the worse of the two.
+  - [ ] **2b. The verdict — the marker remembers which app armed it** _(the owner's call,
+        2026-09-09)_. `armRestartPending` stamps the Claude app's identity into the marker; every
+        reader compares it with the app running now. A **different** app is the only thing that means
+        "the owner really restarted" → stay silent. **Fail towards the nudge, everywhere**: no
+        identity in the marker, none resolvable now, an unparseable file, a platform where the app
+        cannot be named — every one of those keeps today's behaviour exactly. The silent failure is
+        the one that costs, and it is the one this arrangement makes unreachable.
+    - [ ] **2b-i. The pure decider.** Given the identity the marker carries and the identity of the
+          app running now, is the nudge still owed? Both halves compared, pid **and** start time (a
+          pid alone is recycled), by string equality so nothing has to parse a date.
+    - [ ] **2b-ii. Reading the real ancestry.** Walk up from `process.ppid` through the full process
+          table (`ps -Ao pid=,ppid=,lstart=,command=`) and return the first ancestor that is the
+          **app bundle** — matched on `Claude.app/Contents/MacOS/`, never on a command called
+          `claude`, because the per-conversation CLI process is called exactly that and it changes on
+          a new conversation. Null when nothing matches, which is every CLI session and every
+          platform the match does not cover.
+    - [ ] **2b-iii. The wiring, at both ends.** The three arming sites go through
+          `armRestartPending` and the three readers through `restartPendingOnDisk`, so the change
+          lands in one file for each. ⚠️ Only the **flag** half of the verdict may be neutralised:
+          `gapNeeded` is a genuine, present convergence gap and a restart never invalidates it.
+    - [ ] **2b-iv. And the marker is erased once the verdict has said "restarted".** Otherwise every
+          later prompt in that conversation pays a process-table read for an answer that cannot
+          change. The prompt hook already writes (the arrivals stamp), so it is the one that clears.
+  - 🗑️ **What becomes of 2a's instrument** _(`rag/src/lib/boot-trace.ts`, `d87a7f9`)_. The chosen fix
+        does not read it, and nothing else does either. **Recommendation: remove it before this
+        merges** — it made the measurement possible and it has been paid for, but shipping a file
+        every owner's server writes on every boot, that no verdict consults, is dead weight in an
+        engine. To settle at merge time, not now.
   - **Why the field evidence already points this way**: #90 shows a full quit + reopen where no
         SessionStart ran, in a conversation whose search tools still worked. Something was respawned
         that the session-start path never saw. That gap is exactly what the trace makes visible.
