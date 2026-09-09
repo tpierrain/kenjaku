@@ -9,27 +9,25 @@ No memory lookup, no ROADMAP scan, no grep. Sub-plans are reached **through** it
 
 ## The active plan
 
-- **Subject:** the restart nudge loops forever, because the instruction it gives is the one thing
-  that prevents its own marker from clearing ([#90](https://github.com/tpierrain/kenjaku/issues/90)).
-- **Plan:** [`prospective/restart-nudge-loop-action.md`](prospective/restart-nudge-loop-action.md)
-- **Active since:** 2026-09-07 night — **restored, not newly chosen**: it was the active plan that
-  morning, the CI hotfix pre-empted it, and that hotfix shipped as
-  [v5.1.1](https://github.com/tpierrain/kenjaku/releases/tag/v5.1.1).
-- ⚠️ **Read that plan FROM ITS BRANCH — `git checkout fix/restart-nudge-escape-hatch`** (draft PR
-  [#94](https://github.com/tpierrain/kenjaku/pull/94)). The copy on `main` predates the work and says
-  nothing is started; the branch's copy carries the decisions, the measurement and the step to resume
-  at. Unmerged on purpose — its own `## 📍 STATE` says what is still owed before it can merge.
+- **Subject:** sweep the tracker — read every open issue and decide, one by one, what this codebase
+  still owes.
+- **Plan:** [`prospective/clear-the-tracker-action.md`](prospective/clear-the-tracker-action.md)
+- **Active since:** 2026-09-09 — **restored, not newly chosen**, and by the same pattern as last
+  time: it held the slot until 2026-09-06, the restart-nudge bug pre-empted it, and that bug shipped
+  as [v5.1.2](https://github.com/tpierrain/kenjaku/releases/tag/v5.1.2). Nothing in it was ever
+  started, so nothing is half-done. **The owner may of course put something else here instead.**
 
 ## Open, but NOT active
 
 Links only — each one's own `## 📍 STATE` block says whose it is and where it stands.
 
+- [`archived/2026-09-09-restart-nudge-loop-action.md`](archived/2026-09-09-restart-nudge-loop-action.md)
+  — **shipped as v5.1.2**; [#90](https://github.com/tpierrain/kenjaku/issues/90) is deliberately still
+  open, waiting on the fix running in a real brain.
 - [`prospective/shipped-ci-workflows-action.md`](prospective/shipped-ci-workflows-action.md) —
   **shipped as v5.1.1**; what is left there is a wait, not work (#92 closes on field evidence).
 - [`prospective/harness-speed-and-test-quality-action.md`](prospective/harness-speed-and-test-quality-action.md)
   — **its speed half is done and shipped**; the quality and record halves are where it resumes.
-- [`prospective/clear-the-tracker-action.md`](prospective/clear-the-tracker-action.md) — **was active
-  until 2026-09-06**; nothing in it was started, so nothing is in flight.
 - [`../studies/plan-state-single-source-study.md`](../studies/plan-state-single-source-study.md) —
   its queued items come due now that the tag is cut.
 - [`prospective/harness-universe-blindspot-hardening-action.md`](prospective/harness-universe-blindspot-hardening-action.md)

@@ -17,7 +17,20 @@ engine v5.1.0, macOS, Claude Desktop.
 resuming a conversation runs no `SessionStart`, and `SessionStart` is the only place that erases the
 marker. So the instruction guarantees its own repetition, on every prompt, unbounded.
 
-## 📍 STATE — the only perishable block in this file · opened 2026-09-07
+## ✅ SHIPPED — [v5.1.2](https://github.com/tpierrain/kenjaku/releases/tag/v5.1.2), 2026-09-09
+
+Merged as [#94](https://github.com/tpierrain/kenjaku/pull/94) (`5b16101`), tagged
+`v5.1.2 — The One Where the Restart Nudge Finally Shuts Up`, note published. The field rehearsal in
+Claude Desktop passed (the four readings below), and the update-path rehearsal (§10ter) ran on copies
+of two real brains installed at **v3.4.0** and **v5.1.1**: both converged to v5.1.2, both reported
+owner territory **byte-identical**. The QA brain was deleted at the owner's ask.
+
+**Still owed, and it is the one thing this plan does not close:**
+[#90](https://github.com/tpierrain/kenjaku/issues/90) stays open until the fix has run on a real
+owner's brain. Its evidence is field evidence, and a rehearsal brain, however faithful, is not the
+field.
+
+## 📍 STATE (historical — the plan closed on 2026-09-09)
 
 - 🔥 **THIS IS THE ACTIVE PLAN, and the owner is BLOCKED BY IT in real use** _(2026-09-07: "j'ai un
   mini bug qui est très pénible à fixer … on fait le bug fix ASAP")_. Speed matters more here than on
