@@ -49,6 +49,11 @@ in the field for weeks** while its plan still tracked it as *not started*.
   v5.0.0 was tagged**, including one unanswered owner call about a lint on plan shape. The most
   action-shaped file here; promote it to a plan the day someone starts it.
 
+- **`two-humans-one-brain-study.md`** — 🔬 field study (2026-09-01), deliberately generic. A brain
+  owner hands a brain to a second, trusted person: what the multi-machine sync path verifiably does
+  for a second *person*, a zero-code runbook (clone + provider-shared archive folder + Spotlight +
+  writer-of-record mail), the owner questionnaire, and six tracker candidates.
+
 - **`fleet-upgrade-field-feedback.md`** — 📓 field log of a real brain crossing three versions, with
   **33 observations never triaged**. The richest and least-read file in the repo: these are defects
   seen on a real machine. They should become issues or be dropped.
