@@ -90,6 +90,14 @@ confirmed, none refuted, plus 3 new infra-shaped clusters.**
 
 ## What was done — so it can't recur
 
+> 🏷️ **One name below has changed since, and only the name.** The skill called `tdd-discipline` on
+> 2026-07-15 was **renamed `test-first-discipline`** on 2026-08-15 and the old one formally retired
+> (its tombstone is [ADR 0039](../decisions/0039-engine-retires-a-skill-declared-and-provenance-guarded.md)).
+> Every reflex quoted here survived the rename **verbatim** — including rule 6, *"pure glue, not
+> testable" is never an excuse, it is the diagnosis*, which `RESULTS.md` also cites by the old name.
+> The lists below are left as they were written: this is a retrospective, and it records what was
+> agreed on the day it was agreed.
+
 Rules engraved with a **belt-and-suspenders split** (mirroring the `language.md` model), agreed with Thomas
 on 2026-07-15:
 
