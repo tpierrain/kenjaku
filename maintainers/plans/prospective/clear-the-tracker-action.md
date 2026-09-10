@@ -49,9 +49,15 @@
       `upstream-check-run`). What survives is the remaining **6** (`import-brain`, `open-env`,
       `pick-folder`, `run-eval`, `update-engine`, `verify-rag`) and its real finding — *the debt is not
       the predicate, it is that the body inside the guard cannot be imported*.
-  - **Owner's call, one question, not urgent**: apply that three-way treatment, or leave all three
-    branches where they are. **Deliberately NOT deleted** — a branch nobody merged is not clutter, it
-    is unlanded work.
+  - ✅ **DONE — the owner said go, 2026-09-09, and the three-way treatment was applied in full.** The
+    study is **merged** with a dated header note; #80's analysis is **transplanted** into the Tracking
+    section below; the mutation branch is **classified as superseded** in the plan that owns that debt.
+    All three branches are now **deleted**, remote and local.
+    - 🔖 **The two commits that were never merged, recorded so their original text stays recoverable**
+      (`git show <sha>` works for as long as the remote keeps them):
+      `docs/v5.1-takes-the-silent-source` → **`d983fd4`** · `fix/mutation-debt-entrypoint-and-git-value`
+      → **`ec339dd`**. Nothing in either is lost from `main`: what survived was carried over by hand,
+      and what did not is named above with the reason.
 - 🆕 **A NEW ISSUE LANDED THE SAME EVENING, AND IT IS NOT SCHEDULED** _(2026-09-09)_:
   [#96](https://github.com/tpierrain/kenjaku/issues/96) — a **second machine silently misses part of
   an engine update**. The owner suspected it out loud, and reading the code confirmed it: the Layer B
