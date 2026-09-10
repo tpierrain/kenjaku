@@ -11,6 +11,29 @@
 
 # Study — two humans, one brain (handing a brain to a second person)
 
+> 📅 **READ THIS FIRST — the body was checked on 2026-09-01, and TWO of its facts have since moved.**
+> It reached `main` only on 2026-09-09, having sat unmerged on a branch while
+> [#84](https://github.com/tpierrain/kenjaku/issues/84) cited its path as background. It is merged
+> **as written**: a study records what was true when it was checked, so the drift is named here rather
+> than edited into the body.
+>
+> Both drifts have the same cause — **live sync shipped as
+> [v5.1.0](https://github.com/tpierrain/kenjaku/releases/tag/v5.1.0) on 2026-09-06, five days after
+> this was written**:
+>
+> - **§2, the multi-machine bullet.** *"A second machine is a clone plus `node scripts/rehydrate.mjs`
+>   plus its own `.env`"* was the whole story then. Since v5.1.0 a session-scoped pull timer probes the
+>   remote while a window is open, notes union-merge, and arrivals are announced. The rest of that
+>   bullet (commit on every write, opt-in push, session-start sweep) still stands.
+> - **§6, candidate 4.** It is **shipped, not a candidate** — that is exactly what #84 became. Every
+>   other candidate in §6 is untouched and still a candidate.
+>
+> ⚠️ **And one thing this study could not know, filed the day it was merged:**
+> [#96](https://github.com/tpierrain/kenjaku/issues/96) — a second machine silently misses part of an
+> engine update, because the wiring that makes engine files *run* is machine-local and never travels.
+> It bites the two-humans case harder than the one-owner-two-Macs case, since the second person is
+> less likely to notice their brain is a version behind in behaviour.
+
 - **STATUS:** 🔬 Field study. Nothing implemented, nothing branched. The runbook below is a
   procedure for two humans, not work tracked in this repo.
 - **Scope:** Second brain (runtime) — git sync between machines, the `.md`-only index, the
@@ -225,9 +248,13 @@ The owner of this repo decides which ones become issues.
    xlsx, OCR later) into derived notes under a gitignored `vault/mirrors/<name>/` so the RAG
    searches an archive no clone ever carries. The port/adapter shape is already there; only the
    Notion literal stands in the way. This is the feature a multi-gigabyte folder is asking for.
-4. **In-session pull on the local-mirror timer's pattern** (ADR 0032: session-scoped, never a
-   daemon). Turns "in sync at the next conversation" into "in sync within minutes" for two
-   people working the same afternoon.
+4. ✅ **SHIPPED — this is the one candidate that is no longer one.** **In-session pull on the
+   local-mirror timer's pattern** (ADR 0032: session-scoped, never a daemon). Turns "in sync at the
+   next conversation" into "in sync within minutes" for two people working the same afternoon.
+   _(Became [#84](https://github.com/tpierrain/kenjaku/issues/84) and shipped as
+   [v5.1.0](https://github.com/tpierrain/kenjaku/releases/tag/v5.1.0), 2026-09-06. Its known
+   limitation is filed as [#96](https://github.com/tpierrain/kenjaku/issues/96): notes travel, the
+   machine-local wiring an engine update needs does not.)_
 5. **A size guard before commit.** Refuse, or at least warn on, a file above a threshold in
    `vault/` so a well-meaning drag-and-drop of an archive never reaches a push GitHub rejects.
    Cheap, and it protects single-person brains just as much.
