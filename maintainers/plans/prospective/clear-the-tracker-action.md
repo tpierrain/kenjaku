@@ -23,9 +23,35 @@
     report on silence. Whatever it says was never folded in here.
   - `fix/mutation-debt-entrypoint-and-git-value` — 18 lines into `v4.9.0-mutation-debt-plan.md`,
     re-measuring the entrypoint debt as *larger than filed*.
-  - **Owner's call, one question, not urgent**: merge these three (they are documentation only, no
-    code), or drop them and repair #84's link. **Deliberately NOT deleted** — a branch nobody merged
-    is not clutter, it is unlanded work.
+  - ⚠️ **"Merge the three" was a bad recommendation, and the owner is the one who caught it**
+    _(2026-09-09: «is this documentation correct? Is it aligned with the thing or not? Because
+    otherwise, there's no interest?»)_. It was made **without reading the content** — on the fact that
+    the branches were unmerged, not on whether what they say is still true. Read, they turn out to
+    need **three different treatments**:
+    - **The study → merge, with a dated note.** Its facts were checked against the code on 2026-09-01
+      and nearly all still hold. **Two drifted, and only two**: live sync shipped as v5.1.0 five days
+      later, so §2's *"multi-machine sync is a clone plus rehydrate"* bullet is out of date, and §6's
+      **candidate 4 is now DONE, not a candidate**. Merging repairs #84's dangling link at the same
+      time.
+    - **`silent-source` → transplant by hand, do NOT merge.** Its analysis of
+      [#80](https://github.com/tpierrain/kenjaku/issues/80) exists **nowhere in `main`** — no plan in
+      this repo mentions #80 at all — and it carries a constraint that would be lost with it: the
+      report was **de-identified at the owner's ask** (it named a person, a company and mailbox
+      content), so nothing identifying may reach the issue, the plan or a release note. It also names
+      the one design call (a known-positive control query per connector, so *empty* stops looking like
+      *down*) and a French-twin trap. But its **framing is stale** — it plans a "v5.1" that shipped as
+      something else entirely — and this file has moved on by **9 commits** since. Lift the #80
+      section into the current plan; do not let the merge fight over the STATE block.
+    - **`mutation-debt` → drop the branch, salvage two lines.** Its target,
+      `prospective/v4.9.0-mutation-debt-plan.md`, was **archived with v5.0.0**, so merging resurrects a
+      deleted file at a dead path. And its headline number has decayed: of the **9** scripts it named
+      as having no test sibling, **3 now have one** (`session-status`, `status-line`,
+      `upstream-check-run`). What survives is the remaining **6** (`import-brain`, `open-env`,
+      `pick-folder`, `run-eval`, `update-engine`, `verify-rag`) and its real finding — *the debt is not
+      the predicate, it is that the body inside the guard cannot be imported*.
+  - **Owner's call, one question, not urgent**: apply that three-way treatment, or leave all three
+    branches where they are. **Deliberately NOT deleted** — a branch nobody merged is not clutter, it
+    is unlanded work.
 - 🆕 **A NEW ISSUE LANDED THE SAME EVENING, AND IT IS NOT SCHEDULED** _(2026-09-09)_:
   [#96](https://github.com/tpierrain/kenjaku/issues/96) — a **second machine silently misses part of
   an engine update**. The owner suspected it out loud, and reading the code confirmed it: the Layer B
