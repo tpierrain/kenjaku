@@ -11,6 +11,21 @@
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-08-23
 
+- 🧭 **THREE BRANCHES CARRY WORK THAT NEVER REACHED `main`, AND ONE OF THEM IS LINKED FROM AN OPEN
+  ISSUE** _(2026-09-09, found while deleting the merged branches at the owner's ask)_. The 14 merged
+  branches are gone, remote and local. The **three that remain are unmerged, have no PR, and each
+  holds content absent from `main`**:
+  - `docs/study-two-humans-one-brain` — **`maintainers/studies/two-humans-one-brain-study.md` (311
+    lines) exists nowhere on `main`**, yet [#84](https://github.com/tpierrain/kenjaku/issues/84) cites
+    it by path as its background ("candidate 4"). **The issue points at a file the repo does not
+    have.** Same family as [#78](https://github.com/tpierrain/kenjaku/issues/78).
+  - `docs/v5.1-takes-the-silent-source` — 64 lines into **this very plan**, about a second outside
+    report on silence. Whatever it says was never folded in here.
+  - `fix/mutation-debt-entrypoint-and-git-value` — 18 lines into `v4.9.0-mutation-debt-plan.md`,
+    re-measuring the entrypoint debt as *larger than filed*.
+  - **Owner's call, one question, not urgent**: merge these three (they are documentation only, no
+    code), or drop them and repair #84's link. **Deliberately NOT deleted** — a branch nobody merged
+    is not clutter, it is unlanded work.
 - 🆕 **A NEW ISSUE LANDED THE SAME EVENING, AND IT IS NOT SCHEDULED** _(2026-09-09)_:
   [#96](https://github.com/tpierrain/kenjaku/issues/96) — a **second machine silently misses part of
   an engine update**. The owner suspected it out loud, and reading the code confirmed it: the Layer B
