@@ -76,12 +76,16 @@
   and is **not** being asked of him again — the three issues are ready to work whatever it ends up
   being called. Record of the tag:
   [`../archived/v5.1.0-code-review-fixes-action.md`](../archived/v5.1.0-code-review-fixes-action.md).
-- **Next:** **the three field-reported issues, and nothing else.** All reported by an outside
-  contributor, all one subject: [#71](https://github.com/tpierrain/kenjaku/issues/71),
+- **Next:** **the field-reported issues, and nothing else. FOUR now, not three** _(2026-09-09: #80
+  joined them when its analysis was recovered from an abandoned branch)_. All reported by people
+  outside the project, in **two** subjects: the checker that cries wolf
+  ([#71](https://github.com/tpierrain/kenjaku/issues/71),
   [#73](https://github.com/tpierrain/kenjaku/issues/73),
-  [#74](https://github.com/tpierrain/kenjaku/issues/74) → § *v5.1*. Nothing is started.
-- **Blocked on:** nothing. v5.1 is three defects with obvious tests and no design question; a session
-  may open it today, test-first.
+  [#74](https://github.com/tpierrain/kenjaku/issues/74)) and a source that goes quiet without saying
+  so ([#80](https://github.com/tpierrain/kenjaku/issues/80)) → § *v5.1*. Nothing is started.
+- **Blocked on:** nothing. The three `/lint` defects have obvious tests and no design question. #80
+  needs **one** design call, named in its own step (what a known-positive control query looks like per
+  connector), and nothing else. A session may open the release today, test-first.
 - **Owner's call pending:** **ONE, and it is about v5.2's shape** — § *THE ONE QUESTION*: should
   [#77](https://github.com/tpierrain/kenjaku/issues/77), the only open issue that can **lose a user's
   note**, really wait for v5.2, or ride along in v5.1? Recommendation inside; it does not block v5.1
@@ -113,14 +117,19 @@
 > **The two-release split is the owner's, 2026-08-23**: *« ce serait bien de faire une petite issue
 > pour bug fixer les issues remontées par Stefan ces prochains jours (une 5.1), puis de traiter les
 > autres sujets en 5.2 »*. **The reason it is a good split, said out loud so nobody re-merges them**:
-> the three v5.1 issues are the only ones a **person outside the project** took the trouble to report,
+> the v5.1 issues are the only ones **people outside the project** took the trouble to report,
 > and they are cheap. A contributor who is answered in days reports again; one who waits behind a
 > nine-issue release does not. Everything in v5.2 is either the owner's own finding or the owner's own
 > idea, and can wait a fortnight without anyone feeling ignored.
 
 ## Tracking
 
-### v5.1 — a checker stops reporting healthy things as broken · milestone [`v5.1`](https://github.com/tpierrain/kenjaku/milestone/1)
+### v5.1 — what outside users reported · milestone [`v5.1`](https://github.com/tpierrain/kenjaku/milestone/1)
+
+_**Two** subjects, two reporters, one criterion: somebody outside the project hit it on a real brain._
+_(Read "v5.1" as **the next bugfix release** — see the header note; the number is the owner's.)_
+
+#### A checker stops reporting healthy things as broken
 
 _Reported by [@StefanPenndorf](https://github.com/StefanPenndorf), from a real vault._
 
@@ -133,12 +142,62 @@ _Reported by [@StefanPenndorf](https://github.com/StefanPenndorf), from a real v
 - [ ] **3.** `/lint` stops flagging `backlog/` as an orphan zone —
       [#74](https://github.com/tpierrain/kenjaku/issues/74). The shipped constitution declares it and
       the engine writes into it: the checker is complaining about the engine's own work.
-- [ ] **4. 📉 The release is measured by the number, not by the three fixes.** A real brain reports
+- [ ] **4. 📉 This half is measured by the number, not by the three fixes.** A real brain reports
       *"17 links point nowhere"* today, and #71 + #73 inflate that count. **A checker nobody believes
       is a checker nobody reads.** So the acceptance test is what the count says on a real vault
       afterwards, and the release note leads with that, not with three bug references.
-- [ ] **5. Answer the reporter.** Each issue closed with what shipped and how it was verified
-      (`CONVENTIONS.md` §10bis), and the release note names the contributor.
+
+#### A source that goes quiet is reported as a source with no news
+
+_Reported 2026-08-24 by a user running a deployed brain, during a wide catch-up sync. **Keep this
+entry de-identified**: the raw report named a person, a company and mailbox content, and the owner
+asked for it anonymised. Nothing identifying goes into the issue, the plan, or the release note._
+
+> 🛟 **Transplanted by hand on 2026-09-09, from the branch `docs/v5.1-takes-the-silent-source` that
+> was never merged.** Until that day **no plan in this repo mentioned #80 at all** — the analysis
+> below, and the de-identification instruction above, existed only on an abandoned branch. The
+> branch's own release framing was stale and is deliberately left behind; the substance is what
+> moved. **Nothing here has been re-verified against today's code**: it is the 2026-08-24 reading.
+
+- [ ] **5. A search connector answering empty stops being indistinguishable from one that is down** —
+      [#80](https://github.com/tpierrain/kenjaku/issues/80). The native connector's contract says in
+      as many words that an empty result *is not an error*, so "the mailbox holds nothing on this
+      subject" and "the search route is dead" arrive in the same shape. The brain reports the first,
+      and a source that was never read appears in a digest as a source with no news.
+  - [ ] **The discriminator is a known-positive control query**, one per search connector, broad and
+        keyword-free, designed so that zero rows is impossible on a live account. Zero on the control
+        = the source is **down**, not empty. **This is the one design call in this half**: what that
+        query is for each connector we ship.
+  - [ ] **A down source is an alert, never an omission** — named in the reply and in any written
+        briefing, and it disables every negative claim that depended on it ("no mail on this topic"
+        becomes unwritable). It may not be silently skipped.
+  - [ ] **The verdict is never cached**, per `sync-sources`' own rule that a capability recorded as
+        absent must be re-tested.
+  - [ ] **Pace the fan-out.** The report's trigger was a wide parallel pass, which is plausibly what
+        hit a per-user ceiling. Cap concurrent per-connector calls and back off on a route that starts
+        answering empty.
+  - [ ] 🔬 **The leading hypothesis, and the one-line test that settles it.** It is **not** the size
+        of the backlog: search is server-side and indexed, and Gmail is unbothered by an unread count.
+        It is the **number of search calls our catch-up made** — a long absence means a wide window,
+        which means deep pagination, and the route that got throttled is precisely the expensive one
+        (single-thread reads stayed cheap and kept working throughout). **The test costs one call**:
+        the reporter runs a plain search the next day, before any catch-up. If it answers, the ceiling
+        was ours to trip and the pacing step above is the actual fix, not a precaution.
+  - [ ] ⚠️ **There is a French twin, and a session may not write it alone.**
+        `templates/fr/.claude/skills/sync-sources/SKILL.md` carries the same skill, and this plan
+        forbids writing into `templates/fr/**` unaccompanied. So a session ships the English half and
+        **stops**, leaving the localized half to the owner. **Do not read that stop as the step being
+        done.**
+- [ ] **6. ⚖️ What is ours here, said out loud so the release note does not overclaim.** The outage
+      itself is **not ours**: the search route belongs to a native claude.ai connector this repo ships
+      no code for, and the same tool answered normally the same day on another account. What is ours,
+      and all we fix, is that the brain **presented an unread source as a read one**.
+
+#### Both subjects
+
+- [ ] **7. Answer both reporters.** Each issue closed with what shipped and how it was verified
+      (`CONVENTIONS.md` §10bis). The release note names the `/lint` contributor; the second report
+      came through a private channel, so it is credited **without a name**.
 
 ### v5.2 — the rest of the tracker · milestone [`v5.2`](https://github.com/tpierrain/kenjaku/milestone/2)
 
