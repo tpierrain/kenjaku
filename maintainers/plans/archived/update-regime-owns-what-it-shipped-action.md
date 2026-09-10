@@ -161,6 +161,12 @@
 > the S0bis re-measurement, which stands and is worth keeping (28 of 32 top-level scripts carry an
 > entry guard, not 20; nine have no test sibling; the two 0 % files carry no guard at all). **No
 > production code was written**, so the first unticked box is still the real landmark.
+> → 🗑️ **THAT BRANCH IS GONE, 2026-09-09, and "which stands" no longer holds.** The debt it measured
+> was **paid five days after** it was written (`runAsEntrypoint` + the shrink-only guard test,
+> 2026-08-20), and **3 of its 9 test-less scripts have had tests since**. It was deleted rather than
+> merged, because its target file had been archived with v5.0.0. Its text stays reachable at
+> **`ec339dd`**, and the full reasoning is in the plan that owns the debt:
+> [`2026-08-23-v4.9.0-mutation-debt-plan.md`](2026-08-23-v4.9.0-mutation-debt-plan.md).
 
 # Action plan — the engine updates what it shipped, and only stops for what the owner really wrote
 

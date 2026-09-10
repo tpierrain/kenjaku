@@ -90,6 +90,8 @@ the rehearsal against a copy of a real brain.
 > `../../studies/two-humans-one-brain-study.md`, which lives only on the unmerged branch
 > `docs/study-two-humans-one-brain`. To settle after the release: merge that branch, or repoint the
 > link.
+> → ✅ **SETTLED 2026-09-09: the branch was merged, so the link resolves.** The study is on `main`,
+> carrying a dated note about the two facts this very release moved under it. Nothing left to do here.
 >
 > 🛑🛑 **THE RELEASE WAS HELD. THE OWNER'S DECISION, 2026-09-04:** *"On ne publie pas la release tant
 > qu'on n'a pas amélioré le mode Duo."* **Do not tag, do not publish, do not merge #86** until the
