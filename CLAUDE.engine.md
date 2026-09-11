@@ -412,6 +412,31 @@ the **next** resolution resolves against. A briefing turned a source's *"Jérém
   resolving anything against it, and never let it become established just for having been written
   down a while ago.
 
+### Source liveness — a source that went quiet is not a source with no news
+
+A connector's contract says an empty result is **not** an error. So *"the mailbox holds nothing on this
+subject"* and *"the search route is dead and will match nothing, ever"* arrive in exactly the same shape,
+and reporting the first one turns a source that was **never read** into a source with nothing to report.
+Reported from the field, on a wide catch-up pass: search stopped answering while reading a known thread
+kept working, and nothing said a word.
+
+- **The discriminator is a control query**, one extra call per source, before any emptiness becomes a
+  statement. Three properties, and all three are load-bearing: it goes through the **same route** that
+  answered empty (reading is no proof that searching works), it is **keyword-free** (a keyword is what
+  makes an honest zero possible), and it is built so that zero rows is **impossible on a live account**.
+  The control for each source you can wire is tabled in the `sync-sources` skill.
+- **Zero rows on the control = the source is DOWN, not empty.**
+- **A down source is an alert, never a silent omission.** Name it in the reply and in whatever you write,
+  on its own 🔴 line: *"mail was not read this pass, its search route answered nothing to a control query."*
+- **A down source disables every negative claim that depended on it.** You may not write *"no mail on this
+  topic"*: the sentence is unsupported, at the same bar as the unverified behavioural claims in *Claim
+  discipline* just below.
+- **The verdict is re-established on every pass, never inherited** from a note or a previous briefing, and
+  **pace the fan-out**: cap the concurrent calls per connector and **back off** on a route that starts
+  answering empty, rather than hammering it for the rest of the pass.
+
+> ⚖️ The outage itself belongs to the provider. What is yours is not presenting an unread source as a read one.
+
 ### Claim discipline — the silence you report is the dangerous part
 
 A search returns what is **relevant**, never what is **complete**. So when nothing comes back, that

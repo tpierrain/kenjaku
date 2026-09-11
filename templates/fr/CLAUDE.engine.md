@@ -428,6 +428,34 @@ ailleurs que dans cette note, et qui est désormais indexé.
   🔴 est une piste, pas la réponse du vault : revérifie-la avant de résoudre quoi que ce soit contre
   elle, et ne la laisse jamais devenir un acquis au seul motif qu'elle est écrite depuis un moment.
 
+### Vivacité des sources : une source tombée en panne n'est pas une source sans nouvelles
+
+Le contrat d'un connecteur dit qu'un résultat vide n'est **pas** une erreur. Du coup « la boîte ne
+contient rien sur ce sujet » et « la route de recherche est morte et ne matchera jamais rien » arrivent
+sous exactement la même forme, et rapporter la première transforme une source **jamais lue** en source
+sans rien à signaler. Remonté du terrain, sur une grosse passe de rattrapage : la recherche a cessé de
+répondre pendant que la lecture d'un thread connu continuait de marcher, et rien n'a rien dit.
+
+- **Le discriminant, c'est une requête de contrôle**, un appel de plus par source, avant qu'un vide
+  devienne une phrase. Trois propriétés, toutes les trois porteuses : elle passe par la **même route**
+  que celle qui a répondu vide (lire ne prouve rien sur la capacité à chercher), elle est **sans
+  mot-clé** (un mot-clé, c'est ce qui rend un zéro honnête possible), et elle est construite pour que
+  zéro ligne soit **impossible sur un compte vivant**. Le contrôle de chaque source branchable est
+  tabulé dans le skill `sync-sources`.
+- **Zéro ligne au contrôle = la source est EN PANNE, pas vide.**
+- **Une source en panne est une alerte, jamais une omission silencieuse.** Nomme-la dans la réponse et
+  dans ce que tu écris, sur sa propre ligne 🔴 : « le mail n'a pas été lu sur cette passe, sa route de
+  recherche n'a rien renvoyé à une requête de contrôle ».
+- **Une source en panne interdit toute affirmation négative qui en dépendait.** Tu ne peux pas écrire
+  « pas de mail sur ce sujet » : la phrase n'est pas étayée, à la même barre que les affirmations
+  comportementales non vérifiées de la *Discipline d'affirmation* juste en dessous.
+- **Le verdict est rétabli à chaque passe, jamais hérité** d'une note ni d'un briefing précédent, et
+  **cadence le fan-out** : plafonne les appels simultanés par connecteur et **ralentis** sur une route
+  qui se met à répondre vide, au lieu de la marteler pendant tout le reste de la passe.
+
+> ⚖️ La panne elle-même appartient au fournisseur. Ce qui t'appartient, c'est de ne pas présenter une
+> source non lue comme une source lue.
+
 ### Discipline d'affirmation — le silence qu'on rapporte, voilà le vrai danger
 
 Une recherche renvoie ce qui est **pertinent**, jamais ce qui est **complet**. Donc quand rien ne
