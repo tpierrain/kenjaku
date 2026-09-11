@@ -131,6 +131,20 @@ true forever: rationale, evidence, what was rejected and why, how it went.
    `Blocked on:`, `Owner's call pending:`, `A session may, alone:` — one date, **≤ 20 lines**, always
    that heading. The cap *is* the prevention: four slots have nowhere to put a narration and nowhere
    to put a second copy. It **replaces** any hand-written `WHERE THIS RESUMES` / `RESUME AT` header.
+   - 📏 **And the cap is now MEASURED, because for three weeks it was not** _(2026-09-12)_. This
+     paragraph has said *≤ 20 lines* since 2026-08-22 and every live plan broke it: **241**, **197**
+     and **43** non-empty lines, the 197 being the active plan, in which a re-read that day found
+     **six** entries that had gone false. Nothing was forgotten and no rule was missing — the rule
+     simply had **no machine**, which is the shape that fails silently. The braces:
+     `~/.claude/hooks/plan-state-size-guard.mjs`, on `Stop`, measures every **live** plan's block
+     (archived ones are frozen history and are never counted) and names the ones over cap. Like every
+     guard here it **judges no content**: it counts lines. Machine-local, so it does not travel — this
+     paragraph is the belt and arrives with the clone.
+   - 🎯 **Under the cap there is exactly one honest move: move the durable half DOWN.** The block's
+     failure mode is not length, it is **mixture** — history, lessons and dated decisions never
+     expire, so they accumulate, and once the block is long the writing habit degrades from *re-read
+     and correct* to *append on top*. Give the plan a `## 📜 History` section and let it be as long as
+     it likes: nothing re-reads the body at a resume.
 2. **A fact another system owns is linked, never asserted.** Merged, tagged, released, CI green,
    branch alive, which commit: **git and `gh` are the record.** Write `PR #76` as a link; never
    *"#76 is a draft"*, *"CI 7/7"* or *"nothing tagged"*. A ticked checkbox's _(date · commit)_

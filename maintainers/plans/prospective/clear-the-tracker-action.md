@@ -1,212 +1,37 @@
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 <!-- THE canonical plan for clearing the tracker. Opened 2026-08-23, hours    -->
-<!-- after the v5.0.0 tag. It spans TWO releases by the owner's call the same -->
-<!-- evening: v5.1 fixes only what an outside contributor reported, v5.2      -->
-<!-- takes the rest. It also INHERITS v5.0.0's post-tag tail.                 -->
+<!-- after the v5.0.0 tag. Its first release (the bugfix one) shipped as      -->
+<!-- v5.1.3 and its step detail is ARCHIVED; what is left is the rest of the  -->
+<!-- tracker. It also INHERITS v5.0.0's post-tag tail.                        -->
+<!--                                                                         -->
 <!-- The `## 📍 STATE` block below is this file's only perishable content:    -->
-<!-- do not restate it here, in another file, or in a resume header.          -->
+<!-- ≤ 20 non-empty lines (CONVENTIONS §3ter), measured on hand-back by       -->
+<!-- ~/.claude/hooks/plan-state-size-guard.mjs. Anything that will still be   -->
+<!-- true next month goes DOWN into § History, never up there. Do not restate -->
+<!-- the block here, in another file, or in a resume header.                  -->
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 
 # Action plan — clear the tracker, in two releases
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-08-23
 
-- ▶️ **NEXT, AND IT IS AUTHORISED TO RUN AUTONOMOUSLY** _(2026-09-12, he said go and went to bed)_.
-  **Two deliverables, strictly in this order** — his sequencing, not a preference:
-  1. 🧹 **Fix the state-block hygiene** (below), then
-  2. 🗺️ **Propose a product plan for every remaining open issue** (below).
-  Standing permissions are unchanged: work it, commit it, push it, read what CI returns. **Do not**
-  tag, publish, or write into either of his two personal brains.
+- **Next:** ▶️ **the product proposal for the whole open tracker** → § *v5.2 — the product proposal*.
+  It is a **proposal**, not a start: no code is written against any of those issues until he has read
+  it _(2026-09-12, his words: « ne pas attaquer les devs pour ces tickets pour l'instant »)_.
+- **Blocked on:** nothing a session can unblock.
+- **Owner's call pending:** the proposal above — keep its grouping, its order and its release cut, or
+  change them. Three older questions sit in § *Questions the owner owns* and are **not to be re-asked**:
+  #77's release slot, #78's launcher-README link, `ci.yml`'s `concurrency` group.
+- **One thing waits on him and on nobody else:** dispatch the nightly mutation workflow by hand and
+  **read the score** → § *Inherited from v5.0.0*. No session may declare that rollout condition met.
+- **A session may, alone:** work v5.2 test-first **once the proposal is approved**, label and
+  milestone issues on GitHub _(granted 2026-09-12)_, commit, push, and read what CI returns.
+  **Not:** tag, publish, merge to `main`, write into `templates/fr/**` (one carve-out, § *History*),
+  or write into either of his two personal brains.
+- **Already delivered by this plan:** the bugfix release → § *v5.1 — delivered*. Every lesson it left
+  and every branch it closed is in § *History*: finished, therefore not here.
 
-- 🧹 **DELIVERABLE 1 — the state block holds only what expires, and a machine enforces it.**
-  _(Decided 2026-09-12, after a re-read found **six** false entries in this very block.)_
-  - **The diagnosis, and it is NOT length.** He proposed shorter plans; the evidence refused it. The
-    worst of the six (*"the note lives only in a scratchpad"*) sat **four lines** from the entry
-    contradicting it, so brevity would not have saved it; two others were falsified by the **outside
-    world** (a new issue opened, he answered a question), which no length protects against; and the
-    long passages are what **prevented** mistakes this week (the de-identification constraint, *"do
-    not lead with that number"*, #95's false premise). **The real cause is that this block mixes what
-    expires with what never does** — history and lessons — so it grows, and once it is long the
-    writing habit degrades from *re-read and correct* to *append on top*.
-  - **The fix, mechanical rather than a good intention** (his standing preference: a rule that must be
-    remembered has already failed):
-    - [ ] **Cap `## 📍 STATE` at ~25 lines**, enforced by a hook on hand-back that **counts lines and
-          judges no content** — so it cannot be wrong about prose, and costs a millisecond. The cap is
-          the forcing function: the only way under it is to move the durable content out.
-    - [ ] **Move everything non-perishable down into the body** (findings, lessons, history, dated
-          decisions). The body may be as long as it likes: nothing re-reads it every session.
-    - [ ] **Archive the delivered `v5.1` section** — shipped as v5.1.3, so the block deflates on its
-          own with nothing lost.
-    - [ ] ⚠️ **Open design point, do not re-derive it**: the hook would be **machine-local**, like
-          `plan-carrier-guard`, so it does not travel. Same belt-and-braces split as everywhere else —
-          write the rule down too, and let the hook be the braces.
-
-- 🗺️ **DELIVERABLE 2 — a product proposal for the 13 open issues, with a PM hat on.** His words:
-  *"j'aimerais que tu me fasses une proposition de plan d'action pour qu'on tacle tous les issues
-  GitHub qui restent ouvertes… il y a peut-être des thématiques qui vont ensemble, une notion
-  d'urgence… voudrais-tu mettre une casquette de product manager… Est-ce que c'est une seule release à
-  venir avec tout ? Est-ce que c'est plusieurs ?"*
-  - **What it must answer**, explicitly: the **grouping by theme**, the **urgency** of each group, and
-    **one release or several** — with a recommendation, not a menu.
-  - **It is a PROPOSAL, not a start.** Nothing gets implemented off the back of it until he has read it.
-  - **The 13** _(counted 2026-09-12)_: #98, #96, #84, #83, #82, #81, #79, #78, #77, #72, #68, #66, #62.
-    Note #77 already has a standing recommendation here (**v5.2**) and #83 is the near-miss of #80,
-    a *different* defect — both are in § *v5.2* below with their analysis.
-
-- 🧭 **THE THREE UNMERGED BRANCHES WERE JUDGED AND DEALT WITH — closed, 2026-09-09.** Each needed a
-  *different* treatment, and "merge the three" was a bad recommendation the owner caught, because it
-  was made on their **status** (unmerged) rather than on **whether what they said was still true**.
-  Outcome: the two-humans study **merged** with a dated note (which also repaired #84's link to a file
-  `main` did not have); #80's analysis **transplanted by hand** into § *v5.1* below, framing left
-  behind; the mutation branch **dropped** as superseded, its target having been archived with v5.0.0.
-  All three branches are deleted, remote and local.
-  - 🔖 **The two commits that never merged, so their text stays recoverable** (`git show <sha>`, for as
-    long as the remote keeps them): `docs/v5.1-takes-the-silent-source` → **`d983fd4`** ·
-    `fix/mutation-debt-entrypoint-and-git-value` → **`ec339dd`**. What survived was carried over by
-    hand; what did not is named in this file's own history with the reason.
-  - 📌 **The lesson is the reusable part** — *judge content, not status*: never recommend
-    merge/keep/drop from "unmerged" or "old", read it and check it against today's code.
-
-- 🆕 **A NEW ISSUE LANDED THE SAME EVENING, AND IT IS NOT SCHEDULED** _(2026-09-09)_:
-  [#96](https://github.com/tpierrain/kenjaku/issues/96) — a **second machine silently misses part of
-  an engine update**. The owner suspected it out loud, and reading the code confirmed it: the Layer B
-  self-heal gate (`self-heal-detect.mjs`) asks only *"is a skill missing?"* and *"is an MCP server
-  missing?"*, so a release that ships **a new hook**, **a new allowlist entry** or **a new npm
-  dependency** never triggers a reconcile on the machine that merely pulled. He asked for it to be
-  **filed, not worked**. It is the same shape as the harness drift he hit the day before: the files
-  travel, the wiring that makes them run does not.
-- 📉 **THE TRACKER IS AT 13 OPEN ISSUES** _(counted 2026-09-12, not recalled)_. Seven have come off
-  since this plan opened, **every one on evidence, none by a bulk sweep**: #90 and #92 (v5.1.2 and
-  v5.1.1, the latter on measured field evidence), then the five this release carried — #71, #73, #74,
-  #80, #95 — each closed with a comment saying what shipped and how it was checked.
-  - 🆕 **#98 arrived after this release's sweep** _(update-engine: ask for confirmation with a
-    clickable question, not a line of prose)_ and is **unscheduled**. It is not in the twelve that
-    § *v5.1* reviewed and left open.
-  - **Everything else stays open deliberately**: this plan says those are not started, and *not
-    started* is not *closeable*. The sweep proper (v5.2) is still ahead.
-
-- 🏷️ **"v5.1" IN THIS FILE IS A SECTION NAME, NOT A VERSION — and the version is now known.** The tag
-  *The One with the Duo Mode* took `v5.1.0` on 2026-09-06 and carried none of these issues (this plan
-  was parked behind that work, by the door's own ordering). The bugfix release this section describes
-  went out as **`v5.1.3`** on 2026-09-11. So read every *"v5.1"* heading below as **"the bugfix
-  release"**; there is nothing left to decide about its number. Record of the earlier tag:
-  [`../archived/v5.1.0-code-review-fixes-action.md`](../archived/v5.1.0-code-review-fixes-action.md).
-
-- ✅ **v5.1 IS DONE AND SHIPPED — all five issues fixed, merged, tagged and published as v5.1.3**
-  _(2026-09-11: one autonomous stretch for the code, then the owner drove the release)_.
-  `fix/v5.1-bugfixes` → **[PR #97](https://github.com/tpierrain/kenjaku/pull/97)** →
-  `main` (`23efd5f`) → **[v5.1.3](https://github.com/tpierrain/kenjaku/releases/tag/v5.1.3)**.
-  **All 7 matrix cells passed, plus the Windows installer end-to-end**, on the PR and again on `main`
-  after the merge. Every commit was pushed and every push read.
-  > 📌 This headline read *"on a branch, and nothing is merged or tagged"* for most of the day and was
-  > made false by the entries nested under it. That is the whole reason the always-loaded save-point
-  > rule (machine-local, outside this repo) now says the save point is a **re-read of this block from
-  > the top**, never an append to it. Left visible on purpose.
-  - 🏷️ **THE RELEASE IS NAMED AND ITS NOTE IS APPROVED** _(2026-09-11, his call, both of them)_:
-    **`v5.1.3 — The One Where It Stops Crying Wolf`**, and the drafted note got *"ok pour la release
-    note, on peut y aller"*. So the number is **no longer a placeholder**: the fingerprint table's
-    `v5.1.3` is the real one, and needs regenerating only if the bytes of a merge-regime file move
-    again. **The note is a tracked file**,
-    [`../archived/release-v5.1.3-note.md`](../archived/release-v5.1.3-note.md) — it was drafted in a
-    scratchpad and moved into the repo before publication, precisely so it could not die at a `/clear`.
-  - ✅ **Every gate this release owes is now passed.** All 7 matrix cells + the Windows installer
-    end-to-end are green on PR #97's final commit (`68d5c40`), the §10ter field rehearsal ran **against
-    this branch** on an old French brain with the new script verified *running* in the updated copy
-    (step 8's 🧪 item holds the readings), and the §10 marketing re-read is done and recorded.
-  - 🔀 **MERGED — he said *"fusionne stp"* and PR #97 landed on `main` as `23efd5f`** _(2026-09-11
-    09:30 UTC, a merge commit, never a squash, as `5b16101` and `c10e4b5` before it)_. **`main`'s own
-    checks are green** after the merge. The branch `fix/v5.1-bugfixes` is now merged history.
-  - 🚀 **PUBLISHED — he said *"publie"*, and v5.1.3 is out** _(2026-09-11)_:
-    **[v5.1.3 — The One Where It Stops Crying Wolf](https://github.com/tpierrain/kenjaku/releases/tag/v5.1.3)**,
-    an annotated tag on `23efd5f`, note published from the tracked file
-    [`../archived/release-v5.1.3-note.md`](../archived/release-v5.1.3-note.md) (kept in the repo so it
-    does not die at a `/clear`; its `## What you get` is verified to survive `extractWhatYouGet`
-    verbatim, 3 moments and 6 bullets — the §11 check the v5.0.0 note silently failed).
-  - ✅ **The five issues are closed AND carry their evidence.** They auto-closed at the merge, which is
-    exactly the half-job §10bis warns about, so a comment was written on each one afterwards. The two
-    **doctrine** issues (#80, #95) were closed the way that convention demands — by **reading the rule
-    out of a real updated brain in its own locale**, not off the merge: the French `legacy-brain` copy
-    carries *Vivacité des sources* and *Retours à la ligne*, and the shipped script **runs** there
-    (`--check vault` → 9 of its 30 notes).
-  - 🧾 **And what this release did NOT close, reviewed one by one** (the half of §10bis that is easy to
-    skip). The **twelve** open at the time of the sweep, none of them covered: **#96, #84, #83, #82,
-    #81, #79, #78, #77, #72, #68, #66, #62**. (#98 was opened afterwards and was not part of it.) The only near-miss is **#83** — *an absence claim stated as general when only the
-    vault and the chat tool were searched* — which shares #80's subject and is a **different defect**:
-    #80 is *"the source could not answer"*, #83 is *"the claim is broader than what was searched"*.
-    Fixing one does not fix the other, and it stays open deliberately.
-  - 🔁 **The #77 question was put to him and he has not answered it** — he answered the two that came
-    after instead (the name, then the note). Its silence now reads as *not in this release*, which is
-    also the standing recommendation (**leave it in v5.2**). § *THE ONE QUESTION* holds the trade-off.
-    **Do not ask a third time**; it has been asked twice.
-- **Next (what the FIVE were):** _(2026-09-09: #80 joined when its analysis was
-  recovered from an abandoned branch; 2026-09-11: #95 joined at the owner's ask)_. **Three** subjects,
-  and the third is the only one not reported from outside: the checker that cries wolf
-  ([#71](https://github.com/tpierrain/kenjaku/issues/71),
-  [#73](https://github.com/tpierrain/kenjaku/issues/73),
-  [#74](https://github.com/tpierrain/kenjaku/issues/74)), a source that goes quiet without saying so
-  ([#80](https://github.com/tpierrain/kenjaku/issues/80)), and a no-hard-wrap rule that guards files
-  but not the text copied out of the chat
-  ([#95](https://github.com/tpierrain/kenjaku/issues/95)) → § *v5.1*. The milestone on GitHub carries
-  all five and stays **bug-fix only**: the owner's call when he added #95, *"#95 décrit un bug plus
-  qu'une nouvelle feature"*. **All five are now ticked in § *v5.1* below**, each with its commit.
-- ▶️ **THE AUTONOMOUS STRETCH IS OVER — it ran on 2026-09-11 and finished.** He said go, left, and
-  came back to a green PR. Order worked: **#95 first, then the rest.** Branch `fix/v5.1-bugfixes`.
-  Per this file's own permissions a session may work it test-first end to end and push the branch, but
-  may **not** tag, publish, merge to `main`, write into `templates/fr/**`, or touch either of his real
-  brains.
-  - [x] **#95 — the no-hard-wrap rule** _(`c50d5ad`, `13f3f31`)_. The net it names had to be built
-        first: it existed only inside his brain, never in this repo.
-  - [x] **#71 / #73 / #74 — the checker that cries wolf** _(`d797707`)_.
-  - [x] **#80 — a silent source** _(`92ee76f`)_. Its design call is made and written down: the control
-        query goes through the same route that answered empty, carries no keywords, and is built so
-        zero is impossible on a live account.
-  - [ ] **Step 8 — answer the reporters, and the release note.** Not startable until the tag's number
-        is his call.
-- 🎙️ **THAT DEFERRAL HAS EXPIRED — the question is live again** _(2026-09-11, second half of the
-  day)_. Whether [#77](https://github.com/tpierrain/kenjaku/issues/77) rides along in v5.1 was
-  deferred in his words — **"à l'issue de ça, on se reposera la question"** — *until the five were
-  done*, and they are. It was **put to him at the end of the autonomous stretch and is awaiting his
-  answer**; § *THE ONE QUESTION* holds the trade-off, recommendation unchanged (**leave it in v5.2**).
-  Do not re-ask it a second time: read his answer if it has arrived, and otherwise leave it be.
-- **Blocked on:** nothing a session can unblock. The five are done; what remains needs the owner (the
-  tag's number, the merge, the release note) or the reporter (the one-call throttling test under step
-  5, which needs their own account and cannot run from here).
-- **Owner's call pending:** **ONE, and it is due now.** § *THE ONE QUESTION*: should
-  [#77](https://github.com/tpierrain/kenjaku/issues/77) ride along in v5.1? He deferred it on
-  2026-09-11 *until the five were done* — and they are. Recommendation unchanged: **leave it in
-  v5.2**. Everything else v5.1 still needs (number, tag, merge, release note, closing the issues) is
-  his by this plan's own permissions, not a decision to be asked for.
-  - ⏸️ **Two inherited questions, deliberately not re-asked.** (1) Inside #78, a product question only
-    he can answer: *is a brain's copy of the launcher README meant to link to the launcher's own docs
-    at all?* (2) The `concurrency` group for `ci.yml` (recommendation: yes) — offered three times,
-    gating nothing. **Do not offer either a fourth time**; they wait here until he raises them.
-- 🎯 **INHERITED FROM THE v5.1.0 TAG, and it is this plan's now** _(2026-09-06)_: close
-  [#84](https://github.com/tpierrain/kenjaku/issues/84) **when a real brain has received the live
-  sync** — the tag alone does not prove that, which is why it was not closed on publication.
-- **A session may, alone:** work **v5.1** test-first end to end, and write the macOS flake's
-  instrument (§ *Inherited from v5.0.0*). **Not** tag, publish, push to `main`, write into
-  `templates/fr/**`, or write into either of his two real brains.
-  - ⚠️ **The `templates/fr/**` clause was breached twice on 2026-09-11, deliberately, and the reason
-    is structural rather than a judgement call.** Four of the localized files are watched by the EN/FR
-    drift guard, whose criterion is *unpaired commits*: an English-only commit on any of them turns
-    the suite red and leaves every later commit of the release ambiguous. So the clause as written
-    cannot be obeyed on a file the guard watches without abandoning green-only commits. **Either the
-    clause gains a carve-out for guard-watched pairs, or the guard gains a waiver path** — it is a
-    contradiction in this plan, not a rule that was ignored. The French wording written on that day is
-    his to correct; nothing else under `templates/fr/**` was touched.
-- **One tidy-up is decided and NOT done** — § *The fold that is owed*. Five minutes of editing; it
-  belongs to whoever opens v5.2's universe group.
-- 🙋 **ONE THING WAITS ON THE OWNER AND ON NOBODY ELSE** _(2026-09-02; the merge half is now done,
-  2026-09-06)_: **dispatch the nightly mutation workflow by hand and READ the score.** Both causes of
-  its fortnight of red are fixed and verified in CI's own shape (§ *Inherited from v5.0.0*), and the
-  truncated-clone fix is **on `main` since 2026-09-06** — carried by
-  [PR #89](https://github.com/tpierrain/kenjaku/pull/89) (merged, `ae8671a`), **not** by
-  [PR #85](https://github.com/tpierrain/kenjaku/pull/85), which was **closed as superseded**: five of
-  its seven commits had already landed through v5.1.0, so it was five days behind `main` and a rebase
-  would have replayed present work. What remains is only the reading: "dispatch and read before
-  trusting the cron" is the rollout condition that workflow was written with, and no session may
-  declare it met. The cron of **7 September** is the first that can produce a score; a red one that
-  morning is a NEW cause, not this one.
+## Tracking
 
 > **The two-release split is the owner's, 2026-08-23**: *« ce serait bien de faire une petite issue
 > pour bug fixer les issues remontées par Stefan ces prochains jours (une 5.1), puis de traiter les
@@ -216,243 +41,23 @@
 > nine-issue release does not. Everything in v5.2 is either the owner's own finding or the owner's own
 > idea, and can wait a fortnight without anyone feeling ignored.
 
-## Tracking
+### v5.1 — delivered as v5.1.3, and its step detail is archived
 
-### v5.1 — what outside users reported · milestone [`v5.1`](https://github.com/tpierrain/kenjaku/milestone/1)
+Five issues, three subjects, shipped 2026-09-11 and archived the way §7 archives anything finished:
+[`archived/2026-09-12-v5.1.3-bugfix-release-delivered.md`](../archived/2026-09-12-v5.1.3-bugfix-release-delivered.md).
+That file holds the whole step detail — what was measured, what was rejected, the field rehearsal, the
+mutation scores — and it is **the only place** that detail lives. Do not restate any of it here.
 
-_**Three** subjects, and the release stays **bug-fix only** — the owner's call, 2026-09-11, when #95
-was added: **"#95 décrit un bug plus qu'une nouvelle feature"**. Two subjects were reported from
-outside the project, on real brains; the third was measured on his own session. All three are the
-same shape: something healthy is reported as broken, or something broken is reported as healthy._
-_(Read "v5.1" as **the next bugfix release** — see the header note; the number is the owner's.)_
-
-#### A checker stops reporting healthy things as broken
-
-_Reported by [@StefanPenndorf](https://github.com/StefanPenndorf), from a real vault._
-
-_All three shipped 2026-09-11 · `d797707`._
-
-- [x] **1.** `/lint` resolves an image or attachment embed (`![[shot.png]]`) instead of calling it
-      dangling — [#71](https://github.com/tpierrain/kenjaku/issues/71). The resolver only ever indexed
-      `.md`, so every picture in every note read as a dead link.
-  - [x] Attachments are **resolution targets and nothing else**: never an orphan, never frontmatter
-        rot, because an attachment is not a note. They reach the core through `options.attachments`,
-        and both callers (`/lint` and the session-start nudge) read them from the **same** vault dir
-        as the notes.
-  - [x] The list is the **complement** of the note list, not an allow-list of image extensions:
-        `.excalidraw`, `.canvas`, `.webp` and whatever Obsidian supports next need no maintenance, and
-        every miss in an allow-list would have been a permanent false positive.
-  - [x] Registered under their **full spelling only** (extension included), so a picture can never
-        answer for a missing note of the same stem.
-  - [x] 🔎 **#71 WAS LIVE ON A SECOND SURFACE, and the mutation run is what found it** _(`1a5b7f1`
-        family, 2026-09-11)_. The session-start nudge surfaces **two** scans over the same resolver,
-        so fixing only the dangling-link half **moved** the false positive instead of removing it: the
-        same unresolved target reaches the consolidation scan, where *unresolved* means *no page for
-        this yet* — and the brain stopped calling the screenshot a dead link and started **proposing a
-        note called `screenshot.png`**. Resolving attachments there also exposed a crash on the way:
-        the resolved path is not a note, so reading its frontmatter is a `TypeError`, inside a
-        **fail-open** hook where that surfaces as the whole nudge silently vanishing, real findings
-        included.
-- [x] **2.** `/lint` unescapes the alias pipe inside a table cell (`[[note\|alias]]`) before resolving
-      — [#73](https://github.com/tpierrain/kenjaku/issues/73). A Markdown table forces the escape, so
-      the checker looked for a filename that cannot exist. The cascade is pinned by its own test: the
-      target stops being a false orphan, and the staleness reference it used to drop is counted again.
-- [x] **3.** `/lint` stops flagging `backlog/` as an orphan zone —
-      [#74](https://github.com/tpierrain/kenjaku/issues/74). Keyed on the **folder**, which covers
-      every locale at once (the overlay localises the file, never the folder) and gets
-      `<universe>/backlog/` for free. It stays held to the frontmatter rule: exempt from orphan is not
-      exempt from taxonomy.
-- [x] **4. 📉 This half is measured by the number, not by the three fixes.** **A checker nobody
-      believes is a checker nobody reads.**
-  - [x] 📐 **Measured, and the honest answer is not the one this step predicted.** On the owner's real
-        663-note vault, before → after: **orphans 87 → 85**, dangling links **18 → 18**, stale 4 → 4,
-        frontmatter 3 → 3. The line above assumed *"#71 + #73 inflate that count"*, and on **this**
-        vault they cannot: it holds **zero** attachment embeds and **zero** escaped pipes (measured,
-        not assumed). Those two were reported from **a different vault**, and both are proven by
-        running the CLI as a process against a tree built to the issues' own repro steps.
-  - [x] ⚠️ **So the release note must not lead with a number from this brain.** Two of the three fixes
-        would read as having changed nothing. Lead with **what stops being reported** — a pasted
-        screenshot, a link inside a table, the engine's own backlog — and keep the 87 → 85 as the one
-        figure that is genuinely ours to quote.
-
-#### A source that goes quiet is reported as a source with no news
-
-_Reported 2026-08-24 by a user running a deployed brain, during a wide catch-up sync. **Keep this
-entry de-identified**: the raw report named a person, a company and mailbox content, and the owner
-asked for it anonymised. Nothing identifying goes into the issue, the plan, or the release note._
-
-> 🛟 **Transplanted by hand on 2026-09-09, from the branch `docs/v5.1-takes-the-silent-source` that
-> was never merged.** Until that day **no plan in this repo mentioned #80 at all** — the analysis
-> below, and the de-identification instruction above, existed only on an abandoned branch. The
-> branch's own release framing was stale and is deliberately left behind; the substance is what
-> moved. **Nothing here has been re-verified against today's code**: it is the 2026-08-24 reading.
-
-- [x] **5. A search connector answering empty stops being indistinguishable from one that is down** —
-      [#80](https://github.com/tpierrain/kenjaku/issues/80). _(2026-09-11 · `92ee76f`.)_ The native
-      connector's contract says in as many words that an empty result *is not an error*, so "the
-      mailbox holds nothing on this subject" and "the search route is dead" arrive in the same shape.
-      The brain reported the first, and a source that was never read appeared in a digest as a source
-      with no news.
-  - [x] **The discriminator is a known-positive control query**, one per search connector, broad and
-        keyword-free, designed so that zero rows is impossible on a live account. Zero on the control
-        = the source is **down**, not empty. **This was the one design call in this half**, and it is
-        now made:
-    - [x] 🎯 **Three properties, each load-bearing, and the first one is the non-obvious one.** The
-          control goes through the **SAME route that answered empty**. In the report, reading a thread
-          by its id worked perfectly throughout — so a control run on the read route would have come
-          back with a confident *"healthy"* about a route that was dead. It is **keyword-free**,
-          because a keyword is precisely what makes an honest zero possible. And it is built so that
-          zero rows is **impossible on a live account**: if a legitimate account could answer zero,
-          it is not a control.
-    - [x] 📋 **A named control for every source the installer can wire** (mail, chat, calendar, drive,
-          Notion), in a table, with the reason zero is impossible written beside each. A rule that
-          says *"run a control query"* and names none is a rule every session re-invents differently,
-          so the table is pinned by the guard: a source with no row is exactly the one that goes
-          unchecked.
-    - [x] 🔧 **And the escape hatch is written down**, or the table becomes a reason to skip the check
-          on anything it does not cover: a connector with no keyword-free form gets the broadest query
-          expressible, **declared as weaker** in the artifact, never skipped in silence.
-  - [x] **A down source is an alert, never an omission** — named in the reply and in any written
-        briefing, and it disables every negative claim that depended on it ("no mail on this topic"
-        becomes unwritable). It may not be silently skipped.
-  - [x] **The verdict is never cached**, per `sync-sources`' own rule that a capability recorded as
-        absent must be re-tested.
-  - [x] **Pace the fan-out.** Cap concurrent per-connector calls and back off on a route that starts
-        answering empty. Stated **twice on purpose**: in the discipline, and again at the fan-out step
-        itself, which is the wide parallel pass it is about and sits three screens below where it is
-        explained.
-  - [x] 🛡️ **Carried on four surfaces, and pinned by a doc guard** —
-        `scripts/lib/source-liveness-discipline.test.mjs`, built like `claim-discipline.test.mjs`. The
-        producer skill and the constitution, each in two locales, drift independently, and **no
-        runtime check is possible here**: no script in this repo can call an account-side connector to
-        measure liveness. The four assertions about the fan-out step were **verified to fail against
-        the pre-edit skills**, so the guard is known to discriminate rather than merely to pass.
-  - [ ] 🔬 **The leading hypothesis, and the one-line test that settles it.** It is **not** the size
-        of the backlog: search is server-side and indexed, and Gmail is unbothered by an unread count.
-        It is the **number of search calls our catch-up made** — a long absence means a wide window,
-        which means deep pagination, and the route that got throttled is precisely the expensive one
-        (single-thread reads stayed cheap and kept working throughout). **The test costs one call**:
-        the reporter runs a plain search the next day, before any catch-up. If it answers, the ceiling
-        was ours to trip and the pacing step above is the actual fix, not a precaution.
-    - ⏸️ **Nothing here can run it**: it needs the reporter's own account, and the report is
-          de-identified. It stays open as a question to put to them when step 8 answers them, and it
-          changes **nothing** that shipped: the pacing was written as the fix either way.
-  - [x] ⚠️ **THE FRENCH TWIN WAS WRITTEN, and the reason is the same as #95's.**
-        `templates/fr/.claude/skills/sync-sources/SKILL.md` and `templates/fr/CLAUDE.engine.md` are
-        both watched by the EN/FR drift guard, whose criterion is *unpaired commits* — so shipping the
-        English half alone turns the suite **red** and makes every later commit of this release
-        ambiguous. That is a worse outcome than a French paragraph the owner may want to reword, so
-        both halves went in one commit. **The French wording is his to correct.**
-- [x] **6. ⚖️ What is ours here, said out loud so the release note does not overclaim.** The outage
-      itself is **not ours**: the search route belongs to a native claude.ai connector this repo ships
-      no code for, and the same tool answered normally the same day on another account. What is ours,
-      and all we fix, is that the brain **presented an unread source as a read one**. Said in the
-      shipped text itself, not only here, so the sentence survives whoever writes the release note.
-
-#### A rule that guards files does not guard the text you copy out of the chat
-
-_Added to this release on 2026-09-11, at the owner's ask. Not field-reported: measured on his own
-session of 2026-09-09, after three earlier corrections on the same defect. **It is a bug, not a
-feature** — his call, and the reason this release keeps its bug-fix-only framing: the rule exists and
-is correct, it simply never fires on half of what it names._
-
-- [x] **7. The no-hard-wrap rule moves into `CLAUDE.engine.md`, and triggers on the destination
-      instead of on the word "file"** — [#95](https://github.com/tpierrain/kenjaku/issues/95).
-      _(2026-09-11 · `c50d5ad` + the doctrine commit that follows it.)_ The rule sat in each owner's
-      personal `CLAUDE.md` and opened on *"aucun **fichier** Markdown…"*, so it fired on vault notes
-      and never on the fenced block in the chat, which is exactly the text that gets copied into
-      Slack. Same session: four notes written clean, three fenced blocks hard-wrapped at 95
-      characters.
-  - [x] **The rule lands in the engine layer**, worded as *never insert a line break the content does
-        not require*, naming the destinations explicitly — vault notes, cheat sheets, article drafts,
-        messages to send, **and fenced blocks in the chat**. Under `## Expected Claude Code
-        behaviors`, first subsection, in **both** locales.
-  - [x] **The copy in the generated `CLAUDE.md` template is removed, not left alongside.** It turned
-        out there was **nothing to remove**: `CLAUDE.md.template` never carried the rule. The copy
-        that exists is in the owner's own brain (`~/mind-palace/CLAUDE.md:92`), which a session may
-        not write into — so the engine layer now **tells its reader to delete it**, and the release
-        note has to repeat that (step 8).
-  - [x] **Say plainly that no machine can inspect chat output before the owner sees it**, so that half
-        is a written reflex by construction. The deterministic net covers files only:
-        `node scripts/unwrap-markdown.mjs <file|folder>`.
-  - [x] 🛠️ **…and that net had to be BUILT, because it did not exist here.** The issue states the
-        script is "already engine-owned". It is not: it lives only inside the owner's brain,
-        hand-written, and `git log -S` finds it nowhere in this repo. Pointing the engine at a script
-        no brain has would have shipped the exact defect this release is about, so
-        `scripts/unwrap-markdown.mjs` (+ its pure core under `scripts/lib/`) is now engine-owned,
-        registered under the manifest's `replace` regime, scripts `1.17.0 → 1.18.0`. Two defects in
-        the reference implementation were fixed on the way: a CRLF document got a carriage return
-        buried mid-paragraph, and an unchanged file was rewritten byte-identical.
-  - [x] **The upgrade path says what to do for existing brains** whose personal `CLAUDE.md` still
-        holds the old wording. Two halves, and only one of them could be done here: the engine layer
-        carries the instruction inline (it is a `merge`-regime file, so an untouched copy is refreshed
-        on upgrade), and the **release note owes the same sentence** — that is the half that reaches
-        an owner who never opens the constitution. Recorded in step 8.
-  - ⚠️ **THE FRENCH TWIN WAS WRITTEN, against this plan's own standing constraint, and here is why.**
-        The constraint says a session ships the English half and stops. But
-        `templates/fr/CLAUDE.engine.md` is one of the 16 pairs the EN/FR drift guard watches, and its
-        criterion is *unpaired commits* — so an English-only commit turns the suite **red** and keeps
-        every later commit of this release ambiguous. Choosing between "a French paragraph the owner
-        may want to reword" and "a red suite for the rest of the release" is not a close call, so both
-        halves went in one commit. **The French wording is the owner's to correct**, and nothing else
-        in `templates/fr/**` was touched.
-
-#### All three subjects
-
-- [x] **9. 🧬 Mutation, per CONVENTIONS §5quinquies: every new file measured the day it was written.**
-      _(2026-09-11 · recorded in [`../../mutation/RESULTS.md`](../../mutation/RESULTS.md).)_ The two
-      new files end at **98.36 %** and **100 %**, the changed hunks of the checker at **92.31 % to
-      100 %**. The first pass on the new rewriter read **81.45 %** with tests that were not thin, and
-      what the survivors said is worth more than the number: the batch proved each refusal **fires**
-      and never proved **where it stops**. Two survivors were real — the macOS-invisible path
-      separator, and the default parameter whose reachability led to #71's second surface above.
-      Every survivor left is a named equivalent.
-
-- [x] **8. Answer both reporters.** _(2026-09-11, v5.1.3)_ Each issue closed with what shipped and how it was verified
-      (`CONVENTIONS.md` §10bis). The release note names the `/lint` contributor; the second report
-      came through a private channel, so it is credited **without a name**.
-  - [x] 📄 **The release note owes ONE sentence that is not a summary of a fix**, and it is the only
-        thing this release asks of a reader: *if your own `CLAUDE.md` carries the "no line break
-        inside a paragraph" rule, delete it — the engine holds it now.* Without it, the two copies
-        diverge in every brain that had one, which is the defect #95 is about, one layer up.
-  - [x] 🔢 **The fingerprint table currently says `v5.1.3`** — and that placeholder became the real
-        number, so nothing had to be regenerated., folded in while regenerating it for the
-        constitution change. It is a **placeholder**: the number is the owner's call, and the table is
-        regenerated once more against the real tag before it is cut
-        (`node maintainers/fingerprints/generate-fingerprints.mjs --version <tag>`).
-  - [x] 🪧 **Marketing surface re-read** _(2026-09-11, `CONVENTIONS.md` §10)_. **Nothing was made
-        false.** *"Never overwrites your notes"* (README, Guardrails and the reliability board) still
-        holds: the new rewriter is a command the owner runs, never a hook, and no deterministic
-        machinery calls it.
-    - [x] **One thing was made TRUE that we did not sell** — and it strengthens the flagship
-          reliability claim, so it went on the page: *"Silence is reported as silence"* (README) and
-          its twin in `EN-QUOI-C-EST-DIFFERENT.md` now add that **a source that could not be reached
-          is told apart from a source with nothing to say**. Before #80 the brain could not verify a
-          silence at all, which made *"a silence it has not verified"* the whole story; it no longer is.
-    - [x] **Boards re-read, no re-render** — the boring verdict, written down because *checked* and
-          *not looked at* are indistinguishable a month later. `board-connect`'s *"read-only, it reads
-          your sources, never changes them"* and `board-reliability`'s copy are both untouched by this
-          release; the liveness check reads, it does not write.
-  - [x] 🧪 **The field rehearsal (§10ter) RAN AGAINST THIS BRANCH AND PASSED** _(2026-09-11)_ —
-        `engine-manifest.json` changed (a new `replace`-regime script, `engineVersion.scripts`
-        1.17.0 → 1.18.0), which is exactly the *old parent, new child* case no suite here can see.
-        Brain: `~/legacy-brain`, a real one installed **2026-06-18 at v3.4.0**, 30 notes, in **French**,
-        and deliberately **not** one of the owner's two personal brains.
-    - [x] **The three sections read against each other, never one alone.** Report: `v5.1.3`, 504 engine
-          files swapped, 19 new capabilities. State after: `source.ref v5.1.3`, `engineVersion.scripts`
-          **1.18.0**. Territory: **byte-identical** — the update touched nothing the owner owns.
-    - [x] **And the manifest change was checked where it actually lands, not in the report.** In the
-          updated copy: `scripts/unwrap-markdown.mjs` + its lib are present and **the CLI runs there**
-          (`--check vault` → *9 file(s) would change*, on a vault nobody authored for this test —
-          field evidence for #95 in its own right). The brain being French, its `CLAUDE.engine.md` is
-          **byte-identical to `templates/fr/CLAUDE.engine.md`** and carries both new rules
-          (*Retours à la ligne*, *Vivacité des sources*), and the FR `sync-sources` skill carries its
-          liveness section.
-    - [x] ⚠️ **The first run was a green that proved the wrong thing, and it is worth remembering.**
-          The harness force-tags the mirror at `--tag`, default **`v5.0.0`** — older than the newest
-          published release, so the brain's updater correctly chose **v5.1.2** and the branch's code
-          was never exercised, while the report said ✅ and the territory said byte-identical.
-          **On any release after a published one, `--tag <the real number>` is not optional.**
+- [x] **Delivered** — [v5.1.3 — *The One Where It Stops Crying Wolf*](https://github.com/tpierrain/kenjaku/releases/tag/v5.1.3)
+      _(2026-09-11 · `23efd5f` · [PR #97](https://github.com/tpierrain/kenjaku/pull/97))_. All five
+      issues closed **with their evidence**, both reporters answered, marketing surface re-read, field
+      rehearsal run against the branch on a real French brain.
+- [ ] **One tail is open, and it needs the reporter rather than us** — the one-call throttling test
+      behind [#80](https://github.com/tpierrain/kenjaku/issues/80): a plain search run from their own
+      account, before any catch-up, which settles whether the ceiling was ours to trip. Nothing here
+      can run it (their account, and the report is de-identified). It changes nothing that shipped —
+      the pacing was written as the fix either way — so it is **a question to put to them**, not work
+      to schedule.
 
 ### v5.2 — the rest of the tracker · milestone [`v5.2`](https://github.com/tpierrain/kenjaku/milestone/2)
 
@@ -530,6 +135,15 @@ _(Decided 2026-08-23 while sorting `prospective/`; announced in [`studies/README
       plan it is read by nobody; as group C's own opening steps it is read by whoever fixes
       #68/#72/#66. Two carriers for one subject is the shape that produced the thirteen-file pile.
 
+- [ ] 🗂️ **And a second tidy-up, found 2026-09-12 while archiving the bugfix release**: §7 says the
+      plans listing in [`maintainers/README.md`](../../README.md) is updated in the archiving change,
+      and **no plan archived since 2026-08-23 is listed there** — the practice lapsed silently for
+      roughly a dozen files. Deliberately **not** fixed one entry at a time tonight: a listing that is
+      right for one file and wrong for twelve reads as complete. Either re-sync the whole section in
+      one pass, or replace it with a link to the folder and let the filenames (date-prefixed since
+      §7) be the index. **Recommendation: the second** — a hand-written mirror of a directory is a
+      copy, and copies go stale, which is the very thing §3bis is about.
+
 ## 📓 33 observations on a real brain, never triaged
 
 - [ ] [`studies/fleet-upgrade-field-feedback.md`](../../studies/fleet-upgrade-field-feedback.md) is a
@@ -593,6 +207,130 @@ _(That plan is archived; these came here so it could close. They belong to no mi
           *"the whole harness suite dry-runs green here"*. It was true on 2026-07-28, before these
           guards were written; it is now true again for a different reason, and the comment
           explains neither.
+
+## 🙋 Questions the owner owns — asked, and NOT to be re-asked
+
+Each of these was put to him and is waiting on nothing but him. They live here, out of the STATE
+block, precisely so that a session reading STATE does not mistake them for pending work.
+
+- **Does the issue that can lose a note ride along early?** —
+  [#77](https://github.com/tpierrain/kenjaku/issues/77). Asked **twice**; his answer on 2026-09-11 was
+  *« à l'issue de ça, on se reposera la question »*, and the five were done that day. The standing
+  recommendation is unchanged and the trade-off is written out in § *THE ONE QUESTION*. **Do not ask a
+  third time** — it is now folded into the product proposal below, where he answers it once, in
+  context, along with everything else.
+- **Is a brain's copy of the launcher README meant to link to the launcher's own docs at all?** —
+  the product half of [#78](https://github.com/tpierrain/kenjaku/issues/78). Only he can answer it;
+  the engineering half (resolve a shipped file's links from where it will be installed) does not wait
+  on it.
+- **Should `ci.yml` get a `concurrency` group?** — recommendation: yes. Offered **three times**,
+  gating nothing. It waits here until he raises it.
+
+## 📜 History — what this plan has closed, and what it learned
+
+_Durable by construction: everything below is finished, or is a lesson. All of it sat in the
+`## 📍 STATE` block until 2026-09-12, which is exactly how that block reached **197 lines**. Nothing
+here expires, so nothing here needs re-reading at a resume._
+
+### The state block was itself the defect, and the rule already existed
+
+_(2026-09-12, after a re-read of that block found **six** false entries in it.)_
+
+- **The diagnosis is not length, it is mixture.** He proposed shorter plans; the evidence refused it.
+  The worst of the six (*"the note lives only in a scratchpad"*) sat **four lines** from the entry
+  contradicting it, so brevity would not have saved it; two others were falsified by the **outside
+  world** (a new issue opened, a question answered), which no length protects against; and the long
+  passages are what **prevented** mistakes that week (the de-identification constraint, *"do not lead
+  with that number"*, #95's false premise). The real cause is that the block **mixed what expires with
+  what never does** — history and lessons — so it grew, and once it is long the writing habit degrades
+  from *re-read and correct* to *append on top*.
+- **And the written rule was already there, which is the uncomfortable part.** `CONVENTIONS` §3ter has
+  said *four keys, ≤ 20 lines* since 2026-08-22, and the harness's own `plans.md` says the save point
+  is a **re-read**, never an append. Both were obeyed in spirit; neither was ever **measured**. So this
+  was never a missing rule — it was a rule with no machine, which is the shape that fails silently.
+- **What was done about it** _(2026-09-12)_:
+  - [x] A machine-local hook, `~/.claude/hooks/plan-state-size-guard.mjs`, measures every **live**
+        plan's STATE block on hand-back and names the ones over cap. It **counts lines and judges no
+        content**, so it cannot be wrong about prose, and costs a millisecond. Archived plans are never
+        counted: a guard that shouts about frozen history becomes noise, and noise gets switched off.
+        43 self-tests, each verified to fail against a deliberately broken copy.
+  - [x] The cap is **§3ter's own number (20)**, not a new one. One number in the prose and in the
+        machine, or the machine teaches a second rule.
+  - [x] The durable half moved down here; the delivered half moved to the archive. The block went
+        **197 → under 20**.
+  - [x] ⚠️ **The hook is machine-local, like `plan-carrier-guard`, so it does not travel.** Same
+        belt-and-braces split as everywhere else: the rule is written in `CONVENTIONS` §3ter (the
+        belt, it arrives with the clone) and the hook is the braces (it runs only where installed).
+
+### The three unmerged branches were judged and dealt with
+
+_(Closed 2026-09-09.)_ Each needed a **different** treatment, and *"merge the three"* was a bad
+recommendation the owner caught, because it was made on their **status** (unmerged) rather than on
+**whether what they said was still true**. Outcome: the two-humans study **merged** with a dated note
+(which also repaired #84's link to a file `main` did not have); #80's analysis **transplanted by hand**
+into the release, framing left behind; the mutation branch **dropped** as superseded, its target having
+been archived with v5.0.0. All three branches are deleted, remote and local.
+
+- 🔖 **The two commits that never merged, so their text stays recoverable** (`git show <sha>`, for as
+  long as the remote keeps them): `docs/v5.1-takes-the-silent-source` → **`d983fd4`** ·
+  `fix/mutation-debt-entrypoint-and-git-value` → **`ec339dd`**.
+- 📌 **The reusable half is the lesson** — *judge content, not status*: never recommend
+  merge / keep / drop from *"unmerged"* or *"old"*. Read it, and check it against today's code.
+
+### "v5.1" in this file is a section name, not a version
+
+The tag *The One with the Duo Mode* took `v5.1.0` on 2026-09-06 and carried none of these issues (this
+plan was parked behind that work, by the door's own ordering). The bugfix release went out as
+**`v5.1.3`** on 2026-09-11. Record of the earlier tag:
+[`../archived/v5.1.0-code-review-fixes-action.md`](../archived/v5.1.0-code-review-fixes-action.md).
+
+### A headline that went false under its own children — left on the record
+
+The STATE block's opening line read *"on a branch, and nothing is merged or tagged"* for most of
+2026-09-11, and was made false by the entries **nested under it**. That is the whole reason the
+always-loaded save-point rule now says the save point is a **re-read of the block from the top**, never
+an append to it. Kept here on purpose: it is the cheapest illustration of the failure the cap prevents.
+
+### The `templates/fr/**` clause contradicts the EN/FR drift guard
+
+This plan forbids a session to write into `templates/fr/**`. That clause was breached **twice** on
+2026-09-11, deliberately, and the reason is structural rather than a judgement call: four of the
+localized files are watched by the EN/FR drift guard, whose criterion is **unpaired commits**. An
+English-only commit on any of them turns the suite red and leaves every later commit of the release
+ambiguous. So the clause as written **cannot be obeyed** on a file the guard watches without abandoning
+green-only commits.
+
+- ⚖️ **Either the clause gains a carve-out for guard-watched pairs, or the guard gains a waiver path.**
+  It is a contradiction in this plan, not a rule that was ignored. Until it is resolved, the standing
+  practice is: ship both halves in one commit, and say so. **The French wording is his to correct**;
+  nothing else under `templates/fr/**` is touched.
+
+### The tracker has only ever come down on evidence, never by a bulk sweep
+
+Since this plan opened, **seven** issues closed: #90 and #92 (v5.1.2 and v5.1.1, the latter on measured
+field evidence), then the five the bugfix release carried — #71, #73, #74, #80, #95 — each closed with
+a comment saying what shipped and how it was checked. Everything still open is open **deliberately**:
+this plan says those are not started, and *not started* is not *closeable*.
+
+- 🧾 **What the bugfix release did NOT close was reviewed one by one** (the half of §10bis that is easy
+  to skip). The only near-miss was [#83](https://github.com/tpierrain/kenjaku/issues/83) — *an absence
+  claim stated as general when only the vault and the chat tool were searched* — which shares #80's
+  subject and is a **different defect**: #80 is *"the source could not answer"*, #83 is *"the claim is
+  broader than what was searched"*. Fixing one does not fix the other.
+
+### #96 was filed, not worked
+
+_(2026-09-09, his instruction.)_ [#96](https://github.com/tpierrain/kenjaku/issues/96) — a **second
+machine silently misses part of an engine update**. He suspected it out loud and reading the code
+confirmed it: the Layer B self-heal gate (`self-heal-detect.mjs`) asks only *"is a skill missing?"* and
+*"is an MCP server missing?"*, so a release that ships **a new hook**, **a new allowlist entry** or **a
+new npm dependency** never triggers a reconcile on the machine that merely pulled. Same shape as the
+harness drift he hit the day before: the files travel, the wiring that makes them run does not.
+
+### Inherited from the v5.1.0 tag
+
+Close [#84](https://github.com/tpierrain/kenjaku/issues/84) **when a real brain has received the live
+sync** — the tag alone does not prove that, which is why it was not closed on publication.
 
 ## How each release is cut, when it gets there
 
