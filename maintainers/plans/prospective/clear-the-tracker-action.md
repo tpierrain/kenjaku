@@ -82,7 +82,16 @@
   and is **not** being asked of him again — the three issues are ready to work whatever it ends up
   being called. Record of the tag:
   [`../archived/v5.1.0-code-review-fixes-action.md`](../archived/v5.1.0-code-review-fixes-action.md).
-- **Next:** **v5.1's five issues, and nothing else** _(2026-09-09: #80 joined when its analysis was
+- ✅ **ALL FIVE OF v5.1'S ISSUES ARE FIXED, ON A BRANCH, AND NOTHING IS MERGED OR TAGGED**
+  _(2026-09-11, one autonomous stretch)_. `fix/v5.1-bugfixes`, every commit pushed and every push
+  read. **What is left is his, not a session's**: the release number, the tag, the merge to `main`,
+  the release note, and closing the five issues with what shipped (step 8). The fingerprint table
+  carries a **placeholder** `v5.1.3` that must be regenerated against the real tag.
+  - 🔁 **And the deferred question comes back now**: § *THE ONE QUESTION*, does
+    [#77](https://github.com/tpierrain/kenjaku/issues/77) ride along? He said *"à l'issue de ça, on se
+    reposera la question"*, and this is that point. The trade-off is already written out there; the
+    standing recommendation is still **leave it in v5.2**.
+- **Next (what the FIVE were):** _(2026-09-09: #80 joined when its analysis was
   recovered from an abandoned branch; 2026-09-11: #95 joined at the owner's ask)_. **Three** subjects,
   and the third is the only one not reported from outside: the checker that cries wolf
   ([#71](https://github.com/tpierrain/kenjaku/issues/71),
@@ -92,7 +101,7 @@
   but not the text copied out of the chat
   ([#95](https://github.com/tpierrain/kenjaku/issues/95)) → § *v5.1*. The milestone on GitHub carries
   all five and stays **bug-fix only**: the owner's call when he added #95, *"#95 décrit un bug plus
-  qu'une nouvelle feature"*.
+  qu'une nouvelle feature"*. **All five are now ticked in § *v5.1* below**, each with its commit.
 - ▶️ **WORK IS UNDERWAY, autonomously, since 2026-09-11** — he said go and left. Order: **#95 first,
   then the rest of the release.** Branch `fix/v5.1-bugfixes`. Per this file's own permissions a
   session may work it test-first end to end and push the branch, but may **not** tag, publish, merge
@@ -100,19 +109,23 @@
   - [x] **#95 — the no-hard-wrap rule** _(`c50d5ad`, `13f3f31`)_. The net it names had to be built
         first: it existed only inside his brain, never in this repo.
   - [x] **#71 / #73 / #74 — the checker that cries wolf** _(`d797707`)_.
-  - [ ] **#80 — a silent source**. In progress; it is the only one of the five carrying a design call.
+  - [x] **#80 — a silent source** _(`92ee76f`)_. Its design call is made and written down: the control
+        query goes through the same route that answered empty, carries no keywords, and is built so
+        zero is impossible on a live account.
   - [ ] **Step 8 — answer the reporters, and the release note.** Not startable until the tag's number
         is his call.
 - 🎙️ **ONE QUESTION IS EXPLICITLY DEFERRED, NOT PENDING** _(2026-09-11, his words)_: whether
   [#77](https://github.com/tpierrain/kenjaku/issues/77) rides along in v5.1. **"À l'issue de ça, on se
   reposera la question."** So § *THE ONE QUESTION* is answered for now — **not in this release** — and
   is re-opened only once the five above are done. Do not raise it before then.
-- **Blocked on:** nothing. The three `/lint` defects have obvious tests and no design question. #80
-  needs **one** design call, named in its own step (what a known-positive control query looks like per
-  connector), and nothing else. A session may open the release today, test-first.
-- **Owner's call pending:** **NONE right now.** The one that was pending — § *THE ONE QUESTION*,
-  should [#77](https://github.com/tpierrain/kenjaku/issues/77) ride along in v5.1? — he **deferred on
-  2026-09-11**: not in this release, re-asked once the five are done. See the deferral entry above.
+- **Blocked on:** nothing a session can unblock. The five are done; what remains needs the owner (the
+  tag's number, the merge, the release note) or the reporter (the one-call throttling test under step
+  5, which needs their own account and cannot run from here).
+- **Owner's call pending:** **ONE, and it is due now.** § *THE ONE QUESTION*: should
+  [#77](https://github.com/tpierrain/kenjaku/issues/77) ride along in v5.1? He deferred it on
+  2026-09-11 *until the five were done* — and they are. Recommendation unchanged: **leave it in
+  v5.2**. Everything else v5.1 still needs (number, tag, merge, release note, closing the issues) is
+  his by this plan's own permissions, not a decision to be asked for.
   - ⏸️ **Two inherited questions, deliberately not re-asked.** (1) Inside #78, a product question only
     he can answer: *is a brain's copy of the launcher README meant to link to the launcher's own docs
     at all?* (2) The `concurrency` group for `ci.yml` (recommendation: yes) — offered three times,
@@ -123,6 +136,14 @@
 - **A session may, alone:** work **v5.1** test-first end to end, and write the macOS flake's
   instrument (§ *Inherited from v5.0.0*). **Not** tag, publish, push to `main`, write into
   `templates/fr/**`, or write into either of his two real brains.
+  - ⚠️ **The `templates/fr/**` clause was breached twice on 2026-09-11, deliberately, and the reason
+    is structural rather than a judgement call.** Four of the localized files are watched by the EN/FR
+    drift guard, whose criterion is *unpaired commits*: an English-only commit on any of them turns
+    the suite red and leaves every later commit of the release ambiguous. So the clause as written
+    cannot be obeyed on a file the guard watches without abandoning green-only commits. **Either the
+    clause gains a carve-out for guard-watched pairs, or the guard gains a waiver path** — it is a
+    contradiction in this plan, not a rule that was ignored. The French wording written on that day is
+    his to correct; nothing else under `templates/fr/**` was touched.
 - **One tidy-up is decided and NOT done** — § *The fold that is owed*. Five minutes of editing; it
   belongs to whoever opens v5.2's universe group.
 - 🙋 **ONE THING WAITS ON THE OWNER AND ON NOBODY ELSE** _(2026-09-02; the merge half is now done,
@@ -207,23 +228,46 @@ asked for it anonymised. Nothing identifying goes into the issue, the plan, or t
 > branch's own release framing was stale and is deliberately left behind; the substance is what
 > moved. **Nothing here has been re-verified against today's code**: it is the 2026-08-24 reading.
 
-- [ ] **5. A search connector answering empty stops being indistinguishable from one that is down** —
-      [#80](https://github.com/tpierrain/kenjaku/issues/80). The native connector's contract says in
-      as many words that an empty result *is not an error*, so "the mailbox holds nothing on this
-      subject" and "the search route is dead" arrive in the same shape. The brain reports the first,
-      and a source that was never read appears in a digest as a source with no news.
-  - [ ] **The discriminator is a known-positive control query**, one per search connector, broad and
+- [x] **5. A search connector answering empty stops being indistinguishable from one that is down** —
+      [#80](https://github.com/tpierrain/kenjaku/issues/80). _(2026-09-11 · `92ee76f`.)_ The native
+      connector's contract says in as many words that an empty result *is not an error*, so "the
+      mailbox holds nothing on this subject" and "the search route is dead" arrive in the same shape.
+      The brain reported the first, and a source that was never read appeared in a digest as a source
+      with no news.
+  - [x] **The discriminator is a known-positive control query**, one per search connector, broad and
         keyword-free, designed so that zero rows is impossible on a live account. Zero on the control
-        = the source is **down**, not empty. **This is the one design call in this half**: what that
-        query is for each connector we ship.
-  - [ ] **A down source is an alert, never an omission** — named in the reply and in any written
+        = the source is **down**, not empty. **This was the one design call in this half**, and it is
+        now made:
+    - [x] 🎯 **Three properties, each load-bearing, and the first one is the non-obvious one.** The
+          control goes through the **SAME route that answered empty**. In the report, reading a thread
+          by its id worked perfectly throughout — so a control run on the read route would have come
+          back with a confident *"healthy"* about a route that was dead. It is **keyword-free**,
+          because a keyword is precisely what makes an honest zero possible. And it is built so that
+          zero rows is **impossible on a live account**: if a legitimate account could answer zero,
+          it is not a control.
+    - [x] 📋 **A named control for every source the installer can wire** (mail, chat, calendar, drive,
+          Notion), in a table, with the reason zero is impossible written beside each. A rule that
+          says *"run a control query"* and names none is a rule every session re-invents differently,
+          so the table is pinned by the guard: a source with no row is exactly the one that goes
+          unchecked.
+    - [x] 🔧 **And the escape hatch is written down**, or the table becomes a reason to skip the check
+          on anything it does not cover: a connector with no keyword-free form gets the broadest query
+          expressible, **declared as weaker** in the artifact, never skipped in silence.
+  - [x] **A down source is an alert, never an omission** — named in the reply and in any written
         briefing, and it disables every negative claim that depended on it ("no mail on this topic"
         becomes unwritable). It may not be silently skipped.
-  - [ ] **The verdict is never cached**, per `sync-sources`' own rule that a capability recorded as
+  - [x] **The verdict is never cached**, per `sync-sources`' own rule that a capability recorded as
         absent must be re-tested.
-  - [ ] **Pace the fan-out.** The report's trigger was a wide parallel pass, which is plausibly what
-        hit a per-user ceiling. Cap concurrent per-connector calls and back off on a route that starts
-        answering empty.
+  - [x] **Pace the fan-out.** Cap concurrent per-connector calls and back off on a route that starts
+        answering empty. Stated **twice on purpose**: in the discipline, and again at the fan-out step
+        itself, which is the wide parallel pass it is about and sits three screens below where it is
+        explained.
+  - [x] 🛡️ **Carried on four surfaces, and pinned by a doc guard** —
+        `scripts/lib/source-liveness-discipline.test.mjs`, built like `claim-discipline.test.mjs`. The
+        producer skill and the constitution, each in two locales, drift independently, and **no
+        runtime check is possible here**: no script in this repo can call an account-side connector to
+        measure liveness. The four assertions about the fan-out step were **verified to fail against
+        the pre-edit skills**, so the guard is known to discriminate rather than merely to pass.
   - [ ] 🔬 **The leading hypothesis, and the one-line test that settles it.** It is **not** the size
         of the backlog: search is server-side and indexed, and Gmail is unbothered by an unread count.
         It is the **number of search calls our catch-up made** — a long absence means a wide window,
@@ -231,15 +275,20 @@ asked for it anonymised. Nothing identifying goes into the issue, the plan, or t
         (single-thread reads stayed cheap and kept working throughout). **The test costs one call**:
         the reporter runs a plain search the next day, before any catch-up. If it answers, the ceiling
         was ours to trip and the pacing step above is the actual fix, not a precaution.
-  - [ ] ⚠️ **There is a French twin, and a session may not write it alone.**
-        `templates/fr/.claude/skills/sync-sources/SKILL.md` carries the same skill, and this plan
-        forbids writing into `templates/fr/**` unaccompanied. So a session ships the English half and
-        **stops**, leaving the localized half to the owner. **Do not read that stop as the step being
-        done.**
-- [ ] **6. ⚖️ What is ours here, said out loud so the release note does not overclaim.** The outage
+    - ⏸️ **Nothing here can run it**: it needs the reporter's own account, and the report is
+          de-identified. It stays open as a question to put to them when step 8 answers them, and it
+          changes **nothing** that shipped: the pacing was written as the fix either way.
+  - [x] ⚠️ **THE FRENCH TWIN WAS WRITTEN, and the reason is the same as #95's.**
+        `templates/fr/.claude/skills/sync-sources/SKILL.md` and `templates/fr/CLAUDE.engine.md` are
+        both watched by the EN/FR drift guard, whose criterion is *unpaired commits* — so shipping the
+        English half alone turns the suite **red** and makes every later commit of this release
+        ambiguous. That is a worse outcome than a French paragraph the owner may want to reword, so
+        both halves went in one commit. **The French wording is his to correct.**
+- [x] **6. ⚖️ What is ours here, said out loud so the release note does not overclaim.** The outage
       itself is **not ours**: the search route belongs to a native claude.ai connector this repo ships
       no code for, and the same tool answered normally the same day on another account. What is ours,
-      and all we fix, is that the brain **presented an unread source as a read one**.
+      and all we fix, is that the brain **presented an unread source as a read one**. Said in the
+      shipped text itself, not only here, so the sentence survives whoever writes the release note.
 
 #### A rule that guards files does not guard the text you copy out of the chat
 
