@@ -1,0 +1,26 @@
+[32m08:35:16 (94393) INFO ProjectReader[39m Found 1 of 1032 file(s) to be mutated.
+[32m08:35:16 (94393) INFO Instrumenter[39m Instrumented 1 source file(s) with 27 mutant(s)
+[32m08:35:16 (94393) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m08:35:16 (94393) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-nSUc5h
+[32m08:35:16 (94393) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m08:35:16 (94393) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m08:35:16 (94393) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 0 seconds (net 278 ms, overhead 0 ms).
+
+All tests
+  ✓ All tests (killed 26)
+
+[Survived] ArrayDeclaration
+scripts/lib/consolidation-candidates.mjs:62:63
+-     const resolve = buildResolver(notes, options.attachments ?? []);
++     const resolve = buildResolver(notes, options.attachments ?? ["Stryker was here"]);
+
+Ran 1.00 tests per mutant on average.
+------------------------------|------------------|----------|-----------|------------|----------|----------|
+                              | % Mutation score |          |           |            |          |          |
+File                          |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+------------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files                     |  96.30 |   96.30 |       26 |         0 |          1 |        0 |        0 |
+ consolidation-candidates.mjs |  96.30 |   96.30 |       26 |         0 |          1 |        0 |        0 |
+------------------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m08:35:18 (94393) INFO MutationTestExecutor[39m Done in 2 seconds.
+[32m08:35:18 (94393) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-nSUc5h.

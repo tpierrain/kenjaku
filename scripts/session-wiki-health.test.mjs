@@ -214,3 +214,25 @@ test("sessionWikiHealth — an embedded attachment raises no CONSOLIDATION candi
   sessionWikiHealth(args);
   assert.deepEqual(calls.emitted, []);
 });
+
+test("sessionWikiHealth — its RETURN says whether it reported, not just its emit", () => {
+  // The return value is part of this function's contract and nothing asserted it, so
+  // a caller reading `reported` could have been told the opposite of what happened.
+  const noisy = seams();
+  assert.deepEqual(sessionWikiHealth(noisy.args), { reported: true });
+  assert.equal(noisy.calls.emitted.length, 1, "and it really did emit, so the flag is not the only evidence");
+
+  const quiet = seams({ readNotes: () => [] });
+  assert.deepEqual(sessionWikiHealth(quiet.args), { reported: false });
+  assert.deepEqual(quiet.calls.emitted, []);
+});
+
+test("sessionWikiHealth — a vault reader that throws is swallowed AND reported as nothing found", () => {
+  const { args, calls } = seams({
+    readNotes: () => {
+      throw new Error("vault is a symlink to nowhere");
+    },
+  });
+  assert.deepEqual(sessionWikiHealth(args), { reported: false }, "fail-open must still answer the caller honestly");
+  assert.deepEqual(calls.emitted, []);
+});
