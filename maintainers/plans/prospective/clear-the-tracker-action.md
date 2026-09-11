@@ -100,16 +100,24 @@
   - 🔀 **MERGED — he said *"fusionne stp"* and PR #97 landed on `main` as `23efd5f`** _(2026-09-11
     09:30 UTC, a merge commit, never a squash, as `5b16101` and `c10e4b5` before it)_. **`main`'s own
     checks are green** after the merge. The branch `fix/v5.1-bugfixes` is now merged history.
-  - 🔐 **NOT TAGGED AND NOT PUBLISHED — that is where it stands.** He authorised the release note
-    (*"ok pour la release note, on peut y aller"*) and then drove the last stretch one step at a time,
-    so the tag was **not** taken as implied. **The remaining sequence, in order**:
-    2. Tag **`v5.1.3`** on `main` and push it.
-    3. `gh release create v5.1.3 --title "v5.1.3 — The One Where It Stops Crying Wolf" --notes-file
-       maintainers/plans/archived/release-v5.1.3-note.md`. **The approved text is in the repo**, not in
-       a session scratchpad, because a note that only exists in a chat dies at the next `/clear`. Its
-       `## What you get` section is verified to survive `extractWhatYouGet` verbatim (3 moments, 6
-       bullets) — the check §11 demands and the v5.0.0 note failed.
-    4. Close **#71, #73, #74, #80, #95** with what shipped (§10bis).
+  - 🚀 **PUBLISHED — he said *"publie"*, and v5.1.3 is out** _(2026-09-11)_:
+    **[v5.1.3 — The One Where It Stops Crying Wolf](https://github.com/tpierrain/kenjaku/releases/tag/v5.1.3)**,
+    an annotated tag on `23efd5f`, note published from the tracked file
+    [`../archived/release-v5.1.3-note.md`](../archived/release-v5.1.3-note.md) (kept in the repo so it
+    does not die at a `/clear`; its `## What you get` is verified to survive `extractWhatYouGet`
+    verbatim, 3 moments and 6 bullets — the §11 check the v5.0.0 note silently failed).
+  - ✅ **The five issues are closed AND carry their evidence.** They auto-closed at the merge, which is
+    exactly the half-job §10bis warns about, so a comment was written on each one afterwards. The two
+    **doctrine** issues (#80, #95) were closed the way that convention demands — by **reading the rule
+    out of a real updated brain in its own locale**, not off the merge: the French `legacy-brain` copy
+    carries *Vivacité des sources* and *Retours à la ligne*, and the shipped script **runs** there
+    (`--check vault` → 9 of its 30 notes).
+  - 🧾 **And what this release did NOT close, reviewed one by one** (the half of §10bis that is easy to
+    skip). Twelve issues stay open and none is covered: **#96, #84, #83, #82, #81, #79, #78, #77, #72,
+    #68, #66, #62**. The only near-miss is **#83** — *an absence claim stated as general when only the
+    vault and the chat tool were searched* — which shares #80's subject and is a **different defect**:
+    #80 is *"the source could not answer"*, #83 is *"the claim is broader than what was searched"*.
+    Fixing one does not fix the other, and it stays open deliberately.
   - 🔁 **The #77 question was put to him and he has not answered it** — he answered the two that came
     after instead (the name, then the note). Its silence now reads as *not in this release*, which is
     also the standing recommendation (**leave it in v5.2**). § *THE ONE QUESTION* holds the trade-off.
@@ -384,14 +392,15 @@ is correct, it simply never fires on half of what it names._
       separator, and the default parameter whose reachability led to #71's second surface above.
       Every survivor left is a named equivalent.
 
-- [ ] **8. Answer both reporters.** Each issue closed with what shipped and how it was verified
+- [x] **8. Answer both reporters.** _(2026-09-11, v5.1.3)_ Each issue closed with what shipped and how it was verified
       (`CONVENTIONS.md` §10bis). The release note names the `/lint` contributor; the second report
       came through a private channel, so it is credited **without a name**.
-  - [ ] 📄 **The release note owes ONE sentence that is not a summary of a fix**, and it is the only
+  - [x] 📄 **The release note owes ONE sentence that is not a summary of a fix**, and it is the only
         thing this release asks of a reader: *if your own `CLAUDE.md` carries the "no line break
         inside a paragraph" rule, delete it — the engine holds it now.* Without it, the two copies
         diverge in every brain that had one, which is the defect #95 is about, one layer up.
-  - [ ] 🔢 **The fingerprint table currently says `v5.1.3`**, folded in while regenerating it for the
+  - [x] 🔢 **The fingerprint table currently says `v5.1.3`** — and that placeholder became the real
+        number, so nothing had to be regenerated., folded in while regenerating it for the
         constitution change. It is a **placeholder**: the number is the owner's call, and the table is
         regenerated once more against the real tag before it is cut
         (`node maintainers/fingerprints/generate-fingerprints.mjs --version <tag>`).
