@@ -138,8 +138,9 @@ true forever: rationale, evidence, what was rejected and why, how it went.
      simply had **no machine**, which is the shape that fails silently. The braces:
      `~/.claude/hooks/plan-state-size-guard.mjs`, on `Stop`, measures every **live** plan's block
      (archived ones are frozen history and are never counted) and names the ones over cap. Like every
-     guard here it **judges no content**: it counts lines. Machine-local, so it does not travel — this
-     paragraph is the belt and arrives with the clone.
+     guard here it **judges no content**: it counts lines. It lives in the **harness** repo, never in
+     this clone, so a contributor who has only Kenjaku gets no machine at all — **this paragraph is the
+     belt, and it is the half that arrives with the clone.**
    - 🎯 **Under the cap there is exactly one honest move: move the durable half DOWN.** The block's
      failure mode is not length, it is **mixture** — history, lessons and dated decisions never
      expire, so they accumulate, and once the block is long the writing habit degrades from *re-read
