@@ -269,6 +269,20 @@ the watermark didn't advance.
 
 ## Expected Claude Code behaviors
 
+### Line breaks — never one the content did not ask for
+
+**Never insert a line break the content does not require.** A paragraph, a bullet, a quote line: **one single line, however long it is.** Blank lines separate blocks, and they are the only breaks that are legitimate.
+
+**The trigger is the DESTINATION, not the medium.** This holds for everything you write in Markdown: vault notes, cheat sheets, article drafts, **messages to send**, and **fenced blocks in the chat** — that last one especially, because a fenced block is precisely the text the owner copies out into Slack, an email or a document. Read as a rule about *files*, it fires on the notes and misses the very thing that leaves this conversation, which is exactly how it kept being broken.
+
+Why this is not a matter of taste: Obsidian, Typora, Slack and every mail client wrap on their own, at the width of the window they are being read in. A break coded into the text cannot adapt — it shows up as a ragged half-line on a phone, and it fights the owner every time they edit that paragraph.
+
+⚠️ **The existing notes will argue against this.** A vault written before the rule holds paragraphs cut at ~100 characters, and "match the surrounding style" is enough to reproduce the defect forever. **The convention wins over the corpus.**
+
+🔧 **The deterministic net covers FILES only**: `node scripts/unwrap-markdown.mjs <file|folder>` rewrites them in place, and `--check` reports what would change without touching anything. Nothing can inspect what is printed into a chat before the owner reads it, so that half is a written reflex by construction — there is no machine to build for it, which is why the rule is stated here at length rather than delegated to the script.
+
+> 📄 **If your own `CLAUDE.md` carries a copy of this rule, delete it.** Two files holding one rule is a guarantee that they will diverge, and this layer is the one that gets refreshed. If you genuinely want hard wrapping (git-friendly diffs, an 80-column habit), keep a line in your `CLAUDE.md` saying so — as an **override**, so the next reader can see it is deliberate.
+
 ### Advisory posture on the harness
 
 Claude must **challenge requests to modify the harness** (CLAUDE.md, `.claude/`, skills, hooks). Before implementing a harness change:
@@ -397,6 +411,31 @@ the **next** resolution resolves against. A briefing turned a source's *"Jérém
   unblocks the write. A card marked 🟡 or 🔴 is a lead, not the vault's answer: re-verify it before
   resolving anything against it, and never let it become established just for having been written
   down a while ago.
+
+### Source liveness — a source that went quiet is not a source with no news
+
+A connector's contract says an empty result is **not** an error. So *"the mailbox holds nothing on this
+subject"* and *"the search route is dead and will match nothing, ever"* arrive in exactly the same shape,
+and reporting the first one turns a source that was **never read** into a source with nothing to report.
+Reported from the field, on a wide catch-up pass: search stopped answering while reading a known thread
+kept working, and nothing said a word.
+
+- **The discriminator is a control query**, one extra call per source, before any emptiness becomes a
+  statement. Three properties, and all three are load-bearing: it goes through the **same route** that
+  answered empty (reading is no proof that searching works), it is **keyword-free** (a keyword is what
+  makes an honest zero possible), and it is built so that zero rows is **impossible on a live account**.
+  The control for each source you can wire is tabled in the `sync-sources` skill.
+- **Zero rows on the control = the source is DOWN, not empty.**
+- **A down source is an alert, never a silent omission.** Name it in the reply and in whatever you write,
+  on its own 🔴 line: *"mail was not read this pass, its search route answered nothing to a control query."*
+- **A down source disables every negative claim that depended on it.** You may not write *"no mail on this
+  topic"*: the sentence is unsupported, at the same bar as the unverified behavioural claims in *Claim
+  discipline* just below.
+- **The verdict is re-established on every pass, never inherited** from a note or a previous briefing, and
+  **pace the fan-out**: cap the concurrent calls per connector and **back off** on a route that starts
+  answering empty, rather than hammering it for the rest of the pass.
+
+> ⚖️ The outage itself belongs to the provider. What is yours is not presenting an unread source as a read one.
 
 ### Claim discipline — the silence you report is the dangerous part
 

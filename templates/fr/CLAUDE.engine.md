@@ -279,6 +279,20 @@ le watermark n'a pas avancé.
 
 ## Comportements Claude Code attendus
 
+### Retours à la ligne : jamais un que le contenu n'a pas demandé
+
+**N'insère jamais un retour à la ligne que le contenu n'exige pas.** Un paragraphe, une puce, une ligne de citation : **une seule ligne, aussi longue soit-elle.** Seules les lignes vides séparent les blocs, ce sont les seules coupures légitimes.
+
+**Le déclencheur, c'est la DESTINATION, pas le support.** Ça vaut pour tout ce que tu écris en Markdown : notes du vault, antisèches, brouillons d'articles, **messages à envoyer**, et **blocs de code dans le chat**, ces derniers surtout, puisqu'un bloc de code est précisément le texte que la personne va recopier dans Slack, un mail ou un document. Lue comme une règle sur les *fichiers*, elle s'applique aux notes et rate exactement ce qui sort de la conversation : c'est comme ça qu'elle a continué d'être enfreinte.
+
+Pourquoi ce n'est pas une affaire de goût : Obsidian, Typora, Slack et tous les clients mail reviennent à la ligne tout seuls, à la largeur de la fenêtre où on les lit. Une coupure inscrite dans le texte, elle, ne peut pas s'adapter : elle donne une demi-ligne bancale sur téléphone, et elle se bat avec la personne à chaque fois qu'elle réédite le paragraphe.
+
+⚠️ **Les notes déjà écrites plaideront contre cette règle.** Un vault antérieur à la règle contient des paragraphes coupés à ~100 caractères, et « s'aligner sur le style environnant » suffit à reproduire le défaut indéfiniment. **La convention prime sur le corpus.**
+
+🔧 **Le filet déterministe ne couvre que les FICHIERS** : `node scripts/unwrap-markdown.mjs <fichier|dossier>` les réécrit sur place, et `--check` signale ce qui changerait sans rien toucher. Rien ne peut inspecter ce qui s'affiche dans un chat avant qu'on le lise : cette moitié-là est un réflexe écrit par construction, il n'y a pas de machine à construire pour elle, et c'est pour ça que la règle est détaillée ici plutôt que déléguée au script.
+
+> 📄 **Si ton propre `CLAUDE.md` contient une copie de cette règle, supprime-la.** Deux fichiers qui portent la même règle, c'est la garantie qu'ils divergeront, et c'est cette couche-ci qui est rafraîchie. Si tu veux vraiment des coupures (diffs git plus lisibles, habitude des 80 colonnes), garde une ligne dans ton `CLAUDE.md` qui le dit, formulée comme une **dérogation**, pour que la personne qui lira ensuite voie que c'est délibéré.
+
 ### Posture de conseil sur le harnais
 
 Claude doit **challenger les demandes de modification du harnais** (CLAUDE.md, `.claude/`, skills, hooks). Avant d'implémenter un changement de harnais :
@@ -413,6 +427,34 @@ ailleurs que dans cette note, et qui est désormais indexé.
   Réponds honnêtement plutôt que de choisir le niveau qui débloque l'écriture. Une fiche marquée 🟡 ou
   🔴 est une piste, pas la réponse du vault : revérifie-la avant de résoudre quoi que ce soit contre
   elle, et ne la laisse jamais devenir un acquis au seul motif qu'elle est écrite depuis un moment.
+
+### Vivacité des sources : une source tombée en panne n'est pas une source sans nouvelles
+
+Le contrat d'un connecteur dit qu'un résultat vide n'est **pas** une erreur. Du coup « la boîte ne
+contient rien sur ce sujet » et « la route de recherche est morte et ne matchera jamais rien » arrivent
+sous exactement la même forme, et rapporter la première transforme une source **jamais lue** en source
+sans rien à signaler. Remonté du terrain, sur une grosse passe de rattrapage : la recherche a cessé de
+répondre pendant que la lecture d'un thread connu continuait de marcher, et rien n'a rien dit.
+
+- **Le discriminant, c'est une requête de contrôle**, un appel de plus par source, avant qu'un vide
+  devienne une phrase. Trois propriétés, toutes les trois porteuses : elle passe par la **même route**
+  que celle qui a répondu vide (lire ne prouve rien sur la capacité à chercher), elle est **sans
+  mot-clé** (un mot-clé, c'est ce qui rend un zéro honnête possible), et elle est construite pour que
+  zéro ligne soit **impossible sur un compte vivant**. Le contrôle de chaque source branchable est
+  tabulé dans le skill `sync-sources`.
+- **Zéro ligne au contrôle = la source est EN PANNE, pas vide.**
+- **Une source en panne est une alerte, jamais une omission silencieuse.** Nomme-la dans la réponse et
+  dans ce que tu écris, sur sa propre ligne 🔴 : « le mail n'a pas été lu sur cette passe, sa route de
+  recherche n'a rien renvoyé à une requête de contrôle ».
+- **Une source en panne interdit toute affirmation négative qui en dépendait.** Tu ne peux pas écrire
+  « pas de mail sur ce sujet » : la phrase n'est pas étayée, à la même barre que les affirmations
+  comportementales non vérifiées de la *Discipline d'affirmation* juste en dessous.
+- **Le verdict est rétabli à chaque passe, jamais hérité** d'une note ni d'un briefing précédent, et
+  **cadence le fan-out** : plafonne les appels simultanés par connecteur et **ralentis** sur une route
+  qui se met à répondre vide, au lieu de la marteler pendant tout le reste de la passe.
+
+> ⚖️ La panne elle-même appartient au fournisseur. Ce qui t'appartient, c'est de ne pas présenter une
+> source non lue comme une source lue.
 
 ### Discipline d'affirmation — le silence qu'on rapporte, voilà le vrai danger
 

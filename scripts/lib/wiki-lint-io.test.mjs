@@ -4,7 +4,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { parseNote, readVaultNotes } from "./wiki-lint-io.mjs";
+import { parseNote, readVaultNotes, readVaultAttachments } from "./wiki-lint-io.mjs";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // wiki-lint-io — the fs adapter (ADR 0009 rung 2) that reads a real vault into
@@ -49,4 +49,36 @@ test("readVaultNotes — parses every .md note with a relative POSIX path, skips
     { path: "notes/b.md", frontmatter: {}, body: "no frontmatter here" },
     { path: "people/alice.md", frontmatter: { type: "person" }, body: "hi [[bob]]" },
   ]);
+});
+
+// ── #71 — the vault's non-note files, so an embed has something to resolve to ──
+
+test("readVaultAttachments — returns every NON-md file, relative + POSIX, and no note", (t) => {
+  const dir = vaultFixture({
+    "people/alice.md": "---\ntype: person\n---\nhi",
+    "people/screenshot.png": "binary",
+    "assets/diagram.excalidraw": "{}",
+    "top.pdf": "%PDF",
+  });
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  assert.deepEqual(readVaultAttachments(dir).sort(), [
+    "assets/diagram.excalidraw",
+    "people/screenshot.png",
+    "top.pdf",
+  ]);
+});
+
+test("readVaultAttachments — a vault of notes only yields an empty list, never a throw", (t) => {
+  const dir = vaultFixture({ "a.md": "x", "b/c.md": "y" });
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  assert.deepEqual(readVaultAttachments(dir), []);
+});
+
+test("readVaultNotes and readVaultAttachments partition the vault — every file lands in exactly one", (t) => {
+  const dir = vaultFixture({ "a.md": "x", "img.png": "y", "sub/b.md": "z", "sub/doc.pdf": "w" });
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const notes = readVaultNotes(dir).map((n) => n.path);
+  const attachments = readVaultAttachments(dir);
+  assert.deepEqual([...notes, ...attachments].sort(), ["a.md", "img.png", "sub/b.md", "sub/doc.pdf"]);
+  assert.deepEqual(notes.filter((p) => attachments.includes(p)), [], "nothing may be both");
 });

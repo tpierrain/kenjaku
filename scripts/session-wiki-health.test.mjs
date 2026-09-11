@@ -133,3 +133,106 @@ test("the hook speaks through a SYMLINKED brain path, exactly as through the rea
   const aliased = await run(alias);
   assert.equal(aliased, real, "a symlinked brain path must not change one byte of what the hook says");
 });
+
+// ── #71 — the SessionStart nudge resolves embeds too, or it cries wolf forever ──
+
+test("sessionWikiHealth — an embed of an attachment that EXISTS raises no nudge at all", () => {
+  // This is the surface the bug was actually reported from: the nudge fires at every
+  // session start, so a picture pasted once produced a "Pending: 1 dangling links"
+  // line that no edit to the note could ever clear.
+  const noteWithScreenshot = {
+    path: "people/jane-doe.md",
+    frontmatter: { type: "person", created: "2026-07-10", updated: "2026-07-10", tags: ["p"] },
+    body: "![[screenshot.png]]",
+  };
+  const { args, calls } = seams({
+    readNotes: () => [noteWithScreenshot],
+    readAttachments: () => ["people/screenshot.png"],
+  });
+  sessionWikiHealth(args);
+  assert.deepEqual(calls.emitted, []);
+});
+
+test("sessionWikiHealth — an embed of a picture that is NOT there still raises the nudge", () => {
+  const noteWithBrokenEmbed = {
+    path: "people/jane-doe.md",
+    frontmatter: { type: "person", created: "2026-07-10", updated: "2026-07-10", tags: ["p"] },
+    body: "![[gone.png]]",
+  };
+  const { args, calls } = seams({
+    readNotes: () => [noteWithBrokenEmbed],
+    readAttachments: () => [],
+  });
+  sessionWikiHealth(args);
+  assert.equal(calls.emitted.length, 1);
+  assert.match(calls.emitted[0], /dangling links/);
+});
+
+test("sessionWikiHealth — the attachments reader is read from the SAME vault dir as the notes", () => {
+  const seenDirs = [];
+  const { args } = seams({
+    vaultDir: "/elsewhere/vault",
+    readNotes: (dir) => {
+      seenDirs.push(`notes:${dir}`);
+      return [];
+    },
+    readAttachments: (dir) => {
+      seenDirs.push(`attachments:${dir}`);
+      return [];
+    },
+  });
+  sessionWikiHealth(args);
+  assert.deepEqual(seenDirs, ["notes:/elsewhere/vault", "attachments:/elsewhere/vault"]);
+});
+
+test("sessionWikiHealth — a caller that passes NO attachments reader still works, it does not fail open into silence", () => {
+  // Fail-open swallows everything, so a missing seam would not crash — it would make
+  // the whole nudge quietly disappear, which is the worst of both worlds.
+  const captureOnly = {
+    path: "meetings/2026-07-10.md",
+    frontmatter: { type: "meeting", created: "2026-07-10", updated: "2026-07-10", tags: ["m"] },
+    body: "Met with [[Acme Corp]] about the roadmap.",
+  };
+  const emitted = [];
+  sessionWikiHealth({ vaultDir: "/brain/vault", readNotes: () => [captureOnly], emit: (m) => emitted.push(m) });
+  assert.equal(emitted.length, 1, "the nudge must still fire when no attachments reader is supplied");
+});
+
+test("sessionWikiHealth — an embedded attachment raises no CONSOLIDATION candidate either", () => {
+  // The nudge surfaces two scans, and #71 hit both. Left unfixed on this half, a
+  // pasted screenshot stops being reported as a dead link and starts being reported
+  // as a page to create, called `screenshot.png`.
+  const captureWithScreenshot = {
+    path: "meetings/2026-07-10.md",
+    frontmatter: { type: "meeting", created: "2026-07-10", updated: "2026-07-10", tags: ["m"] },
+    body: "Discussed the plan. ![[screenshot.png]]",
+  };
+  const { args, calls } = seams({
+    readNotes: () => [captureWithScreenshot],
+    readAttachments: () => ["meetings/screenshot.png"],
+  });
+  sessionWikiHealth(args);
+  assert.deepEqual(calls.emitted, []);
+});
+
+test("sessionWikiHealth — its RETURN says whether it reported, not just its emit", () => {
+  // The return value is part of this function's contract and nothing asserted it, so
+  // a caller reading `reported` could have been told the opposite of what happened.
+  const noisy = seams();
+  assert.deepEqual(sessionWikiHealth(noisy.args), { reported: true });
+  assert.equal(noisy.calls.emitted.length, 1, "and it really did emit, so the flag is not the only evidence");
+
+  const quiet = seams({ readNotes: () => [] });
+  assert.deepEqual(sessionWikiHealth(quiet.args), { reported: false });
+  assert.deepEqual(quiet.calls.emitted, []);
+});
+
+test("sessionWikiHealth — a vault reader that throws is swallowed AND reported as nothing found", () => {
+  const { args, calls } = seams({
+    readNotes: () => {
+      throw new Error("vault is a symlink to nowhere");
+    },
+  });
+  assert.deepEqual(sessionWikiHealth(args), { reported: false }, "fail-open must still answer the caller honestly");
+  assert.deepEqual(calls.emitted, []);
+});

@@ -22,7 +22,7 @@ import { dirname, resolve, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { runAsEntrypoint } from "./lib/entrypoint.mjs";
-import { readVaultNotes } from "./lib/wiki-lint-io.mjs";
+import { readVaultNotes, readVaultAttachments } from "./lib/wiki-lint-io.mjs";
 import { lintVault } from "./lib/wiki-lint.mjs";
 import { consolidationCandidates } from "./lib/consolidation-candidates.mjs";
 import { wikiHealthNudge, buildWikiHealthHookOutput } from "./lib/wiki-health-nudge.mjs";
@@ -30,12 +30,19 @@ import { wikiHealthNudge, buildWikiHealthHookOutput } from "./lib/wiki-health-nu
 // Testable core: read the vault (injected), run the two deterministic scans, emit
 // the nudge only when there's something actionable. Fail-open — a missing/odd vault
 // must never disturb session start.
-export function sessionWikiHealth({ readNotes, vaultDir, emit }) {
+// `readAttachments` defaults to "none" rather than being required: this whole body is
+// wrapped in a fail-open catch, so a caller that did not supply the seam would not
+// crash — the nudge would simply vanish, which is worse than the bug it fixes.
+export function sessionWikiHealth({ readNotes, readAttachments = () => [], vaultDir, emit }) {
   try {
     const notes = readNotes(vaultDir);
+    // Read ONCE and handed to both scans: they resolve the same links, so an
+    // attachment list given to one and not the other just moves the false positive
+    // from the dangling-link half of the nudge to the consolidation half.
+    const attachments = readAttachments(vaultDir);
     const nudge = wikiHealthNudge({
-      lintReport: lintVault(notes),
-      consolidationReport: consolidationCandidates(notes),
+      lintReport: lintVault(notes, { attachments }),
+      consolidationReport: consolidationCandidates(notes, { attachments }),
     });
     if (nudge) {
       emit(nudge);
@@ -60,6 +67,7 @@ runAsEntrypoint(import.meta.url, process.argv, () => {
 
   sessionWikiHealth({
     readNotes: readVaultNotes,
+    readAttachments: readVaultAttachments,
     vaultDir,
     emit: (msg) => (nudge = msg),
   });

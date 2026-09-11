@@ -15,7 +15,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { join } from "node:path";
 
-import { readVaultNotes } from "./lib/wiki-lint-io.mjs";
+import { readVaultNotes, readVaultAttachments } from "./lib/wiki-lint-io.mjs";
 import { consolidationCandidates, reportLines, hasCandidates } from "./lib/consolidation-candidates.mjs";
 import { runAsEntrypoint } from "./lib/entrypoint.mjs";
 
@@ -28,6 +28,7 @@ const toPosix = (p) => p.split("\\").join("/");
 export const realConsolidateDeps = {
   cwd: () => process.cwd(),
   readNotes: readVaultNotes,
+  readAttachments: readVaultAttachments,
   log: (...a) => console.log(...a),
 };
 
@@ -37,7 +38,9 @@ export const realConsolidateDeps = {
 export function runConsolidateScan(argv, deps = realConsolidateDeps) {
   const vaultDir = toPosix(argv[0] ? argv[0] : join(deps.cwd(), "vault"));
   const notes = deps.readNotes(vaultDir);
-  const report = consolidationCandidates(notes);
+  // Attachments resolve here too (#71): without them an embedded picture is an
+  // unresolved mention, and an unresolved mention in this scan means "propose a page".
+  const report = consolidationCandidates(notes, { attachments: deps.readAttachments(vaultDir) });
   deps.log(`Scanned ${notes.length} notes under ${vaultDir}`);
   for (const line of reportLines(report)) deps.log(line);
   return hasCandidates(report) ? 1 : 0;

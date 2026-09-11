@@ -252,6 +252,67 @@ one. See "Identity discipline" just below: the name stays plain text. This secti
    let it become established merely because it has been written down for a while. That is the claim
    discipline's *"yesterday's caveat is a debt"*, applied to the vault's own cards.
 
+## Source liveness — an empty answer and a dead route look exactly the same
+
+> **A source that went quiet must never read as a source with no news.** Reported from the field: during
+> a wide catch-up pass, a mail connector's **search** route stopped returning anything while its **read**
+> route kept working. No error, no warning — the contract says in as many words that an empty result is
+> *not* an error. So from in here, these two are byte-for-byte identical: *the mailbox holds nothing on
+> this subject*, and *the search route is dead and will match nothing, ever, for any query*. The brain
+> reported the first. The reader saw a covered source with no news; what happened is a source that was
+> never read.
+
+**Claim discipline** below grades **what** was retrieved. Nothing grades **whether retrieval happened** —
+a source that returned zero rows produces zero claims to mark, so the marking system stays silent by
+construction. This section is that missing half, and it runs **before** any emptiness is allowed to
+become a statement.
+
+### The control query — the whole discriminator, one call per source
+
+Before writing that a source had nothing, prove the route still answers. One extra call, built to three
+rules:
+
+1. **Through the SAME route that answered empty.** A search route is tested by *searching*. In the report,
+   reading a thread by id worked perfectly throughout — a control that had used the read route would have
+   returned a confident "healthy" about a route that was dead.
+2. **Keyword-free.** A keyword is precisely what makes an honest zero possible. Strip the terms, widen the
+   window as far as the tool accepts.
+3. **Impossible to answer with zero on a live account.** That is the property the whole thing rests on. If
+   a legitimate account could return zero rows for your control, it is not a control.
+
+**Zero rows on the control = the source is DOWN, not empty.**
+
+| Source | The control call | Why zero is impossible on a live account |
+|---|---|---|
+| **Mail** | the search route, **no** terms, a bare recency filter over a wide window (a year, not a week) | a mailbox that received nothing in a year is not a mailbox in use |
+| **Chat** | the search route over a wide window, with the most common word available rather than a topic term; failing that, the channel listing | an account with zero matches on a stop-word over months is not an account in use |
+| **Calendar** | the calendar listing, plus an event listing over the past month | an account always has at least its primary calendar |
+| **Drive** | the search route ordered by modification date, no terms | a drive with nothing modified in a year is not one this brain syncs |
+| **Notion** | the search route with an empty query (the recent pages) | the integration is shared with at least one page, or it would not be wired |
+
+> 🔧 **A connector with no keyword-free form**: use the broadest query you can express, and say in the
+> artifact that the control was **weaker**. A control you cannot build is a reason to flag the source as
+> unproven, **never** a reason to skip the check in silence.
+
+### What a DOWN verdict changes
+
+- **It is an alert, not an omission.** Name it in the reply **and** in the written artifact, on a 🔴 line of
+  its own: *"mail was not read this pass — its search route returned nothing to a control query."* It may
+  never be silently skipped.
+- **It disables every negative claim that depended on it.** With mail down you may not write *"no mail on
+  this topic"* — the sentence is unsupported, exactly as an unverified behavioural claim is. Same bar as
+  the third tier of **Claim discipline** below.
+- **It is never cached.** The verdict is re-established on **every pass** and never inherited from a note —
+  this is *A capability recorded as absent must be re-tested*, applied to liveness. A source recorded as
+  down is retried, not written off.
+- **Pace the fan-out.** The report's own trigger was a wide parallel pass with no throttle, which is
+  plausibly what hit a per-user ceiling. Cap the concurrent calls per connector, and **back off** on a route
+  that starts answering empty rather than hammering it for the rest of the pass.
+
+> ⚖️ **Say what is ours and what is not.** The outage itself belongs to the connector's provider; this repo
+> ships no line of that route, and the same tool answered normally the same day on another account. What is
+> ours, and all this fixes, is that the brain presented an **unread** source as a **read** one.
+
 ## Claim discipline
 
 > **The dangerous output of a second brain is not the fact it invents, it is the SILENCE it
@@ -348,6 +409,13 @@ In parallel, spot what's **new since the last pass** (delta):
 
 Launch all the sub-agents in **a single block of parallel calls**. Each writes its raw
 source to the vault and **returns a ~500-token-max summary**.
+
+> 🩺 **Each search sub-agent runs its control query FIRST**, before anything else — see *Source
+> liveness* above for what the control is per source. If the control comes back empty, the sub-agent
+> returns **"source DOWN, not read"** and no findings at all, rather than a summary that says nothing
+> was found. And **keep the fan-out paced**: this step's wide parallel pass is exactly what tipped a
+> real account over a per-user ceiling, so cap the concurrent calls per connector and **back off** on a
+> route that starts answering empty instead of hammering it for the rest of the pass.
 
 #### "transcript-extractor" sub-agent (one per document)
 

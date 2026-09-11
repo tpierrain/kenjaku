@@ -28,6 +28,7 @@ function fakeDeps(overrides = {}) {
       seenDirs.push(dir);
       return [];
     },
+    readAttachments: () => [],
     log: (line) => logs.push(line),
     ...overrides,
   };
@@ -93,4 +94,34 @@ test("the CLI, IMPORTED rather than run — the body must not fire on import", a
 
   assert.equal(run.status, 0, `importing the CLI must not exit — stderr: ${run.stderr}`);
   assert.equal(run.stdout.trim(), "imported-and-still-alive");
+});
+
+test("runConsolidateScan — an embedded attachment is not proposed as a page to create (#71)", () => {
+  const capture = {
+    path: "meetings/2026-07-10.md",
+    frontmatter: { type: "meeting", created: "2026-07-10", updated: "2026-07-10", tags: ["m"] },
+    body: "Discussed the plan. ![[screenshot.png]]",
+  };
+  const { deps, logs } = fakeDeps({ readNotes: () => [capture], readAttachments: () => ["meetings/screenshot.png"] });
+  assert.equal(runConsolidateScan([], deps), 0);
+  assert.ok(
+    !logs.some((line) => line.includes("screenshot.png")),
+    `a picture must not be proposed as a note to create — got: ${logs.join(" | ")}`,
+  );
+});
+
+test("runConsolidateScan — the attachments are read from the SAME directory as the notes", () => {
+  const seen = [];
+  const { deps } = fakeDeps({
+    readNotes: (dir) => {
+      seen.push(`notes:${dir}`);
+      return [];
+    },
+    readAttachments: (dir) => {
+      seen.push(`attachments:${dir}`);
+      return [];
+    },
+  });
+  runConsolidateScan(["/data/other-vault"], deps);
+  assert.deepEqual(seen, ["notes:/data/other-vault", "attachments:/data/other-vault"]);
 });

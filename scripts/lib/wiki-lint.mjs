@@ -23,10 +23,23 @@ function stripCode(body) {
 // linkify code, so a `[[link]]` example there is syntax documentation, not a link.
 // A pure same-note anchor (`[[#heading]]`) has no target file — Obsidian resolves
 // it within the current note, so it is dropped rather than reported as dangling.
+//
+// 🛑 The backslash escape is undone BEFORE splitting (#73). Inside a Markdown table
+// cell a bare `|` closes the cell, so `[[note\|alias]]` is not a style choice: it is
+// the ONLY spelling that keeps the table valid. Splitting the raw capture on `[|#]`
+// yielded `note\`, a filename no note can have, so the checker flagged precisely the
+// spelling the author had no alternative to — and the miss cascaded, costing a false
+// orphan on the target and silently dropping a real staleness reference.
 export function extractWikiLinks(body) {
   return [...stripCode(body).matchAll(/\[\[([^\]]+)\]\]/g)]
-    .map((m) => m[1].split(/[|#]/)[0].trim())
+    .map((m) => unescapeDelimiters(m[1]).split(/[|#]/)[0].trim())
     .filter((target) => target !== "");
+}
+
+// Turn `\|` back into `|` (and `\#` into `#`) so the split below sees the delimiters
+// the author meant, not the ones Markdown made them escape.
+function unescapeDelimiters(target) {
+  return target.replace(/\\([|#])/g, "$1");
 }
 
 // Every trailing path suffix of a note path, longest first: `a/b/c.md` →
@@ -44,7 +57,18 @@ function pathSuffixes(path) {
 // `[[folder/note.md]]`) by path, and a universe-relative `[[people/note]]` by
 // path suffix. Every suffix (with and without `.md`) is registered; a shorter
 // suffix keeps the first note that claims it, so the longer form disambiguates.
-export function buildResolver(notes) {
+//
+// `attachments` are the vault's NON-note files — the screenshot pasted straight into
+// a meeting note, which Obsidian keeps next to it and embeds as `![[shot.png]]`
+// (#71). They were never candidates here, so the check treated "not a note" and
+// "does not exist" as the same thing, and every picture in every note read as a dead
+// link that no edit to the note could ever clear.
+// The `= []` default is deliberately UNREACHABLE from production — both callers
+// (the lint and the consolidation scan) pass a list — and is kept as the sane public
+// contract for an exported function. Named here because a mutation of it survives by
+// construction: only a link literally spelled like the injected value could observe
+// it, so the survivor is recorded rather than chased (CONVENTIONS §5ter).
+export function buildResolver(notes, attachments = []) {
   const byKey = new Map();
   const register = (key, path) => {
     if (!byKey.has(key)) byKey.set(key, path);
@@ -54,6 +78,13 @@ export function buildResolver(notes) {
       register(suffix, note.path); //           folder/note.md, note.md
       register(suffix.replace(/\.md$/, ""), note.path); // folder/note, note
     }
+  }
+  // Notes are registered FIRST so they win any name collision, and an attachment is
+  // registered under its full spelling ONLY — extension included. Obsidian requires
+  // the extension for a non-note target, so registering a bare `shot` would let a
+  // picture silently answer for a missing note called `shot`.
+  for (const attachment of attachments) {
+    for (const suffix of pathSuffixes(attachment)) register(suffix, attachment);
   }
   // Resolve a raw link target to a canonical note path, or null if it points nowhere.
   // ONE lookup on purpose: both spellings of every suffix are registered above, so a
@@ -97,7 +128,15 @@ export function isUnderZone(path, prefix) {
 // page still do (plan #84 step 4bis). Two hand-written copies of one rule is the drift
 // CONVENTIONS §5quater warns about, so `notes-union-merge.test.mjs` asserts they agree.
 export const RAW_CAPTURE_ZONES = ["daily/", "raw-sources/", "inbox/", "_inbox/", "actions-log.md"];
-const ENGINE_WORK_ZONES = ["meetings/", "briefings/", "prep-1-1/", "coaching/"];
+// `backlog/` joins them for exactly the argument made for `actions-log.md` ten lines
+// up, and the engine is the one making it: the shipped constitution declares the
+// folder, the passive-observation ritual appends to `vault/backlog/harness.md`, and
+// the example-notes purge is TESTED to preserve that file. An action register is not
+// a wiki node — nothing links to it by design — so flagging it was a complaint its
+// reader could only clear by writing a lie into the wiki (#74). Keyed on the FOLDER,
+// which covers every locale at once: the overlay localises the file name, never the
+// folder, and `isUnderZone` handles `<universe>/backlog/` for free.
+const ENGINE_WORK_ZONES = ["meetings/", "briefings/", "prep-1-1/", "coaching/", "backlog/"];
 // A universe's profile page (`universe.md` at the root, `<universe>/universe.md`
 // in a subtree — isUnderZone matches both) describes a whole sphere: nothing links
 // TO it by design, so flagging it orphan would be a lie nobody can ever clear. It
@@ -152,6 +191,10 @@ function daysBetween(laterIso, earlierIso) {
 //   staleDays    — how many days behind its freshest reference makes an entity stale.
 //   frontmatterExempt — path prefixes (raw-capture zones) exempt from the required-
 //                       frontmatter rule (a raw dump is not a curated node).
+//   attachments  — the vault's non-note files (paths only), so an `![[shot.png]]`
+//                  embed resolves instead of reading as rot. They are resolution
+//                  targets and nothing else: an attachment is never an orphan and
+//                  never frontmatter rot, because it is not a note.
 export function lintVault(notes, options = {}) {
   const orphanExclude = options.orphanExclude ?? DEFAULT_ORPHAN_EXCLUDE;
   const entityTypes = options.entityTypes ?? DEFAULT_ENTITY_TYPES;
@@ -161,7 +204,7 @@ export function lintVault(notes, options = {}) {
   const engineOwnedTypes = options.engineOwnedTypes ?? DEFAULT_ENGINE_OWNED_TYPES;
   const isEngineOwned = (note) => engineOwnedTypes.includes(note.frontmatter.type);
 
-  const resolve = buildResolver(notes);
+  const resolve = buildResolver(notes, options.attachments ?? []);
   const danglingLinks = [];
   const danglingSeen = new Set(); // "from\0target" already recorded — report each once
   const inbound = new Set(); // canonical paths that receive at least one link

@@ -273,6 +273,71 @@ que tu n'as pas.
    depuis un moment. C'est le « le bémol d'hier est une dette » de la discipline d'affirmation,
    appliqué aux fiches du vault lui-même.
 
+## Vivacité des sources : une réponse vide et une route morte, c'est le même signal
+
+> **Une source tombée en panne ne doit jamais se lire comme une source sans nouvelles.** Remonté du
+> terrain : pendant une grosse passe de rattrapage, la route de **recherche** d'un connecteur mail a
+> cessé de répondre pendant que sa route de **lecture** continuait de marcher. Aucune erreur, aucun
+> avertissement : le contrat dit noir sur blanc qu'un résultat vide n'est *pas* une erreur. Vu d'ici,
+> ces deux situations sont donc rigoureusement identiques : *la boîte ne contient rien sur ce sujet*,
+> et *la route de recherche est morte et ne matchera jamais rien, pour aucune requête*. Le cerveau a
+> rapporté la première. La personne a vu une source couverte sans nouvelles ; ce qui s'est passé, c'est
+> une source jamais lue.
+
+La **Discipline d'affirmation** ci-dessous note **ce qui** a été récupéré. Rien ne note **si** la
+récupération a eu lieu : une source qui renvoie zéro ligne produit zéro affirmation à marquer, donc le
+système de marquage reste muet par construction. Cette section est la moitié manquante, et elle passe
+**avant** qu'un vide ait le droit de devenir une phrase.
+
+### La requête de contrôle : tout le discriminant, un appel par source
+
+Avant d'écrire qu'une source n'avait rien, prouve que la route répond encore. Un appel de plus,
+construit sur trois règles :
+
+1. **Par la MÊME route que celle qui a répondu vide.** Une route de recherche se teste en *cherchant*.
+   Dans le rapport, lire un thread par son identifiant a marché du début à la fin : un contrôle passé par
+   la route de lecture aurait renvoyé un « tout va bien » parfaitement confiant sur une route morte.
+2. **Sans mot-clé.** Un mot-clé, c'est précisément ce qui rend un zéro honnête possible. Retire les
+   termes, élargis la fenêtre autant que l'outil l'accepte.
+3. **Impossible à satisfaire par zéro sur un compte vivant.** C'est la propriété sur laquelle tout
+   repose. Si un compte légitime pouvait renvoyer zéro ligne à ton contrôle, ce n'est pas un contrôle.
+
+**Zéro ligne au contrôle = la source est EN PANNE, pas vide.**
+
+| Source | L'appel de contrôle | Pourquoi zéro est impossible sur un compte vivant |
+|---|---|---|
+| **Mail** | la route de recherche, **aucun** terme, un simple filtre de récence sur une large fenêtre (un an, pas une semaine) | une boîte qui n'a rien reçu en un an n'est pas une boîte utilisée |
+| **Chat** | la route de recherche sur une large fenêtre, avec le mot le plus courant possible plutôt qu'un terme de sujet ; à défaut, la liste des canaux | un compte sans aucune occurrence d'un mot outil sur plusieurs mois n'est pas un compte utilisé |
+| **Agenda** | la liste des calendriers, plus une liste d'événements sur le mois écoulé | un compte a toujours au moins son calendrier principal |
+| **Drive** | la route de recherche triée par date de modification, sans termes | un drive dont rien n'a bougé en un an n'est pas un drive que ce cerveau synchronise |
+| **Notion** | la route de recherche avec une requête vide (les pages récentes) | l'intégration est partagée avec au moins une page, sinon elle ne serait pas branchée |
+
+> 🔧 **Un connecteur sans forme sans mot-clé** : prends la requête la plus large que tu puisses
+> exprimer, et dis dans l'artefact que le contrôle était **plus faible**. Un contrôle que tu n'arrives
+> pas à construire est une raison de signaler la source comme non prouvée, **jamais** une raison de
+> sauter la vérification en silence.
+
+### Ce que change un verdict EN PANNE
+
+- **C'est une alerte, pas une omission.** Nomme-la dans la réponse **et** dans l'artefact écrit, sur sa
+  propre ligne 🔴 : « le mail n'a pas été lu sur cette passe : sa route de recherche n'a rien renvoyé à
+  une requête de contrôle ». Elle ne peut jamais être sautée en silence.
+- **Ça interdit toute affirmation négative qui en dépendait.** Avec le mail en panne, tu ne peux pas
+  écrire « pas de mail sur ce sujet » : la phrase n'est pas étayée, exactement comme une affirmation
+  comportementale non vérifiée. Même barre que le troisième palier de la **Discipline d'affirmation**
+  ci-dessous.
+- **Le verdict n'est jamais mis en cache.** Il est rétabli à **chaque passe** et **jamais hérité** d'une
+  note : c'est « une capacité notée comme absente doit être retestée », appliqué à la vivacité. Une
+  source notée en panne se réessaie, elle ne se raye pas.
+- **Cadence le fan-out.** Le déclencheur du rapport, c'était justement une large passe parallèle sans
+  aucune limite. Plafonne les appels simultanés par connecteur, et **ralentis** (back off) sur une route
+  qui se met à répondre vide, au lieu de la marteler pendant tout le reste de la passe.
+
+> ⚖️ **Dis ce qui est de notre ressort et ce qui ne l'est pas.** La panne elle-même appartient au
+> fournisseur du connecteur : ce dépôt n'écrit pas une ligne de cette route, et le même outil répondait
+> normalement le même jour sur un autre compte. Ce qui est de notre ressort, et tout ce que ça corrige,
+> c'est que le cerveau présentait une source **non lue** comme une source **lue**.
+
 ## Discipline d'affirmation
 
 > **La sortie dangereuse d'un second cerveau, ce n'est pas le fait qu'il invente : c'est le SILENCE
@@ -372,6 +437,14 @@ En parallèle, repérer ce qui est **nouveau depuis le dernier passage** (delta)
 
 Lancer tous les sous-agents dans **un seul bloc d'appels parallèles**. Chacun écrit sa source
 brute dans le vault et **retourne un résumé ~500 tokens max**.
+
+> 🩺 **Chaque sous-agent de recherche lance sa requête de contrôle D'ABORD**, avant toute autre chose :
+> voir *Vivacité des sources* plus haut pour le contrôle propre à chaque source. Si le contrôle revient
+> vide, le sous-agent retourne **« source EN PANNE, non lue »** et aucun résultat, plutôt qu'un résumé
+> qui dit qu'on n'a rien trouvé. Et **garde le fan-out cadencé** : c'est exactement cette large passe
+> parallèle qui a fait basculer un compte réel au-delà d'un plafond par utilisateur. Plafonne les appels
+> simultanés par connecteur et **ralentis** sur une route qui se met à répondre vide, au lieu de la
+> marteler pendant tout le reste de la passe.
 
 #### Sous-agent « transcript-extractor » (un par document)
 
