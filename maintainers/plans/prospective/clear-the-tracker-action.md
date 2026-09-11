@@ -93,10 +93,10 @@
     `v5.1.3` is the real one, and needs regenerating only if the bytes of a merge-regime file move
     again. The note's draft is **not committed anywhere** — it lives in the session scratchpad and
     must be re-drafted from this plan if lost, which is cheap: § *step 8* lists everything it owes.
-  - 🛑 **What blocks publication is ONE thing, and it is technical, not a decision**: the §10ter field
-    rehearsal has not yet run **against this branch's code** (step 8's 🧪 item). The run that would
-    was refused by the sandbox. Until it is read, merging and tagging would ship an engine-manifest
-    change on the one path no suite here can see.
+  - ✅ **Nothing blocks publication any more.** The §10ter field rehearsal ran against this branch and
+    passed, on an old French brain, with the new script verified *running* in the updated copy (step
+    8's 🧪 item holds the readings). What is left is the mechanical sequence: merge, tag, publish the
+    note, close the five issues.
   - 🔁 **The #77 question was put to him and he has not answered it** — he answered the two that came
     after instead (the name, then the note). Its silence now reads as *not in this release*, which is
     also the standing recommendation (**leave it in v5.2**). § *THE ONE QUESTION* holds the trade-off.
@@ -395,19 +395,26 @@ is correct, it simply never fires on half of what it names._
           *not looked at* are indistinguishable a month later. `board-connect`'s *"read-only, it reads
           your sources, never changes them"* and `board-reliability`'s copy are both untouched by this
           release; the liveness check reads, it does not write.
-  - [ ] 🧪 **The field rehearsal (§10ter) is OWED, half-run, and the half that ran proves the wrong
-        thing** — `engine-manifest.json` changed (a new `replace`-regime script, `engineVersion.scripts`
+  - [x] 🧪 **The field rehearsal (§10ter) RAN AGAINST THIS BRANCH AND PASSED** _(2026-09-11)_ —
+        `engine-manifest.json` changed (a new `replace`-regime script, `engineVersion.scripts`
         1.17.0 → 1.18.0), which is exactly the *old parent, new child* case no suite here can see.
-    - [x] **Ran once against `~/legacy-brain`** _(2026-09-11)_, a real brain installed **2026-06-18 at
-          v3.4.0**, 30 notes, and deliberately **not** one of the owner's two personal brains. Result:
-          the update converged and **the owner's territory came back byte-identical**.
-    - [ ] ⚠️ **But it landed v5.1.2, not this branch.** The harness force-tags the mirror at `--tag`,
-          default **`v5.0.0`** — older than the newest published release, so the brain's updater
-          correctly chose **v5.1.2** and this branch's code was never exercised. **The run that counts
-          is `--tag v5.1.3`** (the tag is forced in the temp bare mirror only, never in this repo,
-          `rehearse.mjs:71`). It was **refused by the sandbox** and needs the owner's go-ahead.
-    - [ ] 📌 **Do not read the green above as §10ter satisfied.** Until the `--tag v5.1.3` run is read,
-          what is proven is the *published* path on an old brain, not the one this release ships.
+        Brain: `~/legacy-brain`, a real one installed **2026-06-18 at v3.4.0**, 30 notes, in **French**,
+        and deliberately **not** one of the owner's two personal brains.
+    - [x] **The three sections read against each other, never one alone.** Report: `v5.1.3`, 504 engine
+          files swapped, 19 new capabilities. State after: `source.ref v5.1.3`, `engineVersion.scripts`
+          **1.18.0**. Territory: **byte-identical** — the update touched nothing the owner owns.
+    - [x] **And the manifest change was checked where it actually lands, not in the report.** In the
+          updated copy: `scripts/unwrap-markdown.mjs` + its lib are present and **the CLI runs there**
+          (`--check vault` → *9 file(s) would change*, on a vault nobody authored for this test —
+          field evidence for #95 in its own right). The brain being French, its `CLAUDE.engine.md` is
+          **byte-identical to `templates/fr/CLAUDE.engine.md`** and carries both new rules
+          (*Retours à la ligne*, *Vivacité des sources*), and the FR `sync-sources` skill carries its
+          liveness section.
+    - [x] ⚠️ **The first run was a green that proved the wrong thing, and it is worth remembering.**
+          The harness force-tags the mirror at `--tag`, default **`v5.0.0`** — older than the newest
+          published release, so the brain's updater correctly chose **v5.1.2** and the branch's code
+          was never exercised, while the report said ✅ and the territory said byte-identical.
+          **On any release after a published one, `--tag <the real number>` is not optional.**
 
 ### v5.2 — the rest of the tracker · milestone [`v5.2`](https://github.com/tpierrain/kenjaku/milestone/2)
 
