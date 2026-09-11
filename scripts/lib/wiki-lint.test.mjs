@@ -651,3 +651,16 @@ test("lintVault — with no attachments passed at all, notes resolve exactly as 
   ]);
   assert.deepEqual(report.danglingLinks, [{ from: "a.md", target: "nope.png" }]);
 });
+
+test("lintVault — the `.md` stripped from a link spelling is the EXTENSION, not the first `.md` in the name", () => {
+  // A note ABOUT a `.md` file is an ordinary note in this world, and its own name then
+  // holds `.md` twice. Stripping the first occurrence registers `topics/claude-conventions.md`
+  // and never the spelling anyone would actually type, so the link reads as rot forever.
+  const notes = [
+    { path: "topics/claude.md-conventions.md", frontmatter: { type: "topic" }, body: "" },
+    { path: "a.md", frontmatter: {}, body: "see [[topics/claude.md-conventions]]" },
+  ];
+  const report = lintVault(notes);
+  assert.deepEqual(report.danglingLinks, []);
+  assert.deepEqual(report.orphans, ["a.md"], "the target was reached, so only the linking note is an orphan");
+});

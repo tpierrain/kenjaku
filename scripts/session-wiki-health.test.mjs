@@ -197,3 +197,20 @@ test("sessionWikiHealth — a caller that passes NO attachments reader still wor
   sessionWikiHealth({ vaultDir: "/brain/vault", readNotes: () => [captureOnly], emit: (m) => emitted.push(m) });
   assert.equal(emitted.length, 1, "the nudge must still fire when no attachments reader is supplied");
 });
+
+test("sessionWikiHealth — an embedded attachment raises no CONSOLIDATION candidate either", () => {
+  // The nudge surfaces two scans, and #71 hit both. Left unfixed on this half, a
+  // pasted screenshot stops being reported as a dead link and starts being reported
+  // as a page to create, called `screenshot.png`.
+  const captureWithScreenshot = {
+    path: "meetings/2026-07-10.md",
+    frontmatter: { type: "meeting", created: "2026-07-10", updated: "2026-07-10", tags: ["m"] },
+    body: "Discussed the plan. ![[screenshot.png]]",
+  };
+  const { args, calls } = seams({
+    readNotes: () => [captureWithScreenshot],
+    readAttachments: () => ["meetings/screenshot.png"],
+  });
+  sessionWikiHealth(args);
+  assert.deepEqual(calls.emitted, []);
+});

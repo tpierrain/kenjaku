@@ -55,7 +55,11 @@ function sortedCandidates(groups, build) {
 export function consolidationCandidates(notes, options = {}) {
   const captureZones = options.captureZones ?? DEFAULT_CAPTURE_ZONES;
   const entityTypes = options.entityTypes ?? DEFAULT_ENTITY_TYPES;
-  const resolve = buildResolver(notes);
+  // The vault's non-note files are resolution targets here for the same reason they
+  // are in the lint (#71): a screenshot pasted into a meeting note is an unresolved
+  // mention otherwise, and an unresolved mention in this scan means "no page for this
+  // yet" — so the brain proposed creating a note called `screenshot.png`.
+  const resolve = buildResolver(notes, options.attachments ?? []);
   const byPath = new Map(notes.map((n) => [n.path, n]));
 
   // Group the captures' unresolved mentions by target page (new-page candidates),
@@ -74,6 +78,11 @@ export function consolidationCandidates(notes, options = {}) {
       // Resolves to an existing page: a refresh candidate when that page is a
       // curated entity/topic left behind — the capture is fresher than its `updated:`.
       const page = byPath.get(resolved);
+      // …unless what it resolved to is an ATTACHMENT, which is not a note and has no
+      // frontmatter to read. Reading one anyway is a TypeError, and the session-start
+      // hook that calls this is fail-open: the crash would not surface, the entire
+      // nudge would just vanish, taking the real findings with it.
+      if (!page) continue;
       if (!entityTypes.includes(page.frontmatter.type)) continue;
       if (!(Date.parse(source.updated) > Date.parse(page.frontmatter.updated))) continue;
       addSource(refreshSources, resolved, source);

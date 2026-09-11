@@ -1,0 +1,31 @@
+[32m08:30:15 (33874) INFO ProjectReader[39m Found 1 of 1029 file(s) to be mutated.
+[32m08:30:15 (33874) INFO Instrumenter[39m Instrumented 1 source file(s) with 13 mutant(s)
+[32m08:30:15 (33874) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m08:30:15 (33874) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-Gwplwc
+[32m08:30:15 (33874) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m08:30:15 (33874) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m08:30:16 (33874) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 1 second (net 1610 ms, overhead 2 ms).
+
+All tests
+  ✓ All tests (killed 11)
+
+[Survived] ArrayDeclaration
+scripts/lib/wiki-lint.mjs:66:52
+-   export function buildResolver(notes, attachments = []) {
++   export function buildResolver(notes, attachments = ["Stryker was here"]) {
+
+[Survived] Regex
+scripts/lib/wiki-lint.mjs:74:31
+-         register(suffix.replace(/\.md$/, ""), note.path); // folder/note, note
++         register(suffix.replace(/\.md/, ""), note.path); // folder/note, note
+
+Ran 1.00 tests per mutant on average.
+---------------|------------------|----------|-----------|------------|----------|----------|
+               | % Mutation score |          |           |            |          |          |
+File           |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+---------------|--------|---------|----------|-----------|------------|----------|----------|
+All files      |  84.62 |   84.62 |       11 |         0 |          2 |        0 |        0 |
+ wiki-lint.mjs |  84.62 |   84.62 |       11 |         0 |          2 |        0 |        0 |
+---------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m08:30:24 (33874) INFO MutationTestExecutor[39m Done in 9 seconds.
+[32m08:30:24 (33874) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-Gwplwc.

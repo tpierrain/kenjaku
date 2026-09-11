@@ -411,3 +411,53 @@ test("reportLines — a page with SEVERAL fresher sources lists them comma-separ
     "  topics/rag.md (updated 2026-04-01) — 2 fresher: daily/2026-07-15.md, daily/2026-07-16.md",
   ]);
 });
+
+// ── #71, the SECOND half of the same session-start nudge ────────────────────
+//
+// The dangling-link report and the consolidation report are surfaced together, and
+// both go through the same resolver. So a screenshot pasted into a meeting note was
+// not only reported as a dead link: its target reached this scan as an unresolved
+// mention, which here means "no page for this yet" — and the brain proposed
+// CREATING A NOTE CALLED `screenshot.png`.
+
+test("consolidationCandidates — an embedded attachment that EXISTS is not a page to create", () => {
+  const capture = {
+    path: "meetings/2026-07-10.md",
+    frontmatter: { type: "meeting", updated: "2026-07-10" },
+    body: "Discussed the plan. ![[screenshot.png]]",
+  };
+  const report = consolidationCandidates([capture], { attachments: ["meetings/screenshot.png"] });
+  assert.deepEqual(report, { newPages: [], refreshes: [] });
+});
+
+test("consolidationCandidates — an attachment is never a REFRESH candidate either, and resolving one does not throw", () => {
+  // It resolves to something that is not a note at all, so the page lookup finds
+  // nothing. Reading a frontmatter off that is a TypeError — and in the session-start
+  // hook, which is fail-open, a TypeError does not surface as a crash: the whole
+  // nudge silently disappears, taking the real findings with it.
+  const capture = {
+    path: "meetings/2026-07-10.md",
+    frontmatter: { type: "meeting", updated: "2026-07-10" },
+    body: "![[diagram.excalidraw]] and [[people/alice]]",
+  };
+  const page = { path: "people/alice.md", frontmatter: { type: "person", updated: "2026-01-01" }, body: "" };
+  const report = consolidationCandidates([capture, page], { attachments: ["assets/diagram.excalidraw"] });
+  assert.deepEqual(report.newPages, []);
+  assert.deepEqual(report.refreshes, [
+    { page: "people/alice.md", updated: "2026-01-01", sources: [{ path: "meetings/2026-07-10.md", updated: "2026-07-10" }] },
+  ], "the real candidate beside it must survive untouched");
+});
+
+test("consolidationCandidates — an embed of a picture that is NOT in the vault behaves as before", () => {
+  // Deliberately pinned rather than quietly narrowed: an unresolved target is a
+  // new-page candidate, and that is the pre-existing rule for every unresolved
+  // target. The dangling-link report is what names this one as broken.
+  const capture = {
+    path: "meetings/2026-07-10.md",
+    frontmatter: { type: "meeting", updated: "2026-07-10" },
+    body: "![[gone.png]]",
+  };
+  assert.deepEqual(consolidationCandidates([capture], { attachments: [] }).newPages, [
+    { target: "gone.png", sources: [{ path: "meetings/2026-07-10.md", updated: "2026-07-10" }] },
+  ]);
+});

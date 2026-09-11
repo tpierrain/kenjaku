@@ -36,9 +36,13 @@ import { wikiHealthNudge, buildWikiHealthHookOutput } from "./lib/wiki-health-nu
 export function sessionWikiHealth({ readNotes, readAttachments = () => [], vaultDir, emit }) {
   try {
     const notes = readNotes(vaultDir);
+    // Read ONCE and handed to both scans: they resolve the same links, so an
+    // attachment list given to one and not the other just moves the false positive
+    // from the dangling-link half of the nudge to the consolidation half.
+    const attachments = readAttachments(vaultDir);
     const nudge = wikiHealthNudge({
-      lintReport: lintVault(notes, { attachments: readAttachments(vaultDir) }),
-      consolidationReport: consolidationCandidates(notes),
+      lintReport: lintVault(notes, { attachments }),
+      consolidationReport: consolidationCandidates(notes, { attachments }),
     });
     if (nudge) {
       emit(nudge);
