@@ -220,29 +220,60 @@ session of 2026-09-09, after three earlier corrections on the same defect. **It 
 feature** — his call, and the reason this release keeps its bug-fix-only framing: the rule exists and
 is correct, it simply never fires on half of what it names._
 
-- [ ] **7. The no-hard-wrap rule moves into `CLAUDE.engine.md`, and triggers on the destination
-      instead of on the word "file"** — [#95](https://github.com/tpierrain/kenjaku/issues/95). The
-      rule currently sits in each owner's personal `CLAUDE.md` and opens on *"aucun **fichier**
-      Markdown…"*, so it fires on vault notes and never on the fenced block in the chat, which is
-      exactly the text that gets copied into Slack. Same session: four notes written clean, three
-      fenced blocks hard-wrapped at 95 characters.
-  - [ ] **The rule lands in the engine layer**, worded as *never insert a line break the content does
+- [x] **7. The no-hard-wrap rule moves into `CLAUDE.engine.md`, and triggers on the destination
+      instead of on the word "file"** — [#95](https://github.com/tpierrain/kenjaku/issues/95).
+      _(2026-09-11 · `c50d5ad` + the doctrine commit that follows it.)_ The rule sat in each owner's
+      personal `CLAUDE.md` and opened on *"aucun **fichier** Markdown…"*, so it fired on vault notes
+      and never on the fenced block in the chat, which is exactly the text that gets copied into
+      Slack. Same session: four notes written clean, three fenced blocks hard-wrapped at 95
+      characters.
+  - [x] **The rule lands in the engine layer**, worded as *never insert a line break the content does
         not require*, naming the destinations explicitly — vault notes, cheat sheets, article drafts,
-        messages to send, **and fenced blocks in the chat**.
-  - [ ] **The copy in the generated `CLAUDE.md` template is removed, not left alongside.** Two files
-        carrying one rule is a guarantee they diverge. An owner who genuinely wants hard wrapping
-        states it in their own `CLAUDE.md`, as an override.
-  - [ ] **Say plainly that no machine can inspect chat output before the owner sees it**, so that half
+        messages to send, **and fenced blocks in the chat**. Under `## Expected Claude Code
+        behaviors`, first subsection, in **both** locales.
+  - [x] **The copy in the generated `CLAUDE.md` template is removed, not left alongside.** It turned
+        out there was **nothing to remove**: `CLAUDE.md.template` never carried the rule. The copy
+        that exists is in the owner's own brain (`~/mind-palace/CLAUDE.md:92`), which a session may
+        not write into — so the engine layer now **tells its reader to delete it**, and the release
+        note has to repeat that (step 8).
+  - [x] **Say plainly that no machine can inspect chat output before the owner sees it**, so that half
         is a written reflex by construction. The deterministic net covers files only:
         `node scripts/unwrap-markdown.mjs <file|folder>`.
-  - [ ] **The upgrade path says what to do for existing brains** whose personal `CLAUDE.md` still
-        holds the old wording.
+  - [x] 🛠️ **…and that net had to be BUILT, because it did not exist here.** The issue states the
+        script is "already engine-owned". It is not: it lives only inside the owner's brain,
+        hand-written, and `git log -S` finds it nowhere in this repo. Pointing the engine at a script
+        no brain has would have shipped the exact defect this release is about, so
+        `scripts/unwrap-markdown.mjs` (+ its pure core under `scripts/lib/`) is now engine-owned,
+        registered under the manifest's `replace` regime, scripts `1.17.0 → 1.18.0`. Two defects in
+        the reference implementation were fixed on the way: a CRLF document got a carriage return
+        buried mid-paragraph, and an unchanged file was rewritten byte-identical.
+  - [x] **The upgrade path says what to do for existing brains** whose personal `CLAUDE.md` still
+        holds the old wording. Two halves, and only one of them could be done here: the engine layer
+        carries the instruction inline (it is a `merge`-regime file, so an untouched copy is refreshed
+        on upgrade), and the **release note owes the same sentence** — that is the half that reaches
+        an owner who never opens the constitution. Recorded in step 8.
+  - ⚠️ **THE FRENCH TWIN WAS WRITTEN, against this plan's own standing constraint, and here is why.**
+        The constraint says a session ships the English half and stops. But
+        `templates/fr/CLAUDE.engine.md` is one of the 16 pairs the EN/FR drift guard watches, and its
+        criterion is *unpaired commits* — so an English-only commit turns the suite **red** and keeps
+        every later commit of this release ambiguous. Choosing between "a French paragraph the owner
+        may want to reword" and "a red suite for the rest of the release" is not a close call, so both
+        halves went in one commit. **The French wording is the owner's to correct**, and nothing else
+        in `templates/fr/**` was touched.
 
 #### All three subjects
 
 - [ ] **8. Answer both reporters.** Each issue closed with what shipped and how it was verified
       (`CONVENTIONS.md` §10bis). The release note names the `/lint` contributor; the second report
       came through a private channel, so it is credited **without a name**.
+  - [ ] 📄 **The release note owes ONE sentence that is not a summary of a fix**, and it is the only
+        thing this release asks of a reader: *if your own `CLAUDE.md` carries the "no line break
+        inside a paragraph" rule, delete it — the engine holds it now.* Without it, the two copies
+        diverge in every brain that had one, which is the defect #95 is about, one layer up.
+  - [ ] 🔢 **The fingerprint table currently says `v5.1.3`**, folded in while regenerating it for the
+        constitution change. It is a **placeholder**: the number is the owner's call, and the table is
+        regenerated once more against the real tag before it is cut
+        (`node maintainers/fingerprints/generate-fingerprints.mjs --version <tag>`).
 
 ### v5.2 — the rest of the tracker · milestone [`v5.2`](https://github.com/tpierrain/kenjaku/milestone/2)
 

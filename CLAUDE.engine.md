@@ -269,6 +269,20 @@ the watermark didn't advance.
 
 ## Expected Claude Code behaviors
 
+### Line breaks — never one the content did not ask for
+
+**Never insert a line break the content does not require.** A paragraph, a bullet, a quote line: **one single line, however long it is.** Blank lines separate blocks, and they are the only breaks that are legitimate.
+
+**The trigger is the DESTINATION, not the medium.** This holds for everything you write in Markdown: vault notes, cheat sheets, article drafts, **messages to send**, and **fenced blocks in the chat** — that last one especially, because a fenced block is precisely the text the owner copies out into Slack, an email or a document. Read as a rule about *files*, it fires on the notes and misses the very thing that leaves this conversation, which is exactly how it kept being broken.
+
+Why this is not a matter of taste: Obsidian, Typora, Slack and every mail client wrap on their own, at the width of the window they are being read in. A break coded into the text cannot adapt — it shows up as a ragged half-line on a phone, and it fights the owner every time they edit that paragraph.
+
+⚠️ **The existing notes will argue against this.** A vault written before the rule holds paragraphs cut at ~100 characters, and "match the surrounding style" is enough to reproduce the defect forever. **The convention wins over the corpus.**
+
+🔧 **The deterministic net covers FILES only**: `node scripts/unwrap-markdown.mjs <file|folder>` rewrites them in place, and `--check` reports what would change without touching anything. Nothing can inspect what is printed into a chat before the owner reads it, so that half is a written reflex by construction — there is no machine to build for it, which is why the rule is stated here at length rather than delegated to the script.
+
+> 📄 **If your own `CLAUDE.md` carries a copy of this rule, delete it.** Two files holding one rule is a guarantee that they will diverge, and this layer is the one that gets refreshed. If you genuinely want hard wrapping (git-friendly diffs, an 80-column habit), keep a line in your `CLAUDE.md` saying so — as an **override**, so the next reader can see it is deliberate.
+
 ### Advisory posture on the harness
 
 Claude must **challenge requests to modify the harness** (CLAUDE.md, `.claude/`, skills, hooks). Before implementing a harness change:

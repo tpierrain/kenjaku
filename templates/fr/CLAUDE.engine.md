@@ -279,6 +279,20 @@ le watermark n'a pas avancé.
 
 ## Comportements Claude Code attendus
 
+### Retours à la ligne : jamais un que le contenu n'a pas demandé
+
+**N'insère jamais un retour à la ligne que le contenu n'exige pas.** Un paragraphe, une puce, une ligne de citation : **une seule ligne, aussi longue soit-elle.** Seules les lignes vides séparent les blocs, ce sont les seules coupures légitimes.
+
+**Le déclencheur, c'est la DESTINATION, pas le support.** Ça vaut pour tout ce que tu écris en Markdown : notes du vault, antisèches, brouillons d'articles, **messages à envoyer**, et **blocs de code dans le chat**, ces derniers surtout, puisqu'un bloc de code est précisément le texte que la personne va recopier dans Slack, un mail ou un document. Lue comme une règle sur les *fichiers*, elle s'applique aux notes et rate exactement ce qui sort de la conversation : c'est comme ça qu'elle a continué d'être enfreinte.
+
+Pourquoi ce n'est pas une affaire de goût : Obsidian, Typora, Slack et tous les clients mail reviennent à la ligne tout seuls, à la largeur de la fenêtre où on les lit. Une coupure inscrite dans le texte, elle, ne peut pas s'adapter : elle donne une demi-ligne bancale sur téléphone, et elle se bat avec la personne à chaque fois qu'elle réédite le paragraphe.
+
+⚠️ **Les notes déjà écrites plaideront contre cette règle.** Un vault antérieur à la règle contient des paragraphes coupés à ~100 caractères, et « s'aligner sur le style environnant » suffit à reproduire le défaut indéfiniment. **La convention prime sur le corpus.**
+
+🔧 **Le filet déterministe ne couvre que les FICHIERS** : `node scripts/unwrap-markdown.mjs <fichier|dossier>` les réécrit sur place, et `--check` signale ce qui changerait sans rien toucher. Rien ne peut inspecter ce qui s'affiche dans un chat avant qu'on le lise : cette moitié-là est un réflexe écrit par construction, il n'y a pas de machine à construire pour elle, et c'est pour ça que la règle est détaillée ici plutôt que déléguée au script.
+
+> 📄 **Si ton propre `CLAUDE.md` contient une copie de cette règle, supprime-la.** Deux fichiers qui portent la même règle, c'est la garantie qu'ils divergeront, et c'est cette couche-ci qui est rafraîchie. Si tu veux vraiment des coupures (diffs git plus lisibles, habitude des 80 colonnes), garde une ligne dans ton `CLAUDE.md` qui le dit, formulée comme une **dérogation**, pour que la personne qui lira ensuite voie que c'est délibéré.
+
 ### Posture de conseil sur le harnais
 
 Claude doit **challenger les demandes de modification du harnais** (CLAUDE.md, `.claude/`, skills, hooks). Avant d'implémenter un changement de harnais :
