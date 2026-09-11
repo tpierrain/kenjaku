@@ -82,13 +82,16 @@
   and is **not** being asked of him again — the three issues are ready to work whatever it ends up
   being called. Record of the tag:
   [`../archived/v5.1.0-code-review-fixes-action.md`](../archived/v5.1.0-code-review-fixes-action.md).
-- **Next:** **the field-reported issues, and nothing else. FOUR now, not three** _(2026-09-09: #80
-  joined them when its analysis was recovered from an abandoned branch)_. All reported by people
-  outside the project, in **two** subjects: the checker that cries wolf
+- **Next:** **v5.1's five issues, and nothing else** _(2026-09-09: #80 joined when its analysis was
+  recovered from an abandoned branch; 2026-09-11: #95 joined at the owner's ask)_. **Three** subjects,
+  and the third is the only one not reported from outside: the checker that cries wolf
   ([#71](https://github.com/tpierrain/kenjaku/issues/71),
   [#73](https://github.com/tpierrain/kenjaku/issues/73),
-  [#74](https://github.com/tpierrain/kenjaku/issues/74)) and a source that goes quiet without saying
-  so ([#80](https://github.com/tpierrain/kenjaku/issues/80)) → § *v5.1*. Nothing is started.
+  [#74](https://github.com/tpierrain/kenjaku/issues/74)), a source that goes quiet without saying so
+  ([#80](https://github.com/tpierrain/kenjaku/issues/80)), and a no-hard-wrap rule that guards files
+  but not the text copied out of the chat
+  ([#95](https://github.com/tpierrain/kenjaku/issues/95)) → § *v5.1*. Nothing is started. The
+  milestone on GitHub carries all five, and its description was widened to match.
 - **Blocked on:** nothing. The three `/lint` defects have obvious tests and no design question. #80
   needs **one** design call, named in its own step (what a known-positive control query looks like per
   connector), and nothing else. A session may open the release today, test-first.
@@ -132,7 +135,9 @@
 
 ### v5.1 — what outside users reported · milestone [`v5.1`](https://github.com/tpierrain/kenjaku/milestone/1)
 
-_**Two** subjects, two reporters, one criterion: somebody outside the project hit it on a real brain._
+_**Three** subjects. The first two came from outside the project, on real brains; the third is the
+owner's own call, added on 2026-09-11 — a rule that lives in the wrong layer and is therefore applied
+to the wrong perimeter._
 _(Read "v5.1" as **the next bugfix release** — see the header note; the number is the owner's.)_
 
 #### A checker stops reporting healthy things as broken
@@ -199,9 +204,32 @@ asked for it anonymised. Nothing identifying goes into the issue, the plan, or t
       no code for, and the same tool answered normally the same day on another account. What is ours,
       and all we fix, is that the brain **presented an unread source as a read one**.
 
-#### Both subjects
+#### A rule that guards files does not guard the text you copy out of the chat
 
-- [ ] **7. Answer both reporters.** Each issue closed with what shipped and how it was verified
+_Added to this release on 2026-09-11, at the owner's ask. Not field-reported: measured on his own
+session of 2026-09-09, after three earlier corrections on the same defect._
+
+- [ ] **7. The no-hard-wrap rule moves into `CLAUDE.engine.md`, and triggers on the destination
+      instead of on the word "file"** — [#95](https://github.com/tpierrain/kenjaku/issues/95). The
+      rule currently sits in each owner's personal `CLAUDE.md` and opens on *"aucun **fichier**
+      Markdown…"*, so it fires on vault notes and never on the fenced block in the chat, which is
+      exactly the text that gets copied into Slack. Same session: four notes written clean, three
+      fenced blocks hard-wrapped at 95 characters.
+  - [ ] **The rule lands in the engine layer**, worded as *never insert a line break the content does
+        not require*, naming the destinations explicitly — vault notes, cheat sheets, article drafts,
+        messages to send, **and fenced blocks in the chat**.
+  - [ ] **The copy in the generated `CLAUDE.md` template is removed, not left alongside.** Two files
+        carrying one rule is a guarantee they diverge. An owner who genuinely wants hard wrapping
+        states it in their own `CLAUDE.md`, as an override.
+  - [ ] **Say plainly that no machine can inspect chat output before the owner sees it**, so that half
+        is a written reflex by construction. The deterministic net covers files only:
+        `node scripts/unwrap-markdown.mjs <file|folder>`.
+  - [ ] **The upgrade path says what to do for existing brains** whose personal `CLAUDE.md` still
+        holds the old wording.
+
+#### All three subjects
+
+- [ ] **8. Answer both reporters.** Each issue closed with what shipped and how it was verified
       (`CONVENTIONS.md` §10bis). The release note names the `/lint` contributor; the second report
       came through a private channel, so it is credited **without a name**.
 
