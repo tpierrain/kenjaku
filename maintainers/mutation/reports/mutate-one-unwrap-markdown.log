@@ -1,42 +1,26 @@
-[32m08:25:36 (18376) INFO ProjectReader[39m Found 1 of 1029 file(s) to be mutated.
-[32m08:25:37 (18376) INFO Instrumenter[39m Instrumented 1 source file(s) with 124 mutant(s)
-[32m08:25:37 (18376) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
-[32m08:25:37 (18376) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-9HDsTd
-[32m08:25:37 (18376) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
-[32m08:25:37 (18376) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
-[32m08:25:37 (18376) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 0 seconds (net 249 ms, overhead 0 ms).
-Mutation testing 26% (elapsed: <1m, remaining: <1m) 33/124 tested (2 survived, 0 timed out)
-Mutation testing 26% (elapsed: <1m, remaining: <1m) 33/124 tested (2 survived, 0 timed out)
-Mutation testing 26% (elapsed: <1m, remaining: ~1m) 33/124 tested (2 survived, 0 timed out)
-Mutation testing 99% (elapsed: <1m, remaining: n/a) 123/124 tested (3 survived, 5 timed out)
-Mutation testing 99% (elapsed: <1m, remaining: n/a) 123/124 tested (3 survived, 5 timed out)
-Mutation testing 99% (elapsed: ~1m, remaining: n/a) 123/124 tested (3 survived, 5 timed out)
+[32m08:28:59 (20298) INFO ProjectReader[39m Found 1 of 1029 file(s) to be mutated.
+[32m08:29:00 (20298) INFO Instrumenter[39m Instrumented 1 source file(s) with 63 mutant(s)
+[32m08:29:00 (20298) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m08:29:00 (20298) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-eYsLea
+[32m08:29:00 (20298) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m08:29:00 (20298) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m08:29:00 (20298) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 0 seconds (net 249 ms, overhead 0 ms).
 
 All tests
-  ✓ All tests (killed 115)
+  ✓ All tests (killed 62)
 
-[Survived] UpdateOperator
-scripts/lib/unwrap-markdown.mjs:40:5
--       depth++;
-+       depth--;
+[Survived] StringLiteral
+scripts/unwrap-markdown.mjs:25:43
+-   const toPosix = (p) => p.split("\\").join("/");
++   const toPosix = (p) => p.split("\\").join("");
 
-[Survived] Regex
-scripts/lib/unwrap-markdown.mjs:41:31
--       content = content.replace(/^\s*>\s?/, "");
-+       content = content.replace(/\s*>\s?/, "");
-
-[Survived] Regex
-scripts/lib/unwrap-markdown.mjs:118:48
--           out[openLine.index] = previous.replace(/\s+$/, "") + " " + content.trim();
-+           out[openLine.index] = previous.replace(/\s$/, "") + " " + content.trim();
-
-Ran 0.95 tests per mutant on average.
+Ran 1.00 tests per mutant on average.
 ---------------------|------------------|----------|-----------|------------|----------|----------|
                      | % Mutation score |          |           |            |          |          |
 File                 |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
 ---------------------|--------|---------|----------|-----------|------------|----------|----------|
-All files            |  97.58 |   97.58 |      115 |         6 |          3 |        0 |        0 |
- unwrap-markdown.mjs |  97.58 |   97.58 |      115 |         6 |          3 |        0 |        0 |
+All files            |  98.41 |   98.41 |       62 |         0 |          1 |        0 |        0 |
+ unwrap-markdown.mjs |  98.41 |   98.41 |       62 |         0 |          1 |        0 |        0 |
 ---------------------|--------|---------|----------|-----------|------------|----------|----------|
-[32m08:26:43 (18376) INFO MutationTestExecutor[39m Done in 1 minute and 6 seconds.
-[32m08:26:43 (18376) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-9HDsTd.
+[32m08:29:04 (20298) INFO MutationTestExecutor[39m Done in 4 seconds.
+[32m08:29:04 (20298) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-eYsLea.

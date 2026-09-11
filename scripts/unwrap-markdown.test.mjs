@@ -187,3 +187,22 @@ test("the CLI, run as a process with no argument, exits 2 and says how to call i
   assert.equal(run.status, 2);
   assert.match(run.stderr, /usage: node scripts\/unwrap-markdown\.mjs/);
 });
+
+test("runUnwrap — a Windows-shaped path is REPORTED in POSIX form, separators converted not dropped", () => {
+  // Fed a backslash path literally rather than through join(), because on macOS
+  // join() never produces one — so the conversion is dead code here and a mutation
+  // that DELETED the separator instead of converting it survived every local run
+  // (CONVENTIONS §9: local green is a POSIX green). On Windows the same defect
+  // would print `vaultpeoplea.md` and name a file nobody can find.
+  const windowsPath = "vault\\people\\jane-doe.md";
+  const { deps, logs } = fakeDeps({ [windowsPath]: "a cut\nline" });
+  assert.equal(runUnwrap([windowsPath], deps), 0);
+  assert.deepEqual(logs, ["unwrapped: vault/people/jane-doe.md", "1 file(s) rewritten"]);
+});
+
+test("runUnwrap — --check reports the same POSIX spelling as a real run does", () => {
+  const windowsPath = "vault\\people\\jane-doe.md";
+  const { deps, logs } = fakeDeps({ [windowsPath]: "a cut\nline" });
+  assert.equal(runUnwrap(["--check", windowsPath], deps), 1);
+  assert.deepEqual(logs, ["would unwrap: vault/people/jane-doe.md", "1 file(s) would change"]);
+});
