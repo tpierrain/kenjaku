@@ -1,94 +1,19 @@
-[32m08:20:08 (17164) INFO ProjectReader[39m Found 1 of 1028 file(s) to be mutated.
-[32m08:20:08 (17164) INFO Instrumenter[39m Instrumented 1 source file(s) with 124 mutant(s)
-[32m08:20:08 (17164) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
-[32m08:20:08 (17164) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-oe6tvh
-[32m08:20:08 (17164) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
-[32m08:20:08 (17164) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
-[32m08:20:08 (17164) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 0 seconds (net 276 ms, overhead 0 ms).
-Mutation testing 26% (elapsed: <1m, remaining: <1m) 33/124 tested (17 survived, 0 timed out)
-Mutation testing 26% (elapsed: <1m, remaining: <1m) 33/124 tested (17 survived, 0 timed out)
-Mutation testing 26% (elapsed: <1m, remaining: ~1m) 33/124 tested (17 survived, 0 timed out)
-Mutation testing 99% (elapsed: <1m, remaining: n/a) 123/124 tested (23 survived, 5 timed out)
-Mutation testing 99% (elapsed: <1m, remaining: n/a) 123/124 tested (23 survived, 5 timed out)
-Mutation testing 99% (elapsed: ~1m, remaining: n/a) 123/124 tested (23 survived, 5 timed out)
+[32m08:25:36 (18376) INFO ProjectReader[39m Found 1 of 1029 file(s) to be mutated.
+[32m08:25:37 (18376) INFO Instrumenter[39m Instrumented 1 source file(s) with 124 mutant(s)
+[32m08:25:37 (18376) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m08:25:37 (18376) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-9HDsTd
+[32m08:25:37 (18376) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m08:25:37 (18376) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m08:25:37 (18376) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 0 seconds (net 249 ms, overhead 0 ms).
+Mutation testing 26% (elapsed: <1m, remaining: <1m) 33/124 tested (2 survived, 0 timed out)
+Mutation testing 26% (elapsed: <1m, remaining: <1m) 33/124 tested (2 survived, 0 timed out)
+Mutation testing 26% (elapsed: <1m, remaining: ~1m) 33/124 tested (2 survived, 0 timed out)
+Mutation testing 99% (elapsed: <1m, remaining: n/a) 123/124 tested (3 survived, 5 timed out)
+Mutation testing 99% (elapsed: <1m, remaining: n/a) 123/124 tested (3 survived, 5 timed out)
+Mutation testing 99% (elapsed: ~1m, remaining: n/a) 123/124 tested (3 survived, 5 timed out)
 
 All tests
-  ✓ All tests (killed 95)
-
-[Survived] Regex
-scripts/lib/unwrap-markdown.mjs:20:25
--   const HORIZONTAL_RULE = /^(-{3,}|\*{3,}|_{3,})$/;
-+   const HORIZONTAL_RULE = /^(-{3,}|\*{3,}|_{3,})/;
-
-[Survived] Regex
-scripts/lib/unwrap-markdown.mjs:20:25
--   const HORIZONTAL_RULE = /^(-{3,}|\*{3,}|_{3,})$/;
-+   const HORIZONTAL_RULE = /(-{3,}|\*{3,}|_{3,})$/;
-
-[Survived] Regex
-scripts/lib/unwrap-markdown.mjs:20:25
--   const HORIZONTAL_RULE = /^(-{3,}|\*{3,}|_{3,})$/;
-+   const HORIZONTAL_RULE = /^(-|\*{3,}|_{3,})$/;
-
-[Survived] Regex
-scripts/lib/unwrap-markdown.mjs:20:25
--   const HORIZONTAL_RULE = /^(-{3,}|\*{3,}|_{3,})$/;
-+   const HORIZONTAL_RULE = /^(-{3,}|\*|_{3,})$/;
-
-[Survived] Regex
-scripts/lib/unwrap-markdown.mjs:20:25
--   const HORIZONTAL_RULE = /^(-{3,}|\*{3,}|_{3,})$/;
-+   const HORIZONTAL_RULE = /^(-{3,}|\*{3,}|_)$/;
-
-[Survived] Regex
-scripts/lib/unwrap-markdown.mjs:21:15
--   const FENCE = /^\s*(```|~~~)/;
-+   const FENCE = /\s*(```|~~~)/;
-
-[Survived] Regex
-scripts/lib/unwrap-markdown.mjs:22:19
--   const TABLE_ROW = /^\s*\|/;
-+   const TABLE_ROW = /^\S*\|/;
-
-[Survived] Regex
-scripts/lib/unwrap-markdown.mjs:22:19
--   const TABLE_ROW = /^\s*\|/;
-+   const TABLE_ROW = /\s*\|/;
-
-[Survived] Regex
-scripts/lib/unwrap-markdown.mjs:21:15
--   const FENCE = /^\s*(```|~~~)/;
-+   const FENCE = /^\S*(```|~~~)/;
-
-[Survived] Regex
-scripts/lib/unwrap-markdown.mjs:23:20
--   const HTML_BLOCK = /^\s*</;
-+   const HTML_BLOCK = /\s*</;
-
-[Survived] Regex
-scripts/lib/unwrap-markdown.mjs:24:25
--   const LIST_ITEM_START = /^([-*+]|\d+[.)])\s/;
-+   const LIST_ITEM_START = /^([-*+]|\d[.)])\s/;
-
-[Survived] Regex
-scripts/lib/unwrap-markdown.mjs:24:25
--   const LIST_ITEM_START = /^([-*+]|\d+[.)])\s/;
-+   const LIST_ITEM_START = /([-*+]|\d+[.)])\s/;
-
-[Survived] Regex
-scripts/lib/unwrap-markdown.mjs:23:20
--   const HTML_BLOCK = /^\s*</;
-+   const HTML_BLOCK = /^\S*</;
-
-[Survived] Regex
-scripts/lib/unwrap-markdown.mjs:29:29
--   const EXPLICIT_HARD_BREAK = /(\s{2}|\\)$/;
-+   const EXPLICIT_HARD_BREAK = /(\s{2}|\\)/;
-
-[Survived] Regex
-scripts/lib/unwrap-markdown.mjs:29:29
--   const EXPLICIT_HARD_BREAK = /(\s{2}|\\)$/;
-+   const EXPLICIT_HARD_BREAK = /(\s|\\)$/;
+  ✓ All tests (killed 115)
 
 [Survived] UpdateOperator
 scripts/lib/unwrap-markdown.mjs:40:5
@@ -100,43 +25,18 @@ scripts/lib/unwrap-markdown.mjs:41:31
 -       content = content.replace(/^\s*>\s?/, "");
 +       content = content.replace(/\s*>\s?/, "");
 
-[Survived] MethodExpression
-scripts/lib/unwrap-markdown.mjs:49:19
--     const trimmed = content.trim();
-+     const trimmed = content;
-
-[Survived] MethodExpression
-scripts/lib/unwrap-markdown.mjs:57:62
--     return !opensItsOwnBlock(content) && !LIST_ITEM_START.test(content.trim());
-+     return !opensItsOwnBlock(content) && !LIST_ITEM_START.test(content);
-
-[Survived] MethodExpression
-scripts/lib/unwrap-markdown.mjs:89:20
--       if (i === 0 && line.trim() === FRONTMATTER_DELIMITER) {
-+       if (i === 0 && line === FRONTMATTER_DELIMITER) {
-
-[Survived] MethodExpression
-scripts/lib/unwrap-markdown.mjs:95:11
--         if (line.trim() === FRONTMATTER_DELIMITER) inFrontmatter = false;
-+         if (line === FRONTMATTER_DELIMITER) inFrontmatter = false;
-
 [Survived] Regex
 scripts/lib/unwrap-markdown.mjs:118:48
 -           out[openLine.index] = previous.replace(/\s+$/, "") + " " + content.trim();
 +           out[openLine.index] = previous.replace(/\s$/, "") + " " + content.trim();
-
-[Survived] StringLiteral
-scripts/lib/unwrap-markdown.mjs:118:56
--           out[openLine.index] = previous.replace(/\s+$/, "") + " " + content.trim();
-+           out[openLine.index] = previous.replace(/\s+$/, "Stryker was here!") + " " + content.trim();
 
 Ran 0.95 tests per mutant on average.
 ---------------------|------------------|----------|-----------|------------|----------|----------|
                      | % Mutation score |          |           |            |          |          |
 File                 |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
 ---------------------|--------|---------|----------|-----------|------------|----------|----------|
-All files            |  81.45 |   81.45 |       95 |         6 |         23 |        0 |        0 |
- unwrap-markdown.mjs |  81.45 |   81.45 |       95 |         6 |         23 |        0 |        0 |
+All files            |  97.58 |   97.58 |      115 |         6 |          3 |        0 |        0 |
+ unwrap-markdown.mjs |  97.58 |   97.58 |      115 |         6 |          3 |        0 |        0 |
 ---------------------|--------|---------|----------|-----------|------------|----------|----------|
-[32m08:21:15 (17164) INFO MutationTestExecutor[39m Done in 1 minute and 6 seconds.
-[32m08:21:15 (17164) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-oe6tvh.
+[32m08:26:43 (18376) INFO MutationTestExecutor[39m Done in 1 minute and 6 seconds.
+[32m08:26:43 (18376) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-9HDsTd.

@@ -30,17 +30,24 @@ const EXPLICIT_HARD_BREAK = /(\s{2}|\\)$/;
 
 const FRONTMATTER_DELIMITER = "---";
 
-// Peel the blockquote prefixes off a line, returning how deep it was quoted and
-// what it actually says. Two lines only ever join at the SAME depth: `>` and `>>`
-// are different blocks, and merging them would re-attribute a quote.
+// Peel the blockquote prefixes off a line, returning the quote prefix it carried
+// and what it actually says. Two lines only ever join under the SAME prefix: `>`
+// and `>>` are different blocks, and merging them would re-attribute a quote.
+//
+// The prefix is rebuilt as a normalised string rather than counted, so that the
+// thing compared IS the quote context ("> " and ">   " are the same block) instead
+// of a number that happens to stand for it.
 function peelQuote(line) {
-  let depth = 0;
+  let quote = "";
   let content = line;
   while (/^\s*>/.test(content)) {
-    depth++;
+    quote += ">";
+    // No `^` needed twice over — the loop condition above has already established
+    // that the line starts with the prefix, so the leftmost match IS that one.
+    // Kept anchored anyway: a reader should not have to re-derive that.
     content = content.replace(/^\s*>\s?/, "");
   }
-  return { depth, content };
+  return { quote, content };
 }
 
 // Does this line open a block of its own? Used in both directions — a line that
@@ -71,8 +78,8 @@ export function unwrapMarkdown(text) {
   const out = [];
   let inFence = false;
   let inFrontmatter = false;
-  // Where the last line that can still absorb another was emitted, and at which
-  // quote depth. `null` means the next line starts fresh whatever it says.
+  // Where the last line that can still absorb another was emitted, and under which
+  // quote prefix. `null` means the next line starts fresh whatever it says.
   let openLine = null;
 
   const emitVerbatim = (line) => {
@@ -108,14 +115,15 @@ export function unwrapMarkdown(text) {
       continue;
     }
 
-    const { depth, content } = peelQuote(line);
+    const { quote, content } = peelQuote(line);
 
-    if (openLine !== null && openLine.depth === depth && isContinuation(content)) {
+    if (openLine !== null && openLine.quote === quote && isContinuation(content)) {
       const previous = out[openLine.index];
       if (!EXPLICIT_HARD_BREAK.test(previous)) {
         // Trim both sides of the seam so the join is exactly one space, whatever
-        // indentation the wrap left behind.
-        out[openLine.index] = previous.replace(/\s+$/, "") + " " + content.trim();
+        // indentation the wrap left behind. At most ONE trailing whitespace can
+        // reach here: two of them are already a hard break, refuted just above.
+        out[openLine.index] = previous.trimEnd() + " " + content.trim();
         continue;
       }
     }
@@ -123,7 +131,7 @@ export function unwrapMarkdown(text) {
     out.push(line);
     // A list item DOES absorb what follows it (its own continuation lines), which
     // is why this is `opensItsOwnBlock` and not `isContinuation`.
-    openLine = opensItsOwnBlock(content) ? null : { index: out.length - 1, depth };
+    openLine = opensItsOwnBlock(content) ? null : { index: out.length - 1, quote };
   }
 
   return out.join(eol);
