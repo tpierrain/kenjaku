@@ -5,7 +5,7 @@
     "rag": "1.5.0",
     "local-mirror": "0.3.0",
     "constitutionTemplate": "1.4.0",
-    "scripts": "1.17.0"
+    "scripts": "1.18.0"
   },
   "indexSchemaVersion": 2,
   "regimes": {
@@ -42,6 +42,7 @@
       "scripts/health-probe-run.mjs",
     "scripts/upstream-check-run.mjs",
       "scripts/lint-vault.mjs",
+      "scripts/unwrap-markdown.mjs",
       "scripts/file-back-note.mjs",
       "scripts/consolidate-scan.mjs",
       "scripts/refresh-note.mjs",
