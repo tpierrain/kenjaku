@@ -15,13 +15,15 @@
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-08-23
 
-- **Next:** ▶️ **the product proposal for the whole open tracker** → § *v5.2 — the product proposal*.
-  It is a **proposal**, not a start: no code is written against any of those issues until he has read
-  it _(2026-09-12, his words: « ne pas attaquer les devs pour ces tickets pour l'instant »)_.
+- **Next:** ▶️ **he reads the product proposal** → § *v5.2 — the product proposal*. **Written and
+  committed 2026-09-12**; the tracker carries its grouping as labels. No code is written against any of
+  those issues until he has read it _(his words: « ne pas attaquer les devs pour ces tickets pour
+  l'instant »)_. Once approved, the first thing to open is **#77**.
 - **Blocked on:** nothing a session can unblock.
-- **Owner's call pending:** the proposal above — keep its grouping, its order and its release cut, or
-  change them. Three older questions sit in § *Questions the owner owns* and are **not to be re-asked**:
-  #77's release slot, #78's launcher-README link, `ci.yml`'s `concurrency` group.
+- **Owner's call pending:** the proposal — keep its grouping, its order and its three-release cut, or
+  change them. Two older questions sit in § *Questions the owner owns* and are **not to be re-asked**
+  (#78's launcher-README link, `ci.yml`'s `concurrency` group); **#77's release slot is closed** by the
+  proposal, which makes v5.2 next with #77 leading it.
 - **One thing waits on him and on nobody else:** dispatch the nightly mutation workflow by hand and
   **read the score** → § *Inherited from v5.0.0*. No session may declare that rollout condition met.
 - **A session may, alone:** work v5.2 test-first **once the proposal is approved**, label and
@@ -59,53 +61,185 @@ mutation scores — and it is **the only place** that detail lives. Do not resta
       the pacing was written as the fix either way — so it is **a question to put to them**, not work
       to schedule.
 
-### v5.2 — the rest of the tracker · milestone [`v5.2`](https://github.com/tpierrain/kenjaku/milestone/2)
+### v5.2 — the product proposal for the whole open tracker
 
-- [ ] **A. A note the engine writes for you is actually saved** — [#77](https://github.com/tpierrain/kenjaku/issues/77)
+_(Written 2026-09-12, at his ask: « j'aimerais que tu me fasses une proposition de plan d'action pour
+qu'on tacle tous les issues GitHub qui restent ouvertes… il y a peut-être des thématiques qui vont
+ensemble, une notion d'urgence… voudrais-tu mettre une casquette de product manager… Est-ce que c'est
+une seule release à venir avec tout ? Est-ce que c'est plusieurs ? » — **it is a proposal, and nothing
+is implemented off it until he has read it.**)_
+
+#### The answer, first: THREE releases, not one — and the first one is next
+
+**Grouping.** The thirteen fall into **three groups and a residue**, and the grouping is not by
+component: it is by **what a user loses**. Two of the groups are the same defect wearing different
+clothes — *the brain reports success it has not achieved* — and they differ in **what** it is wrong
+about: what it **did** (group 1), and **where it is** (group 2).
+
+**Urgency.** Only group 1 is urgent, and inside it exactly one issue can destroy something a person
+cannot get back. Group 2 is damaging but recoverable. Group 3 is not a defect at all.
+
+**One release or several? Several, and for the same reason the last split worked.** A release is the
+unit in which a user can say *"ah, that is what changed"*. Thirteen issues in one release is a
+changelog nobody reads and a rehearsal nobody can scope; three releases each have **one sentence** on
+the tin. And the tail is cheap: v5.1.1, v5.1.2 and v5.1.3 all shipped within days of each other, so
+the cost of cutting a release here is small and measured.
+
+| | Theme, in one sentence | Issues | When |
+|---|---|---|---|
+| **v5.2** | *The brain stops reporting work it has not done.* | #77, #96, #81, #98, #83 | **next** |
+| **v5.3** | *You always know which sphere you are standing in.* | #72, #68, #66, #82 | after it, design-first |
+| **v5.4+** | *The brain asks less and speaks plainly.* | #79 | a chantier, not a release |
+| — | Neither: one waits on evidence, two wait on him | #84, #62, #78's product half | see below |
+
+#### Group 1 → v5.2 — the brain stops reporting work it has not done
+
+**Why these five belong together, in the user's words rather than ours:** *the screen said it was
+done, and it was not.* A note is saved and never committed; an update is answered "yes" that was never
+asked; a second machine reports the right version while running last week's wiring; a guard that is
+supposed to refuse a malformed note never runs; an answer says *"no trace"* about places it never
+looked. **Five surfaces, one broken promise**, and it is the exact promise the last release
+(v5.1.3, *The One Where It Stops Crying Wolf*) started repairing from the other end — that one made the
+brain stop reporting healthy things as broken; this one makes it stop reporting broken things as fine.
+
+- [ ] **1. A note the engine writes for you is actually saved** —
+      [#77](https://github.com/tpierrain/kenjaku/issues/77) 🥇 **First, and alone if the rest slips.**
   - [ ] The persistence net covers the writes that `/consolidate` and `/file-back` produce, not only
         the ones a tool call made. Today the hook matches `Write|Edit`, and both skills route through
         scripts *on purpose* (conformant by construction), so their notes land on disk and nothing is
         committed while the session prints `✓ Refreshed`.
   - [ ] The brain's own stated contract in `CLAUDE.engine.md` stops being false about it.
-  - [ ] 🥇 **First in v5.2, and alone if the rest slips** — it is the only open issue that can lose a
-        user's work. See § *THE ONE QUESTION* before assuming it waits.
+  - [ ] ⚖️ **And this answers the standing question about #77** (§ *THE ONE QUESTION*, asked twice,
+        recommendation *"leave it in v5.2"*): the recommendation holds **and v5.2 is now next**, so it
+        costs nothing to have waited. It is the only open issue whose failure mode is **silent data
+        loss**, so it leads the release rather than riding in it.
+- [ ] **2. A guard that is wired to refuse actually runs** —
+      [#81](https://github.com/tpierrain/kenjaku/issues/81). The write guards match `Write|Edit`, and
+      the harness actively steers towards `Bash` for file changes — **so the path we recommend is the
+      one nothing watches.** Measured on a real vault: a malformed note landed two days after the guard
+      shipped and answered searches from stale content **for three weeks**, its only trace one error
+      line inside `vault_stats`.
+  - [ ] 🧭 **Pick the direction before writing code, because the obvious one is the expensive one.**
+        Inspecting write-shaped `Bash` commands means reading shell, and a guard that half-reads shell
+        is worse than none. The two cheaper directions in the issue — a post-write validation sweep,
+        and making *"N notes the engine cannot read"* loud in the health report — catch the same defect
+        **after** the bytes land, which is enough when the damage is *unreadable*, not *lost*.
+- [ ] **3. A second machine does not silently run last week's wiring** —
+      [#96](https://github.com/tpierrain/kenjaku/issues/96). The self-heal gate asks *"is a skill
+      missing?"* and *"is an MCP server missing?"*, so a release that ships **a hook**, **an allowlist
+      entry** or **a dependency** never triggers a reconcile on the machine that merely pulled.
+  - [ ] 📈 **Its probability rises with every release we ship**, which is what moves it up: recent
+        releases deliver behaviour *as hooks* (v5.1.2's restart nudge is one). Filed 2026-09-09 at his
+        ask, never scheduled until now.
+- [ ] **4. The update asks a question you cannot scroll past** —
+      [#98](https://github.com/tpierrain/kenjaku/issues/98). Consent is collected in the **last line of
+      a long message**, under release notes the skill is required to quote in full — so the better the
+      notes, the further the only actionable sentence is pushed off screen. **A brain owner in the
+      field believed the upgrade had run**; it never had.
+  - [ ] The cheapest item in the release and the most visible: a clickable question instead of a line
+        of prose, with the prose kept as the fallback where the host has no such tool.
+- [ ] **5. An absence claim stops being broader than the search behind it** —
+      [#83](https://github.com/tpierrain/kenjaku/issues/83). *"Exhaustive search in the vault and the
+      chat tool"* followed by *"no trace"* reads, three days later, as a general absence. It is the
+      **near-miss of #80**, which shipped in v5.1.3 — same subject, different defect — and it is the
+      one in this group whose failure **leaves the machine**: a true, sourced statement was deleted
+      from a message to an executive.
+  - [ ] The scope and the conclusion become **one sentence**, and connected sources (mail above all)
+        become part of what an absence check must cover. Doctrine, in both locales, pinned by a doc
+        guard on the shape of `claim-discipline.test.mjs`.
 
-- [ ] **B. The delivered-docs link probe judges from where a file will live** — [#78](https://github.com/tpierrain/kenjaku/issues/78)
-  - [ ] Resolve a shipped file's links **from its installed location**, not from where it sits in this
-        repo, so `../sync-sources/SKILL.md` stops reading as broken.
-  - [ ] ⏸️ Its **product half** is the owner's → § *Questions the owner owns*.
+> 💰 **What v5.2 costs, said before it is started.** Three medium items (#77, #81, #96) and two cheap
+> ones (#98, #83). **§10ter applies** — #77 and #96 both change what happens during an update or a
+> write, so the release owes one rehearsal on a copy of a real brain, and that rehearsal must force a
+> tag **above** the copy's installed version or it rehearses nothing. Budget it at the start; it is
+> the check this project has already paid for twice by discovering it at the tag.
 
-- [ ] **C. The active universe stops disagreeing with itself, silently** — [#68](https://github.com/tpierrain/kenjaku/issues/68),
-      [#72](https://github.com/tpierrain/kenjaku/issues/72), [#66](https://github.com/tpierrain/kenjaku/issues/66)
-  - [ ] Switching context says what it did **not** re-scope: retrieval is scoped server-side, the
-        conversation window still holds everything read from the universe just left — #68
-  - [ ] A day spent writing into one sphere while the pointer names another is **noticed**, rather
-        than paid for only at retrieval time — #72
-  - [ ] A fact that must never be re-derived wrong (the spelling of a client's name, most of all)
-        reaches the session that needs it, after a `/clear` — #66
-  - [ ] 🧭 **Design before code, and one ADR may come out of it.** These three are one subject seen
-        from three angles, and fixing them one at a time is how three mechanisms end up disagreeing.
-        Read [`harness-universe-blindspot-hardening-action.md`](harness-universe-blindspot-hardening-action.md)
-        first: it already names why universe changes keep escaping green suites.
+#### Group 2 → v5.3 — you always know which sphere you are standing in
 
-- [ ] **D. The brain acts instead of interrogating** — [#79](https://github.com/tpierrain/kenjaku/issues/79)
-  - [ ] Graduated autonomy (silent / announce-then-do / genuinely ask) and plain language in every
-        string the brain emits. The full model and the four steps are in the issue, carried over from
-        [the archived plan](../archived/2026-08-23-restore-affordance-graduated-autonomy-action.md).
+**Why these four are one release and not four fixes.** They are one subject seen from four angles, and
+fixing them one at a time is how four mechanisms end up disagreeing with each other. All four are
+about the same gap: **the brain scopes one thing and leaves another unscoped, without saying so.**
 
-- [ ] **E. Out of both releases** — [#62](https://github.com/tpierrain/kenjaku/issues/62), the
-      `/feedback` path that carries an engine-level friction upstream. **No milestone on purpose.** Its
-      hard part is not the plumbing: **a friction is born inside a private vault and would travel to a
-      public repository**, and the raw friction that produced #61 named a client, three colleagues and
-      a slice of their business. That needs a design answer from the owner before any code, and
-      nobody can size a de-identification design before it exists.
+- [ ] **1. A day spent in one sphere while the pointer names another is NOTICED** —
+      [#72](https://github.com/tpierrain/kenjaku/issues/72). Measured: ten hours, fourteen notes filed
+      correctly under one universe while retrieval served another, and **eight meeting preparations
+      built on a corpus amputated of its most relevant half**. The writes were right, the pointer was
+      right, and they disagreed in silence. *(This is the most damaging of the four, and it is the
+      reason group 2 is not merely polish.)*
+- [ ] **2. Switching says what it did NOT re-scope** —
+      [#68](https://github.com/tpierrain/kenjaku/issues/68). Retrieval is scoped server-side; the
+      conversation window still holds everything read from the sphere just left, so **the answer looks
+      scoped and is not.** The issue's own first item is a single sentence of output and the issue says
+      *"if only one thing ships from this issue, it should be this"* — **so ship that sentence early,
+      even before the rest of the group is designed.**
+- [ ] **3. A fact that must never be re-derived wrong survives a `/clear`** —
+      [#66](https://github.com/tpierrain/kenjaku/issues/66). The spelling of a client's name, most of
+      all. Today the workaround is to put it in the global `CLAUDE.md`, which leaks a per-sphere fact
+      into every sphere — **the exact leak universes exist to prevent.**
+- [ ] **4. `/sync` names the active sphere whenever there is more than one** —
+      [#82](https://github.com/tpierrain/kenjaku/issues/82). The condition is wrong today: it announces
+      only when the pull *changed* it, so a brain with three universes gets a full git report and not a
+      word about the one piece of state a sync can actually carry. **The cheapest item of the four**,
+      and it belongs here rather than in v5.2 because it is the same disclosure rule.
+- [ ] 🧭 **Design before code, and one ADR likely comes out of it.** Read
+      [`harness-universe-blindspot-hardening-action.md`](harness-universe-blindspot-hardening-action.md)
+      **first** — it already names why universe changes keep escaping green suites — and fold it in
+      per § *The fold that is owed* rather than leaving it as a second dormant carrier.
+
+#### Group 3 → a chantier, not a release — the brain asks less and speaks plainly
+
+- [ ] **The brain interrogates instead of acting** — [#79](https://github.com/tpierrain/kenjaku/issues/79).
+      Graduated autonomy (silent / announce-then-do / genuinely ask) plus plain language in every string
+      the brain emits. **It is not a bug and it must not be squeezed into a bugfix release**: step 1 is
+      *ratify the model as an ADR*, and steps 2–4 are an audit and a reclassification of every
+      interaction point the product has.
+  - [ ] 🎯 **Why it still deserves a slot rather than the bottom of the list**: it is the only item on
+        the tracker that is about **what the product feels like** — his own words were that the magic
+        was traded for a dashboard. Groups 1 and 2 stop the brain lying; this one is why anyone wants
+        it in the first place.
+  - [ ] 🔗 **It also absorbs half of [#62](https://github.com/tpierrain/kenjaku/issues/62)** (plain
+        language) and **should be designed after v5.3**, because #98's clickable question and #68's
+        one-sentence disclosure are two live experiments in exactly the register this ADR has to fix.
+
+#### Neither group: what is NOT in any release, and why
+
+- **[#84](https://github.com/tpierrain/kenjaku/issues/84) — no work left, only evidence.** Live sync
+  shipped with `v5.1.0`; the issue stays open because a tag does not prove a **real brain received it**.
+  **Do not schedule it: close it out of the next §10ter rehearsal**, which is a real brain receiving a
+  real update — v5.2 owes one anyway, so this costs nothing and closes on the evidence its reporter
+  asked for.
+- **[#62](https://github.com/tpierrain/kenjaku/issues/62) — blocked on a design answer, not on effort.**
+  A friction is born inside a private vault and would travel to a **public** repository; the raw
+  friction behind #61 named a client, three colleagues and a slice of their business. **The scrubbing
+  is the feature**, and nobody can size a de-identification design before it exists. It stays out of
+  every milestone until he decides what scrubbing means.
+- **[#78](https://github.com/tpierrain/kenjaku/issues/78) — split it, and ship the half that is not
+  blocked.** The engineering half (resolve a delivered file's links **from its installed location**) is
+  ~20 lines plus tests and is blocked on nothing; the product half is one sentence from him
+  (§ *Questions the owner owns*). **Recommendation: carry the resolver in v5.3** as a small rider —
+  it is the same shape as v5.3's own subject, a checker that judges from the wrong vantage point.
+
+#### The three things this proposal is deliberately NOT doing
+
+- **Not one big release.** Thirteen issues make a changelog nobody reads, and §10ter's rehearsal
+  becomes unscopeable when a release touches the write path, the update path and the universe pointer
+  at once.
+- **Not ordering by age.** #62 and #66 are the oldest and neither leads. Ordering by **what a user
+  loses** is what put #77 first and left #79 for later — the same lesson as *judge content, not
+  status* (§ *History*).
+- **Not closing anything to make the count look better.** Every one of the thirteen was read tonight,
+  and the two that are not scheduled say what would unblock them.
 
 ## 🎙️ THE ONE QUESTION — does the issue that can lose a note really wait for v5.2?
 
-> ⏸️ **ANSWERED FOR NOW, 2026-09-11: it waits.** *"À l'issue de ça, on se reposera la question
-> d'inclure ou pas le bug fix de la 77."* So the recommendation below is the standing decision, and
-> **this section is not to be raised again until v5.1's five issues are done**. Keep it: the moment it
-> is re-opened, the trade-off is already written out.
+> ✅ **CLOSED, 2026-09-12, by the proposal above and not by a third asking.** The bugfix release
+> shipped without #77 (as he decided), and the proposal makes **v5.2 the very next release with #77
+> leading it** — so the waiting is over without anyone re-opening the trade-off. **Do not put this
+> question to him again.** It is kept because the trade-off below is the reasoning any future
+> *"should this one ride along?"* should be argued with.
+>
+> _(Previously: "answered for now, 2026-09-11 — it waits", on his words « à l'issue de ça, on se
+> reposera la question d'inclure ou pas le bug fix de la 77 ».)_
 
 **#77 is the only open issue whose failure mode is silent data loss.** A note written by
 `/consolidate` or `/file-back` lands on disk, the session prints `✓ Refreshed`, and nothing is
@@ -121,19 +255,20 @@ false for exactly those writes, and the user has no way to notice.
   and #77 is v5.2's first item rather than one of six. Only revisit this if v5.2 starts slipping past
   a week or two.
 
-## 🧹 The fold that is owed — the universe reading list becomes part of group C
+## 🧹 The fold that is owed — the universe reading list becomes part of the v5.3 group
 
 _(Decided 2026-08-23 while sorting `prospective/`; announced in [`studies/README.md`](../../studies/README.md);
-**not executed**, because the session stopped there.)_
+**not executed**, because the session stopped there. Re-aimed 2026-09-12: the group it folds into is
+now **v5.3, group 2** of the proposal above — same three issues, plus #82.)_
 
 - [ ] Fold [`harness-universe-blindspot-hardening-action.md`](harness-universe-blindspot-hardening-action.md)
-      (its M1 / M2 / M3) **into v5.2's group C**, then archive it as
+      (its M1 / M2 / M3) **into the v5.3 universe group**, then archive it as
       `archived/<date>-harness-universe-blindspot-hardening-action.md` and drop its line from
       [`ACTIVE.md`](../ACTIVE.md) § *Open, but NOT active*.
 - [ ] **Why, and not just tidiness**: it is a plan nobody is working that says *why universe changes
-      keep escaping green suites* — precisely the thing group C must not repeat. As a separate dormant
-      plan it is read by nobody; as group C's own opening steps it is read by whoever fixes
-      #68/#72/#66. Two carriers for one subject is the shape that produced the thirteen-file pile.
+      keep escaping green suites* — precisely the thing that group must not repeat. As a separate
+      dormant plan it is read by nobody; as the group's own opening steps it is read by whoever fixes
+      #68/#72/#66/#82. Two carriers for one subject is the shape that produced the thirteen-file pile.
 
 - [ ] 🗂️ **And a second tidy-up, found 2026-09-12 while archiving the bugfix release**: §7 says the
       plans listing in [`maintainers/README.md`](../../README.md) is updated in the archiving change,
@@ -213,12 +348,11 @@ _(That plan is archived; these came here so it could close. They belong to no mi
 Each of these was put to him and is waiting on nothing but him. They live here, out of the STATE
 block, precisely so that a session reading STATE does not mistake them for pending work.
 
-- **Does the issue that can lose a note ride along early?** —
+- ✅ **CLOSED — "does the issue that can lose a note ride along early?"** —
   [#77](https://github.com/tpierrain/kenjaku/issues/77). Asked **twice**; his answer on 2026-09-11 was
-  *« à l'issue de ça, on se reposera la question »*, and the five were done that day. The standing
-  recommendation is unchanged and the trade-off is written out in § *THE ONE QUESTION*. **Do not ask a
-  third time** — it is now folded into the product proposal below, where he answers it once, in
-  context, along with everything else.
+  *« à l'issue de ça, on se reposera la question »*. It is **answered by the proposal rather than by a
+  third asking**: v5.2 is the next release and #77 leads it, so the wait cost nothing. The trade-off
+  stays written out in § *THE ONE QUESTION* as the pattern for the next *"should this ride along?"*.
 - **Is a brain's copy of the launcher README meant to link to the launcher's own docs at all?** —
   the product half of [#78](https://github.com/tpierrain/kenjaku/issues/78). Only he can answer it;
   the engineering half (resolve a shipped file's links from where it will be installed) does not wait
