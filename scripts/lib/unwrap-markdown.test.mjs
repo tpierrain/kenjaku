@@ -158,3 +158,93 @@ test("an empty document and a single blank line survive untouched", () => {
   assert.equal(unwrapMarkdown(""), "");
   assert.equal(unwrapMarkdown("\n"), "\n");
 });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// THE BOUNDARIES, added after the first mutation run (81.45 %, 23 survivors).
+//
+// These add no production code and were not expected to go red: they pin the
+// EDGES of each refusal, which is precisely what a happy-path batch leaves
+// unmeasured. Every one of them corresponds to a mutant that lived — an anchor
+// dropped, a quantifier loosened, a `.trim()` removed — and each of those is a
+// real defect on a real document, not a theoretical one. A checker that protects
+// an indented table but not a table, or that treats a paragraph mentioning a pipe
+// as a table row, corrupts a file just as thoroughly as no checker at all.
+// ═══════════════════════════════════════════════════════════════════════════
+
+test("a horizontal rule needs THREE of its character, not one: a lone -, * or _ is prose", () => {
+  for (const char of ["-", "*", "_"]) {
+    assert.equal(unwrapMarkdown(`a\n${char}\nb`), `a ${char} b`, `a lone ${char} is not a rule`);
+  }
+});
+
+test("a rule is the WHOLE line: dashes followed by text are prose, and text followed by stars too", () => {
+  assert.equal(unwrapMarkdown("prose\n--- not a rule\nstill prose"), "prose --- not a rule still prose");
+  assert.equal(unwrapMarkdown("bold ***\nnext line"), "bold *** next line");
+});
+
+test("a fence opens only at the START of a line — a paragraph that merely mentions ``` is still a paragraph", () => {
+  assert.equal(unwrapMarkdown("use ``` to open a block\nand it keeps going"), "use ``` to open a block and it keeps going");
+});
+
+test("an INDENTED fence still protects its body — indentation is how a fence nests inside a list", () => {
+  const doc = ["prose", "", "  ```", "  code one", "  code two", "  ```"].join("\n");
+  assert.equal(unwrapMarkdown(doc), doc);
+});
+
+test("an INDENTED table row is still a table row", () => {
+  const doc = ["  | a | b |", "  |---|---|", "  | 1 | 2 |"].join("\n");
+  assert.equal(unwrapMarkdown(doc), doc);
+});
+
+test("a pipe in the MIDDLE of a sentence does not make that sentence a table row", () => {
+  assert.equal(unwrapMarkdown("a || b appears in prose\nand the sentence goes on"), "a || b appears in prose and the sentence goes on");
+});
+
+test("an INDENTED html block is still an html block", () => {
+  const doc = ["prose", "", "  <div>", "  inner", "  </div>"].join("\n");
+  assert.equal(unwrapMarkdown(doc), doc);
+});
+
+test("a `<` in the middle of a sentence does not make that sentence html", () => {
+  assert.equal(unwrapMarkdown("a < b holds here\nand the sentence goes on"), "a < b holds here and the sentence goes on");
+});
+
+test("a TWO-DIGIT ordered item starts its own item — a list does not collapse at ten", () => {
+  const doc = ["10. ten", "11. eleven"].join("\n");
+  assert.equal(unwrapMarkdown(doc), doc);
+});
+
+test("a dash inside a sentence is not a list marker: only the start of the line can be one", () => {
+  assert.equal(unwrapMarkdown("a paragraph\nwith - a dash inside it"), "a paragraph with - a dash inside it");
+});
+
+test("an INDENTED list item is a NESTED item, not a continuation of its parent", () => {
+  const doc = ["- parent item", "  - nested item"].join("\n");
+  assert.equal(unwrapMarkdown(doc), doc);
+});
+
+test("an INDENTED heading is still a heading, and does not get pulled into the paragraph above", () => {
+  const doc = ["prose", "  ## A heading"].join("\n");
+  assert.equal(unwrapMarkdown(doc), doc);
+});
+
+test("a hard break is TRAILING: two spaces in the middle of a line are just two spaces", () => {
+  assert.equal(unwrapMarkdown("a  b\nc"), "a  b c");
+});
+
+test("a hard break is TWO trailing spaces: one is not enough, and the seam stays a single space", () => {
+  // This is also the only reachable input for the trailing-whitespace strip: anything
+  // with two trailing whitespace characters is already a hard break and never joins.
+  assert.equal(unwrapMarkdown("first \nsecond"), "first second");
+});
+
+test("frontmatter delimiters tolerate trailing whitespace — opening and closing alike", () => {
+  const opening = ["--- ", "type: topic", "created: 2026-09-11", "---", "body"].join("\n");
+  assert.equal(unwrapMarkdown(opening), opening, "a trailing space on the OPENING --- must not turn the keys into prose");
+  const closing = ["---", "type: topic", "created: 2026-09-11", "--- ", "body cut", "here"].join("\n");
+  assert.equal(
+    unwrapMarkdown(closing),
+    ["---", "type: topic", "created: 2026-09-11", "--- ", "body cut here"].join("\n"),
+    "a trailing space on the CLOSING --- must not leave the whole document inside frontmatter",
+  );
+});
