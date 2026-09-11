@@ -28,6 +28,7 @@ function fakeDeps(overrides = {}) {
       seenDirs.push(dir);
       return [];
     },
+    readAttachments: () => [],
     log: (line) => logs.push(line),
     error: (line) => errors.push(line),
     ...overrides,
@@ -107,4 +108,61 @@ test("the CLI, IMPORTED rather than run — the body must not fire on import", a
 
   assert.equal(run.status, 0, `importing the CLI must not exit — stderr: ${run.stderr}`);
   assert.equal(run.stdout.trim(), "imported-and-still-alive");
+});
+
+// ── #71 — the CLI hands the pure core the vault's attachments too ────────────
+
+test("runLint — reads the attachments from the SAME directory it reads the notes from", () => {
+  const seenAttachmentDirs = [];
+  const { deps, seenDirs } = fakeDeps({
+    readAttachments: (dir) => {
+      seenAttachmentDirs.push(dir);
+      return [];
+    },
+  });
+  runLint(["/data/other-vault"], deps);
+  assert.deepEqual(seenDirs, ["/data/other-vault"]);
+  assert.deepEqual(seenAttachmentDirs, ["/data/other-vault"], "a second vault path would resolve embeds against the wrong tree");
+});
+
+test("runLint — an embed of an attachment that exists is not a finding, and the vault reads clean", () => {
+  const notes = [
+    { path: "people/jane-doe.md", frontmatter: { type: "person", created: "d", updated: "d", tags: ["t"] }, body: "![[screenshot.png]] see [[topics/rota]]" },
+    { path: "topics/rota.md", frontmatter: { type: "topic", created: "d", updated: "d", tags: ["t"] }, body: "[[people/jane-doe]]" },
+  ];
+  const { deps, logs } = fakeDeps({ readNotes: () => notes, readAttachments: () => ["people/screenshot.png"] });
+  assert.equal(runLint([], deps), 0);
+  assert.deepEqual(logs, ["Scanned 2 notes under /brain/vault", "✓ Wiki health: clean"]);
+});
+
+test("the CLI, run as a process — a real pasted screenshot next to a note is not a dangling link", (t) => {
+  const dir = mkdtempSync(join(tmpdir(), "lint-vault-cli-"));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  mkdirSync(join(dir, "vault", "people"), { recursive: true });
+  const note = (body) => `---\ntype: topic\ncreated: 2026-08-20\nupdated: 2026-08-20\ntags: [demo]\n---\n\n${body}\n`;
+  // Obsidian's default: the pasted file lands next to the note that embeds it.
+  writeFileSync(join(dir, "vault", "people", "jane-doe.md"), note("![[screenshot.png]] and [[alpha]]"));
+  writeFileSync(join(dir, "vault", "alpha.md"), note("Back to [[people/jane-doe]]."));
+  writeFileSync(join(dir, "vault", "people", "screenshot.png"), "not really a png");
+
+  const run = spawnSync(process.execPath, [CLI, join(dir, "vault")], { encoding: "utf8" });
+
+  assert.equal(run.status, 0, `the embed resolves, so the vault is clean — got ${run.status}: ${run.stdout}${run.stderr}`);
+  assert.match(run.stdout, /✓ Wiki health: clean/);
+  assert.doesNotMatch(run.stdout, /screenshot/, "the picture must not appear in the report at all");
+});
+
+test("the CLI, run as a process — an embed of a picture that is NOT there is still reported", (t) => {
+  const dir = mkdtempSync(join(tmpdir(), "lint-vault-cli-"));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  mkdirSync(join(dir, "vault"));
+  writeFileSync(
+    join(dir, "vault", "a.md"),
+    "---\ntype: topic\ncreated: 2026-08-20\nupdated: 2026-08-20\ntags: [demo]\n---\n\n![[gone.png]]\n",
+  );
+
+  const run = spawnSync(process.execPath, [CLI, join(dir, "vault")], { encoding: "utf8" });
+
+  assert.equal(run.status, 1);
+  assert.match(run.stdout, /a\.md → \[\[gone\.png\]\]/);
 });

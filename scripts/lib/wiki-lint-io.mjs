@@ -25,3 +25,17 @@ export function readVaultNotes(vaultDir) {
     .filter((rel) => rel.endsWith(".md"))
     .map((rel) => ({ path: rel, ...parseNote(readFileSync(join(vaultDir, rel), "utf8")) }));
 }
+
+// Every NON-note file under `vaultDir` — the screenshot pasted into a meeting note,
+// the PDF dropped beside a decision — path relative to the vault and POSIX-separated,
+// exactly like readVaultNotes. Paths only: nothing here is read or parsed, because the
+// only question asked of an attachment is "does it exist under this spelling?" (#71).
+//
+// It is deliberately the complement of readVaultNotes rather than a list of known
+// image extensions: an allow-list would have to guess at `.excalidraw`, `.canvas`,
+// `.webp` and whatever Obsidian supports next, and every miss is a permanent false
+// "dangling link" nobody can clear. The pair partitions the vault, which the sibling
+// test pins.
+export function readVaultAttachments(vaultDir) {
+  return listFilesRelPosix(vaultDir).filter((rel) => !rel.endsWith(".md"));
+}

@@ -11,7 +11,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { join } from "node:path";
 
-import { readVaultNotes } from "./lib/wiki-lint-io.mjs";
+import { readVaultNotes, readVaultAttachments } from "./lib/wiki-lint-io.mjs";
 import { lintVault, reportLines, hasFindings } from "./lib/wiki-lint.mjs";
 import { runAsEntrypoint } from "./lib/entrypoint.mjs";
 
@@ -24,6 +24,7 @@ const toPosix = (p) => p.split("\\").join("/");
 export const realLintDeps = {
   cwd: () => process.cwd(),
   readNotes: readVaultNotes,
+  readAttachments: readVaultAttachments,
   log: (...a) => console.log(...a),
   error: (...a) => console.error(...a),
 };
@@ -33,7 +34,10 @@ export const realLintDeps = {
 export function runLint(argv, deps = realLintDeps) {
   const vaultDir = toPosix(argv[0] ? argv[0] : join(deps.cwd(), "vault"));
   const notes = deps.readNotes(vaultDir);
-  const report = lintVault(notes);
+  // The same directory, deliberately: an embed resolves against the tree it was
+  // written in, and reading the two from different roots would silently re-create
+  // the false "dangling link" #71 is about.
+  const report = lintVault(notes, { attachments: deps.readAttachments(vaultDir) });
   deps.log(`Scanned ${notes.length} notes under ${vaultDir}`);
   for (const line of reportLines(report)) deps.log(line);
   return hasFindings(report) ? 1 : 0;

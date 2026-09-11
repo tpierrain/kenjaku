@@ -512,3 +512,142 @@ test("lintVault — a note carrying its source keys is conformant, not in violat
 
   assert.deepEqual(lintVault(notes).frontmatterViolations, []);
 });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// v5.1 — three ways this checker called a healthy thing broken. All three were
+// reported from real vaults, and all three share one failure mode: the scan could
+// not tell "this does not exist" from "I have no way to look at this". A checker
+// nobody believes is a checker nobody reads, so the fix is judged by what the
+// count says on a real vault, not by the three repros below.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ── #73 — the escaped alias pipe inside a table cell ────────────────────────
+
+test("extractWikiLinks — unescapes the alias pipe a table cell FORCES (`[[note\\|alias]]`)", () => {
+  // A bare `|` closes the cell, so the escape is the only spelling that works. The
+  // capture group keeps the backslash, and splitting on `|` then yields a target
+  // ending in `\` — a filename no note can have.
+  assert.deepEqual(extractWikiLinks("| 09:00 | [[people/jane-doe\\|JDO]] |"), ["people/jane-doe"]);
+});
+
+test("extractWikiLinks — several escaped links in one row all resolve, and an escaped anchor too", () => {
+  assert.deepEqual(
+    extractWikiLinks("| [[people/alice\\|AL]] | [[people/bob\\|BO]] | [[topics/rota\\#today\\|R]] |"),
+    ["people/alice", "people/bob", "topics/rota"],
+  );
+});
+
+test("extractWikiLinks — an unescaped pipe still works, so the fix adds a spelling rather than swapping one", () => {
+  assert.deepEqual(extractWikiLinks("[[people/jane-doe|JDO]]"), ["people/jane-doe"]);
+});
+
+test("lintVault — a link written the only way a table allows is not dangling, and its target is not an orphan", () => {
+  // The cascade is what makes this one expensive: resolution failing costs a false
+  // dangling link AND a false orphan AND the loss of a real staleness signal.
+  const notes = [
+    { path: "people/jane-doe.md", frontmatter: { type: "person" }, body: "" },
+    {
+      path: "topics/rota.md",
+      frontmatter: { type: "topic" },
+      body: "| Slot | Who |\n|---|---|\n| 09:00 | [[people/jane-doe\\|JDO]] |",
+    },
+  ];
+  const report = lintVault(notes);
+  assert.deepEqual(report.danglingLinks, []);
+  assert.deepEqual(report.orphans, ["topics/rota.md"], "only the note nobody links to is an orphan");
+});
+
+test("lintVault — the freshest-citation tracking counts an escaped link, so a stale page still gets caught", () => {
+  const notes = [
+    { path: "people/jane-doe.md", frontmatter: { type: "person", updated: "2026-01-01" }, body: "" },
+    {
+      path: "topics/rota.md",
+      frontmatter: { type: "topic", updated: "2026-06-01" },
+      body: "| Who |\n|---|\n| [[people/jane-doe\\|JDO]] |",
+    },
+  ];
+  assert.deepEqual(lintVault(notes).staleEntityPages, [
+    { path: "people/jane-doe.md", updated: "2026-01-01", freshestReference: "2026-06-01" },
+  ]);
+});
+
+test("lintVault — a genuinely broken escaped link is STILL reported, and without the stray backslash", () => {
+  const report = lintVault([
+    { path: "topics/rota.md", frontmatter: {}, body: "| [[people/nobody\\|NB]] |" },
+  ]);
+  assert.deepEqual(report.danglingLinks, [{ from: "topics/rota.md", target: "people/nobody" }]);
+});
+
+// ── #74 — the backlog the engine itself writes into ─────────────────────────
+
+test("lintVault — `backlog/` is never an orphan: the engine declares it, writes to it, and nothing links TO it", () => {
+  const report = lintVault([
+    { path: "backlog/harness.md", frontmatter: { type: "backlog" }, body: "" },
+    { path: "acme/backlog/perso.md", frontmatter: { type: "backlog" }, body: "" },
+    { path: "topics/real.md", frontmatter: { type: "topic" }, body: "" },
+  ]);
+  assert.deepEqual(report.orphans, ["topics/real.md"], "a curated page nobody links to is still rot");
+});
+
+test("lintVault — a backlog is still held to the frontmatter rule: exempt from orphan, not from taxonomy", () => {
+  const report = lintVault([{ path: "backlog/harness.md", frontmatter: { type: "backlog" }, body: "" }]);
+  assert.deepEqual(report.frontmatterViolations, [
+    { path: "backlog/harness.md", missing: ["created", "updated", "tags"] },
+  ]);
+});
+
+// ── #71 — an image embed whose target is not a note ─────────────────────────
+
+test("lintVault — an embedded attachment that EXISTS resolves, instead of being dangling forever", () => {
+  const notes = [{ path: "people/jane-doe.md", frontmatter: {}, body: "![[screenshot.png]]" }];
+  const report = lintVault(notes, { attachments: ["people/screenshot.png"] });
+  assert.deepEqual(report.danglingLinks, []);
+});
+
+test("lintVault — an attachment resolves by basename AND by path suffix, like a note does", () => {
+  const notes = [
+    { path: "a.md", frontmatter: {}, body: "![[shot.png]] and ![[assets/shot.png]] and ![[sub/assets/shot.png]]" },
+  ];
+  const report = lintVault(notes, { attachments: ["sub/assets/shot.png"] });
+  assert.deepEqual(report.danglingLinks, []);
+});
+
+test("lintVault — an attachment that is NOT in the vault is still reported, so the check keeps its teeth", () => {
+  const report = lintVault([{ path: "a.md", frontmatter: {}, body: "![[missing.png]]" }], {
+    attachments: ["other.png"],
+  });
+  assert.deepEqual(report.danglingLinks, [{ from: "a.md", target: "missing.png" }]);
+});
+
+test("lintVault — Obsidian's image-size syntax (`![[shot.png|300]]`) resolves to the file, not to `shot.png|300`", () => {
+  const report = lintVault([{ path: "a.md", frontmatter: {}, body: "![[shot.png|300]]" }], {
+    attachments: ["shot.png"],
+  });
+  assert.deepEqual(report.danglingLinks, []);
+});
+
+test("lintVault — an attachment is never an orphan and never frontmatter rot: it is not a note", () => {
+  const report = lintVault([{ path: "a.md", frontmatter: { type: "topic", created: "x", updated: "x", tags: ["t"] }, body: "" }], {
+    attachments: ["orphaned-forever.png"],
+  });
+  assert.deepEqual(report.orphans, ["a.md"], "the note is the only thing the orphan rule can see");
+  assert.deepEqual(report.frontmatterViolations, []);
+});
+
+test("lintVault — a NOTE wins a name collision with an attachment, so the `.md`-less spelling still finds the note", () => {
+  const notes = [
+    { path: "shot.md", frontmatter: {}, body: "" },
+    { path: "a.md", frontmatter: {}, body: "[[shot]] and ![[shot.png]]" },
+  ];
+  const report = lintVault(notes, { attachments: ["shot.png"] });
+  assert.deepEqual(report.danglingLinks, []);
+  assert.deepEqual(report.orphans, ["a.md"], "the note was reached through the bare spelling, so it is not an orphan");
+});
+
+test("lintVault — with no attachments passed at all, notes resolve exactly as before", () => {
+  const report = lintVault([
+    { path: "people/alice.md", frontmatter: {}, body: "" },
+    { path: "a.md", frontmatter: {}, body: "[[people/alice]] and ![[nope.png]]" },
+  ]);
+  assert.deepEqual(report.danglingLinks, [{ from: "a.md", target: "nope.png" }]);
+});
