@@ -82,11 +82,16 @@
   and is **not** being asked of him again — the three issues are ready to work whatever it ends up
   being called. Record of the tag:
   [`../archived/v5.1.0-code-review-fixes-action.md`](../archived/v5.1.0-code-review-fixes-action.md).
-- ✅ **ALL FIVE OF v5.1'S ISSUES ARE FIXED, ON A BRANCH, AND NOTHING IS MERGED OR TAGGED**
-  _(2026-09-11, one autonomous stretch)_. `fix/v5.1-bugfixes` →
-  **[PR #97](https://github.com/tpierrain/kenjaku/pull/97)**, opened so the arbiter could run:
-  **all 7 matrix cells pass, plus the Windows installer end-to-end**. Every commit was pushed and
-  every push read.
+- ✅ **v5.1 IS DONE AND SHIPPED — all five issues fixed, merged, tagged and published as v5.1.3**
+  _(2026-09-11: one autonomous stretch for the code, then the owner drove the release)_.
+  `fix/v5.1-bugfixes` → **[PR #97](https://github.com/tpierrain/kenjaku/pull/97)** →
+  `main` (`23efd5f`) → **[v5.1.3](https://github.com/tpierrain/kenjaku/releases/tag/v5.1.3)**.
+  **All 7 matrix cells passed, plus the Windows installer end-to-end**, on the PR and again on `main`
+  after the merge. Every commit was pushed and every push read.
+  > 📌 This headline read *"on a branch, and nothing is merged or tagged"* for most of the day and was
+  > made false by the entries nested under it, which is the whole reason
+  > [`rules/plans.md`](https://github.com/tpierrain/kenjaku) now says the save point is a **re-read**
+  > of this block from the top, never an append to it. Left visible on purpose.
   - 🏷️ **THE RELEASE IS NAMED AND ITS NOTE IS APPROVED** _(2026-09-11, his call, both of them)_:
     **`v5.1.3 — The One Where It Stops Crying Wolf`**, and the drafted note got *"ok pour la release
     note, on peut y aller"*. So the number is **no longer a placeholder**: the fingerprint table's
