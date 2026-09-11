@@ -83,10 +83,12 @@
   being called. Record of the tag:
   [`../archived/v5.1.0-code-review-fixes-action.md`](../archived/v5.1.0-code-review-fixes-action.md).
 - ✅ **ALL FIVE OF v5.1'S ISSUES ARE FIXED, ON A BRANCH, AND NOTHING IS MERGED OR TAGGED**
-  _(2026-09-11, one autonomous stretch)_. `fix/v5.1-bugfixes`, every commit pushed and every push
-  read. **What is left is his, not a session's**: the release number, the tag, the merge to `main`,
-  the release note, and closing the five issues with what shipped (step 8). The fingerprint table
-  carries a **placeholder** `v5.1.3` that must be regenerated against the real tag.
+  _(2026-09-11, one autonomous stretch)_. `fix/v5.1-bugfixes` →
+  **[PR #97](https://github.com/tpierrain/kenjaku/pull/97)**, opened so the arbiter could run:
+  **all 7 matrix cells pass, plus the Windows installer end-to-end**. Every commit was pushed and
+  every push read. **What is left is his, not a session's**: the release number, the tag, the merge to
+  `main`, the release note, and closing the five issues with what shipped (step 8). The fingerprint
+  table carries a **placeholder** `v5.1.3` that must be regenerated against the real tag.
   - 🔁 **And the deferred question comes back now**: § *THE ONE QUESTION*, does
     [#77](https://github.com/tpierrain/kenjaku/issues/77) ride along? He said *"à l'issue de ça, on se
     reposera la question"*, and this is that point. The trade-off is already written out there; the
