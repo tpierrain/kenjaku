@@ -11,6 +11,48 @@
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-08-23
 
+- ▶️ **NEXT, AND IT IS AUTHORISED TO RUN AUTONOMOUSLY** _(2026-09-12, he said go and went to bed)_.
+  **Two deliverables, strictly in this order** — his sequencing, not a preference:
+  1. 🧹 **Fix the state-block hygiene** (below), then
+  2. 🗺️ **Propose a product plan for every remaining open issue** (below).
+  Standing permissions are unchanged: work it, commit it, push it, read what CI returns. **Do not**
+  tag, publish, or write into either of his two personal brains.
+
+- 🧹 **DELIVERABLE 1 — the state block holds only what expires, and a machine enforces it.**
+  _(Decided 2026-09-12, after a re-read found **six** false entries in this very block.)_
+  - **The diagnosis, and it is NOT length.** He proposed shorter plans; the evidence refused it. The
+    worst of the six (*"the note lives only in a scratchpad"*) sat **four lines** from the entry
+    contradicting it, so brevity would not have saved it; two others were falsified by the **outside
+    world** (a new issue opened, he answered a question), which no length protects against; and the
+    long passages are what **prevented** mistakes this week (the de-identification constraint, *"do
+    not lead with that number"*, #95's false premise). **The real cause is that this block mixes what
+    expires with what never does** — history and lessons — so it grows, and once it is long the
+    writing habit degrades from *re-read and correct* to *append on top*.
+  - **The fix, mechanical rather than a good intention** (his standing preference: a rule that must be
+    remembered has already failed):
+    - [ ] **Cap `## 📍 STATE` at ~25 lines**, enforced by a hook on hand-back that **counts lines and
+          judges no content** — so it cannot be wrong about prose, and costs a millisecond. The cap is
+          the forcing function: the only way under it is to move the durable content out.
+    - [ ] **Move everything non-perishable down into the body** (findings, lessons, history, dated
+          decisions). The body may be as long as it likes: nothing re-reads it every session.
+    - [ ] **Archive the delivered `v5.1` section** — shipped as v5.1.3, so the block deflates on its
+          own with nothing lost.
+    - [ ] ⚠️ **Open design point, do not re-derive it**: the hook would be **machine-local**, like
+          `plan-carrier-guard`, so it does not travel. Same belt-and-braces split as everywhere else —
+          write the rule down too, and let the hook be the braces.
+
+- 🗺️ **DELIVERABLE 2 — a product proposal for the 13 open issues, with a PM hat on.** His words:
+  *"j'aimerais que tu me fasses une proposition de plan d'action pour qu'on tacle tous les issues
+  GitHub qui restent ouvertes… il y a peut-être des thématiques qui vont ensemble, une notion
+  d'urgence… voudrais-tu mettre une casquette de product manager… Est-ce que c'est une seule release à
+  venir avec tout ? Est-ce que c'est plusieurs ?"*
+  - **What it must answer**, explicitly: the **grouping by theme**, the **urgency** of each group, and
+    **one release or several** — with a recommendation, not a menu.
+  - **It is a PROPOSAL, not a start.** Nothing gets implemented off the back of it until he has read it.
+  - **The 13** _(counted 2026-09-12)_: #98, #96, #84, #83, #82, #81, #79, #78, #77, #72, #68, #66, #62.
+    Note #77 already has a standing recommendation here (**v5.2**) and #83 is the near-miss of #80,
+    a *different* defect — both are in § *v5.2* below with their analysis.
+
 - 🧭 **THE THREE UNMERGED BRANCHES WERE JUDGED AND DEALT WITH — closed, 2026-09-09.** Each needed a
   *different* treatment, and "merge the three" was a bad recommendation the owner caught, because it
   was made on their **status** (unmerged) rather than on **whether what they said was still true**.
