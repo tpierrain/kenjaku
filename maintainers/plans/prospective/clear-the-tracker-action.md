@@ -97,11 +97,12 @@
     end-to-end are green on PR #97's final commit (`68d5c40`), the §10ter field rehearsal ran **against
     this branch** on an old French brain with the new script verified *running* in the updated copy
     (step 8's 🧪 item holds the readings), and the §10 marketing re-read is done and recorded.
-  - 🔐 **STOPPED AT THE PUBLISHING STEP, and it is a permission wall, not an unfinished check.**
-    `gh pr merge 97` was **refused by the sandbox** — as it should be: this plan's own permissions say
-    a session may not merge to `main`, tag or publish. **The remaining sequence, in order**, for
-    whoever has the rights:
-    1. `gh pr merge 97 --merge` (this repo merges, never squashes — see `5b16101`, `c10e4b5`).
+  - 🔀 **MERGED — he said *"fusionne stp"* and PR #97 landed on `main` as `23efd5f`** _(2026-09-11
+    09:30 UTC, a merge commit, never a squash, as `5b16101` and `c10e4b5` before it)_. **`main`'s own
+    checks are green** after the merge. The branch `fix/v5.1-bugfixes` is now merged history.
+  - 🔐 **NOT TAGGED AND NOT PUBLISHED — that is where it stands.** He authorised the release note
+    (*"ok pour la release note, on peut y aller"*) and then drove the last stretch one step at a time,
+    so the tag was **not** taken as implied. **The remaining sequence, in order**:
     2. Tag **`v5.1.3`** on `main` and push it.
     3. `gh release create v5.1.3 --title "v5.1.3 — The One Where It Stops Crying Wolf" --notes-file
        maintainers/plans/archived/release-v5.1.3-note.md`. **The approved text is in the repo**, not in
