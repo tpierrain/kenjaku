@@ -233,7 +233,7 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
-## v5.1 bug-fix release — the five field issues, measured the day each file was written — 2026-09-11
+## v5.1.3 — the five field issues, measured the day each file was written — 2026-09-11
 
 State owned by
 [`../plans/prospective/clear-the-tracker-action.md`](../plans/prospective/clear-the-tracker-action.md)
