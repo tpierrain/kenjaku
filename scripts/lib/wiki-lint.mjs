@@ -63,6 +63,11 @@ function pathSuffixes(path) {
 // (#71). They were never candidates here, so the check treated "not a note" and
 // "does not exist" as the same thing, and every picture in every note read as a dead
 // link that no edit to the note could ever clear.
+// The `= []` default is deliberately UNREACHABLE from production — both callers
+// (the lint and the consolidation scan) pass a list — and is kept as the sane public
+// contract for an exported function. Named here because a mutation of it survives by
+// construction: only a link literally spelled like the injected value could observe
+// it, so the survivor is recorded rather than chased (CONVENTIONS §5ter).
 export function buildResolver(notes, attachments = []) {
   const byKey = new Map();
   const register = (key, path) => {
