@@ -104,10 +104,11 @@
   ([#95](https://github.com/tpierrain/kenjaku/issues/95)) → § *v5.1*. The milestone on GitHub carries
   all five and stays **bug-fix only**: the owner's call when he added #95, *"#95 décrit un bug plus
   qu'une nouvelle feature"*. **All five are now ticked in § *v5.1* below**, each with its commit.
-- ▶️ **WORK IS UNDERWAY, autonomously, since 2026-09-11** — he said go and left. Order: **#95 first,
-  then the rest of the release.** Branch `fix/v5.1-bugfixes`. Per this file's own permissions a
-  session may work it test-first end to end and push the branch, but may **not** tag, publish, merge
-  to `main`, write into `templates/fr/**`, or touch either of his real brains.
+- ▶️ **THE AUTONOMOUS STRETCH IS OVER — it ran on 2026-09-11 and finished.** He said go, left, and
+  came back to a green PR. Order worked: **#95 first, then the rest.** Branch `fix/v5.1-bugfixes`.
+  Per this file's own permissions a session may work it test-first end to end and push the branch, but
+  may **not** tag, publish, merge to `main`, write into `templates/fr/**`, or touch either of his real
+  brains.
   - [x] **#95 — the no-hard-wrap rule** _(`c50d5ad`, `13f3f31`)_. The net it names had to be built
         first: it existed only inside his brain, never in this repo.
   - [x] **#71 / #73 / #74 — the checker that cries wolf** _(`d797707`)_.
@@ -116,10 +117,12 @@
         zero is impossible on a live account.
   - [ ] **Step 8 — answer the reporters, and the release note.** Not startable until the tag's number
         is his call.
-- 🎙️ **ONE QUESTION IS EXPLICITLY DEFERRED, NOT PENDING** _(2026-09-11, his words)_: whether
-  [#77](https://github.com/tpierrain/kenjaku/issues/77) rides along in v5.1. **"À l'issue de ça, on se
-  reposera la question."** So § *THE ONE QUESTION* is answered for now — **not in this release** — and
-  is re-opened only once the five above are done. Do not raise it before then.
+- 🎙️ **THAT DEFERRAL HAS EXPIRED — the question is live again** _(2026-09-11, second half of the
+  day)_. Whether [#77](https://github.com/tpierrain/kenjaku/issues/77) rides along in v5.1 was
+  deferred in his words — **"à l'issue de ça, on se reposera la question"** — *until the five were
+  done*, and they are. It was **put to him at the end of the autonomous stretch and is awaiting his
+  answer**; § *THE ONE QUESTION* holds the trade-off, recommendation unchanged (**leave it in v5.2**).
+  Do not re-ask it a second time: read his answer if it has arrived, and otherwise leave it be.
 - **Blocked on:** nothing a session can unblock. The five are done; what remains needs the owner (the
   tag's number, the merge, the release note) or the reporter (the one-call throttling test under step
   5, which needs their own account and cannot run from here).

@@ -14,8 +14,12 @@ No memory lookup, no ROADMAP scan, no grep. Sub-plans are reached **through** it
 - **Plan:** [`prospective/clear-the-tracker-action.md`](prospective/clear-the-tracker-action.md)
 - **Active since:** 2026-09-09 — **restored, not newly chosen**, and by the same pattern as last
   time: it held the slot until 2026-09-06, the restart-nudge bug pre-empted it, and that bug shipped
-  as [v5.1.2](https://github.com/tpierrain/kenjaku/releases/tag/v5.1.2). Nothing in it was ever
-  started, so nothing is half-done. **The owner may of course put something else here instead.**
+  as [v5.1.2](https://github.com/tpierrain/kenjaku/releases/tag/v5.1.2). **How far it has got lives in
+  its own `## 📍 STATE`, never here** — a sentence about progress written in this file is a copy, and
+  the copy went stale exactly once: on 2026-09-11 this line still read *"nothing in it was ever
+  started"* on the day all five of v5.1's issues were fixed, pushed and green. That is the whole
+  reason the header says *links and a date only, never a status*.
+  **The owner may of course put something else here instead.**
 
 ## Open, but NOT active
 
