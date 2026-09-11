@@ -194,6 +194,15 @@ _All three shipped 2026-09-11 · `d797707`._
         every miss in an allow-list would have been a permanent false positive.
   - [x] Registered under their **full spelling only** (extension included), so a picture can never
         answer for a missing note of the same stem.
+  - [x] 🔎 **#71 WAS LIVE ON A SECOND SURFACE, and the mutation run is what found it** _(`1a5b7f1`
+        family, 2026-09-11)_. The session-start nudge surfaces **two** scans over the same resolver,
+        so fixing only the dangling-link half **moved** the false positive instead of removing it: the
+        same unresolved target reaches the consolidation scan, where *unresolved* means *no page for
+        this yet* — and the brain stopped calling the screenshot a dead link and started **proposing a
+        note called `screenshot.png`**. Resolving attachments there also exposed a crash on the way:
+        the resolved path is not a note, so reading its frontmatter is a `TypeError`, inside a
+        **fail-open** hook where that surfaces as the whole nudge silently vanishing, real findings
+        included.
 - [x] **2.** `/lint` unescapes the alias pipe inside a table cell (`[[note\|alias]]`) before resolving
       — [#73](https://github.com/tpierrain/kenjaku/issues/73). A Markdown table forces the escape, so
       the checker looked for a filename that cannot exist. The cascade is pinned by its own test: the
@@ -339,6 +348,15 @@ is correct, it simply never fires on half of what it names._
         in `templates/fr/**` was touched.
 
 #### All three subjects
+
+- [x] **9. 🧬 Mutation, per CONVENTIONS §5quinquies: every new file measured the day it was written.**
+      _(2026-09-11 · recorded in [`../../mutation/RESULTS.md`](../../mutation/RESULTS.md).)_ The two
+      new files end at **98.36 %** and **100 %**, the changed hunks of the checker at **92.31 % to
+      100 %**. The first pass on the new rewriter read **81.45 %** with tests that were not thin, and
+      what the survivors said is worth more than the number: the batch proved each refusal **fires**
+      and never proved **where it stops**. Two survivors were real — the macOS-invisible path
+      separator, and the default parameter whose reachability led to #71's second surface above.
+      Every survivor left is a named equivalent.
 
 - [ ] **8. Answer both reporters.** Each issue closed with what shipped and how it was verified
       (`CONVENTIONS.md` §10bis). The release note names the `/lint` contributor; the second report
