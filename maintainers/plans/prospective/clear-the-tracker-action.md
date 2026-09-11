@@ -97,6 +97,12 @@
   then the rest of the release.** Branch `fix/v5.1-bugfixes`. Per this file's own permissions a
   session may work it test-first end to end and push the branch, but may **not** tag, publish, merge
   to `main`, write into `templates/fr/**`, or touch either of his real brains.
+  - [x] **#95 — the no-hard-wrap rule** _(`c50d5ad`, `13f3f31`)_. The net it names had to be built
+        first: it existed only inside his brain, never in this repo.
+  - [x] **#71 / #73 / #74 — the checker that cries wolf** _(`d797707`)_.
+  - [ ] **#80 — a silent source**. In progress; it is the only one of the five carrying a design call.
+  - [ ] **Step 8 — answer the reporters, and the release note.** Not startable until the tag's number
+        is his call.
 - 🎙️ **ONE QUESTION IS EXPLICITLY DEFERRED, NOT PENDING** _(2026-09-11, his words)_: whether
   [#77](https://github.com/tpierrain/kenjaku/issues/77) rides along in v5.1. **"À l'issue de ça, on se
   reposera la question."** So § *THE ONE QUESTION* is answered for now — **not in this release** — and
@@ -153,19 +159,41 @@ _(Read "v5.1" as **the next bugfix release** — see the header note; the number
 
 _Reported by [@StefanPenndorf](https://github.com/StefanPenndorf), from a real vault._
 
-- [ ] **1.** `/lint` resolves an image or attachment embed (`![[shot.png]]`) instead of calling it
+_All three shipped 2026-09-11 · `d797707`._
+
+- [x] **1.** `/lint` resolves an image or attachment embed (`![[shot.png]]`) instead of calling it
       dangling — [#71](https://github.com/tpierrain/kenjaku/issues/71). The resolver only ever indexed
-      `.md`, so every picture in every note reads as a dead link.
-- [ ] **2.** `/lint` unescapes the alias pipe inside a table cell (`[[note\|alias]]`) before resolving
+      `.md`, so every picture in every note read as a dead link.
+  - [x] Attachments are **resolution targets and nothing else**: never an orphan, never frontmatter
+        rot, because an attachment is not a note. They reach the core through `options.attachments`,
+        and both callers (`/lint` and the session-start nudge) read them from the **same** vault dir
+        as the notes.
+  - [x] The list is the **complement** of the note list, not an allow-list of image extensions:
+        `.excalidraw`, `.canvas`, `.webp` and whatever Obsidian supports next need no maintenance, and
+        every miss in an allow-list would have been a permanent false positive.
+  - [x] Registered under their **full spelling only** (extension included), so a picture can never
+        answer for a missing note of the same stem.
+- [x] **2.** `/lint` unescapes the alias pipe inside a table cell (`[[note\|alias]]`) before resolving
       — [#73](https://github.com/tpierrain/kenjaku/issues/73). A Markdown table forces the escape, so
-      the checker looks for a filename that cannot exist.
-- [ ] **3.** `/lint` stops flagging `backlog/` as an orphan zone —
-      [#74](https://github.com/tpierrain/kenjaku/issues/74). The shipped constitution declares it and
-      the engine writes into it: the checker is complaining about the engine's own work.
-- [ ] **4. 📉 This half is measured by the number, not by the three fixes.** A real brain reports
-      *"17 links point nowhere"* today, and #71 + #73 inflate that count. **A checker nobody believes
-      is a checker nobody reads.** So the acceptance test is what the count says on a real vault
-      afterwards, and the release note leads with that, not with three bug references.
+      the checker looked for a filename that cannot exist. The cascade is pinned by its own test: the
+      target stops being a false orphan, and the staleness reference it used to drop is counted again.
+- [x] **3.** `/lint` stops flagging `backlog/` as an orphan zone —
+      [#74](https://github.com/tpierrain/kenjaku/issues/74). Keyed on the **folder**, which covers
+      every locale at once (the overlay localises the file, never the folder) and gets
+      `<universe>/backlog/` for free. It stays held to the frontmatter rule: exempt from orphan is not
+      exempt from taxonomy.
+- [x] **4. 📉 This half is measured by the number, not by the three fixes.** **A checker nobody
+      believes is a checker nobody reads.**
+  - [x] 📐 **Measured, and the honest answer is not the one this step predicted.** On the owner's real
+        663-note vault, before → after: **orphans 87 → 85**, dangling links **18 → 18**, stale 4 → 4,
+        frontmatter 3 → 3. The line above assumed *"#71 + #73 inflate that count"*, and on **this**
+        vault they cannot: it holds **zero** attachment embeds and **zero** escaped pipes (measured,
+        not assumed). Those two were reported from **a different vault**, and both are proven by
+        running the CLI as a process against a tree built to the issues' own repro steps.
+  - [x] ⚠️ **So the release note must not lead with a number from this brain.** Two of the three fixes
+        would read as having changed nothing. Lead with **what stops being reported** — a pasted
+        screenshot, a link inside a table, the engine's own backlog — and keep the 87 → 85 as the one
+        figure that is genuinely ours to quote.
 
 #### A source that goes quiet is reported as a source with no news
 
