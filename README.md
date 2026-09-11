@@ -362,7 +362,10 @@ tested and fail-loud**. The through-line — **fail loudly rather than pretend**
 - **Index identity stamp + confirm-gate** — swapping embedders never silently corrupts the index. *(ADR 0006)*
 - **Silence is reported as silence** — when a search comes back empty, your brain says *"I found nothing,
   here is where I looked"*, instead of turning it into *"nobody decided"*. What it observed and what it
-  inferred are told apart, on the page, every time.
+  inferred are told apart, on the page, every time. **And since v5.1.3, a source it could not reach is
+  told apart from a source with nothing to say**: before reporting quiet, it runs one check on that same
+  source that it knows must come back with something — if that comes back empty too, you are told the
+  connection is down, not that all is calm.
 - **It never invents a colleague** — before writing about someone, it looks them up in *your* notes. A
   first name it can't resolve stays plain text instead of becoming a page for a person who doesn't exist;
   when your notes hold three Romains, the page says **which** one; and a name it worked out rather than

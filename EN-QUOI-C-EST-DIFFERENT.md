@@ -144,8 +144,10 @@ by using it: your notes, your rules (`CLAUDE.md`), your skills.
    not findable outside the vault): if the right answer comes out, it means the brain genuinely queried
    **your** data and not the Internet. And when a search comes back empty, it tells you **"I found
    nothing"** — never *"nobody decided"*: a silence it has not verified is reported as a silence, not
-   promoted into a fact. The same rule applies to **people**: a first name it cannot resolve against
-   your notes stays a first name, never a surname it filled in for you.
+   promoted into a fact. And since **v5.1.3** it goes one step further: before reporting that a source
+   is quiet, it runs a check on that source which it knows must return something, so **a connection
+   that is down stops passing for a week with no news**. The same rule applies to **people**: a first
+   name it cannot resolve against your notes stays a first name, never a surname it filled in for you.
 
 And a rare stance: **safe by construction.** The brain **takes no action** on your
 tools — it **reads and answers**, period. Nothing goes out in your name. (Action capabilities can be

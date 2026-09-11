@@ -374,6 +374,25 @@ is correct, it simply never fires on half of what it names._
         constitution change. It is a **placeholder**: the number is the owner's call, and the table is
         regenerated once more against the real tag before it is cut
         (`node maintainers/fingerprints/generate-fingerprints.mjs --version <tag>`).
+  - [x] 🪧 **Marketing surface re-read** _(2026-09-11, `CONVENTIONS.md` §10)_. **Nothing was made
+        false.** *"Never overwrites your notes"* (README, Guardrails and the reliability board) still
+        holds: the new rewriter is a command the owner runs, never a hook, and no deterministic
+        machinery calls it.
+    - [x] **One thing was made TRUE that we did not sell** — and it strengthens the flagship
+          reliability claim, so it went on the page: *"Silence is reported as silence"* (README) and
+          its twin in `EN-QUOI-C-EST-DIFFERENT.md` now add that **a source that could not be reached
+          is told apart from a source with nothing to say**. Before #80 the brain could not verify a
+          silence at all, which made *"a silence it has not verified"* the whole story; it no longer is.
+    - [x] **Boards re-read, no re-render** — the boring verdict, written down because *checked* and
+          *not looked at* are indistinguishable a month later. `board-connect`'s *"read-only, it reads
+          your sources, never changes them"* and `board-reliability`'s copy are both untouched by this
+          release; the liveness check reads, it does not write.
+  - [ ] 🧪 **The field rehearsal (§10ter) is OWED and has not run** — `engine-manifest.json` changed
+        (a new `replace`-regime script, `engineVersion.scripts` 1.17.0 → 1.18.0), and a manifest change
+        is exactly the *old parent, new child* case no suite here can see. **A session cannot run it
+        alone**: `rehearse.mjs --brain ~/mind-palace` reads a real brain, and this plan forbids that
+        without the owner. It copies without `.git` and only ever reads the original, so the owner's
+        go-ahead is the only thing missing.
 
 ### v5.2 — the rest of the tracker · milestone [`v5.2`](https://github.com/tpierrain/kenjaku/milestone/2)
 
