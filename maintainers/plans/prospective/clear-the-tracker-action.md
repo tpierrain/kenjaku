@@ -86,13 +86,21 @@
   _(2026-09-11, one autonomous stretch)_. `fix/v5.1-bugfixes` →
   **[PR #97](https://github.com/tpierrain/kenjaku/pull/97)**, opened so the arbiter could run:
   **all 7 matrix cells pass, plus the Windows installer end-to-end**. Every commit was pushed and
-  every push read. **What is left is his, not a session's**: the release number, the tag, the merge to
-  `main`, the release note, and closing the five issues with what shipped (step 8). The fingerprint
-  table carries a **placeholder** `v5.1.3` that must be regenerated against the real tag.
-  - 🔁 **And the deferred question comes back now**: § *THE ONE QUESTION*, does
-    [#77](https://github.com/tpierrain/kenjaku/issues/77) ride along? He said *"à l'issue de ça, on se
-    reposera la question"*, and this is that point. The trade-off is already written out there; the
-    standing recommendation is still **leave it in v5.2**.
+  every push read.
+  - 🏷️ **THE RELEASE IS NAMED AND ITS NOTE IS APPROVED** _(2026-09-11, his call, both of them)_:
+    **`v5.1.3 — The One Where It Stops Crying Wolf`**, and the drafted note got *"ok pour la release
+    note, on peut y aller"*. So the number is **no longer a placeholder**: the fingerprint table's
+    `v5.1.3` is the real one, and needs regenerating only if the bytes of a merge-regime file move
+    again. The note's draft is **not committed anywhere** — it lives in the session scratchpad and
+    must be re-drafted from this plan if lost, which is cheap: § *step 8* lists everything it owes.
+  - 🛑 **What blocks publication is ONE thing, and it is technical, not a decision**: the §10ter field
+    rehearsal has not yet run **against this branch's code** (step 8's 🧪 item). The run that would
+    was refused by the sandbox. Until it is read, merging and tagging would ship an engine-manifest
+    change on the one path no suite here can see.
+  - 🔁 **The #77 question was put to him and he has not answered it** — he answered the two that came
+    after instead (the name, then the note). Its silence now reads as *not in this release*, which is
+    also the standing recommendation (**leave it in v5.2**). § *THE ONE QUESTION* holds the trade-off.
+    **Do not ask a third time**; it has been asked twice.
 - **Next (what the FIVE were):** _(2026-09-09: #80 joined when its analysis was
   recovered from an abandoned branch; 2026-09-11: #95 joined at the owner's ask)_. **Three** subjects,
   and the third is the only one not reported from outside: the checker that cries wolf
@@ -387,12 +395,19 @@ is correct, it simply never fires on half of what it names._
           *not looked at* are indistinguishable a month later. `board-connect`'s *"read-only, it reads
           your sources, never changes them"* and `board-reliability`'s copy are both untouched by this
           release; the liveness check reads, it does not write.
-  - [ ] 🧪 **The field rehearsal (§10ter) is OWED and has not run** — `engine-manifest.json` changed
-        (a new `replace`-regime script, `engineVersion.scripts` 1.17.0 → 1.18.0), and a manifest change
-        is exactly the *old parent, new child* case no suite here can see. **A session cannot run it
-        alone**: `rehearse.mjs --brain ~/mind-palace` reads a real brain, and this plan forbids that
-        without the owner. It copies without `.git` and only ever reads the original, so the owner's
-        go-ahead is the only thing missing.
+  - [ ] 🧪 **The field rehearsal (§10ter) is OWED, half-run, and the half that ran proves the wrong
+        thing** — `engine-manifest.json` changed (a new `replace`-regime script, `engineVersion.scripts`
+        1.17.0 → 1.18.0), which is exactly the *old parent, new child* case no suite here can see.
+    - [x] **Ran once against `~/legacy-brain`** _(2026-09-11)_, a real brain installed **2026-06-18 at
+          v3.4.0**, 30 notes, and deliberately **not** one of the owner's two personal brains. Result:
+          the update converged and **the owner's territory came back byte-identical**.
+    - [ ] ⚠️ **But it landed v5.1.2, not this branch.** The harness force-tags the mirror at `--tag`,
+          default **`v5.0.0`** — older than the newest published release, so the brain's updater
+          correctly chose **v5.1.2** and this branch's code was never exercised. **The run that counts
+          is `--tag v5.1.3`** (the tag is forced in the temp bare mirror only, never in this repo,
+          `rehearse.mjs:71`). It was **refused by the sandbox** and needs the owner's go-ahead.
+    - [ ] 📌 **Do not read the green above as §10ter satisfied.** Until the `--tag v5.1.3` run is read,
+          what is proven is the *published* path on an old brain, not the one this release ships.
 
 ### v5.2 — the rest of the tracker · milestone [`v5.2`](https://github.com/tpierrain/kenjaku/milestone/2)
 
