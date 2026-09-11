@@ -233,6 +233,62 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## v5.1 bug-fix release — the five field issues, measured the day each file was written — 2026-09-11
+
+State owned by
+[`../plans/prospective/clear-the-tracker-action.md`](../plans/prospective/clear-the-tracker-action.md)
+(§ *v5.1*). Branch `fix/v5.1-bugfixes`. Two brand-new production files (the deterministic net the
+no-hard-wrap rule names, #95) plus the changed hunks of the wiki checker (#71, #73, #74). #80 ships
+doctrine only and has no production code to mutate; it is guarded by
+`lib/source-liveness-discipline.test.mjs` instead.
+
+| File (scope) | First pass | After | Survivors left |
+|---|---|---|---|
+| `lib/unwrap-markdown.mjs` (new, whole) | 81.45 % | **98.36 %** | 2, both equivalent |
+| `unwrap-markdown.mjs` (new, whole) | 98.41 % | **100.00 %** | 0 |
+| `lib/wiki-lint.mjs:33-43` (link extraction) | **100.00 %** | — | 0 |
+| `lib/wiki-lint.mjs:66-90` (the resolver) | 84.62 % | **92.31 %** | 1, an unreachable default |
+| `lib/wiki-lint.mjs:126-134` (the zones) | **100.00 %** | — | 0 |
+| `lib/wiki-lint-io.mjs:28-41` (the attachment reader) | **100.00 %** | — | 0 |
+| `lib/consolidation-candidates.mjs:58-90` | **96.30 %** | — | 1, same unreachable-default shape |
+| `lint-vault.mjs:37-44` | **100.00 %** | — | 0 |
+| `consolidate-scan.mjs:38-45` | **100.00 %** | — | 0 |
+| `session-wiki-health.mjs:36-50` | 60.00 % | **80.00 %** | 2, both on one unobservable seam |
+
+**The 81.45 % is the entry worth reading, because the tests were not thin.** Twenty-six of them, every
+refusal the rewriter makes covered by a case that names the file it would corrupt. What twenty-three
+survivors said is that the batch proved each refusal **fires** and never proved **where it stops**:
+an anchor dropped, a quantifier loosened, a `.trim()` removed. Every one of those is a real defect on
+a real document — an indented fence or table stops being protected the moment it nests inside a list,
+and a paragraph that merely mentions a pipe, a dash or a `<` never joins again. Sixteen boundary cases
+took it to 97.58 %.
+
+**Two of the three left at 97.58 % were answered by DELETING indirection, not by adding tests** — the
+same shape as the duo run below. The quote depth was a counter standing in for the quote context, so
+incrementing or decrementing it made no observable difference; the trailing-whitespace strip used a
+greedy pattern where at most one character can ever reach it, two being a hard break already refuted a
+line above. Comparing the rebuilt prefix string and calling `trimEnd()` say what the rules actually
+are, and both mutants stopped being equivalent.
+
+**Two survivors in this run were REAL, and one of them found a second bug.**
+
+- `toPosix` in the new CLI: a mutant that **deleted** the path separator instead of converting it
+  lived through every local run, because on macOS `join()` never produces a backslash and the
+  conversion is dead code there. On Windows it prints `vaultpeoplejane-doe.md`. Exactly the class
+  CONVENTIONS §9 exists for, and it took the file to 100 %.
+- The resolver's `attachments` default: asking why it was reachable at all led to the **second
+  caller**, `consolidationCandidates`, which resolves the same links. #71 was live there too — a
+  pasted screenshot had stopped being reported as a dead link and started being proposed as a page to
+  create, called `screenshot.png` — and resolving an attachment there would have thrown a `TypeError`
+  reading frontmatter off something that is not a note, inside a **fail-open** hook where the crash
+  surfaces as the entire nudge silently vanishing.
+
+**The survivors left are all one shape**: a default value nothing production reaches, mutated into a
+sentinel only a link literally spelled like it could observe. `buildResolver`'s `= []`,
+`consolidationCandidates`' `?? []`, and `sessionWikiHealth`'s `readAttachments = () => []` (whose
+`() => undefined` twin is equivalent too, since both downstream readers normalise with `??`). Named in
+place in the code rather than chased.
+
 ## v5.1 step 9 — the safeguards a duo owes the owner, and a flaky suite caught manufacturing a kill — 2026-09-05/06
 
 State owned by

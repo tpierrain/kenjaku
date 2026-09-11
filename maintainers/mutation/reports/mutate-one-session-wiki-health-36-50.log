@@ -1,13 +1,13 @@
-[32m08:35:13 (94261) INFO ProjectReader[39m Found 1 of 1032 file(s) to be mutated.
-[32m08:35:13 (94261) INFO Instrumenter[39m Instrumented 1 source file(s) with 10 mutant(s)
-[32m08:35:13 (94261) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
-[32m08:35:13 (94261) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-yQ7V68
-[32m08:35:13 (94261) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
-[32m08:35:13 (94261) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
-[32m08:35:14 (94261) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 0 seconds (net 260 ms, overhead 0 ms).
+[32m08:36:06 (99411) INFO ProjectReader[39m Found 1 of 1037 file(s) to be mutated.
+[32m08:36:06 (99411) INFO Instrumenter[39m Instrumented 1 source file(s) with 10 mutant(s)
+[32m08:36:06 (99411) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m08:36:06 (99411) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-0LNEoc
+[32m08:36:06 (99411) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m08:36:06 (99411) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m08:36:06 (99411) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 0 seconds (net 257 ms, overhead 0 ms).
 
 All tests
-  ✓ All tests (killed 6)
+  ✓ All tests (killed 8)
 
 [Survived] ArrayDeclaration
 scripts/session-wiki-health.mjs:36:72
@@ -19,23 +19,13 @@ scripts/session-wiki-health.mjs:36:66
 -   export function sessionWikiHealth({ readNotes, readAttachments = () => [], vaultDir, emit }) {
 +   export function sessionWikiHealth({ readNotes, readAttachments = () => undefined, vaultDir, emit }) {
 
-[Survived] ObjectLiteral
-scripts/session-wiki-health.mjs:49:14
--         return { reported: true };
-+         return {};
-
-[Survived] BooleanLiteral
-scripts/session-wiki-health.mjs:49:26
--         return { reported: true };
-+         return { reported: false };
-
 Ran 1.00 tests per mutant on average.
 -------------------------|------------------|----------|-----------|------------|----------|----------|
                          | % Mutation score |          |           |            |          |          |
 File                     |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
 -------------------------|--------|---------|----------|-----------|------------|----------|----------|
-All files                |  60.00 |   60.00 |        6 |         0 |          4 |        0 |        0 |
- session-wiki-health.mjs |  60.00 |   60.00 |        6 |         0 |          4 |        0 |        0 |
+All files                |  80.00 |   80.00 |        8 |         0 |          2 |        0 |        0 |
+ session-wiki-health.mjs |  80.00 |   80.00 |        8 |         0 |          2 |        0 |        0 |
 -------------------------|--------|---------|----------|-----------|------------|----------|----------|
-[32m08:35:14 (94261) INFO MutationTestExecutor[39m Done in 1 second.
-[32m08:35:14 (94261) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-yQ7V68.
+[32m08:36:07 (99411) INFO MutationTestExecutor[39m Done in 1 second.
+[32m08:36:07 (99411) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-0LNEoc.
