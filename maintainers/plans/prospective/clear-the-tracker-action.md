@@ -90,15 +90,23 @@
   [#74](https://github.com/tpierrain/kenjaku/issues/74)), a source that goes quiet without saying so
   ([#80](https://github.com/tpierrain/kenjaku/issues/80)), and a no-hard-wrap rule that guards files
   but not the text copied out of the chat
-  ([#95](https://github.com/tpierrain/kenjaku/issues/95)) → § *v5.1*. Nothing is started. The
-  milestone on GitHub carries all five, and its description was widened to match.
+  ([#95](https://github.com/tpierrain/kenjaku/issues/95)) → § *v5.1*. The milestone on GitHub carries
+  all five and stays **bug-fix only**: the owner's call when he added #95, *"#95 décrit un bug plus
+  qu'une nouvelle feature"*.
+- ▶️ **WORK IS UNDERWAY, autonomously, since 2026-09-11** — he said go and left. Order: **#95 first,
+  then the rest of the release.** Branch `fix/v5.1-bugfixes`. Per this file's own permissions a
+  session may work it test-first end to end and push the branch, but may **not** tag, publish, merge
+  to `main`, write into `templates/fr/**`, or touch either of his real brains.
+- 🎙️ **ONE QUESTION IS EXPLICITLY DEFERRED, NOT PENDING** _(2026-09-11, his words)_: whether
+  [#77](https://github.com/tpierrain/kenjaku/issues/77) rides along in v5.1. **"À l'issue de ça, on se
+  reposera la question."** So § *THE ONE QUESTION* is answered for now — **not in this release** — and
+  is re-opened only once the five above are done. Do not raise it before then.
 - **Blocked on:** nothing. The three `/lint` defects have obvious tests and no design question. #80
   needs **one** design call, named in its own step (what a known-positive control query looks like per
   connector), and nothing else. A session may open the release today, test-first.
-- **Owner's call pending:** **ONE, and it is about v5.2's shape** — § *THE ONE QUESTION*: should
-  [#77](https://github.com/tpierrain/kenjaku/issues/77), the only open issue that can **lose a user's
-  note**, really wait for v5.2, or ride along in v5.1? Recommendation inside; it does not block v5.1
-  starting.
+- **Owner's call pending:** **NONE right now.** The one that was pending — § *THE ONE QUESTION*,
+  should [#77](https://github.com/tpierrain/kenjaku/issues/77) ride along in v5.1? — he **deferred on
+  2026-09-11**: not in this release, re-asked once the five are done. See the deferral entry above.
   - ⏸️ **Two inherited questions, deliberately not re-asked.** (1) Inside #78, a product question only
     he can answer: *is a brain's copy of the launcher README meant to link to the launcher's own docs
     at all?* (2) The `concurrency` group for `ci.yml` (recommendation: yes) — offered three times,
@@ -135,9 +143,10 @@
 
 ### v5.1 — what outside users reported · milestone [`v5.1`](https://github.com/tpierrain/kenjaku/milestone/1)
 
-_**Three** subjects. The first two came from outside the project, on real brains; the third is the
-owner's own call, added on 2026-09-11 — a rule that lives in the wrong layer and is therefore applied
-to the wrong perimeter._
+_**Three** subjects, and the release stays **bug-fix only** — the owner's call, 2026-09-11, when #95
+was added: **"#95 décrit un bug plus qu'une nouvelle feature"**. Two subjects were reported from
+outside the project, on real brains; the third was measured on his own session. All three are the
+same shape: something healthy is reported as broken, or something broken is reported as healthy._
 _(Read "v5.1" as **the next bugfix release** — see the header note; the number is the owner's.)_
 
 #### A checker stops reporting healthy things as broken
@@ -207,7 +216,9 @@ asked for it anonymised. Nothing identifying goes into the issue, the plan, or t
 #### A rule that guards files does not guard the text you copy out of the chat
 
 _Added to this release on 2026-09-11, at the owner's ask. Not field-reported: measured on his own
-session of 2026-09-09, after three earlier corrections on the same defect._
+session of 2026-09-09, after three earlier corrections on the same defect. **It is a bug, not a
+feature** — his call, and the reason this release keeps its bug-fix-only framing: the rule exists and
+is correct, it simply never fires on half of what it names._
 
 - [ ] **7. The no-hard-wrap rule moves into `CLAUDE.engine.md`, and triggers on the destination
       instead of on the word "file"** — [#95](https://github.com/tpierrain/kenjaku/issues/95). The
@@ -275,6 +286,11 @@ session of 2026-09-09, after three earlier corrections on the same defect._
       nobody can size a de-identification design before it exists.
 
 ## 🎙️ THE ONE QUESTION — does the issue that can lose a note really wait for v5.2?
+
+> ⏸️ **ANSWERED FOR NOW, 2026-09-11: it waits.** *"À l'issue de ça, on se reposera la question
+> d'inclure ou pas le bug fix de la 77."* So the recommendation below is the standing decision, and
+> **this section is not to be raised again until v5.1's five issues are done**. Keep it: the moment it
+> is re-opened, the trade-off is already written out.
 
 **#77 is the only open issue whose failure mode is silent data loss.** A note written by
 `/consolidate` or `/file-back` lands on disk, the session prints `✓ Refreshed`, and nothing is
