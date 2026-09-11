@@ -17,249 +17,170 @@ permanence des plans énormes qui sont déjà faits."* → **S3**.
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-05
 
-- 🚦 **THIS IS THE ACTIVE PLAN SINCE 2026-09-06** _(owner: "ok pour suivre ta reco")_. It took the door
-  from [`clear-the-tracker-action.md`](clear-the-tracker-action.md), which is paused with nothing in
-  flight. The arbitration he validated: the release note has made a re-measurement public, so it is
-  owed either way, and running it on the 81-minute instrument pays twice the exact bill this plan
-  exists to remove. ✅ **S1 IS DONE — all five steps, 2026-09-07.** The instrument is a third cheaper
-  for an identical verdict, and the subset property is now held by construction rather than by luck.
-  🌿 **The work lives on `perf/mutation-instrument-proof`**, opened as
-  [PR #91](https://github.com/tpierrain/kenjaku/pull/91) on the owner's word (2026-09-07), green in CI.
-  **It goes in BEFORE the #90 bugfix, deliberately**: he asked whether the optimisation would land
-  first, and the answer is that the bugfix branches off `main`, so merging is what makes it inherit
-  the faster instrument.
-  ⏸️ **This plan is no longer the active one** — [#90](https://github.com/tpierrain/kenjaku/issues/90)
-  took the door on 2026-09-07 ("on fait le bug fix ASAP"). Nothing here is in flight. ▶️ **RESUME AT S2**, the quality lever: S2.1 (the re-read of one's own test diff, catalogue in hand)
-  and S2.2 (the greppable shapes) are unstarted; S2.0 and S2.0bis already say what they would buy.
-  **S3 is untouched** and its trigger is written.
-- ✅ **S1.1 → S1.3 HAVE LANDED** _(2026-09-06, `2876954`, 115 tests green in the mutation workspace)_.
-  `judges.mjs` works out who can observe a target — imports transitively **plus plain string mentions**,
-  because the entry-point rule tests every executable by SPAWNING it and such a test is invisible to an
-  import graph — grown to a fixed point, and the list reaches Stryker through the environment (its CLI
-  has no flag for the runner's command). On this repo: **203 test files down to 37-50**. It never
-  narrows to nothing: an unobservable or mistyped target falls back to the whole suite and says why.
-- ❌🔁 **THE "19-MINUTE ANOMALY" NEVER EXISTED — IT WAS TWO DIFFERENT JOBS COMPARED AS ONE**
-  _(2026-09-07, and everything below it that reasons about a slowdown is WRONG; kept, struck through,
-  because the mistake is the lesson)_. The run finished: **357 mutants, 42 min 39, 98.04 %** (350
-  killed, 7 survived, **0 timeout**). The `3 min 46` it was being measured against is the run of
-  **19 mutants** — the three line ranges step 9.4 had changed (`filed-note.mjs:208-216`,
-  `file-back-note.mjs:99-102` and `:139-142`), as `RESULTS.md` § *Batch C* says in full. **Naming the
-  two files without their ranges is a twenty-fold bigger job**, and this plan wrote them that way.
-  - **What the numbers actually say, and they say S1 WORKS**: 42 min 39 over 357 mutants at
-    concurrency 5 is **35.8 s per mutant**. The whole-suite instrument costs **49.9 s per mutant**
-    (batch A: 487 mutants in 81 min). That is **28 % cheaper**, which is the 25 % the standalone
-    suites predicted (12.9 s → 9.6 s) and not a point more. **The instrument behaves exactly as the
-    cheap measurement said it would.**
-  - 🪞 **The lesson, and it is the one worth keeping**: a baseline is a pair — a duration AND the job
-    it measured. Quoted without its job, `3 min 46` invited three hours of hunting for a defect that
-    was not there, and produced a confident, committed, WRONG mechanism (the lockstep story below).
-    **The tell was available the whole time and never checked: the mutant count.** 19 against 357.
-  - 🔍 **THE SEVEN SURVIVORS, READ AGAINST THE CODE BEFORE THE COMPARISON RUN FINISHES** — named here
-    so the second run is a *verdict* and not a vibe (the one-minute lever S2.0bis found). **Four are
-    provable equivalents, and the proof is a line that runs EARLIER in the same function**:
-    - `filed-note.mjs:37` (twice, `^-+` → `^-` and `-+$` → `-$`). The line above collapses every run of
-      non-alphanumerics into **one** hyphen, so two consecutive hyphens cannot exist by the time the
-      trim runs. Equivalent, and only by reading the previous statement.
-    - `filed-note.mjs:257` (`/\.md$/` → `/\.md/`). The anchor is free because card paths are
-      **slugified**: a `.` cannot survive slugification, so `.md` can only occur at the end.
-    - `file-back-note.mjs:193` (`split(/\s+/)` → `split(/\s/)`). `.trim()` runs first and only `[0]` is
-      taken, so the empty strings the mutant creates sit after the element that is read.
-    - ⚠️ **The three that are NOT equivalents, and none needs a production change**:
-      `filed-note.mjs:114` (`>` → `>=`) is reachable only when **two tiers absent from the declared
-      ranking** meet — `indexOf` returns -1 for both, and the two versions then disagree; the honest
-      answer is probably a guard on an undeclared tier rather than a test of it. The other two are the
-      **composition root**, `"utf-8"` → `""` at `file-back-note.mjs:85` and `:88` — a wiring seam no
-      test traverses, and `:88` is the **stdin** read whose test was deliberately deleted for hanging
-      on Windows. Recorded, not silently accepted.
-    - ↩️ **CORRECTED WITHIN THE HOUR, AND THE CORRECTION IS THE INTERESTING PART.** This entry first
-      claimed `:85` *"replays a bug this repo already shipped, and no test was ever added"* — read off
-      the line's own comment, which does describe a real field defect (a Buffer has no `.trim()`, and
-      it threw on any brain past one universe). **That claim was wrong, and one `grep` one level down
-      is what settled it.** `readRawActiveUniverse` (`scripts/lib/universes.mjs:259`) reads
-      `String(io.readFileSync(path)).trim()` — **the defence was put in the READER**, deliberately,
-      with its own comment saying callers pass no encoding. So the `"utf-8"` at the composition root is
-      belt-and-braces, and deleting it changes nothing: **a true equivalent**. Same verdict for `:88`:
-      `JSON.parse` coerces its argument, so a Buffer parses exactly like a string.
-      - 🪞 **Twice in one night, the same failure shape**: a confident conclusion drawn from what a
-        line *says about itself* instead of from what the surrounding code *does* — first the baseline
-        quoted without its job, now a comment quoted without its reader. **The survivor analysis is
-        only worth what the one-level-down read is worth**, and that read costs seconds.
-      - ✅ **So the tally is better than first written**: of 7 survivors, **6 are provable equivalents**
-        and the seventh (`filed-note.mjs:114`) needs two undeclared tiers to be reachable at all —
-        effectively **100 % on non-equivalents**, and no production change owed.
-    - 📊 **The shape of the count is the whole S2 argument again**: 357 mutants, 7 survivors, **4 of
-      them provable equivalents by reading one line up**, and **zero** requiring a production change.
-  - ✅ **S1.4 IS PROVEN — THE PAIR WAS RUN, SAME TARGETS, SAME COMMIT, BOTH INSTRUMENTS**
-    _(2026-09-07, machine idle, one after the other)_:
+- **Next:** ▶️ **resume at S2**, the quality lever. S2.1 (the re-read of one's own test diff, catalogue
+  in hand) and S2.2 (the greppable shapes) are unstarted; S2.0 and S2.0bis already say what they buy.
+  **S3 is untouched** and its trigger is written. The three levers are independent and may be taken in
+  any order.
+- ✅ **S1 is done and merged** — [PR #91](https://github.com/tpierrain/kenjaku/pull/91) — **and S1.5
+  with it**: `CONVENTIONS` §5quinquies has carried the measured per-mutant figure since 2026-09-07, so
+  the *"1-3 minutes"* it is ticked against is gone. What the runs proved is in § *What S1 proved*.
+- 💸 **One debt is public and still unpaid** → § *The re-measurement that was promised in public*.
+- **Blocked on:** nothing. **Owner's call pending:** nothing.
+- **A session may, alone:** take S2 and S3 test-first on a branch off `main`, push every green commit
+  and **read its CI**. **Not:** weaken a test to make a number move, nor touch a measurement that is
+  feeding an unpublished release note.
+- ⏸️ **This is not the active plan.** The door ([`ACTIVE.md`](../ACTIVE.md)) says which one is.
 
-    | | Narrowed (50 judges) | Whole suite (204) |
-    |---|---|---|
-    | Wall clock | **42 min 39** | **1 h 03 min 43** |
-    | Mutants | 357 | 357 |
-    | Score | **98.04 %** | **98.04 %** |
-    | Killed / survived / timeout | 350 / 7 / 0 | 350 / 7 / 0 |
-    | Survivors | the same seven lines | the same seven lines |
+## 💸 The re-measurement that was promised in public
 
-    **A third of the wall clock for a byte-identical verdict.** The safety property is not merely
-    respected (equal or lower) — on this pair the narrowing lost **nothing at all**: same score, same
-    survivor list, line for line. Per mutant, 35.8 s against 53.5 s.
-    Logs: `../../mutation/reports/s1-proof-batch-c.log` and `-unnarrowed.log`.
-- ⚠️ ~~**S1.4 IS NOT DONE, AND THE FIRST ATTEMPT MUST NOT BE QUOTED.**~~ A proving run was launched on
-  batch C (`scripts/lib/filed-note.mjs` + `scripts/file-back-note.mjs`, baseline **3 min 46** on
-  2026-09-06 01:07, log `reports/s1-proof-batch-c.log`) **while two full test-suite runs were competing
-  for the same CPU** — which is exactly the condition this repo has already measured as manufacturing
-  false timeouts and starved scores. **Its wall-clock is meaningless and its score is suspect.**
-  - **Redo it properly**: one run, nothing else running, and compare against the baseline above. The
-    score must come back **equal or lower**, never higher (S1.2's property).
-  - 🚨 **AND THE FIRST ATTEMPT DID NOT MERELY GET A BAD NUMBER — IT NEVER FINISHED.** It was stopped
-    at **19 min 18** on a batch whose baseline is **3 min 46**, with no score. Two competing suite runs
-    (~12 s each) do not explain a 5x. **Something else is going on, and it must be understood before S1
-    is called done** — a narrowing that makes a run slower is worse than no narrowing.
-  - 🔁 ~~**REPRODUCED, 2026-09-07, ON AN IDLE MACHINE — so the competing suites were never the cause.**~~
-    ⛔ **VOID — there was nothing to reproduce.** See the entry above: the run being called slow was
-    357 mutants and the baseline was 19. What survives of the paragraphs below is ONE observation,
-    true and beside the point: the five workers really do execute the same test file at the same
-    instant (5 copies of `remote-sync.test.mjs`, sampled three times). It explains no slowdown,
-    because there was none. Struck through rather than deleted — a confident wrong mechanism, written
-    from real `ps` output, is exactly the shape a later session would re-derive.
-    Same batch, same tool, nothing else running, launched 06:50:43: **past 15 minutes and still going**,
-    against a 3 min 46 baseline. This time it is being left to finish, because a run killed at 19
-    minutes is what made the first attempt prove nothing.
-    - 🧩 **And the arithmetic says the test command cannot be the culprit.** The narrowed set is a
-      SUBSET of the whole suite, so its total work is smaller by construction — standalone, 9.6 s
-      against 12.9 s. No uniform slowdown can make the smaller set take longer. **So the cost is not
-      in what the tests do, it is in how the run is driven.**
-    - 🔬 **THE MECHANISM, WATCHED LIVE AND SAMPLED THREE TIMES RUNNING — THE FIVE WORKERS MARCH IN
-      LOCKSTEP.** `ps` during the run shows 5 copies of `scripts/remote-sync.test.mjs`, 4 of
-      `scripts/lib/notes-union-merge.test.mjs` and 4 of `scripts/author-identity.test.mjs` executing
-      **at the same instant**, 36 node processes, load 29 on 14 cores. Individual test files that take
-      under 9.6 s for the whole set when alone are taking **12 to 24 s each** in there.
-      - **Why narrowing made it worse, and it is not a paradox.** Stryker runs 5 workers, each
-        executing the *same* sorted list from the same start. The tests that dominate are the ones
-        that spawn real `git` and real processes, and they contend **superlinearly** — disk, process
-        spawn, locks — so N simultaneous copies cost far more than N times one. With 204 files those
-        heavy tests are diluted: each worker has 13 files in flight, mostly cheap, and the heavy ones
-        drift apart. With 50 files the same 13 slots are mostly heavy, so ~13 heavy processes collide
-        instead of ~5. **The cheap tests were acting as a desynchroniser**, and the narrowing deleted
-        them.
-      - ➡️ **So S1's lever was aimed one level too high.** What costs is not which tests run, it is
-        **5 concurrent copies of the same spawn-heavy tests**. The candidates to measure next, in
-        order of expected payback: (a) drop `concurrency` for spawn-heavy batches and see the wall
-        clock *fall*; (b) make the heavy tests cheap or isolate their contention; (c) only then think
-        about the list of judges.
-      - ⚠️ **And the narrowing is still worth keeping** — the safety property is what it buys, not the
-        speed: judges that cannot observe a target manufacture no kills. But **S1.5 must not be
-        written as if a speed promise had been kept.**
-  - ✅ **One suspicion CHECKED and cleared, so nobody re-checks it**: the judge set really is a subset
-    of what the whole suite runs (50 judges for batch C, **0 outside** `scripts/*.test.mjs` +
-    `scripts/lib/*.test.mjs`). So the slowness is not "we run tests the suite never ran".
-  - [x] **BUT the subset property holds by ACCIDENT, not by construction** _(closed 2026-09-07 —
-        `runsInWholeSuite` derives the baseline's own globs from `WHOLE_SUITE` and an observer outside
-        them refuses the narrowing rather than being dropped; the `../` fixture that PINNED the deep
-        judge was moved off it)_, and that is a hole to
-    close: `readSources` walks `scripts/` **recursively** while the fallback command globs only two
-    levels. The day a test file lands in a deeper directory, the judges stop being a subset and S1.2's
-    safety property is silently false. **Pin it with a test** that asserts every judge matches the
-    fallback's own globs.
-  - **A number worth having first, and it is cheap**: the whole suite standalone takes **~12 s**. At
-    concurrency 5 that predicts ~19 min for a 487-mutant batch, not the 81 min measured — so part of
-    the bill is **CPU oversubscription** (each worker's `node --test` forks per file, ~28 processes
-    seen at once), not only the breadth of the suite. Measure the narrowed subset's standalone time
-    before concluding what S1 bought.
-  - 📏 **TAKEN, 2026-09-07, and it is the number that reframes S1.** In the very worktree Stryker
-    uses, machine otherwise idle, two runs each: **whole suite 12.94 / 12.92 s**, **narrowed to batch
-    C's 50 judges 9.65 / 9.64 s**. So cutting **204 test files down to 50** buys **25 %** of the wall
-    clock, not an order of magnitude.
-    - **What that means, and it is not "S1 failed"**: the suite's cost is **not proportional to the
-      number of test files**. It sits in a handful of heavy ones — the tests that SPAWN a process,
-      exactly the judges the name-matching edge is right to keep (a spawned entry point is invisible
-      to an import graph, and dropping it manufactures a false survivor). **Counting files was the
-      wrong proxy for counting seconds**, all along.
-    - ➡️ **So the speed lever is one level down**: what costs is `node --test` **forking a process per
-      file**, 5 Stryker workers deep, on a 14-core machine. The lever worth measuring next is not a
-      shorter list, it is **the per-mutant process bill** — one runner process reusing a loaded suite
-      rather than 50 fresh ones. Recorded here rather than acted on: S1.4 must first say whether the
-      narrowing is even sound, and the 19-minute anomaly is still unexplained.
-- 🎯 **THE RE-MEASUREMENT THIS PLAN PREDICTED IS NOW ACTUALLY DUE** _(2026-09-06)_. The bullet below
-  argued S1 pays for itself because the code review would change already-measured files. § 1 of
-  [`v5.1.0-code-review-fixes-action.md`](../archived/v5.1.0-code-review-fixes-action.md) **is now done**, and it
-  changed **four files that all carry a published figure** in `RESULTS.md`: `lib/filed-note.mjs`,
-  `lib/remote-sync.mjs`, `lib/remote-arrivals.mjs` and `dated-note-path.mjs`. Sharpest of all,
-  **`filed-note.mjs:216` is the exact line a survivor was recorded on** (RESULTS.md, batch C, scored
-  100 %) — the `author:` stamp, which now goes through `yamlScalar`.
-  - **`lib/yaml-scalar.mjs` is BRAND NEW and has never been measured at all.**
-  - 📣 **AND THE RELEASE NOTE NOW SAYS THIS OUT LOUD, WHICH TURNS IT INTO A PROMISE** _(2026-09-06,
-    the § 1bis documentation pass, `64e898f`)_. Its *Quality* paragraph keeps every figure and adds
-    the sentence that keeps it honest: **measured 3 September, on the code as it then stood**, before
-    a review that changed four of the files those runs covered — *the score of the work, not of the
-    exact bytes the tag ships* — with the reason no re-measurement was run (the instrument changed
-    mid-release and **S1.4 is still open**). So the debt is public now: when S1.4 lands and the five
-    files are re-measured behind the faster instrument, `RESULTS.md` is not the only carrier to
-    update — the published note has told readers a figure is owed. Add `lib/source-key.mjs` to the
-    list above: the § 1 fix changed it too.
-  - ⛔ **Not now, and it is the owner's call, not a session's**: he asked for no mutation run before
-    S1 landed (*"j'aimerais éviter de passer toute la journée à faire du mutation testing"*), and the
-    honest order is **S1.4 first** — redo the proving run properly, get a real figure, and only then
-    re-measure these five behind the faster instrument. Re-measuring on the 81-minute instrument is
-    exactly the bill S1 exists to avoid paying twice.
-- [ ] **S1.5 — `CONVENTIONS.md` §5quinquies still says "1-3 minutes"**, and it is still not true.
-  Update it once S1.4 has a real figure to put there.
-- ▶️ ~~**S1 IS UNHELD AND IS THE NEXT THING TO DO, BEFORE THE TAG**~~ _(the decision, kept)_ _(2026-09-06, the owner's ask:
-  *"est-ce que les modifications là ne seraient pas pertinentes à faire avant le truc qu'on avait dit
-  qu'on ferait après la release ? … c'est quoi l'arbitrage le plus intéressant"*)_. **The hold expired
-  on its own terms** rather than being overridden: the condition was *finish 9.5 with the instrument
-  as it is*, and 9.5 closed at 02:42 this morning. What changed the arithmetic is the code review —
-  [`v5.1.0-code-review-fixes-action.md`](../archived/v5.1.0-code-review-fixes-action.md) § 1 opens six fixes in files that
-  are **already measured**, so their published figures stop describing the shipped code and a
-  re-measurement is owed **either way**. On the instrument as it stands that is ~80 min a batch,
-  twice; behind S1 it is minutes. **S1 pays for itself inside this release instead of after it.**
-  - **Why it cannot flatter the release**: S1.2's property is one-directional — narrowing the judges
-    removes kills, it cannot invent one, so a score can only come back **equal or lower**.
-  - **And it ships to nobody**: `mutate-one.mjs` is a maintainer tool, absent from the product
-    surface, so this adds no risk to what v5.1.0 hands a user.
-  - **The one honest cost, accepted**: the release note's *Quality* paragraph will describe two
-    instruments. It gets written as such, with the old figure and the new one side by side (S1.4
-    already asks for exactly that pair).
-  - **S2 and S3 stay held until the tag**, unchanged — with one free exception: **S2.1 is a re-read,
-    not a run**, so it is applied to the § 1 fixes' own test diff as they are written.
-- ⏸️ ~~**NOT STARTED, AND DELIBERATELY HELD until `v5.1.0` is tagged**~~ _(owner's call, 2026-09-05:
-  "on valide cet ordre" — **superseded 2026-09-06, see above**)_. The order he validated is: **finish
-  9.5 with the instrument as it is**, then S1, then S2. Changing the runner mid-measurement would put
-  two instruments in one release note's *Quality* paragraph, and the 9.5 batches left are small (~1 h)
-  — the tooling work saves almost nothing by jumping the queue, and costs comparability. **S3 was
-  added after that call**, on the same day and on the same terms. _(Kept, not deleted: the reasoning
-  is still right, and it is the measure of what had to change for the conclusion to move.)_
-  - ⏳ **The tag moved further out on 2026-09-06**, and nothing here changes because of it: the
-    `/code-review max` found blockers that must be answered before `v5.1.0` is cut. The list and the
-    go/no-go belong to [`v5.1.0-code-review-fixes-action.md`](../archived/v5.1.0-code-review-fixes-action.md);
-    this plan still resumes at S1 — **but now BEFORE the tag, see the entry above**.
-- 🔧 **"THE INSTRUMENT AS IT IS" CHANGED ONCE, ON 2026-09-05, AND ONLY FOR THE BETTER** _(`ae5f61b`)_.
-  The suite carried a test that failed about 1 run in 8 under load, and since every mutant re-runs the
-  whole suite, an intermittent failure did not add noise to a score, it added **points**. It is gone —
-  deleted with the barrier it asserted, not stabilised. **Nothing here moves because of it**: this plan
-  stays held until the tag and still resumes at S1. It is recorded because S1 and S2 both reason about
-  the instrument, and they now reason about a sound one. Owner of that story:
-  [`../archived/duo-v51-safeguards-action.md`](../archived/duo-v51-safeguards-action.md).
-  - ➕ **And a second time on 2026-09-06, same shape, same conclusion** (step 9.6 there): three tests
-    that pinned a session-start wait were deleted and two clock-measured process-level ones took their
-    place. **Nothing here moves because of it either** — this plan is still held until the tag, still
-    resumes at S1. Recorded because the suite S1 will speed up is now three tests lighter, and because
-    the owner's words that day are a **standing rule S1 and S2 both inherit**: *"on enlève cette attente
-    qui pénalise tout le monde pour quelques rares cas"*.
-- ▶️ **RESUME AT S1 BELOW**, the targeted test command — **now, before the tag** (first bullet). **The
-  three are independent** and may be done in any order: S1 is the speed of the instrument, S2 the
-  quality of the first pass, S3 the cost of reading the record. S1 goes first because it pays back on
-  the very next run, and the next run is this release's.
-- 🔗 **S3 has a natural moment, and it is § 3.4 of** [`v5.1.0-code-review-fixes-action.md`](../archived/v5.1.0-code-review-fixes-action.md):
-  that step already archives the two 1200-and-905-line plans right after the tag. Doing S3 then costs
-  almost nothing extra, and 3.4 is the step that will hit the broken-link problem S3.3 names.
-  **A first instalment was paid early**, on 2026-09-06 and on the owner's ask: the 158-line v5.1 plan
-  was split and archived the moment its work was done, which is S3.1's trigger applied by hand.
-- **Blocked on:** nothing, for S1. **S2 and S3 stay blocked on the `v5.1.0` tag** (§ 3 of
-  [`v5.1.0-code-review-fixes-action.md`](../archived/v5.1.0-code-review-fixes-action.md), the owner's and only his).
-- **A session may, alone**: do S1 and S2 test-first on a branch off `main`, pushing every green commit
-  and **reading its CI** (rules/ci.md). **Not**: touch a measurement that is feeding an unpublished
-  release note, nor weaken a test to make a number move.
+**The v5.1.0 release note says, in as many words, that a figure is owed** _(2026-09-06, the §1bis
+documentation pass, `64e898f`)_. Its *Quality* paragraph keeps every figure and adds the sentence that
+keeps it honest: **measured 3 September, on the code as it then stood** — before a review that changed
+four of the files those runs covered — *the score of the work, not of the exact bytes the tag ships*.
+
+- **What is owed**: re-measure, behind the now-faster instrument, the files the code review changed
+  and that carry a **published** figure in [`../../mutation/RESULTS.md`](../../mutation/RESULTS.md) —
+  `lib/filed-note.mjs`, `lib/remote-sync.mjs`, `lib/remote-arrivals.mjs`, `dated-note-path.mjs`,
+  `lib/source-key.mjs` — plus **`lib/yaml-scalar.mjs`, which is brand new and has never been measured
+  at all**. Sharpest of all: `filed-note.mjs:216` is the exact line a survivor was recorded on (batch
+  C, scored 100 %), the `author:` stamp, which now goes through `yamlScalar`.
+- **Two carriers, not one.** `RESULTS.md` is the record, and the **published note has told readers a
+  figure is owed** — so the debt is only paid when both say the same thing.
+- **Why it waited, and the reason has now expired.** The owner asked for no mutation run before S1
+  landed (*« j'aimerais éviter de passer toute la journée à faire du mutation testing »*), and the
+  honest order was S1.4 first. S1.4 landed on 2026-09-07. Re-measuring on the old 81-minute instrument
+  was exactly the bill S1 existed to avoid paying twice; that bill is now a third of what it was.
+
+## 📜 What S1 proved — durable, and none of it expires
+
+_All of this sat in the `## 📍 STATE` block until 2026-09-12, which is how that block reached **241**
+non-empty lines against §3ter's cap of 20. Nothing here is perishable: it is a measurement log and the
+lessons it produced._
+
+### The narrowing works, and the proof is a pair of runs
+
+**S1.1 → S1.3 landed** _(2026-09-06, `2876954`, 115 tests green in the mutation workspace)_.
+`judges.mjs` works out who can observe a target — imports transitively **plus plain string mentions**,
+because the entry-point rule tests every executable by SPAWNING it and such a test is invisible to an
+import graph — grown to a fixed point, and the list reaches Stryker through the environment (its CLI
+has no flag for the runner's command). On this repo: **203 test files down to 37-50**. It never narrows
+to nothing: an unobservable or mistyped target falls back to the whole suite and says why.
+
+**S1.4 — the pair was run, same targets, same commit, both instruments** _(2026-09-07, machine idle,
+one after the other)_:
+
+| | Narrowed (50 judges) | Whole suite (204) |
+|---|---|---|
+| Wall clock | **42 min 39** | **1 h 03 min 43** |
+| Mutants | 357 | 357 |
+| Score | **98.04 %** | **98.04 %** |
+| Killed / survived / timeout | 350 / 7 / 0 | 350 / 7 / 0 |
+| Survivors | the same seven lines | the same seven lines |
+
+**A third of the wall clock for a byte-identical verdict.** The safety property is not merely respected
+(equal or lower) — on this pair the narrowing lost **nothing at all**: same score, same survivor list,
+line for line. Per mutant, 35.8 s against 53.5 s. Logs:
+`../../mutation/reports/s1-proof-batch-c.log` and `-unnarrowed.log`.
+
+**And the subset property now holds by construction rather than by accident** _(closed 2026-09-07)_.
+`runsInWholeSuite` derives the baseline's own globs from `WHOLE_SUITE`, and an observer outside them
+**refuses the narrowing** rather than being silently dropped; the `../` fixture that pinned the deep
+judge was moved off it. Before that, `readSources` walked `scripts/` recursively while the fallback
+command globbed only two levels — so the day a test file landed in a deeper directory, the judges would
+have stopped being a subset and S1.2's safety property would have been silently false.
+
+### The "19-minute anomaly" never existed — it was two different jobs compared as one
+
+_(2026-09-07. Kept in full because the mistake is the lesson.)_ A run was called catastrophically slow
+against a **3 min 46** baseline. The run finished: **357 mutants, 42 min 39, 98.04 %**. The baseline it
+was being measured against is the run of **19 mutants** — the three line ranges step 9.4 had changed
+(`filed-note.mjs:208-216`, `file-back-note.mjs:99-102` and `:139-142`), as `RESULTS.md` § *Batch C*
+says in full. **Naming the two files without their ranges is a twenty-fold bigger job**, and this plan
+wrote them that way.
+
+- **What the numbers actually said, and they said S1 WORKS**: 42 min 39 over 357 mutants at
+  concurrency 5 is **35.8 s per mutant**, against **49.9 s** for the whole-suite instrument (batch A:
+  487 mutants in 81 min). **28 % cheaper**, which is the 25 % the standalone suites predicted
+  (12.9 s → 9.6 s) and not a point more.
+- 🪞 **The lesson**: **a baseline is a pair — a duration AND the job it measured.** Quoted without its
+  job, `3 min 46` invited three hours of hunting for a defect that was not there, and produced a
+  confident, committed, **wrong** mechanism. **The tell was available the whole time and never
+  checked: the mutant count.** 19 against 357.
+- ⛔ **The wrong mechanism, kept struck through rather than deleted.** ~~*The five Stryker workers march
+  in lockstep, so narrowing made the run slower by concentrating the spawn-heavy tests*~~ — written
+  from real `ps` output (5 copies of `remote-sync.test.mjs` executing at the same instant, 36 node
+  processes, load 29 on 14 cores) and **explaining a slowdown that did not exist**. One observation in
+  it is true and beside the point: the workers do execute the same test file at the same instant. It is
+  kept because a confident wrong mechanism, written from real evidence, is exactly the shape a later
+  session would re-derive.
+
+### The seven survivors, and the read that costs seconds
+
+Named before the comparison run finished, so the second run was a **verdict** rather than a vibe.
+**Six of the seven are provable equivalents**, and the proof is nearly always a line that runs
+**earlier in the same function**:
+
+- `filed-note.mjs:37` (twice, `^-+` → `^-` and `-+$` → `-$`). The line above collapses every run of
+  non-alphanumerics into **one** hyphen, so two consecutive hyphens cannot exist by the time the trim
+  runs. Equivalent, and only by reading the previous statement.
+- `filed-note.mjs:257` (`/\.md$/` → `/\.md/`). The anchor is free because card paths are
+  **slugified**: a `.` cannot survive slugification, so `.md` can only occur at the end.
+- `file-back-note.mjs:193` (`split(/\s+/)` → `split(/\s/)`). `.trim()` runs first and only `[0]` is
+  taken, so the empty strings the mutant creates sit after the element that is read.
+- `file-back-note.mjs:85` and `:88`, the composition root's `"utf-8"` → `""`. **This entry first
+  claimed the opposite**, read off the line's own comment, which does describe a real field defect (a
+  Buffer has no `.trim()`, and it threw on any brain past one universe). **One `grep` one level down
+  settled it**: `readRawActiveUniverse` (`scripts/lib/universes.mjs:259`) reads
+  `String(io.readFileSync(path)).trim()` — **the defence was put in the READER**, deliberately, with
+  its own comment saying callers pass no encoding. So the encoding at the composition root is
+  belt-and-braces and deleting it changes nothing. Same verdict for `:88`: `JSON.parse` coerces its
+  argument, so a Buffer parses exactly like a string.
+- The seventh, `filed-note.mjs:114` (`>` → `>=`), is **not** an equivalent but is reachable only when
+  **two tiers absent from the declared ranking** meet — `indexOf` returns -1 for both, and the two
+  versions then disagree. The honest answer is probably a guard on an undeclared tier rather than a
+  test of it. **No production change is owed.**
+
+> 🪞 **Twice in one night, the same failure shape**: a confident conclusion drawn from what a line
+> *says about itself* instead of from what the surrounding code *does* — first the baseline quoted
+> without its job, then a comment quoted without its reader. **The survivor analysis is only worth what
+> the one-level-down read is worth**, and that read costs seconds.
+
+### Counting files was the wrong proxy for counting seconds
+
+**Measured 2026-09-07** in the very worktree Stryker uses, machine otherwise idle, two runs each:
+**whole suite 12.94 / 12.92 s**, **narrowed to batch C's 50 judges 9.65 / 9.64 s**. So cutting **204
+test files down to 50** buys **25 %** of the wall clock, not an order of magnitude.
+
+- **The suite's cost is not proportional to the number of test files.** It sits in a handful of heavy
+  ones — the tests that SPAWN a process, exactly the judges the name-matching edge is right to keep (a
+  spawned entry point is invisible to an import graph, and dropping it manufactures a false survivor).
+- ➡️ **So the next speed lever is one level down**: what costs is `node --test` **forking a process per
+  file**, five Stryker workers deep, on a 14-core machine. The thing worth measuring next is not a
+  shorter list, it is **the per-mutant process bill** — one runner process reusing a loaded suite
+  rather than 50 fresh ones. Recorded rather than acted on.
+- ✅ **One suspicion checked and cleared, so nobody re-checks it**: the judge set really is a subset of
+  what the whole suite runs (50 judges for batch C, **0 outside** `scripts/*.test.mjs` +
+  `scripts/lib/*.test.mjs`). The cost was never *"we run tests the suite never ran"*.
+
+### The instrument changed twice while this plan was held, and both times for the better
+
+- **2026-09-05, `ae5f61b`.** The suite carried a test that failed about 1 run in 8 under load, and
+  since every mutant re-runs the whole suite, an intermittent failure did not add noise to a score, it
+  added **points**. It is gone — deleted with the barrier it asserted, not stabilised. Owner of that
+  story: [`../archived/duo-v51-safeguards-action.md`](../archived/duo-v51-safeguards-action.md).
+- **2026-09-06**, same shape, same conclusion: three tests that pinned a session-start wait were
+  deleted and two clock-measured process-level ones took their place. The owner's words that day are a
+  **standing rule S1 and S2 both inherit**: *« on enlève cette attente qui pénalise tout le monde pour
+  quelques rares cas »*.
+
+### S3 has a natural moment, and a first instalment was already paid
+
+S3's trigger is the archiving pass that follows a tag — the step that hits the broken-link problem S3.3
+names. **A first instalment was paid early**, on 2026-09-06 and at the owner's ask: the 158-line v5.1
+plan was split and archived the moment its work was done, which is S3.1's trigger applied by hand.
+_(2026-09-12: the same trigger fired again, by hand again, on `clear-the-tracker-action.md` — which is
+the third time a human has done what S3 exists to automate.)_
+
 
 ## What was measured, 2026-09-05 — the evidence, so it is never re-derived
 
@@ -313,7 +234,8 @@ and a five-minute re-read of my own test diff would have caught it without start
 - [x] **S1.4** Proven on a file with a known figure — re-measure one of the 8.8 targets and show the
       score is **equal or lower**, never higher, and the wall-clock a fraction. Both numbers recorded here.
       _(2026-09-07 — the PAIR, same targets and same commit: 42 min 39 against 1 h 03 min 43, and the
-      **same** 98.04 % with the **same** seven survivors. See STATE for the table and the logs.)_
+      **same** 98.04 % with the **same** seven survivors. The table and the logs are in
+      § *What S1 proved*.)_
 - [x] **S1.5** `CONVENTIONS.md` §5quinquies updated: its "1-3 minutes" becomes true again, and the
       reason it had stopped being true is written beside it. _(2026-09-07 — it did not become true
       again, it was **replaced by the right unit**: ~36 s per mutant, so the cost of a run is its
@@ -419,7 +341,12 @@ pain got loud enough** into a **standing hygiene with a trigger**.
 
 ### Constraints and calls already settled — do not re-open
 
-- [x] **Not before the tag** _(2026-09-05, owner)_ — see STATE.
+- [x] **Not before the tag** _(2026-09-05, owner: "on valide cet ordre")_ — **that hold has expired on
+      its own terms**: `v5.1.0` was cut on 2026-09-06, and three releases have shipped since. It is
+      recorded here rather than deleted because the reasoning was right (changing the runner
+      mid-measurement would have put two instruments in one release note's *Quality* paragraph), and
+      because S1 was later pulled forward **before** the tag on the owner's own arbitration, once the
+      code review made a re-measurement owed either way.
 - [x] **A test is never weakened to move a number** _(standing, `RESULTS.md`)_. If the test is right,
       the number is wrong.
 - [x] **The plan discipline is KEPT, in full** _(2026-09-05, owner: "je pense qu'il faut qu'on le

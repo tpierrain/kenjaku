@@ -89,49 +89,46 @@ capability. Recorded per §10 because *"checked"* and *"not looked at"* must be 
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-07
 
-- ✅ **NO LONGER THE ACTIVE PLAN — the release is out, and the wait is over.** Read the SHIPPED block
-  above. **#92 is closed** (2026-09-09, field evidence under step 6). Nothing here is blocking, and
-  nothing here is in flight.
-- **Next:** 👉 the only thing left in this file is **step 3, the nudge** — optional, and to be picked
-  up deliberately after reading what the nudge says today. There is no wait left to satisfy.
-- 🪤 **A TRAP FOUND BY READING THE CODE, 2026-09-07, and it invalidates step 2 as it was first
-  written.** The existing tombstone bucket cannot be merely *widened* to cover a workflow file: it
-  deletes only what it can **prove** it delivered, byte for byte, from the brain's recorded
-  provenance (`decideSkillRetirement` → `verifyBase`). A brain in the field records **no provenance
-  at all** for `.github/workflows/**` — those files were in no regime, so nothing ever recorded them
-  — and `engine-fingerprints.json` (the disk-heal table, 15 files) does not carry them either. Every
-  such file would therefore return `preserve / no-provenance` and **step 2 would ship a silent
-  no-op**: the exact failure the whole step exists to avoid. Step 2 below is rewritten for a proof
-  rule that a deployed brain can actually satisfy.
-- ❌ **Warning them by hand is OFF THE TABLE** _(owner's call, 2026-09-07)_. There is no list of
-  installed brains, and he judged the human route not workable. **So the fix has to travel by
-  itself, through the engine update, and the plan is written for that.** Do not re-propose a Slack
-  message.
-- ⚠️ **The hard constraint, and it shapes everything below:** any fix is engine code, and engine code
-  only reaches an existing brain when its owner **updates**. Step 1 alone saves nobody who already
-  has a brain. **Step 2 is the one that stops the bleeding**, and step 3 is what makes step 2 arrive.
-- **Blocked on:** nothing. A session may start step 1 immediately.
-- 🚑 **Do not re-propose an emergency kill switch.** There is none, and why is written below, in
-  *The emergency question*: we cannot reach anyone's GitHub, and no engine code reaches a brain
-  without its owner updating. The `[skip ci]` half-measure was weighed there and left conditional.
-- ⏱️ **SHIP TONIGHT, at a deliberately reduced ceremony** _(owner's call, 2026-09-07: "c'est un cas
-  majeur… je veux un truc rapide, très localisé, ce soir")_. The scope is cut to the two changes that
-  stop the bleeding, and the ceremony is cut to the two checks that actually prove they work. See
-  *The tonight cut* below for what is kept, what is dropped, and why the dropped half is affordable
-  **here specifically** rather than in general.
-- 🔎 **Three findings from reading the delivery path, and all three say the plan is smaller than it
-  looked** _(verified 2026-09-07, not assumed)_:
+- ✅ **Shipped, closed, and no longer the active plan.** The SHIPPED block above holds the delivery;
+  [#92](https://github.com/tpierrain/kenjaku/issues/92) is closed on field evidence (step 6).
+- **Next:** **step 3, the nudge** — optional, and to be picked up deliberately after reading what the
+  session-start nudge says today. It is the only thing this file still owes.
+- **Blocked on:** nothing. **Owner's call pending:** nothing.
+- **A session may, alone:** take up step 3, test-first, and ship it in a later release. **Not:**
+  modify either of his real brains (a read-only copy is the one sanctioned contact).
+- Everything else that stood here is a decision already taken → § *Decisions already taken*.
+
+## 🧱 Decisions already taken — do not re-open
+
+_Durable: none of it expires, and all of it was in the STATE block until 2026-09-12, which is how
+that block reached 43 lines against §3ter's cap of 20._
+
+- ❌ **Warning owners by hand is OFF THE TABLE** _(owner's call, 2026-09-07)_. There is no list of
+  installed brains, and he judged the human route not workable. **The fix travels by itself, through
+  the engine update.** Do not re-propose a Slack message.
+- 🚑 **There is no emergency kill switch**, and why is written out in § *The emergency question*: we
+  cannot reach anyone's GitHub, and no engine code reaches a brain without its owner updating. The
+  `[skip ci]` half-measure was weighed there and left conditional.
+- ⚠️ **The hard constraint that shaped the whole plan:** any fix is engine code, and engine code only
+  reaches an existing brain when its owner **updates**. Step 1 alone saved nobody who already had a
+  brain; step 2 is what stopped the bleeding, and step 3 is what makes step 2 arrive sooner.
+- 🪤 **The trap that rewrote step 2, found by reading the code** _(2026-09-07)_. The existing tombstone
+  bucket could not merely be *widened* to cover a workflow file: it deletes only what it can **prove**
+  it delivered, byte for byte, from the brain's recorded provenance (`decideSkillRetirement` →
+  `verifyBase`). A brain in the field records **no provenance at all** for `.github/workflows/**` —
+  those files were in no regime — and `engine-fingerprints.json` does not carry them either. Every
+  such file would have returned `preserve / no-provenance` and step 2 would have shipped a **silent
+  no-op**: the exact failure the step existed to avoid. What shipped instead is retirement **by
+  declared path**, naming exactly the two files the launcher has ever shipped.
+- 🔎 **Three findings about the delivery path, verified rather than assumed** _(2026-09-07)_, and all
+  three are still true of any future engine change:
   - `scripts/lib/**` is already in the manifest's `replace` regime, so **a new module under it ships
     into every updating brain with no manifest edit at all**, and so does the reconcile that calls it.
-  - `commitEngineUpdate` stages with `git add -A`, so **the deletion is committed by the update
-    itself** and pushed by the end-of-turn hook. Without that it would vanish locally and GitHub
-    would keep running the workflows: this was the second way the fix could have been a no-op.
-  - A brain sees an update because of a **semver git tag** (`resolveLatestTag`). So the fix travels
-    the moment a tag exists, and not before — the tag IS the delivery.
-- **A session may, alone:** everything through to the published release — the owner gave that
-  go-ahead explicitly on 2026-09-07 before going to bed, and the hand-off block carries its terms.
-  **Still not:** modify either of his real brains (the rehearsal's read-only copy of `~/mind-palace`
-  is the one sanctioned contact), or close #92 on the merge.
+  - `commitEngineUpdate` stages with `git add -A`, so **a deletion is committed by the update itself**
+    and pushed by the end-of-turn hook. Without that it would vanish locally and GitHub would keep
+    running the workflows: the second way this fix could have been a no-op.
+  - A brain sees an update because of a **semver git tag** (`resolveLatestTag`) — **the tag IS the
+    delivery**, and nothing reaches the fleet before one exists.
 
 ## 🚑 The emergency question, asked and answered — 2026-09-07
 

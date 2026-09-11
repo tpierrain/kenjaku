@@ -73,7 +73,7 @@ mutation scores — and it is **the only place** that detail lives. Do not resta
 - [ ] **B. The delivered-docs link probe judges from where a file will live** — [#78](https://github.com/tpierrain/kenjaku/issues/78)
   - [ ] Resolve a shipped file's links **from its installed location**, not from where it sits in this
         repo, so `../sync-sources/SKILL.md` stops reading as broken.
-  - [ ] ⏸️ Its **product half** is the owner's, and is parked in the STATE block above.
+  - [ ] ⏸️ Its **product half** is the owner's → § *Questions the owner owns*.
 
 - [ ] **C. The active universe stops disagreeing with itself, silently** — [#68](https://github.com/tpierrain/kenjaku/issues/68),
       [#72](https://github.com/tpierrain/kenjaku/issues/72), [#66](https://github.com/tpierrain/kenjaku/issues/66)
