@@ -11,53 +11,20 @@
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-08-23
 
-- 🧭 **THREE BRANCHES CARRY WORK THAT NEVER REACHED `main`, AND ONE OF THEM IS LINKED FROM AN OPEN
-  ISSUE** _(2026-09-09, found while deleting the merged branches at the owner's ask)_. The 14 merged
-  branches are gone, remote and local. The **three that remain are unmerged, have no PR, and each
-  holds content absent from `main`**:
-  - `docs/study-two-humans-one-brain` — **`maintainers/studies/two-humans-one-brain-study.md` (311
-    lines) exists nowhere on `main`**, yet [#84](https://github.com/tpierrain/kenjaku/issues/84) cites
-    it by path as its background ("candidate 4"). **The issue points at a file the repo does not
-    have.** Same family as [#78](https://github.com/tpierrain/kenjaku/issues/78).
-  - `docs/v5.1-takes-the-silent-source` — 64 lines into **this very plan**, about a second outside
-    report on silence. Whatever it says was never folded in here.
-  - `fix/mutation-debt-entrypoint-and-git-value` — 18 lines into `v4.9.0-mutation-debt-plan.md`,
-    re-measuring the entrypoint debt as *larger than filed*.
-  - ⚠️ **"Merge the three" was a bad recommendation, and the owner is the one who caught it**
-    _(2026-09-09: «is this documentation correct? Is it aligned with the thing or not? Because
-    otherwise, there's no interest?»)_. It was made **without reading the content** — on the fact that
-    the branches were unmerged, not on whether what they say is still true. Read, they turn out to
-    need **three different treatments**:
-    - **The study → merge, with a dated note.** Its facts were checked against the code on 2026-09-01
-      and nearly all still hold. **Two drifted, and only two**: live sync shipped as v5.1.0 five days
-      later, so §2's *"multi-machine sync is a clone plus rehydrate"* bullet is out of date, and §6's
-      **candidate 4 is now DONE, not a candidate**. Merging repairs #84's dangling link at the same
-      time.
-    - **`silent-source` → transplant by hand, do NOT merge.** Its analysis of
-      [#80](https://github.com/tpierrain/kenjaku/issues/80) exists **nowhere in `main`** — no plan in
-      this repo mentions #80 at all — and it carries a constraint that would be lost with it: the
-      report was **de-identified at the owner's ask** (it named a person, a company and mailbox
-      content), so nothing identifying may reach the issue, the plan or a release note. It also names
-      the one design call (a known-positive control query per connector, so *empty* stops looking like
-      *down*) and a French-twin trap. But its **framing is stale** — it plans a "v5.1" that shipped as
-      something else entirely — and this file has moved on by **9 commits** since. Lift the #80
-      section into the current plan; do not let the merge fight over the STATE block.
-    - **`mutation-debt` → drop the branch, salvage two lines.** Its target,
-      `prospective/v4.9.0-mutation-debt-plan.md`, was **archived with v5.0.0**, so merging resurrects a
-      deleted file at a dead path. And its headline number has decayed: of the **9** scripts it named
-      as having no test sibling, **3 now have one** (`session-status`, `status-line`,
-      `upstream-check-run`). What survives is the remaining **6** (`import-brain`, `open-env`,
-      `pick-folder`, `run-eval`, `update-engine`, `verify-rag`) and its real finding — *the debt is not
-      the predicate, it is that the body inside the guard cannot be imported*.
-  - ✅ **DONE — the owner said go, 2026-09-09, and the three-way treatment was applied in full.** The
-    study is **merged** with a dated header note; #80's analysis is **transplanted** into the Tracking
-    section below; the mutation branch is **classified as superseded** in the plan that owns that debt.
-    All three branches are now **deleted**, remote and local.
-    - 🔖 **The two commits that were never merged, recorded so their original text stays recoverable**
-      (`git show <sha>` works for as long as the remote keeps them):
-      `docs/v5.1-takes-the-silent-source` → **`d983fd4`** · `fix/mutation-debt-entrypoint-and-git-value`
-      → **`ec339dd`**. Nothing in either is lost from `main`: what survived was carried over by hand,
-      and what did not is named above with the reason.
+- 🧭 **THE THREE UNMERGED BRANCHES WERE JUDGED AND DEALT WITH — closed, 2026-09-09.** Each needed a
+  *different* treatment, and "merge the three" was a bad recommendation the owner caught, because it
+  was made on their **status** (unmerged) rather than on **whether what they said was still true**.
+  Outcome: the two-humans study **merged** with a dated note (which also repaired #84's link to a file
+  `main` did not have); #80's analysis **transplanted by hand** into § *v5.1* below, framing left
+  behind; the mutation branch **dropped** as superseded, its target having been archived with v5.0.0.
+  All three branches are deleted, remote and local.
+  - 🔖 **The two commits that never merged, so their text stays recoverable** (`git show <sha>`, for as
+    long as the remote keeps them): `docs/v5.1-takes-the-silent-source` → **`d983fd4`** ·
+    `fix/mutation-debt-entrypoint-and-git-value` → **`ec339dd`**. What survived was carried over by
+    hand; what did not is named in this file's own history with the reason.
+  - 📌 **The lesson is the reusable part** — *judge content, not status*: never recommend
+    merge/keep/drop from "unmerged" or "old", read it and check it against today's code.
+
 - 🆕 **A NEW ISSUE LANDED THE SAME EVENING, AND IT IS NOT SCHEDULED** _(2026-09-09)_:
   [#96](https://github.com/tpierrain/kenjaku/issues/96) — a **second machine silently misses part of
   an engine update**. The owner suspected it out loud, and reading the code confirmed it: the Layer B
@@ -66,22 +33,23 @@
   dependency** never triggers a reconcile on the machine that merely pulled. He asked for it to be
   **filed, not worked**. It is the same shape as the harness drift he hit the day before: the files
   travel, the wiring that makes them run does not.
-- 📉 **THE TRACKER IS AT 17 OPEN ISSUES, not 18** _(2026-09-09, on the owner's ask to close what
-  deserved closing; 16, plus #96 above)_. Two came off, **both on evidence and neither by this plan's
-  sweep**:
-  [#90](https://github.com/tpierrain/kenjaku/issues/90) (restart nudge, v5.1.2) and
-  [#92](https://github.com/tpierrain/kenjaku/issues/92) (brains shipping the launcher's CI, v5.1.1) —
-  the latter closed on measured field evidence from `~/mind-palace`. **Zero PRs were open.** Every
-  other issue was left open deliberately: this plan says they are not started, and *not started* is
-  not *closeable*. The sweep proper is still entirely ahead.
-- 🏷️ **THE NAME "v5.1" IN THIS FILE NO LONGER MATCHES THE RELEASE THAT WENT OUT** _(2026-09-06)_.
-  **v5.1.0 was cut today** — *The One with the Duo Mode*, two people on one brain and two machines
-  staying in step — and it carried **none** of the three issues below. That is not a slip: this plan
-  was deliberately parked behind that work, by the door's own ordering. So read every *"v5.1"* here
-  as **"the next bugfix release"**, whose number (`v5.1.1`? folded into `v5.2`?) is the owner's call
-  and is **not** being asked of him again — the three issues are ready to work whatever it ends up
-  being called. Record of the tag:
+- 📉 **THE TRACKER IS AT 13 OPEN ISSUES** _(counted 2026-09-12, not recalled)_. Seven have come off
+  since this plan opened, **every one on evidence, none by a bulk sweep**: #90 and #92 (v5.1.2 and
+  v5.1.1, the latter on measured field evidence), then the five this release carried — #71, #73, #74,
+  #80, #95 — each closed with a comment saying what shipped and how it was checked.
+  - 🆕 **#98 arrived after this release's sweep** _(update-engine: ask for confirmation with a
+    clickable question, not a line of prose)_ and is **unscheduled**. It is not in the twelve that
+    § *v5.1* reviewed and left open.
+  - **Everything else stays open deliberately**: this plan says those are not started, and *not
+    started* is not *closeable*. The sweep proper (v5.2) is still ahead.
+
+- 🏷️ **"v5.1" IN THIS FILE IS A SECTION NAME, NOT A VERSION — and the version is now known.** The tag
+  *The One with the Duo Mode* took `v5.1.0` on 2026-09-06 and carried none of these issues (this plan
+  was parked behind that work, by the door's own ordering). The bugfix release this section describes
+  went out as **`v5.1.3`** on 2026-09-11. So read every *"v5.1"* heading below as **"the bugfix
+  release"**; there is nothing left to decide about its number. Record of the earlier tag:
   [`../archived/v5.1.0-code-review-fixes-action.md`](../archived/v5.1.0-code-review-fixes-action.md).
+
 - ✅ **v5.1 IS DONE AND SHIPPED — all five issues fixed, merged, tagged and published as v5.1.3**
   _(2026-09-11: one autonomous stretch for the code, then the owner drove the release)_.
   `fix/v5.1-bugfixes` → **[PR #97](https://github.com/tpierrain/kenjaku/pull/97)** →
@@ -89,15 +57,16 @@
   **All 7 matrix cells passed, plus the Windows installer end-to-end**, on the PR and again on `main`
   after the merge. Every commit was pushed and every push read.
   > 📌 This headline read *"on a branch, and nothing is merged or tagged"* for most of the day and was
-  > made false by the entries nested under it, which is the whole reason
-  > [`rules/plans.md`](https://github.com/tpierrain/kenjaku) now says the save point is a **re-read**
-  > of this block from the top, never an append to it. Left visible on purpose.
+  > made false by the entries nested under it. That is the whole reason the always-loaded save-point
+  > rule (machine-local, outside this repo) now says the save point is a **re-read of this block from
+  > the top**, never an append to it. Left visible on purpose.
   - 🏷️ **THE RELEASE IS NAMED AND ITS NOTE IS APPROVED** _(2026-09-11, his call, both of them)_:
     **`v5.1.3 — The One Where It Stops Crying Wolf`**, and the drafted note got *"ok pour la release
     note, on peut y aller"*. So the number is **no longer a placeholder**: the fingerprint table's
     `v5.1.3` is the real one, and needs regenerating only if the bytes of a merge-regime file move
-    again. The note's draft is **not committed anywhere** — it lives in the session scratchpad and
-    must be re-drafted from this plan if lost, which is cheap: § *step 8* lists everything it owes.
+    again. **The note is a tracked file**,
+    [`../archived/release-v5.1.3-note.md`](../archived/release-v5.1.3-note.md) — it was drafted in a
+    scratchpad and moved into the repo before publication, precisely so it could not die at a `/clear`.
   - ✅ **Every gate this release owes is now passed.** All 7 matrix cells + the Windows installer
     end-to-end are green on PR #97's final commit (`68d5c40`), the §10ter field rehearsal ran **against
     this branch** on an old French brain with the new script verified *running* in the updated copy
@@ -118,8 +87,8 @@
     carries *Vivacité des sources* and *Retours à la ligne*, and the shipped script **runs** there
     (`--check vault` → 9 of its 30 notes).
   - 🧾 **And what this release did NOT close, reviewed one by one** (the half of §10bis that is easy to
-    skip). Twelve issues stay open and none is covered: **#96, #84, #83, #82, #81, #79, #78, #77, #72,
-    #68, #66, #62**. The only near-miss is **#83** — *an absence claim stated as general when only the
+    skip). The **twelve** open at the time of the sweep, none of them covered: **#96, #84, #83, #82,
+    #81, #79, #78, #77, #72, #68, #66, #62**. (#98 was opened afterwards and was not part of it.) The only near-miss is **#83** — *an absence claim stated as general when only the
     vault and the chat tool were searched* — which shares #80's subject and is a **different defect**:
     #80 is *"the source could not answer"*, #83 is *"the claim is broader than what was searched"*.
     Fixing one does not fix the other, and it stays open deliberately.
