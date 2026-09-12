@@ -66,6 +66,10 @@ test("buildActionsLogHookOutput — surfaces a one-time note when it just seeded
   // (see the seed's own header, pinned below), but "the append-only activity ledger"
   // is three pieces of vocabulary for a list of what happened.
   assert.match(output.hookSpecificOutput.additionalContext, /one line per action/i);
+  // ONCE, and in the owner's language. Without this the note is a standing instruction
+  // the agent may repeat at every session start, which is the volume defect (F5) in the
+  // one payload that exists precisely to fire a single time in a brain's life.
+  assert.match(output.hookSpecificOutput.additionalContext, /once, in their language/i);
   assert.match(output.systemMessage, /running list of what this brain does for you/i);
 });
 

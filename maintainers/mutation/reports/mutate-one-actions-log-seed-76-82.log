@@ -1,0 +1,26 @@
+[32m00:19:45 (56866) INFO ProjectReader[39m Found 1 of 1087 file(s) to be mutated.
+[32m00:19:45 (56866) INFO Instrumenter[39m Instrumented 1 source file(s) with 4 mutant(s)
+[32m00:19:45 (56866) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m00:19:45 (56866) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-c4McDk
+[32m00:19:45 (56866) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m00:19:45 (56866) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m00:19:46 (56866) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 0 seconds (net 141 ms, overhead 0 ms).
+
+All tests
+  ✓ All tests (killed 3)
+
+[Survived] StringLiteral
+scripts/lib/actions-log-seed.mjs:78:9
+-           `Mention it once, in their language, then let it be.`,
++           ``,
+
+Ran 1.00 tests per mutant on average.
+----------------------|------------------|----------|-----------|------------|----------|----------|
+                      | % Mutation score |          |           |            |          |          |
+File                  |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+----------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files             |  75.00 |   75.00 |        3 |         0 |          1 |        0 |        0 |
+ actions-log-seed.mjs |  75.00 |   75.00 |        3 |         0 |          1 |        0 |        0 |
+----------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m00:19:46 (56866) INFO MutationTestExecutor[39m Done in 0 seconds.
+[32m00:19:46 (56866) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-c4McDk.
