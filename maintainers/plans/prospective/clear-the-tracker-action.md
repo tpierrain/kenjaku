@@ -15,26 +15,23 @@
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-08-23
 
-- **Next:** ▶️ **`v5.3`**, and its design is now WRITTEN in its own plan —
+- **Next:** ▶️ **`v5.3` is in its LAST step**, in its own plan —
   [`v5.3-universe-disclosure-action.md`](v5.3-universe-disclosure-action.md) _(2026-09-12)_. **Resume
   from that file's `## 📍 STATE`**, not from § *Group 2*, which owns only the grouping he approved.
   **How far it has got lives there and only there** — a sentence about progress written here is a
   copy, and a copy goes stale (this one did, within a day).
-- **Blocked on:** nothing — v5.3 can start today. **TWO things wait on him:** (a) **what the nightly
-  mutation run is FOR**, a product call, now that the biggest package provably cannot fit in six hours
-  → § *Inherited from v5.0.0*; (b) **the French wording shipped in v5.2.0** (ADR 0043's doctrine, the
-  update skill's prompts) — live in the fleet, his to correct at leisure, gating nothing.
+- **Blocked on:** nothing. **THREE things wait on him, and none gates anything:** (a) **what the
+  nightly mutation run is FOR**, a product call → § *Inherited from v5.0.0*; (b) **the French wording
+  shipped in v5.2.0**, live in the fleet, his at leisure; (c) **ratifying ADR 0044** → the v5.3 plan.
 - Two older questions sit in § *Questions the owner owns*, **not to be re-asked** (#78's
   launcher-README link, `ci.yml`'s `concurrency`). Grouping, order and the three titles are decided.
 - **A session may, alone:** work the active release test-first end to end on a branch, **label**
-  issues, commit, push, and read what CI returns. **PREPARING v5.3 UNATTENDED was granted 2026-09-12**
-  (« faire un clear et te laisser travailler en autonomie pour préparer la prochaine release ») — so a
-  cleared session picks this up without asking. **Not:** write into `templates/fr/**` (one carve-out,
-  § *History*) or into either of his two personal brains. ⚠️ **Cutting a release is granted per
-  release, by name**: v5.2.0 on 2026-09-12 (« vas y cut la release »), then **v5.3 the same day**
-  (« je te laisse bosser en autonomie jusqu'à la fin de la release »). Anything past v5.3 asks again.
-  ℹ️ A **plan-only push no longer starts CI** (his call, same day) — no run to
-  read, and not a breakage. **No CI verdict is outstanding** — § *History*.
+  issues, commit, push, read what CI returns — and **CUT the release once it is granted BY NAME**,
+  which it is for v5.3 (« je te laisse bosser en autonomie jusqu'à la fin de la release », after
+  v5.2.0's « vas y cut la release »). Anything past v5.3 asks again. **Not:** write into
+  `templates/fr/**` (one carve-out, § *History*) or into either of his two personal brains.
+  ℹ️ A **plan-only push no longer starts CI** (his call, same day), so there is no run to read there —
+  but **a PR runs the full matrix**, and **the v5.3 plan owns that verdict**, never this file.
 - **Already delivered:** v5.1.3 and v5.2.0, both archived — § *Group 1*, § *v5.1*. Lessons: § *History*.
 
 ## Tracking
