@@ -110,7 +110,7 @@ test("always-true-here — the section is a short list of past errors, never a g
     "says only what has already caused an error goes in": /actually\s+caused\s+an\s+error/i,
     "refuses a preventive list": /never\s+preventively|not\s+a\s+glossary/i,
     // Without the written form, the owner writes prose and the guard reads nothing.
-    "shows the one line-shape the guard can read": /never:\s*Cortex/,
+    "shows the one line-shape the guard can read": /never:\s*Axion/,
   };
   const unmet = Object.entries(claims)
     .filter(([, pattern]) => !pattern.test(section))

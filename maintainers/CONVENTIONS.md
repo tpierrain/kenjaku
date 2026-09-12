@@ -555,6 +555,67 @@ ADR.**
 > Thomas asked for this explicitly (2026-06-21): an ADR that quietly re-derives a known standard reads as
 > NIH; naming the prior art shows the design is deliberate and battle-tested.
 
+## 6sexies. AN ADR IS ONE SCREEN, OR IT IS NOT READ — and it opens on lived situations
+
+_(Thomas, 2026-09-12, on ADR 0044: « je veux que mes ADR soient aussi courtes que ça. C'est beaucoup
+plus actionnable, car là au moins on va les lire, alors que des pavés comme tu as fait avant, on ne les
+lit pas. »)_
+
+**A decision nobody re-reads is a decision nobody applies.** ADR 0044 shipped at 200 lines and its
+owner could not get through it. The 35-line version he asked for said the same thing and he decided on
+it in one pass. **The long one was not more rigorous — it was less useful**, and the rigour it looked
+like was mostly restatement.
+
+**The shape, and it fits on one screen:**
+
+1. **Crux** — the decision in one sentence, plus the one guarantee that makes it trustworthy.
+2. **The problem, as two or three SITUATIONS someone actually lived.** Not "the pointer is one of
+   several scopes a session runs under": *"you switch to another sphere, and the conversation already
+   on screen keeps using what it read before."* If you cannot write the situation, you do not yet know
+   what the decision is for.
+3. **The decision**, in one concrete sentence. An abstraction in it (*narrow*, *scope*, *surface*,
+   *reconcile*) is only allowed with an example in the same breath.
+4. **The guardrails** — the two or three things that stop it becoming noise or a leak. One line each.
+5. **What it does NOT change**, so the reader can weigh the cost of saying yes.
+6. **Rejected alternatives — ONE LINE each**, with the reason, never a paragraph.
+
+**What goes, and where:**
+
+- **Measurements, probe logs, timings, the diagram of how three processes interleave**: these belong in
+  the **plan** that did the work, or in `mutation/RESULTS.md`. An ADR may *cite* a measurement in a
+  clause; it may not reproduce it. ADR 0044's concurrency probe was 40 lines inside the decision.
+- **The history of how the decision changed**: a `## Amendments` section at the bottom, or nothing.
+  §6ter already says an ADR is written for a **fresh reader**, and a fresh reader does not care which
+  draft lost.
+- **Repetition for emphasis**: the same point made three ways is the single most common cause of
+  length here, and it reads as padding rather than insistence.
+
+> 🛑 **The one thing that may never be cut**: the **reason**. A rule with no *why* is a rule the next
+> person re-opens. Short means fewer claims, each with its reason attached — never the same number of
+> claims with the reasons stripped out.
+
+## 6septies. FIXTURES AND EXAMPLES NAME NOBODY REAL — this repo is public
+
+_(Thomas, 2026-09-12: « faut pas utiliser la société Thalès comme exemple, parce que c'est un vrai
+client de Shodo, ma boîte, et je suis en relation avec eux. »)_
+
+**Every example in this repo is published**, and some of them are *delivered into other people's
+brains*. An example built from a real client, employer, partner or colleague publishes a business
+relationship — and here the example was *"this client's name keeps being spelled wrong"*, which
+publishes an opinion about them too.
+
+- **Use invented names**: `acme`, `globex`, `initech`, `umbrella`, `aXiom`. Fictional companies and
+  made-up brands, never a real organisation, however innocuous the sentence looks on its own.
+- **The same goes for people**: first names with no surname (`Marie`), never a real colleague.
+- **It applies to tests as much as to prose.** A fixture is published exactly like a README, and it is
+  the place where a real name slips in unnoticed because nobody reads fixtures as writing.
+
+> **Measured, 2026-09-12.** A real client's name and its real product brand sat in **308 places**
+> across nine files, including `.claude/skills/switch/SKILL.md` — which is **delivered to every brain
+> the installer creates**. It started as one honest worked example in one comment and was copied by
+> every test that needed a fixture. **The defect spreads by copying, so the guard is at the first
+> use**: when you invent a fixture, invent the name too.
+
 ## 7. Plan done = archived
 
 The moment a plan ships, **in the same change**: `git mv` it into

@@ -3,8 +3,8 @@
 // survive a `/clear`, checked at the WRITE rather than printed at every session
 // start.
 //
-// The field failure: a client's name — `cortAIx` — spelled *Cortex* in a
-// transcript, *Cortaix* by one colleague, *Cortex/Thales* by another. The owner
+// The field failure: a client's name — `aXiom` — spelled *Axion* in a
+// transcript, *Axiom* by one colleague, *Axion/Globex* by another. The owner
 // resolved it once and the vault recorded it, in a note. A new note drafted from a
 // Slack DM brought the wrong spelling straight back, because nothing carried the
 // resolved name into the session that needed it.
@@ -30,7 +30,7 @@ import { profileSectionEntries } from "./universe-profile.mjs";
 // can still find.
 export const SPELLINGS_HEADING = "Always true here";
 
-// `cortAIx — never: Cortex, Cortaix` — the canonical spelling, then the wrong ones
+// `aXiom — never: Axion, Axiom` — the canonical spelling, then the wrong ones
 // that have ACTUALLY been seen. Em dash, en dash or a plain hyphen, `never` or
 // `not`, colon optional: the owner writes this by hand, in Obsidian.
 const ENTRY = /^(.+?)\s+[—–-]\s+(?:never|not)\s*:?\s+(.+)$/i;
@@ -83,7 +83,7 @@ export function applyDeclaredSpellings(text, entries) {
   const corrections = new Map();
   const protectedHits = new Map();
   const corrected = text.replace(pattern, (match, _group, offset) => {
-    // The rules are longest-first, so a compound (`Cortex/Thales`) is matched whole
+    // The rules are longest-first, so a compound (`Axion/Globex`) is matched whole
     // rather than half-corrected by the shorter spelling inside it.
     const rule = rules.find(({ from }) => from.toLowerCase() === match.toLowerCase());
     const hit = { from: rule.from, to: rule.to };

@@ -273,7 +273,7 @@ are different behaviours, and asserts the length is *exactly* the budget and end
 spellings guard protects nine kinds of span; three had no test at all — autolinks, curly quotes and
 **guillemets**, the last of which a French vault is full of. Nor did the **edges**: a spelling that
 begins where inline code ends, or ends where it begins, is prose, and both comparisons were off-by-one
-away from silently sparing it. Same file, one more: an owner typing `Cortex (AI)` as a wrong spelling
+away from silently sparing it. Same file, one more: an owner typing `Axion (AI)` as a wrong spelling
 was relying on an `escapeRegExp` that no test exercised.
 
 **BOTH ENTRY POINTS ONLY EVER READ THEIR STATE FILE ON A FIRST RUN.** Each had the process-level test

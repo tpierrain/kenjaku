@@ -62,7 +62,7 @@ const NAMED_AT_MOST = 3;
  * never the write.
  *
  * `bypass` is the one-shot list that makes an undo possible. Without it the owner
- * says *"no, put Cortex back"*, the brain writes it, this guard replaces it again,
+ * says *"no, put Axion back"*, the brain writes it, this guard replaces it again,
  * and the owner's word loses to a hook — the exact inversion the 🟡 tier forbids.
  */
 export function writeNotice({

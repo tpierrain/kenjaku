@@ -256,7 +256,7 @@ stops re-introducing the wrong spelling by itself:
 ```markdown
 ## Always true here
 
-- cortAIx — never: Cortex, Cortaix, Cortex/Thales
+- aXiom — never: Axion, Axiom, Axion/Globex
 - The kickoff was in March, not February.
 ```
 
@@ -276,7 +276,7 @@ guard would otherwise correct the undo, which would leave their word losing to a
 one-shot bypass first, from the brain folder, then make the edit:
 
 ```bash
-mkdir -p .cache && printf '{"spellings":["Cortex"]}' > .cache/spelling-bypass.json
+mkdir -p .cache && printf '{"spellings":["Axion"]}' > .cache/spelling-bypass.json
 ```
 
 It covers **one** write and is consumed by it. Then offer to fix the rule itself: a spelling the owner

@@ -18,9 +18,9 @@ const SCRIPTS_DIR = dirname(fileURLToPath(import.meta.url));
 // and — just as load-bearing — the one it must never speak.
 // ═══════════════════════════════════════════════════════════════════════════
 
-const PROFILE = "# Thales\n\n## Always true here\n\n- cortAIx — never: Cortex\n";
+const PROFILE = "# Globex\n\n## Always true here\n\n- aXiom — never: Axion\n";
 
-const hookInput = ({ tool = "Write", path = "/brain/vault/thales/note.md", content = "Cortex confirmed.\n", session = "s-1" } = {}) =>
+const hookInput = ({ tool = "Write", path = "/brain/vault/globex/note.md", content = "Axion confirmed.\n", session = "s-1" } = {}) =>
   JSON.stringify({ session_id: session, tool_name: tool, tool_input: { file_path: path, content } });
 
 const captured = (overrides = {}) => {
@@ -30,8 +30,8 @@ const captured = (overrides = {}) => {
   const code = runNotice({
     readInput: () => hookInput(),
     brainDir: () => "/brain",
-    registry: () => ["thales"],
-    pointer: () => "thales",
+    registry: () => ["globex"],
+    pointer: () => "globex",
     profile: () => PROFILE,
     readState: () => null,
     writeState: (_brain, state) => written.push(state),
@@ -55,7 +55,7 @@ test("a correction is emitted as updatedInput, which the host applies before the
   const { emitted } = captured();
   assert.equal(emitted.length, 1);
   assert.equal(emitted[0].hookSpecificOutput.hookEventName, "PreToolUse");
-  assert.equal(emitted[0].hookSpecificOutput.updatedInput.content, "cortAIx confirmed.\n");
+  assert.equal(emitted[0].hookSpecificOutput.updatedInput.content, "aXiom confirmed.\n");
 });
 
 test("🛑 it NEVER claims a permission decision — correcting must not GRANT the write", () => {
@@ -78,27 +78,27 @@ test("a write with nothing to disclose and nothing to fix emits NOTHING at all",
 
 test("what was said is remembered under THIS session's id", () => {
   const { written } = captured();
-  assert.deepEqual(written, [{ sessionId: "s-1", universes: [], corrections: ["Cortex→cortAIx"] }]);
+  assert.deepEqual(written, [{ sessionId: "s-1", universes: [], corrections: ["Axion→aXiom"] }]);
 });
 
 test("the same correction in the same session is applied again, and announced no more", () => {
   const { emitted } = captured({
-    readState: () => ({ sessionId: "s-1", universes: [], corrections: ["Cortex→cortAIx"] }),
+    readState: () => ({ sessionId: "s-1", universes: [], corrections: ["Axion→aXiom"] }),
   });
-  assert.equal(emitted[0].hookSpecificOutput.updatedInput.content, "cortAIx confirmed.\n");
+  assert.equal(emitted[0].hookSpecificOutput.updatedInput.content, "aXiom confirmed.\n");
   assert.equal(emitted[0].hookSpecificOutput.additionalContext, undefined);
 });
 
 test("a NEW session says it again, which is what makes this survive a /clear", () => {
   const { emitted } = captured({
     readInput: () => hookInput({ session: "s-2" }),
-    readState: () => ({ sessionId: "s-1", universes: [], corrections: ["Cortex→cortAIx"] }),
+    readState: () => ({ sessionId: "s-1", universes: [], corrections: ["Axion→aXiom"] }),
   });
-  assert.match(emitted[0].hookSpecificOutput.additionalContext, /Cortex/);
+  assert.match(emitted[0].hookSpecificOutput.additionalContext, /Axion/);
 });
 
 test("a one-shot bypass lets an undo through, and is consumed the moment it is used", () => {
-  const { emitted, cleared } = captured({ readBypass: () => ["Cortex"] });
+  const { emitted, cleared } = captured({ readBypass: () => ["Axion"] });
   assert.deepEqual(emitted, [], "the undo is written exactly as the owner asked");
   assert.deepEqual(cleared, ["/brain"], "and the bypass does not outlive it");
 });
@@ -106,7 +106,7 @@ test("a one-shot bypass lets an undo through, and is consumed the moment it is u
 test("a bypass nobody used is NOT consumed", () => {
   const { cleared } = captured({
     readInput: () => hookInput({ content: "A clean note.\n" }),
-    readBypass: () => ["Cortex"],
+    readBypass: () => ["Axion"],
   });
   assert.deepEqual(cleared, []);
 });
@@ -148,10 +148,10 @@ test("run AS A PROCESS on a real brain, it corrects the bytes and remembers it d
   const brain = realpathSync(mkdtempSync(join(tmpdir(), "kenjaku-notice-")));
   try {
     mkdirSync(join(brain, ".vault-rag"), { recursive: true });
-    mkdirSync(join(brain, "vault", "thales"), { recursive: true });
-    writeFileSync(join(brain, ".vault-rag", "universes.json"), JSON.stringify({ universes: ["thales"] }));
+    mkdirSync(join(brain, "vault", "globex"), { recursive: true });
+    writeFileSync(join(brain, ".vault-rag", "universes.json"), JSON.stringify({ universes: ["globex"] }));
     writeFileSync(join(brain, ".vault-rag", "active-universe"), "acme\n");
-    writeFileSync(join(brain, "vault", "thales", "universe.md"), PROFILE);
+    writeFileSync(join(brain, "vault", "globex", "universe.md"), PROFILE);
     // The hook derives the brain from its OWN location, so it must run from a copy
     // that sits where a real one does: scripts/ inside the brain.
     mkdirSync(join(brain, "scripts", "lib"), { recursive: true });
@@ -161,20 +161,20 @@ test("run AS A PROCESS on a real brain, it corrects the bytes and remembers it d
       input: JSON.stringify({
         session_id: "s-live",
         tool_name: "Write",
-        tool_input: { file_path: join(brain, "vault", "thales", "note.md"), content: "Cortex confirmed.\n" },
+        tool_input: { file_path: join(brain, "vault", "globex", "note.md"), content: "Axion confirmed.\n" },
       }),
       encoding: "utf8",
     });
 
     assert.equal(run.status, 0, run.stderr);
     const payload = JSON.parse(run.stdout).hookSpecificOutput;
-    assert.equal(payload.updatedInput.content, "cortAIx confirmed.\n");
-    // The pointer says `acme` and the note lands in `thales`, so BOTH halves speak.
-    assert.match(payload.additionalContext, /'thales'/);
-    assert.match(payload.additionalContext, /cortAIx/);
+    assert.equal(payload.updatedInput.content, "aXiom confirmed.\n");
+    // The pointer says `acme` and the note lands in `globex`, so BOTH halves speak.
+    assert.match(payload.additionalContext, /'globex'/);
+    assert.match(payload.additionalContext, /aXiom/);
 
     const state = JSON.parse(readFileSync(join(brain, NOTICE_STATE_REL), "utf8"));
-    assert.deepEqual(state, { sessionId: "s-live", universes: ["thales"], corrections: ["Cortex→cortAIx"] });
+    assert.deepEqual(state, { sessionId: "s-live", universes: ["globex"], corrections: ["Axion→aXiom"] });
     assert.equal(state.sessionId, "s-live");
   } finally {
     rmSync(brain, { recursive: true, force: true });
@@ -185,12 +185,12 @@ test("run AS A PROCESS, a one-shot bypass file is honoured and then deleted", ()
   const brain = realpathSync(mkdtempSync(join(tmpdir(), "kenjaku-bypass-")));
   try {
     mkdirSync(join(brain, ".vault-rag"), { recursive: true });
-    mkdirSync(join(brain, "vault", "thales"), { recursive: true });
+    mkdirSync(join(brain, "vault", "globex"), { recursive: true });
     mkdirSync(join(brain, ".cache"), { recursive: true });
-    writeFileSync(join(brain, ".vault-rag", "universes.json"), JSON.stringify({ universes: ["thales"] }));
-    writeFileSync(join(brain, ".vault-rag", "active-universe"), "thales\n");
-    writeFileSync(join(brain, "vault", "thales", "universe.md"), PROFILE);
-    writeFileSync(join(brain, BYPASS_REL), JSON.stringify({ spellings: ["Cortex"] }));
+    writeFileSync(join(brain, ".vault-rag", "universes.json"), JSON.stringify({ universes: ["globex"] }));
+    writeFileSync(join(brain, ".vault-rag", "active-universe"), "globex\n");
+    writeFileSync(join(brain, "vault", "globex", "universe.md"), PROFILE);
+    writeFileSync(join(brain, BYPASS_REL), JSON.stringify({ spellings: ["Axion"] }));
     mkdirSync(join(brain, "scripts", "lib"), { recursive: true });
     cpSync(SCRIPTS_DIR, join(brain, "scripts"), { recursive: true });
 
@@ -198,7 +198,7 @@ test("run AS A PROCESS, a one-shot bypass file is honoured and then deleted", ()
       input: JSON.stringify({
         session_id: "s-undo",
         tool_name: "Write",
-        tool_input: { file_path: join(brain, "vault", "thales", "note.md"), content: "Cortex confirmed.\n" },
+        tool_input: { file_path: join(brain, "vault", "globex", "note.md"), content: "Axion confirmed.\n" },
       }),
       encoding: "utf8",
     });
@@ -217,7 +217,7 @@ test("what reaches the owner's channel is bounded, because volume IS the defect 
   // there is — a payload on every write the brain makes.
   const many = Array.from({ length: 40 }, (_, i) => `Wrong${i}`);
   const { emitted } = captured({
-    profile: () => `# Thales\n\n## Always true here\n\n- cortAIx — never: ${many.join(", ")}\n`,
+    profile: () => `# Globex\n\n## Always true here\n\n- aXiom — never: ${many.join(", ")}\n`,
     readInput: () => hookInput({ content: `${many.join(" ")}\n` }),
   });
   assert.ok(emitted[0].hookSpecificOutput.additionalContext.length <= NOTICE_MAX);
@@ -238,7 +238,7 @@ test("a drift with nothing to correct emits the context ALONE, with no null inpu
   const { emitted } = captured({
     readInput: () => hookInput({ content: "Nothing to fix here.\n" }),
     pointer: () => "acme",
-    registry: () => ["acme", "thales"],
+    registry: () => ["acme", "globex"],
   });
   assert.equal(emitted.length, 1);
   assert.deepEqual(Object.keys(emitted[0].hookSpecificOutput).sort(), ["additionalContext", "hookEventName"]);
@@ -252,11 +252,11 @@ test("run AS A PROCESS TWICE, the second write says the same thing no more", () 
   const brain = realpathSync(mkdtempSync(join(tmpdir(), "kenjaku-twice-")));
   try {
     mkdirSync(join(brain, ".vault-rag"), { recursive: true });
-    mkdirSync(join(brain, "vault", "thales"), { recursive: true });
+    mkdirSync(join(brain, "vault", "globex"), { recursive: true });
     mkdirSync(join(brain, ".cache"), { recursive: true });
-    writeFileSync(join(brain, ".vault-rag", "universes.json"), JSON.stringify({ universes: ["thales"] }));
+    writeFileSync(join(brain, ".vault-rag", "universes.json"), JSON.stringify({ universes: ["globex"] }));
     writeFileSync(join(brain, ".vault-rag", "active-universe"), "acme\n");
-    writeFileSync(join(brain, "vault", "thales", "universe.md"), PROFILE);
+    writeFileSync(join(brain, "vault", "globex", "universe.md"), PROFILE);
     mkdirSync(join(brain, "scripts", "lib"), { recursive: true });
     cpSync(SCRIPTS_DIR, join(brain, "scripts"), { recursive: true });
 
@@ -265,14 +265,14 @@ test("run AS A PROCESS TWICE, the second write says the same thing no more", () 
         input: JSON.stringify({
           session_id: "s-twice",
           tool_name: "Write",
-          tool_input: { file_path: join(brain, "vault", "thales", "note.md"), content: "Cortex confirmed.\n" },
+          tool_input: { file_path: join(brain, "vault", "globex", "note.md"), content: "Axion confirmed.\n" },
         }),
         encoding: "utf8",
       });
 
     const first = once();
     assert.equal(first.status, 0, first.stderr);
-    assert.match(JSON.parse(first.stdout).hookSpecificOutput.additionalContext, /'thales'/);
+    assert.match(JSON.parse(first.stdout).hookSpecificOutput.additionalContext, /'globex'/);
     const raw = readFileSync(join(brain, NOTICE_STATE_REL), "utf8");
     assert.ok(raw.endsWith("\n"), "the record is a line, like every other file this brain writes");
 
@@ -280,7 +280,7 @@ test("run AS A PROCESS TWICE, the second write says the same thing no more", () 
     assert.equal(second.status, 0, second.stderr);
     const payload = JSON.parse(second.stdout).hookSpecificOutput;
     assert.equal(payload.additionalContext, undefined, "the sphere and the correction were already said");
-    assert.equal(payload.updatedInput.content, "cortAIx confirmed.\n", "but the correction is still APPLIED");
+    assert.equal(payload.updatedInput.content, "aXiom confirmed.\n", "but the correction is still APPLIED");
   } finally {
     rmSync(brain, { recursive: true, force: true });
   }
