@@ -321,6 +321,26 @@ function brainOnDisk(files) {
 
 const hookEntry = (command) => ({ matcher: "", hooks: [{ type: "command", command, timeout: 20000 }] });
 
+// The oldest of the four questions, and the one with no test of its own until now: the
+// wanted skills are the UNION of two sources that arrive by different routes — the
+// manifest's merge-regime declarations, and whatever pass-1 staged under `engine-skills/`
+// on its way to being installed. Asserting the union is what makes it a union: either
+// half alone passes a test that only looks at the other.
+test("deriveWanted — the wanted skills are the manifest's own merge skills UNION whatever pass-1 staged", (t) => {
+  const dir = brainOnDisk({
+    "engine-manifest.json": JSON.stringify({
+      regimes: { merge: [".claude/skills/update-engine/**", "CLAUDE.engine.md"] },
+    }),
+    "engine-skills/lint/SKILL.md": "# lint\n",
+  });
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+
+  assert.deepEqual(deriveWanted(dir).wantedSkillDirs.slice().sort(), [
+    ".claude/skills/lint",
+    ".claude/skills/update-engine",
+  ]);
+});
+
 test("deriveWanted — a hook the template declares and this machine never wired is named, by the script it runs", (t) => {
   const dir = brainOnDisk({
     ".claude/settings.json.template": JSON.stringify({

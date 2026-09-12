@@ -97,7 +97,9 @@ export async function sessionSelfHeal({
       // absolute paths and its node launcher, which is noise to whoever reads this.
       // The `.mjs` goes too — it is the one part of the name that only means something
       // to a developer, and the sibling entries on this same line ("skills: …") have
-      // never carried a file extension.
+      // never carried a file extension. The `$` anchor is an EQUIVALENT mutant and stays
+      // as documentation: a hook identity is produced by `hookScript`, whose own pattern
+      // ends at `.mjs`, so the extension can never appear anywhere but last.
       gap.unwiredHooks.length
         ? `hooks: ${gap.unwiredHooks.map((script) => script.split("/").pop().replace(/\.mjs$/, "")).join(", ")}`
         : null,

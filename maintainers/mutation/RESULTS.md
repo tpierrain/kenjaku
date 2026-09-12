@@ -233,6 +233,57 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## v5.2 — done really means done, and the glue that reads a disk was the hole — 2026-09-12
+
+State owned by
+[`../plans/prospective/clear-the-tracker-action.md`](../plans/prospective/clear-the-tracker-action.md)
+(§ *THE APPROVED PLAN*). Branch `feat/v5.2-done-means-done`. One brand-new production file (#77's
+persistence for the engine's own writer scripts) plus the changed hunks of five existing ones. #98 and
+#83 ship **doctrine and prompts only** — no production code to mutate — and are guarded by
+`lib/clickable-consent-discipline.test.mjs` and `lib/claim-discipline.test.mjs` instead.
+
+| File (scope) | First pass | After | Survivors left |
+|---|---|---|---|
+| `lib/note-persistence.mjs` (new, whole) | 96.30 % | **100.00 %** | 0 |
+| `lib/note-parse.mjs:24,35` (the `fenced` flag) | **100.00 %** | — | 0 |
+| `refresh-note.mjs` (changed hunks) | **100.00 %** | — | 0 |
+| `file-back-note.mjs` (changed hunks) | **100.00 %** | — | 0 |
+| `lib/wiki-lint.mjs` (the unreadable-note finding) | **100.00 %** | — | 0 |
+| `lib/wiki-health-nudge.mjs` (changed hunks) | **100.00 %** | — | 0 |
+| `lib/self-heal-detect.mjs:39-76` | 91.67 % | **100.00 %** | 0 |
+| `session-self-heal.mjs` (changed hunks) | 27.03 % | **85.71 %** | 6, all equivalent |
+
+**27.03 % is the entry worth reading, and the shape is one this register already knows.** The gate
+`detectSelfHealGap` is pure and was tested from every angle; the two functions that go and **read the
+disk** to answer it — `deriveUnwiredHooks` and `deriveMissingDependencies` — had **no test at all**.
+Mutants could delete `.claude` from both paths, invert both existence checks, swap the `||` for an
+`&&` and hand `readFileSync` a broken encoding, and the file stayed green: every existing test injects
+the answers rather than making the wrapper find them. This is CONVENTIONS §5bis word for word — *"pure
+I/O" is not an exemption* — and it is the second time the same seam has been the hole, after
+`session-wiki-health.mjs` in v5.1.3.
+
+Four tests now build a brain skeleton in a temp dir (a declared hook the machine does not run, a brain
+with no settings file, a declared dependency absent from `node_modules`, a brain with no
+`rag/package.json`), and a fifth pins the oldest of the four questions, which had no test of its own
+either: **the wanted skills are a UNION** of the manifest's merge declarations and whatever pass-1
+staged under `engine-skills/`, and either half alone passes a test that only looks at the other.
+
+**Two survivors were killed by asserting the SEPARATOR, not the content.** `join(", ")` → `join("")`
+lived through both banner tests because each listed a single item. Two names, unsorted, and the mutant
+dies — the recurring lesson that a collection is proven by two elements and never by one.
+
+**One survivor was answered by a product change rather than a test.** The banner printed
+`hooks: prompt-restart-nudge.mjs`; the extension is the one part of the name that means something only
+to a developer, and the sibling `skills: …` entries on the same line have never carried one. Stripped.
+
+**The six left are all equivalents, and they are two shapes.**
+
+- `readFileSync(path, "")` ×3 — Node treats a falsy encoding as *no encoding* and returns a Buffer,
+  which `JSON.parse` coerces back to the same string. Nothing observable, in any test that could exist.
+- The `$` anchor in `.replace(/\.mjs$/, "")`, and the two `wantedSkillDirs` array mutants that only
+  reach a brain whose manifest declares no skill and whose staging dir is empty — a state the union
+  test above now covers everywhere it is reachable. The anchor is named in place in the code.
+
 ## v5.1.3 — the five field issues, measured the day each file was written — 2026-09-11
 
 State owned by
