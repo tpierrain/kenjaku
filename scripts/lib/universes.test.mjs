@@ -25,6 +25,7 @@ import {
   healActiveUniversePointer,
   readRawActiveUniverse,
   nativeConnectorsReminder,
+  conversationResidueReminder,
   planUniverseDeletion,
   planUniverseRename,
   DEFAULT_UNIVERSE,
@@ -438,7 +439,20 @@ test("runSwitchCli create of an EXISTING universe says switched, not created —
 
   const res = runSwitchCli(io, DIR, ["create", "acme"]);
 
-  assert.deepEqual(res, { code: 0, message: "switched to 'acme'", wrote: "acme" });
+  // Still the WHOLE object, so "created and switched" can never creep back in — the
+  // residue disclosure (#68) is part of the expected message rather than a reason to
+  // loosen this into a `match`: blue → acme is a real switch, and it leaves a real
+  // residue, so a `create` that lands on an existing universe owes the same sentence.
+  assert.deepEqual(res, {
+    code: 0,
+    message:
+      "switched to 'acme'" +
+      conversationResidueReminder({ from: "blue", to: "acme" }),
+    wrote: "acme",
+  });
+  // And the sentence is genuinely there: building the expectation from the same
+  // function would pass just as well if BOTH were empty.
+  assert.match(res.message, /🧠 Heads-up:/u);
 });
 
 test("runSwitchCli create with an unusable name says why, in full", () => {
@@ -617,6 +631,146 @@ test("nativeConnectorsReminder warns when leaving the default scope for a named 
   const msg = nativeConnectorsReminder({ from: DEFAULT_UNIVERSE, to: "acme" });
   assert.match(msg, /single-account/i);
   assert.match(msg, /'acme'/);
+});
+
+// ── the disclosure gate, as something the CORE says out loud (#82) ───────────
+// `.claude/skills/switch/SKILL.md` tells the agent the core prints `BELOW the
+// disclosure gate` / `PAST the disclosure gate` and forbids it to infer the answer
+// by counting universes (ADR 0009). Nothing printed those words, so the only thing
+// left to the agent WAS counting. These pin the words the skill promises.
+
+test("runSwitchCli gate says PAST once a second universe exists", () => {
+  const io = fakeFs({ ".vault-rag/universes.json": JSON.stringify({ universes: ["acme"] }) });
+  // One REGISTERED universe plus the implicit default = two, which is the gate.
+  assert.deepEqual(runSwitchCli(io, ".vault-rag", ["gate"]), {
+    code: 0,
+    message: "PAST the disclosure gate",
+  });
+});
+
+test("runSwitchCli gate says BELOW on a brain that never created one", () => {
+  assert.deepEqual(runSwitchCli(fakeFs({}), ".vault-rag", ["gate"]), {
+    code: 0,
+    message: "BELOW the disclosure gate",
+  });
+});
+
+test("runSwitchCli gate reads the REGISTRY, not the pointer", () => {
+  // A pointer aimed at a named universe on a brain whose registry is empty is a
+  // damaged brain, not a multiverse. Deciding from the pointer would tell a
+  // single-universe owner about machinery they have never created.
+  const io = fakeFs({ ".vault-rag/active-universe": "ghost" });
+  assert.equal(runSwitchCli(io, ".vault-rag", ["gate"]).message, "BELOW the disclosure gate");
+});
+
+test("parseSwitchArgs understands the gate verb, and keeps it off the bare-name path", () => {
+  assert.deepEqual(parseSwitchArgs(["gate"]), { action: "gate" });
+  // The escape hatch every other verb has: a universe actually called "gate" is
+  // still reachable, explicitly.
+  assert.deepEqual(parseSwitchArgs(["switch", "gate"]), { action: "switch", name: "gate" });
+});
+
+test("runSwitchCli current stays ONE bare slug, and nothing else", () => {
+  // ⚠️ THE GUARD THAT MAKES `gate` SAFE. `current` is parsed by /sync (twice) and is
+  // the shape other callers rely on, so the gate had to be a new verb rather than a
+  // second line here. A change that breaks this breaks them silently.
+  const io = fakeFs({
+    ".vault-rag/universes.json": JSON.stringify({ universes: ["acme", "blue"] }),
+    ".vault-rag/active-universe": "blue",
+  });
+  const res = runSwitchCli(io, ".vault-rag", ["current"]);
+  assert.deepEqual(res, { code: 0, message: "blue" });
+  // Said twice on purpose: deepEqual above pins the value, this pins the SHAPE —
+  // no newline, no decoration, whatever the value happens to be.
+  assert.doesNotMatch(res.message, /\n|\s/u);
+});
+
+// ── conversationResidueReminder: the scope a switch CANNOT re-point (#68) ─────
+// `/switch` re-scopes retrieval server-side and leaves the conversation window
+// holding everything read in the sphere just left — so the answer LOOKS scoped and
+// is not. The sentence below is the whole of the fix the issue asks to ship first.
+
+test("conversationResidueReminder names both spheres when leaving a named universe", () => {
+  const msg = conversationResidueReminder({ from: "acme", to: "blue" });
+  // The sphere left is what the window still holds: naming it is the point.
+  assert.match(msg, /'acme'/);
+  // And the new scope, so the two are read as a contrast rather than a warning
+  // about nothing in particular.
+  assert.match(msg, /'blue'/);
+  // Same glyph-prefixed shape as nativeConnectorsReminder: issue #65 measured that
+  // an unprefixed reminder is read as informational and skimmed past.
+  assert.match(msg, /^\n🧠 Heads-up:/u);
+  // ADR 0043: the engine is the explicit actor. A bare "context still loaded" reads
+  // as a system notice; "I still have" is the brain speaking about itself.
+  assert.match(msg, /\bI\b/);
+});
+
+test("conversationResidueReminder warns when going back to the cross-cutting scope", () => {
+  // named → default narrows the scope to cross-cutting notes ALONE, so everything
+  // read in 'acme' is now out of scope while still sitting in the window. This is
+  // the case nativeConnectorsReminder deliberately stays silent on, and the
+  // asymmetry is the point: the two reminders are about two different scopes.
+  const msg = conversationResidueReminder({ from: "acme", to: DEFAULT_UNIVERSE });
+  assert.match(msg, /'acme'/);
+  assert.match(msg, new RegExp(`'${DEFAULT_UNIVERSE}'`));
+});
+
+test("conversationResidueReminder stays silent on a no-op switch (same universe)", () => {
+  // Nothing was left, so nothing is residue.
+  assert.equal(conversationResidueReminder({ from: "acme", to: "acme" }), "");
+});
+
+test("conversationResidueReminder stays silent when LEAVING the cross-cutting scope", () => {
+  // default → named WIDENS what is reachable: cross-cutting notes stay in scope
+  // after the switch (ADR 0034), so what the window holds is still answerable and
+  // there is no residue to disclose. Warning here would be the unconditional
+  // nagging #68 explicitly argues against — it erodes the sentence that matters.
+  assert.equal(conversationResidueReminder({ from: DEFAULT_UNIVERSE, to: "acme" }), "");
+});
+
+test("runSwitchCli carries the residue reminder, so the skill only relays it", () => {
+  // The whole design of ADR 0009 in one assertion: the core SAYS it, the skill does
+  // not compose it. A fixture under NAMED universes on both sides, never `default`
+  // — the blind-spot lesson: `default` is the value where the prefix is absent, so
+  // it is the one that cannot reveal a universe bug.
+  const io = fakeFs({
+    ".vault-rag/universes.json": JSON.stringify({ universes: ["acme", "blue"] }),
+    ".vault-rag/active-universe": "acme",
+  });
+  const { code, message } = runSwitchCli(io, ".vault-rag", ["blue"]);
+  assert.equal(code, 0);
+  assert.match(message, /switched to 'blue'/);
+  // Both disclosures ride the one message: the connectors that did not follow, and
+  // the conversation that cannot be re-scoped.
+  assert.match(message, /single-account/i);
+  assert.match(message, /🧠 Heads-up:/u);
+  assert.match(message, /'acme'/);
+});
+
+test("runSwitchCli discloses the residue on create-and-switch too, not only on /switch", () => {
+  // create-and-switch IS a switch (git `switch -c` ergonomics), so it leaves the
+  // same residue behind. Disclosing it on one path and not the other is exactly the
+  // "several mechanisms quietly disagreeing" shape this release exists to end.
+  const io = fakeFs({
+    ".vault-rag/universes.json": JSON.stringify({ universes: ["acme"] }),
+    ".vault-rag/active-universe": "acme",
+  });
+  const { code, message } = runSwitchCli(io, ".vault-rag", ["create", "blue"]);
+  assert.equal(code, 0);
+  assert.match(message, /created and switched to 'blue'/);
+  assert.match(message, /🧠 Heads-up:/u);
+  assert.match(message, /'acme'/);
+});
+
+test("runSwitchCli says nothing about residue when the FIRST universe is created", () => {
+  // The first create is default → named: cross-cutting notes stay in scope, so there
+  // is no residue — and this is the 1→2 onboarding moment, where an extra warning
+  // would be the first thing a brand-new owner of a second universe ever reads.
+  const io = fakeFs({});
+  const { code, message } = runSwitchCli(io, ".vault-rag", ["create", "acme"]);
+  assert.equal(code, 0);
+  assert.match(message, /You now have two universes/);
+  assert.doesNotMatch(message, /🧠 Heads-up:/u);
 });
 
 // ── planUniverseDeletion: the pure core of `delete-universe.mjs` ──────────────

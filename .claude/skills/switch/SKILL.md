@@ -42,10 +42,13 @@ language:
   single universe, nothing ever created) the notion **does not exist for this user**: never write or
   say *universe* to them, speak of **their context, their world, this place**. The moment a second
   universe exists, the opposite holds: everything is framed as universes, because that is the word
-  they now switch with. **The deterministic core tells you which world you are in** (`BELOW the
-  disclosure gate` / `PAST the disclosure gate`, printed with the offer) — do **not** infer it by
-  counting universes yourself (ADR 0009). File paths the core prints (`vault/universe.md`) are the
-  one exception: a filename is a filename, and quoting it back is fine.
+  they now switch with. **The deterministic core tells you which world you are in** — ask it, in one
+  command, and it answers `BELOW the disclosure gate` or `PAST the disclosure gate`:
+  ```bash
+  node scripts/set-active-universe.mjs gate
+  ```
+  Do **not** infer it by counting universes yourself (ADR 0009). File paths the core prints
+  (`vault/universe.md`) are the one exception: a filename is a filename, and quoting it back is fine.
 - **Creating a universe is create-and-switch** (git `switch -c` ergonomics): register the name and
   make it active in one move. The name is normalized to a safe kebab slug (e.g. "Blue Team" →
   `blue-team`); the reserved name `default` cannot be created.
@@ -66,6 +69,19 @@ node scripts/set-active-universe.mjs "<name>"
   the user reconnects them if this universe uses different accounts. You do **not** decide when to
   show it and **never reason about it yourself** (ADR 0009): the deterministic core owns that call,
   you only surface what it prints.
+- 🧠 **The core appends a SECOND disclosure, and it is about you** — when the switch *leaves* a named
+  universe, one line saying that **your conversation still holds everything you read there**, because
+  a switch re-points searches and cannot re-scope your own memory. **Relay it like the other one**:
+  same rule, the core decides when, you never judge it. And take it literally — after relaying it, do
+  not restate a fact you learned in the sphere you just left as if a search had just confirmed it. If
+  it matters here, **search for it again** in this universe, or say plainly where you know it from.
+  - **If the conversation genuinely holds a lot from the sphere just left**, you may offer — once, as
+    an offer — to start a fresh conversation. **Never suggest it on a switch that had nothing to
+    carry**, and never suggest it unprompted twice: unconditional nagging is what makes the sentence
+    above stop being read. ⚠️ **And there is a legitimate reason to keep it all**: someone who
+    switches *in order to* reuse something from the other sphere would lose exactly what they came
+    for. So if anything in this conversation is not yet written down in the vault, **offer to file it
+    as a note first** — `/clear` is only free when what matters is on disk.
 - **exit 1, "unknown universe"** → the name is not registered. Show the `available:` list the core
   printed, and **offer to create it** (create-and-switch) or pick an existing one. Do not create
   silently.
@@ -225,6 +241,46 @@ echo '{"universe":"acme","displayName":"Acme Corp","kind":"employer","role":"Hea
 ```bash
 node scripts/set-universe-profile.mjs --decline
 ```
+
+### `## Always true here` — the facts that must survive a `/clear`
+
+A universe's profile may carry a section named exactly **`## Always true here`**: the handful of facts
+this sphere has already been got wrong about. It is **not** a glossary, and the heading is chosen to
+keep it from becoming one — only what has **actually caused an error** goes in, added the day it
+happens, never preventively. A page of definitions nobody consults is the second `CLAUDE.md` universes
+exist to prevent.
+
+**Its most useful entry is a name that has been spelled wrong.** Written in this one form, the brain
+stops re-introducing the wrong spelling by itself:
+
+```markdown
+## Always true here
+
+- cortAIx — never: Cortex, Cortaix, Cortex/Thales
+- The kickoff was in March, not February.
+```
+
+- The **canonical** spelling first, then the wrong ones **that have been seen**. `not:` works as well
+  as `never:`, and a plain hyphen as well as a dash.
+- Any other line in the section is an ordinary fact: kept in the note, searchable, acted on by nobody.
+
+**What happens then, without anyone asking for it.** A deterministic guard reads this section at the
+moment a note is written into that sphere, and **replaces a declared wrong spelling before the note
+exists**. It does not stop to ask — a brain preparing eight meetings must not halt on a typo — and it
+tells you once, in your own words, that it did. It never touches quoted material, code, links or
+frontmatter: rewriting *"Marie wrote: …"* would falsify a record, so there it says so and leaves the
+bytes alone.
+
+**If the owner says the correction was wrong**, put their spelling back — and say so in one line. The
+guard would otherwise correct the undo, which would leave their word losing to a hook. Write the
+one-shot bypass first, from the brain folder, then make the edit:
+
+```bash
+mkdir -p .cache && printf '{"spellings":["Cortex"]}' > .cache/spelling-bypass.json
+```
+
+It covers **one** write and is consumed by it. Then offer to fix the rule itself: a spelling the owner
+wants back is usually a line to remove from `## Always true here`, not a bypass to repeat.
 
 ### Rename a universe — "rename acme to Acme Corp"
 

@@ -1,7 +1,14 @@
 #!/usr/bin/env node
 // ─────────────────────────────────────────────────────────────────────────────
-// prompt-restart-nudge.mjs — the UserPromptSubmit hook that keeps saying "this
-// conversation is running the OLD engine" until the owner restarts (F20).
+// prompt-restart-nudge.mjs — THE UserPromptSubmit hook. It keeps its first name
+// for the same reason a street does, and it now carries THREE messages: the
+// restart nudge it was born for (F20), what the live sync pulled in while nobody
+// was typing (#84), and the offer to install a waiting engine release (#100).
+//
+// They share this file rather than getting a hook each because the cost of the
+// event is the PROCESS, not the message: a sibling hook on `UserPromptSubmit`
+// would put one more node start-up in front of every prompt an owner types, which
+// is the latency budget the owner has already ruled on once.
 //
 // Why this event, and not one more line in the SessionStart banner: that banner
 // prints once, at the top of a session that may run for hours, and on Desktop it
@@ -14,17 +21,23 @@
 // that lever is deliberately not used, because a wrong verdict would lock an owner
 // out of their own brain, while a wrong sentence costs them one sentence.
 //
-// It carries a SECOND message now (plan #84): what the live sync pulled in while
+// It carries a SECOND message (plan #84): what the live sync pulled in while
 // nobody was typing. Same reasoning, one door further — the search server that
 // ran the sync cannot speak into a conversation at all, so the news waits on disk
 // until the owner's next message, which is this event.
 //
-// The words live in lib/restart-nudge.mjs and lib/remote-arrivals.mjs, the disk
-// verdicts in lib/restart-signal.mjs and the arrivals trace. This file is only the
-// contract with the harness.
+// And a THIRD (#100): a release is waiting upstream. The daily probe has known for
+// up to a day, the session start says it once at the top of a session that may run
+// for hours, and Desktop drops that banner entirely — so the fact reached nobody
+// and the fleet sat several releases behind. Here it becomes a question.
+//
+// The words live in lib/restart-nudge.mjs, lib/remote-arrivals.mjs and
+// lib/update-offer.mjs; the disk verdicts in lib/restart-signal.mjs, the arrivals
+// trace and lib/upstream-cache.mjs. This file is only the contract with the
+// harness.
 // ─────────────────────────────────────────────────────────────────────────────
 import { existsSync, readFileSync, rmSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { currentClaudeApp } from "./lib/claude-app-identity.mjs";
@@ -33,6 +46,8 @@ import { buildTrace, markAnnounced, remoteArrivalsDirective } from "./lib/remote
 import { restartPendingOnDisk } from "./lib/restart-signal.mjs";
 import { runAsEntrypoint } from "./lib/entrypoint.mjs";
 import { readActiveUniverse, vaultRagDir } from "./lib/universes.mjs";
+import { afterAsked, readOfferState, updateOfferDirective, writeOfferState } from "./lib/update-offer.mjs";
+import { UPSTREAM_CACHE_REL } from "./lib/upstream-cache.mjs";
 import { deriveWanted } from "./session-self-heal.mjs";
 
 export const realNudgeDeps = {
@@ -54,9 +69,28 @@ export const realNudgeDeps = {
   // land — announcing the ghost would name a sphere nothing can be found in.
   universe: (repo) =>
     readActiveUniverse({ existsSync, readFileSync: (p) => readFileSync(p, "utf-8") }, vaultRagDir(repo)),
+  // #100 — the two files the offer turns on, read together because they are only
+  // ever read together, and only when there is no restart to announce first. An
+  // absent or damaged verdict reads as "nobody has looked yet", which offers
+  // nothing: the probe's own four states are kept apart in `update-offer.mjs`, and
+  // "could not find out" must never reach an owner dressed as an offer.
+  offer: (repo) => ({
+    verdict: readJsonQuietly(join(repo, UPSTREAM_CACHE_REL)),
+    state: readOfferState({ brainDir: repo }),
+    stamp: (next) => writeOfferState({ brainDir: repo, state: next }),
+  }),
   now: () => new Date(),
   emit: (payload) => console.log(JSON.stringify(payload)),
 };
+
+/** The verdict on disk, or null — absent, truncated and unparseable all mean the same here. */
+function readJsonQuietly(path) {
+  try {
+    return JSON.parse(readFileSync(path, "utf8"));
+  } catch {
+    return null;
+  }
+}
 
 // Best-effort, like every other write on this path: an owner whose marker cannot be removed
 // gets the nudge once more, which is a nuisance. One that crashed here would get no prompt.
@@ -98,15 +132,55 @@ export function runPromptNudge(deps = realNudgeDeps) {
     const arrived = trace.read();
     const arrivals = remoteArrivalsDirective(arrived, () => deps.universe(repo));
 
-    const directive = [restart, arrivals].filter(Boolean).join("\n\n");
+    // THE RESTART TAKES PRECEDENCE, AND IT IS A PRODUCT RULE RATHER THAN TIDINESS.
+    // A conversation running the old engine is being told to close and reopen; an
+    // offer to install a NEWER engine on top of that is two update instructions in
+    // one message, and an owner would reasonably do the wrong one first. Skipping
+    // it also skips the two file reads, which is the right way round: the silent
+    // case is the one that must cost nothing.
+    const offer = restart ? null : askAboutUpdate(deps, repo);
+
+    const directive = [restart, arrivals, offer?.directive].filter(Boolean).join("\n\n");
     if (directive) {
       deps.emit({ hookSpecificOutput: { hookEventName: "UserPromptSubmit", additionalContext: directive } });
     }
     if (arrivals) stampQuietly(trace, arrived, deps.now());
+    if (offer?.directive) offer.record();
   } catch {
     // Silent by design: see the doc comment above.
   }
   return 0;
+}
+
+/**
+ * The waiting release, as a question — and the stamp that postpones it, ready but
+ * not yet written (#100).
+ *
+ * 🛑 THE STAMP IS THE FLOOR OF THE WHOLE FEATURE, and it is written HERE, when the
+ * offer is SPOKEN, not when it is answered. The answer arrives through a command
+ * Claude runs afterwards, and every way that can fail — never run, refused by the
+ * host, a read-only disk — must land on "ask again tomorrow" rather than on
+ * "ask again at the very next prompt". So being asked is itself worth a day.
+ *
+ * `record` is separated from the directive because the two must not both happen
+ * when only one of them can: stamping an offer that was never emitted would buy a
+ * day of silence for a question nobody ever saw.
+ */
+function askAboutUpdate(deps, repo) {
+  const { verdict, state, stamp } = deps.offer(repo);
+  const directive = updateOfferDirective({ verdict, state, now: deps.now().getTime() });
+  if (!directive) return null;
+  return {
+    directive,
+    record: () => {
+      try {
+        stamp(afterAsked({ state, version: verdict.target, now: deps.now().getTime() }));
+      } catch {
+        // Best-effort, like the arrivals stamp beside it: the offer has already
+        // gone out, and the cost of not recording it is the same offer tomorrow.
+      }
+    },
+  };
 }
 
 /** Records that the arrivals were said. A failure here costs a repeat, never the message. */

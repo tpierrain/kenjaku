@@ -253,7 +253,12 @@ and **git**. The installer checks each one and tells you cleanly if something's 
   you what that will cost and waiting for your go. **Since v4.9.0 the universe you are working in
   follows you**: switch on one computer and your other ones land in it too, the next time they sync —
   your connectors were already tied to your accounts rather than to a laptop, so your notes now agree
-  with them instead of contradicting them.
+  with them instead of contradicting them. **Since v5.3.0 it also says which universe it answered
+  from** — and, just as importantly, what a switch could *not* re-scope: the conversation you are
+  already in still holds everything it read from the sphere you just left. It tells you when a note is
+  about to be filed in a different sphere from the one you are working in, and it fixes a universe
+  name you spelled wrong rather than quietly filing the note somewhere new. **An answer that looks
+  scoped and is not is the one thing a second universe must never cost you.**
   *([skill `switch`](.claude/skills/switch/SKILL.md) · [SETUP §5.2](SETUP.md#52-renaming-a-universe))*
 - **🪪 It learns *your* context, once, in two minutes.** Your brain knows your notes — it doesn't know
   that you run engineering at Acme, that Zoe is the CTO, or that *"Slack"* here means the Acme
@@ -286,10 +291,17 @@ and **git**. The installer checks each one and tells you cleanly if something's 
   line of text at the bottom of a long message where it was easy to scroll straight past — and the
   update now also brings, on **each** of your machines, the parts that cannot travel through your
   backup repository (the automatic behaviours and the search engine's own building blocks), so a second
-  computer stops quietly running last week's. **What this is not**: no remote repository is added to your brain,
-  nothing of yours is sent or pushed, and your own backup repo plays no part. It is **one anonymous
-  look at the engine's public repo, once a day** — asking only *"is there a newer version?"* — skipped
-  entirely when you are already up to date, and silently given up on when you are offline.
+  computer stops quietly running last week's. **Since v5.3.0 the question comes back, calmly, until
+  you answer it**: an update you never heard about is one you never chose against, and until now the
+  news arrived once, at the top of a session, where it was easy to miss entirely. Now your brain
+  offers it — with what the release gives you and **how long it takes**, which is between 10 seconds
+  and under a minute — and *"remind me later"* means tomorrow, while *"no thanks"* really does mean no: it backs
+  off further every time, and then stops for that version altogether. A brand-new brain also knows
+  from its very first conversation whether it was born a version or two behind. **What this is not**:
+  no remote repository is added to your brain, nothing of yours is sent or pushed, and your own backup
+  repo plays no part. It is **one anonymous look at the engine's public repo, once a day** (plus one
+  the day your brain is created) — asking only *"is there a newer version?"* — skipped entirely when
+  you are already up to date, and silently given up on when you are offline.
   *(mental model + hands-on steps: [SETUP §10](SETUP.md#10-keeping-your-engine-up-to-date-update-engine))*
 - **🧬 Already have a brain from *before* v3.0.0? Bring your notes over.** Install a fresh brain, then
   say *"importe mes anciennes notes depuis `<path>`"* — it shows a **safe plan**, confirms, copies your
@@ -457,7 +469,7 @@ tested and fail-loud**. The through-line — **fail loudly rather than pretend**
 - **TDD baby-steps**, **green-only commits** (never commit red); **outside-in diamond TDD** for the harness.
 - **Measured, not asserted** — an **eval-set** for retrieval quality (below) and **mutation testing**
   (Stryker) scoring the *tests themselves* **90–97%** across the three engine packages.
-- **ADR-governed** — 37 decisions, each with an explicit `Scope:` and a `Crux`.
+- **ADR-governed** — 44 decisions, each with an explicit `Scope:` and a `Crux`.
 - **QA'd like a product** — the **upgrade/migration path is a release gate** (Windows parity · reconciler ·
   mutation score), so a new engine is proven on existing brains before it ships.
 

@@ -28,6 +28,7 @@
       "Bash(which:*)",
       "Bash(mkdir:*)",
       "Bash(grep:*)",
+      "Bash(node scripts/update-offer-answer.mjs:*)",
       "Bash(node --import tsx --test:*)",
       "Bash(npm test:*)",
       "Bash(open:*)",
@@ -61,6 +62,16 @@
           {
             "type": "command",
             "command": "{{NODE}} \"{{PROJECT_ROOT}}/scripts/engine-write-guard.mjs\"",
+            "timeout": 10000
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "{{NODE}} \"{{PROJECT_ROOT}}/scripts/vault-write-notice.mjs\"",
             "timeout": 10000
           }
         ]

@@ -378,6 +378,22 @@ git checkout <commit>~1 -- vault/<name>/     # bring the notes back
 Then tell your brain to re-index (or run `cd rag && npm run reindex`), and re-create the universe with
 `/switch` if you want to work in it again.
 
+### 5.4 What your brain says out loud about the sphere it is working in
+
+A scope you cannot see is a scope you cannot trust, so since **v5.3.0** your brain states it rather
+than leaving you to infer it. Four moments, and none of them asks you anything:
+
+- **When you switch**, it names what the switch could *not* re-scope: this conversation still holds
+  everything it already read from the sphere you just left. The searches from here on are scoped —
+  the words already on screen are not, and only you can tell which is which.
+- **When it answers from a narrowed scope**, it says so. An answer that *looks* like it covers
+  everything you know, when it covered one sphere, is the one failure a second universe must never
+  cost you.
+- **When a note is about to be filed in a different sphere from the one you are working in**, it says
+  that, once, before writing it — not afterwards, and not in a log.
+- **When you name a universe that does not quite exist** — a spelling slip, a name you half remember —
+  it corrects the name rather than quietly creating a new sphere beside the one you meant.
+
 ## 6. External connectors (optional)
 
 The generator only provides the RAG engine. To also query your other sources
@@ -713,7 +729,8 @@ date"*: those are opposite answers, and only one of them is good news. The look-
 background (once a day at most), so your session start never waits on it.
 
 > 🔎 **What that daily look-up is — and, more importantly, what it is NOT.** It is **one anonymous
-> request a day** to the engine's public repository — the address written in your own
+> request a day** (plus one at the moment your brain is created, so a brain installed from an older
+> launcher does not spend its first day silent about it) to the engine's public repository — the address written in your own
 > `engine-manifest.json` (`source.repo`) — asking a single question: *"which versions have been
 > published?"* (`git ls-remote --tags`). Then, **only if your brain turns out to be behind**, a **single**
 > request to GitHub's public release list, to read the title and the `What you get` section of the
@@ -745,8 +762,25 @@ same code and charging you a restart for it.
 Then, and only if you say yes, it runs the update and reports what changed: **new version · files
 swapped · skills brought up to date (and those left as you tailored them) · whether a reindex ran ·
 "your files were untouched".**
-Because the engine is **observable** (it knows its own version), the brain may also **proactively
-offer** the update.
+### It also offers, on its own — once a day at most, and *no* really means no
+
+Because the engine is **observable** (it knows its own version), your brain does not wait to be asked.
+When a release is waiting, it **offers** it — quoting what that release gives you, saying **how long
+it takes** (between 10 seconds and under a minute, measured), and giving you three answers you click rather than type:
+
+| You answer | What happens |
+| --- | --- |
+| **Install now** | the ordinary update below runs, with your yes already given |
+| **Remind me later** | tomorrow, and the day after if you like — it never gets tired of that answer |
+| **No thanks** | it backs off 3 days, then 5, then 3 weeks, then 2 months, then stops for that version entirely |
+
+**A refusal is about a version, not about updating.** Declining v5.3 says nothing about v5.4: a newly
+published release starts the conversation again from the top.
+
+Two deliberate silences. **You are asked once a day at most** — being asked is itself enough to buy a
+day, so even a question you ignore, or close the window on, cannot come back before tomorrow. And
+**while a restart is pending** the offer stays quiet: you are already being told to close and reopen,
+and two update instructions at once is how someone does the wrong one first.
 
 ### What it does, step by step
 

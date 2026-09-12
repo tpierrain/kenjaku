@@ -120,6 +120,7 @@ export function parseSwitchArgs(argv) {
   if (first === "switch") return { action: "switch", name: rest.join(" ") };
   if (first === "list") return { action: "list" };
   if (first === "current") return { action: "current" };
+  if (first === "gate") return { action: "gate" };
   return { action: "switch", name: argv.join(" ") };
 }
 
@@ -132,7 +133,24 @@ export function runSwitchCli(io, dir, argv) {
   const intent = parseSwitchArgs(argv);
   const current = readActiveUniverse(io, dir);
 
+  // ⚠️ ONE BARE SLUG, and it must stay that way: `/sync` reads this twice (before and
+  // after the rebase) and compares the two, so a second line of decoration here would
+  // break a caller silently. That constraint is WHY the gate below is its own verb
+  // instead of extra output on this one, and a test pins the shape.
   if (intent.action === "current") return { code: 0, message: current };
+
+  // Which side of the progressive-disclosure gate this brain stands on, in the words
+  // the skills already promise their reader (issue #82). The decision needs COUNTING,
+  // and counting is the core's job, never the agent's (ADR 0009) — a skill left to
+  // infer it would meet a single-universe owner with vocabulary they have never used.
+  //
+  // Read off the REGISTRY, never the pointer: a pointer aimed at a universe that is
+  // not registered is a damaged brain (healActiveUniversePointer repairs exactly that),
+  // and a damaged brain is not a multiverse.
+  if (intent.action === "gate") {
+    const past = isMultiverse(readRegistry(io, dir));
+    return { code: 0, message: `${past ? "PAST" : "BELOW"} the disclosure gate` };
+  }
 
   if (intent.action === "list" || intent.action === "menu") {
     const all = listAllUniverses(readRegistry(io, dir));
@@ -156,17 +174,25 @@ export function runSwitchCli(io, dir, argv) {
         `cross-cutting (default) notes; say "search all universes" to span them. ` +
         `New notes you capture here will file under vault/${res.name}/.`
       : "";
+    // A create IS a switch (git `switch -c` ergonomics), so it leaves the same
+    // unscoped conversation behind. Empty on the first create, which is default →
+    // named: nothing goes out of scope there, and that is also the one moment a
+    // brand-new owner of a second universe must not meet an extra warning.
+    const residue = conversationResidueReminder({ from: current, to: res.name });
     // `wrote` carries the written slug so the caller can persist the pointer
     // (commit + push — issue #69: a Bash-side write is invisible to the hooks).
-    return { code: 0, message: head + onboarding, wrote: res.name };
+    return { code: 0, message: head + onboarding + residue, wrote: res.name };
   }
 
   // switch (fast path / explicit)
   const res = switchToUniverse(io, dir, intent.name);
   if (res.ok) {
-    // Landing in a named universe? Deterministically remind that the single-account
-    // native connectors don't follow the switch (empty for the trivial toggles).
-    const reminder = nativeConnectorsReminder({ from: current, to: res.name });
+    // Two scopes this switch did NOT re-point, both disclosed deterministically and
+    // both empty on the switches they do not apply to (see each function's own
+    // asymmetry): the single-account native connectors, and the conversation window.
+    const reminder =
+      nativeConnectorsReminder({ from: current, to: res.name }) +
+      conversationResidueReminder({ from: current, to: res.name });
     return { code: 0, message: `switched to '${res.name}'` + reminder, wrote: res.name };
   }
   if (res.reason === "unknown") {
@@ -192,6 +218,39 @@ export function nativeConnectorsReminder({ from, to }) {
   return (
     `\n⚠️ Heads-up: native connectors (Slack, Notion, Google, mail…) are single-account and ` +
     `don't follow this switch. If '${to}' uses different accounts, disconnect/reconnect them to match.`
+  );
+}
+
+/**
+ * The one-line disclosure of the scope a switch CANNOT re-point: the conversation
+ * window (issue #68). Retrieval is re-scoped server-side from the next search, and
+ * everything already read in the sphere just left stays in the window — so the
+ * answer LOOKS scoped and is not, which is a trust defect rather than a token one.
+ *
+ * Emitted deterministically by the core (ADR 0009) and appended to the switch
+ * message, exactly like nativeConnectorsReminder: the skill relays one sentence
+ * instead of composing it, so it cannot be forgotten on the switches that matter.
+ *
+ * 🔀 THE ASYMMETRY WITH nativeConnectorsReminder IS THE DESIGN, not an oversight.
+ * That one stays silent on named → default and warns on default → named; this one
+ * does the opposite, because they disclose two different scopes:
+ *   • LEAVING the cross-cutting scope widens what is reachable — default notes stay
+ *     in scope after the switch (ADR 0034) — so what the window holds is still
+ *     answerable, and there is nothing unscoped to disclose.
+ *   • LEAVING a named universe narrows it: that sphere's notes stop coming back
+ *     while they are still sitting in the window, which is precisely the gap.
+ * Warning in both directions would be the unconditional nagging #68 argues against,
+ * and it would erode the one sentence the issue says to ship if only one thing ships.
+ *
+ * Pure.
+ */
+export function conversationResidueReminder({ from, to }) {
+  if (to === from) return "";
+  if (from === DEFAULT_UNIVERSE) return "";
+  return (
+    `\n🧠 Heads-up: I still have everything I read in '${from}' in this conversation. ` +
+    `My searches now stay in '${to}', but my memory of this conversation does not — ` +
+    `ask me for a fresh conversation if you want a clean slate here.`
   );
 }
 

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "v5.2.0",
+  "generatedAt": "v5.3.0",
   "files": {
     ".claude/skills/coach/SKILL.md": {
       "sha256:3a1df7202920eb0cf1879bf8cecaf1eba91944a7efcbef339c0d0e6a3cd9aa74": {
@@ -101,6 +101,10 @@
       "sha256:fe397ee40ffb551237c84a4de4018d07eb40d1ce9b798c91e8221d8949b6878a": {
         "since": "v4.9.0",
         "locale": "en"
+      },
+      "sha256:fb97714d4cc41aa9e6b592729a88c6482ec2b0e6b378e2bebf1351c665fc808d": {
+        "since": "v5.3.0",
+        "locale": "en"
       }
     },
     ".claude/skills/sync-sources/SKILL.md": {
@@ -185,6 +189,14 @@
       "sha256:914c7d5314998f4f0196762e88393c4e3d5537d9a7a4811c43b4ad315f7d055b": {
         "since": "v5.0.0",
         "locale": "fr"
+      },
+      "sha256:4901b0a2e6ec472fb4d8bcf65d4f9036c9f6208aa2fc1eb6bd66da610d30fcb7": {
+        "since": "v5.3.0",
+        "locale": "en"
+      },
+      "sha256:d79e722cb2d17f644562477eaa0ef77161bb1c78c996e212e18f90411203d03f": {
+        "since": "v5.3.0",
+        "locale": "fr"
       }
     },
     ".claude/skills/test-first-discipline/SKILL.md": {
@@ -248,6 +260,14 @@
       },
       "sha256:b299f8cf20b9d451ff5cbbb8e3db1a1fe70393cfce8a6d5ff0b76c7ee1f527ac": {
         "since": "v5.2.0",
+        "locale": "fr"
+      },
+      "sha256:536055b65c4b846a42a512178091ba3eb237371fd464ac4f1f2fe266ef166a88": {
+        "since": "v5.3.0",
+        "locale": "en"
+      },
+      "sha256:067abc72a3afdced230e29cea0affc73a2aa02f6024c655b875912e6d793d050": {
+        "since": "v5.3.0",
         "locale": "fr"
       }
     },

@@ -88,11 +88,23 @@ Then, before the yes, explain plainly:
   since this brain was installed finally reach it; **anything you tailored stands exactly as
   you wrote it**, and the engine's newer version is left beside it — afterwards it will **ask
   you**, file by file, whether to take the new one, keep yours, or combine the two;
-- it will **reindex only if the index format changed** (a few minutes, nothing lost:
-  your notes are simply re-encoded);
+- it will **reindex only if the index format changed** — your notes are simply re-encoded,
+  and nothing is lost;
 - **prerequisites**: `git`, `npm` and a network connection (same as at install). Here
   `npm install` means installing the RAG engine's **dependencies locally** — nothing is
   published to or pulled from a package registry.
+
+**Then say how long it takes, in these exact words, BEFORE the question:**
+
+> The engine will usually be updated in between 10 seconds and under a minute; if the way your notes are indexed has changed, it will also re-index them, which adds a few minutes on a big set of notes — and either way, nothing you have written is lost.
+
+🛑 **Quote that sentence, do not re-word it** (translate it if you are answering in another
+language, keeping all three of its parts). It is the only duration in this whole message that
+describes the ORDINARY case: without it, the single number the reader meets is *"a few
+minutes"*, attached to the reindex, and a long careful description of code being replaced on
+their machine leaves them unable to tell whether yes costs a minute or an afternoon. **An
+unknown cost is postponed** — which is exactly how a brain ends up several releases behind. It
+lives in `scripts/lib/update-duration.mjs`, and a test asserts this file still quotes it.
 
 > **Phrasing — make the ENGINE the visible actor, never the user.** These are things the
 > update *will do*, not commands addressed to the reader. Always use an **explicit subject +

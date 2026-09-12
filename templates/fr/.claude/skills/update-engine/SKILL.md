@@ -94,11 +94,24 @@ Ensuite, avant le oui, explique simplement :
   **tout ce que tu as personnalisé reste exactement tel que tu l'as écrit**, la version plus
   récente du moteur étant posée à côté ; ensuite il te **posera la question**, fichier par
   fichier : prendre la nouvelle, garder la tienne, ou combiner les deux ;
-- ça **réindexe uniquement si le format d'index a changé** (quelques minutes, rien de perdu —
-  tes notes sont simplement ré-encodées) ;
+- ça **réindexe uniquement si le format d'index a changé** : tes notes sont simplement
+  ré-encodées, et rien n'est perdu ;
 - **prérequis** : `git`, `npm` et une connexion réseau (comme à l'installation). Ici
   `npm install` veut dire installer les **dépendances locales** du moteur RAG — rien n'est
   publié ni récupéré depuis un registre de paquets.
+
+**Puis dis combien de temps ça prend, avec ces mots exacts, AVANT la question :**
+
+> Le moteur sera en général mis à jour en 10 secondes à moins d'une minute ; si la façon dont tes notes sont indexées a changé, il les réindexera aussi, ce qui ajoute quelques minutes sur un gros ensemble de notes, et dans tous les cas, rien de ce que tu as écrit n'est perdu.
+
+🛑 **Cite cette phrase, ne la reformule pas** (traduis-la si tu réponds dans une autre langue,
+en gardant ses trois parties). C'est la seule durée de tout ce message qui décrit le cas
+ORDINAIRE : sans elle, le seul chiffre que la personne rencontre est « quelques minutes »,
+attaché à la réindexation, et une longue description soigneuse de code remplacé sur sa machine
+la laisse incapable de dire si oui lui coûte une minute ou un après-midi. **Un coût inconnu,
+on le remet à plus tard**, et c'est exactement comme ça qu'un cerveau se retrouve plusieurs
+versions en retard. Elle vit dans `scripts/lib/update-duration.mjs`, et un test vérifie que ce
+fichier la cite toujours.
 
 #### Puis demande, comme un vrai contrôle, pas comme une dernière ligne de prose
 

@@ -8,6 +8,9 @@ import { dirname, join } from "node:path";
 import { matchesAny } from "./glob-match.mjs";
 import { selectModulesToCheck } from "./health-activation.mjs";
 import { instrumentationStandDown } from "./instrumented-source.mjs";
+import { remoteArrivalsDirective } from "./remote-arrivals.mjs";
+import { restartPromptDirective } from "./restart-nudge.mjs";
+import { updateOfferDirective } from "./update-offer.mjs";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // engine-manifest integrity — a structural guard over the REAL repo-root
@@ -344,5 +347,50 @@ test("engine-manifest — every script an engine script SPAWNS is itself carried
     notCarried(spawned),
     [],
     "a script an engine script spawns, carried by no regime: the parent arrives, the child never does",
+  );
+});
+
+// The FOURTH door onto an engine script, and the one that nearly shipped broken: a
+// DIRECTIVE the engine INJECTS into the conversation. A hook builds a sentence, the
+// harness hands it to Claude, and Claude runs the command it names — no skill and no
+// constitution anywhere in that path, so the three guards above all stay green while
+// the brain is told to run a file it never received.
+//
+// ⚠️ Measured on #100, 2026-09-12: `scripts/update-offer-answer.mjs` was written,
+// tested, run as a real process by its own suite, and declared in NO regime. Every
+// test passed. The whole feature would have reached the fleet with its answer command
+// missing — so every "no thanks" would have gone unrecorded, and the offer would have
+// come back the next day for ever, which is precisely the nagging it exists to prevent.
+//
+// Asserted on the directive's actual TEXT rather than by grepping the module: a hook's
+// source also names scripts in comments and imports, and a guard with false positives
+// is a guard someone eventually widens until it stops biting.
+test("engine-manifest — every script an INJECTED directive names is itself carried to upgraders", () => {
+  const injected = [
+    updateOfferDirective({
+      verdict: {
+        state: "available",
+        installed: "v1.0.0",
+        target: "v1.1.0",
+        ahead: 1,
+        releases: [{ version: "v1.1.0", title: null, whatYouGet: "- something" }],
+      },
+      state: null,
+      now: Date.parse("2026-09-12T09:00:00.000Z"),
+    }),
+    restartPromptDirective(true),
+    remoteArrivalsDirective({ files: ["vault/people/claire.md"], authors: ["Claire"], announcedAt: null }),
+  ].filter(Boolean);
+
+  assert.ok(injected.length >= 3, "every directive must actually render, or this guard scans nothing");
+
+  const named = [...new Set(injected.flatMap((text) => text.match(/scripts\/[\w.-]+\.mjs/g) ?? []))].sort();
+  assert.ok(named.length > 0, "at least one directive names a command; if none does, this guard has gone blind");
+
+  const undeclared = notCarried(named);
+  assert.deepEqual(
+    undeclared,
+    [],
+    `scripts named by an injected directive but carried by no regime — the brain is told to run what it never got: ${undeclared.join(", ")}`,
   );
 });
