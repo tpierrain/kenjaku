@@ -106,6 +106,73 @@ test("an unterminated fence swallows the rest of the file rather than guessing",
   assert.deepEqual(markdownLinkTargets(md), ["SETUP.md"]);
 });
 
+test("what opens and closes a fence follows Markdown, not a loose guess", () => {
+  // Each pole here is a survivor of the first mutation run (74.29 %), and each one is
+  // a line this repo's own delivered prose actually contains.
+  const cases = [
+    // An indented fence is a fence — Markdown allows up to three leading spaces.
+    { md: "   ```\n[x](maintainers/a.md)\n   ```\n[real](SETUP.md)", expect: ["SETUP.md"] },
+    // A fence marker must OPEN the line. Mid-sentence backticks are prose.
+    { md: "Type ``` to open a block. [real](SETUP.md)", expect: ["SETUP.md"] },
+    // A line that starts with inline code is not a fence: one backtick is not three.
+    { md: "`node x` then [real](SETUP.md)", expect: ["SETUP.md"] },
+    // 🪤 And a line starting with a single tilde is a HOME PATH, not a fence.
+    { md: "~/Documents holds it. [real](SETUP.md)", expect: ["SETUP.md"] },
+    // A backtick fence is not closed by a tilde one, so the link between stays hidden.
+    { md: "```\n[hidden](maintainers/a.md)\n~~~\n[also hidden](maintainers/b.md)", expect: [] },
+    // A four-backtick fence is not closed by three (that is how you show a fence
+    // inside a fence, and the delivered README does exactly that).
+    { md: "````\n```\n[hidden](maintainers/a.md)\n```\n````\n[real](SETUP.md)", expect: ["SETUP.md"] },
+  ];
+
+  assert.deepEqual(
+    cases.map((c) => markdownLinkTargets(c.md)),
+    cases.map((c) => c.expect),
+  );
+});
+
+test("lines are kept SEPARATE, so a label and a parenthesis on two lines are not a link", () => {
+  // `](` must be adjacent for Markdown to see a link. Joining the lines without the
+  // newline would invent one out of two innocent lines.
+  assert.deepEqual(markdownLinkTargets("[a label]\n(maintainers/x.md)"), []);
+});
+
+test("a link label may itself contain brackets", () => {
+  assert.deepEqual(markdownLinkTargets("[see [the note]](SETUP.md)"), ["SETUP.md"]);
+});
+
+test("the angle-bracket form is unwrapped, which is how a target with a space is written", () => {
+  // Six survivors sat on this one line because nothing exercised the form at all.
+  assert.deepEqual(markdownLinkTargets("[a](<docs/a note.md>)"), ["docs/a note.md"]);
+  // Unwrapping belongs to the EXTRACTOR alone: the resolver is handed a path, and a
+  // path with a space in it is an ordinary path.
+  assert.equal(resolveDeliveredLink("README.md", "docs/a note.md"), "docs/a note.md");
+  // A stray angle on one side only is part of the path, not a wrapper to strip.
+  assert.deepEqual(markdownLinkTargets("[a](<docs/a.md)"), ["<docs/a.md"]);
+  assert.deepEqual(markdownLinkTargets("[a](docs/a.md>)"), ["docs/a.md>"]);
+});
+
+test("padding and a title are trimmed off the target, in either quote", () => {
+  assert.deepEqual(markdownLinkTargets("[a](  SETUP.md  )"), ["SETUP.md"]);
+  assert.deepEqual(markdownLinkTargets("[a](SETUP.md 'The setup')"), ["SETUP.md"]);
+  assert.deepEqual(markdownLinkTargets('[a](SETUP.md  "The setup"  )'), ["SETUP.md"]);
+  assert.deepEqual(markdownLinkTargets("[a](< SETUP.md >)"), ["SETUP.md"]);
+});
+
+test("a colon INSIDE a path is not a scheme", () => {
+  // `^` on the scheme test is what makes the difference, and a dated note name is
+  // exactly the shape that would lose its link without it.
+  assert.deepEqual(markdownLinkTargets("[a](docs/2026:01-notes.md)"), ["docs/2026:01-notes.md"]);
+  assert.equal(resolveDeliveredLink("README.md", "docs/2026:01-notes.md"), "docs/2026:01-notes.md");
+});
+
+test("a link to a DIRECTORY keeps its trailing slash, because the delivery answers for directories too", () => {
+  // The delivered README links at `maintainers/decisions/`. A checker that discarded
+  // trailing-slash targets would miss the one link pointing at a whole dev-only tree.
+  assert.deepEqual(markdownLinkTargets("[the ADRs](maintainers/decisions/)"), ["maintainers/decisions/"]);
+  assert.equal(resolveDeliveredLink("README.md", "maintainers/decisions/"), "maintainers/decisions/");
+});
+
 test("a relative link is resolved from the file's INSTALLED directory", () => {
   // The pair that a repo-relative checker gets backwards, side by side.
   assert.equal(
@@ -118,7 +185,18 @@ test("a relative link is resolved from the file's INSTALLED directory", () => {
 });
 
 test("what is not a repo-relative link resolves to nothing at all", () => {
-  for (const target of ["https://example.test/x", "http://example.test", "mailto:a@b.test", "#anchor", ""]) {
+  const notPaths = [
+    "https://example.test/x",
+    "http://example.test",
+    "mailto:a@b.test",
+    "file:///etc/hosts",
+    "#anchor",
+    "/README.md", // absolute: a brain's root is not the repo's
+    "",
+    null,
+    undefined,
+  ];
+  for (const target of notPaths) {
     assert.equal(resolveDeliveredLink("README.md", target), null, `${target} is not a repo path`);
   }
 });
@@ -169,6 +247,38 @@ test("a file the scanner cannot read is reported, never skipped in silence", () 
     isDelivered: () => true,
   });
   assert.deepEqual(found, [{ file: "README.md", target: null, resolved: null, unreadable: "EACCES" }]);
+});
+
+test("and something thrown that is NOT an Error is still reported, not crashed on", () => {
+  // A `throw "boom"` has no `.message`, and a reporter that assumes one turns an
+  // unreadable file into a crash of the whole audit.
+  assert.deepEqual(
+    deadDeliveredLinks({
+      files: ["README.md"],
+      read: () => {
+        throw "boom";
+      },
+      isDelivered: () => true,
+    }),
+    [{ file: "README.md", target: null, resolved: null, unreadable: "boom" }],
+  );
+});
+
+test("what is not a path is never put to the delivered-set question", () => {
+  // The membership test is the caller's, and it is written for paths. Handing it a
+  // null because a link happened to be a `mailto:` is how a guard dies on the one
+  // file that had an external link in it.
+  assert.deepEqual(
+    deadDeliveredLinks({
+      files: ["README.md"],
+      read: () => "[a](https://example.test) [b](#here) [c](mailto:x@y.test)",
+      isDelivered: (p) => {
+        assert.ok(typeof p === "string" && p.length > 0, `asked about a non-path: ${p}`);
+        return true;
+      },
+    }),
+    [],
+  );
 });
 
 // ═══════════════════════════════════════════════════════════════════════════

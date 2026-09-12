@@ -1,0 +1,201 @@
+[32m21:00:08 (45544) INFO ProjectReader[39m Found 1 of 1078 file(s) to be mutated.
+[32m21:00:08 (45544) INFO Instrumenter[39m Instrumented 1 source file(s) with 140 mutant(s)
+[32m21:00:08 (45544) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m21:00:08 (45544) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-YCVs6m
+[32m21:00:08 (45544) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m21:00:08 (45544) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m21:00:08 (45544) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 0 seconds (net 131 ms, overhead 0 ms).
+
+All tests
+  ✓ All tests (killed 104)
+
+[Survived] Regex
+scripts/lib/delivered-links.mjs:46:15
+-   const FENCE = /^\s{0,3}(`{3,}|~{3,})/;
++   const FENCE = /^\S{0,3}(`{3,}|~{3,})/;
+
+[Survived] Regex
+scripts/lib/delivered-links.mjs:46:15
+-   const FENCE = /^\s{0,3}(`{3,}|~{3,})/;
++   const FENCE = /\s{0,3}(`{3,}|~{3,})/;
+
+[Survived] Regex
+scripts/lib/delivered-links.mjs:46:15
+-   const FENCE = /^\s{0,3}(`{3,}|~{3,})/;
++   const FENCE = /^\s{0,3}(`|~{3,})/;
+
+[Survived] Regex
+scripts/lib/delivered-links.mjs:46:15
+-   const FENCE = /^\s{0,3}(`{3,}|~{3,})/;
++   const FENCE = /^\s{0,3}(`{3,}|~)/;
+
+[Survived] ArrayDeclaration
+scripts/lib/delivered-links.mjs:49:16
+-     const kept = [];
++     const kept = ["Stryker was here"];
+
+[Survived] ConditionalExpression
+scripts/lib/delivered-links.mjs:54:21
+-         if (marker && marker[0] === fence[0] && marker.length >= fence.length) fence = null;
++         if (marker && true && marker.length >= fence.length) fence = null;
+
+[Survived] ConditionalExpression
+scripts/lib/delivered-links.mjs:54:47
+-         if (marker && marker[0] === fence[0] && marker.length >= fence.length) fence = null;
++         if (marker && marker[0] === fence[0] && true) fence = null;
+
+[Survived] StringLiteral
+scripts/lib/delivered-links.mjs:62:40
+-       kept.push(line.replace(/`[^`]*`/g, ""));
++       kept.push(line.replace(/`[^`]*`/g, "Stryker was here!"));
+
+[Survived] StringLiteral
+scripts/lib/delivered-links.mjs:64:20
+-     return kept.join("\n");
++     return kept.join("");
+
+[Survived] Regex
+scripts/lib/delivered-links.mjs:70:14
+-   const LINK = /!?\[(?:[^\][]|\[[^\][]*\])*\]\(([^()]*)\)/g;
++   const LINK = /!?\[(?:[^\][]|\[[^\][]\])*\]\(([^()]*)\)/g;
+
+[Survived] Regex
+scripts/lib/delivered-links.mjs:70:14
+-   const LINK = /!?\[(?:[^\][]|\[[^\][]*\])*\]\(([^()]*)\)/g;
++   const LINK = /!?\[(?:[^\][]|\[[\][]*\])*\]\(([^()]*)\)/g;
+
+[Survived] Regex
+scripts/lib/delivered-links.mjs:75:16
+-   const SCHEME = /^[a-z][a-z0-9+.-]*:/i;
++   const SCHEME = /[a-z][a-z0-9+.-]*:/i;
+
+[Survived] MethodExpression
+scripts/lib/delivered-links.mjs:82:14
+-       target = target.replace(/\s+("[^"]*"|'[^']*')\s*$/, "").trim();
++       target = target.replace(/\s+("[^"]*"|'[^']*')\s*$/, "");
+
+[Survived] Regex
+scripts/lib/delivered-links.mjs:82:29
+-       target = target.replace(/\s+("[^"]*"|'[^']*')\s*$/, "").trim();
++       target = target.replace(/\s+("[^"]*"|'[^']*')\s*/, "").trim();
+
+[Survived] MethodExpression
+scripts/lib/delivered-links.mjs:80:18
+-       let target = inside.trim();
++       let target = inside;
+
+[Survived] Regex
+scripts/lib/delivered-links.mjs:82:29
+-       target = target.replace(/\s+("[^"]*"|'[^']*')\s*$/, "").trim();
++       target = target.replace(/\s("[^"]*"|'[^']*')\s*$/, "").trim();
+
+[Survived] Regex
+scripts/lib/delivered-links.mjs:82:29
+-       target = target.replace(/\s+("[^"]*"|'[^']*')\s*$/, "").trim();
++       target = target.replace(/\s+("[^"]*"|'[^']')\s*$/, "").trim();
+
+[Survived] Regex
+scripts/lib/delivered-links.mjs:82:29
+-       target = target.replace(/\s+("[^"]*"|'[^']*')\s*$/, "").trim();
++       target = target.replace(/\s+("[^"]*"|'[']*')\s*$/, "").trim();
+
+[Survived] Regex
+scripts/lib/delivered-links.mjs:82:29
+-       target = target.replace(/\s+("[^"]*"|'[^']*')\s*$/, "").trim();
++       target = target.replace(/\s+("[^"]*"|'[^']*')\S*$/, "").trim();
+
+[Survived] ConditionalExpression
+scripts/lib/delivered-links.mjs:83:9
+-       if (target.startsWith("<") && target.endsWith(">")) target = target.slice(1, -1).trim();
++       if (false) target = target.slice(1, -1).trim();
+
+[Survived] LogicalOperator
+scripts/lib/delivered-links.mjs:83:9
+-       if (target.startsWith("<") && target.endsWith(">")) target = target.slice(1, -1).trim();
++       if (target.startsWith("<") || target.endsWith(">")) target = target.slice(1, -1).trim();
+
+[Survived] MethodExpression
+scripts/lib/delivered-links.mjs:83:9
+-       if (target.startsWith("<") && target.endsWith(">")) target = target.slice(1, -1).trim();
++       if (target.endsWith("<") && target.endsWith(">")) target = target.slice(1, -1).trim();
+
+[Survived] StringLiteral
+scripts/lib/delivered-links.mjs:83:27
+-       if (target.startsWith("<") && target.endsWith(">")) target = target.slice(1, -1).trim();
++       if (target.startsWith("") && target.endsWith(">")) target = target.slice(1, -1).trim();
+
+[Survived] MethodExpression
+scripts/lib/delivered-links.mjs:83:35
+-       if (target.startsWith("<") && target.endsWith(">")) target = target.slice(1, -1).trim();
++       if (target.startsWith("<") && target.startsWith(">")) target = target.slice(1, -1).trim();
+
+[Survived] StringLiteral
+scripts/lib/delivered-links.mjs:83:51
+-       if (target.startsWith("<") && target.endsWith(">")) target = target.slice(1, -1).trim();
++       if (target.startsWith("<") && target.endsWith("")) target = target.slice(1, -1).trim();
+
+[Survived] UnaryOperator
+scripts/lib/delivered-links.mjs:83:82
+-       if (target.startsWith("<") && target.endsWith(">")) target = target.slice(1, -1).trim();
++       if (target.startsWith("<") && target.endsWith(">")) target = target.slice(1, +1).trim();
+
+[Survived] MethodExpression
+scripts/lib/delivered-links.mjs:83:66
+-       if (target.startsWith("<") && target.endsWith(">")) target = target.slice(1, -1).trim();
++       if (target.startsWith("<") && target.endsWith(">")) target = target.slice(1, -1);
+
+[Survived] MethodExpression
+scripts/lib/delivered-links.mjs:83:66
+-       if (target.startsWith("<") && target.endsWith(">")) target = target.slice(1, -1).trim();
++       if (target.startsWith("<") && target.endsWith(">")) target = target.trim();
+
+[Survived] MethodExpression
+scripts/lib/delivered-links.mjs:85:18
+-       if (!path || path.startsWith("#") || path.startsWith("/") || SCHEME.test(path)) continue;
++       if (!path || path.endsWith("#") || path.startsWith("/") || SCHEME.test(path)) continue;
+
+[Survived] MethodExpression
+scripts/lib/delivered-links.mjs:85:42
+-       if (!path || path.startsWith("#") || path.startsWith("/") || SCHEME.test(path)) continue;
++       if (!path || path.startsWith("#") || path.endsWith("/") || SCHEME.test(path)) continue;
+
+[Survived] ConditionalExpression
+scripts/lib/delivered-links.mjs:92:7
+-     if (!target) return null;
++     if (false) return null;
+
+[Survived] MethodExpression
+scripts/lib/delivered-links.mjs:94:16
+-     if (!path || path.startsWith("/") || SCHEME.test(path)) return null;
++     if (!path || path.endsWith("/") || SCHEME.test(path)) return null;
+
+[Survived] ConditionalExpression
+scripts/lib/delivered-links.mjs:99:37
+-     return posix.normalize(posix.join(dir === "." ? "" : dir, path));
++     return posix.normalize(posix.join(false ? "" : dir, path));
+
+[Survived] StringLiteral
+scripts/lib/delivered-links.mjs:99:45
+-     return posix.normalize(posix.join(dir === "." ? "" : dir, path));
++     return posix.normalize(posix.join(dir === "" ? "" : dir, path));
+
+[Survived] OptionalChaining
+scripts/lib/delivered-links.mjs:111:67
+-         dead.push({ file, target: null, resolved: null, unreadable: e?.message ?? String(e) });
++         dead.push({ file, target: null, resolved: null, unreadable: e.message ?? String(e) });
+
+[Survived] ConditionalExpression
+scripts/lib/delivered-links.mjs:116:11
+-         if (resolved === null) continue;
++         if (false) continue;
+
+Ran 1.00 tests per mutant on average.
+---------------------|------------------|----------|-----------|------------|----------|----------|
+                     | % Mutation score |          |           |            |          |          |
+File                 |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+---------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files            |  74.29 |   74.29 |      104 |         0 |         36 |        0 |        0 |
+ delivered-links.mjs |  74.29 |   74.29 |      104 |         0 |         36 |        0 |        0 |
+---------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m21:00:12 (45544) INFO MutationTestExecutor[39m Done in 4 seconds.
+[32m21:00:12 (45544) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-YCVs6m.

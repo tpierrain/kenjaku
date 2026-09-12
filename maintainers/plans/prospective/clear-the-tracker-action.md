@@ -296,6 +296,13 @@ about the same gap: **the brain scopes one thing and leaves another unscoped, wi
     correctly never reported. Reverted. **A link in a fenced block or an inline code span is an
     example, not a link** — that is now a test of its own, in both directions, including the
     unterminated fence.
+  - ⏳ **Owed, and both were in flight at the hand-back of 2026-09-12** _(`1ac5e37`)_: the **CI verdict**
+    on that commit, and the **§5quinquies mutation pass** on the new module, launched the same evening
+    (`node maintainers/mutation/mutate-one.mjs scripts/lib/delivered-links.mjs`). Its score and its
+    survivors belong in `maintainers/mutation/RESULTS.md`. **A skip would leave no trace at all**, which
+    is why it is written here rather than remembered.
+  - 🏷️ **The issue is NOT closed yet**: it closes with its evidence once those two come back, and the
+    `proposed: v5.3` label on it is now wrong — the fix landed on `main` after v5.3.0 was cut.
 
 #### The three things this proposal is deliberately NOT doing
 

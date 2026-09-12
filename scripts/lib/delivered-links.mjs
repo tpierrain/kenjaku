@@ -81,22 +81,26 @@ export function markdownLinkTargets(text) {
     // A quoted title sits after the target, separated by whitespace.
     target = target.replace(/\s+("[^"]*"|'[^']*')\s*$/, "").trim();
     if (target.startsWith("<") && target.endsWith(">")) target = target.slice(1, -1).trim();
+    // The anchor is cut FIRST, so a bare `#section` becomes the empty string and is
+    // caught by the same falsy test as `[]()` — there is no separate "starts with #"
+    // case to check, and writing one would be a branch no input can reach.
     const path = target.split("#")[0];
-    if (!path || path.startsWith("#") || path.startsWith("/") || SCHEME.test(path)) continue;
+    if (!path || path.startsWith("/") || SCHEME.test(path)) continue;
     targets.push(path);
   }
   return targets;
 }
 
 export function resolveDeliveredLink(fileRepoRel, target) {
-  if (!target) return null;
-  const path = target.split("#")[0];
+  const path = String(target ?? "").split("#")[0];
   if (!path || path.startsWith("/") || SCHEME.test(path)) return null;
+  // `dirname` of a root-level file is ".", and `join(".", x)` normalises back to `x`,
+  // so there is no "am I at the root" case to special-case here.
   const dir = posix.dirname(installedRel(fileRepoRel));
   // 🛑 A target that climbs OUT of the delivery is returned as it resolves, never
   // swallowed: it is the one link that is certainly broken, and hiding it here would
   // make it the only one nothing can see.
-  return posix.normalize(posix.join(dir === "." ? "" : dir, path));
+  return posix.normalize(posix.join(dir, path));
 }
 
 export function deadDeliveredLinks({ files, read, isDelivered }) {
