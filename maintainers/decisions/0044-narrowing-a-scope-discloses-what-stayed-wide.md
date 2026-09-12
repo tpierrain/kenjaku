@@ -14,12 +14,15 @@
 
 ## Crux
 
-- **The decision, in one sentence:** when the brain starts searching **only part of your notes**, it
-  tells you straight away **what it did not change along with it**.
-- **What that looks like:** you switch to your `globex` universe. Search now only looks at `globex`
-  notes — and the brain says, right there, that the conversation on screen still holds everything it
-  read before you switched. Doing the switch correctly and saying nothing is not the feature working:
-  you would have no way of knowing which of the two it did.
+- **The decision, in one sentence:** switching universe **moves the search and nothing else**, so the
+  brain names, at that moment, the two things that stayed as they were: **the conversation you have on
+  screen, and the accounts your connected tools are signed in as.**
+- **What that looks like:** you switch to `globex`. From now on search only reads `globex` notes — and
+  the brain says, right there: the conversation on screen still holds everything read before the
+  switch, and Slack is still signed in with the same account as a minute ago.
+- **Why saying it is the feature:** a switch that works and says nothing looks exactly like a switch
+  that moved everything. You could not tell the two apart, and you would find out from an answer built
+  on notes you thought you had left behind.
 - **The guarantee that makes it trustworthy:** the sentence comes from the **program**, never from the
   assistant (ADR 0009). Measured, 2026-09-12: **ten hours of work went by with the wrong universe
   active, every note filed in the right place, and nothing said a word.** Nothing was broken, so
@@ -49,7 +52,8 @@ into. So three of the four stay where they were, and each one has its own way of
 ## The decision
 
 1. **A command that makes the brain search only part of your notes says so in its own answer, and
-   says what it left alone** — not in the documentation, and not only if you think to ask.
+   names what it left alone** — the conversation on screen, the connected accounts, where new notes
+   get filed. In that answer: not in the documentation, and not only if you think to ask.
 2. **The program writes that sentence, not the assistant** (ADR 0009). An assistant deciding each time
    whether the sentence is warranted is an assistant that stays silent on the day it matters, because
    deciding means guessing at things it was told once, hours ago. Anything that has to be counted (how
