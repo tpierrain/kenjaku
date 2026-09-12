@@ -18,6 +18,7 @@ test("parseNote — reads scalar frontmatter, an inline tags list, and the body"
   assert.deepEqual(parseNote(raw), {
     frontmatter: { type: "person", created: "2026-01-01", updated: "2026-02-02", tags: ["a", "b"] },
     body: "Body with [[Link]]",
+    fenced: true,
   });
 });
 
@@ -25,6 +26,7 @@ test("parseNote — a note without frontmatter yields empty frontmatter and the 
   assert.deepEqual(parseNote("# Just a title\n[[Link]]"), {
     frontmatter: {},
     body: "# Just a title\n[[Link]]",
+    fenced: false,
   });
 });
 
@@ -46,8 +48,8 @@ test("readVaultNotes — parses every .md note with a relative POSIX path, skips
   });
   t.after(() => rmSync(dir, { recursive: true, force: true }));
   assert.deepEqual(readVaultNotes(dir).sort((a, b) => a.path.localeCompare(b.path)), [
-    { path: "notes/b.md", frontmatter: {}, body: "no frontmatter here" },
-    { path: "people/alice.md", frontmatter: { type: "person" }, body: "hi [[bob]]" },
+    { path: "notes/b.md", frontmatter: {}, body: "no frontmatter here", fenced: false },
+    { path: "people/alice.md", frontmatter: { type: "person" }, body: "hi [[bob]]", fenced: true },
   ]);
 });
 
@@ -81,4 +83,18 @@ test("readVaultNotes and readVaultAttachments partition the vault — every file
   const attachments = readVaultAttachments(dir);
   assert.deepEqual([...notes, ...attachments].sort(), ["a.md", "img.png", "sub/b.md", "sub/doc.pdf"]);
   assert.deepEqual(notes.filter((p) => attachments.includes(p)), [], "nothing may be both");
+});
+
+// ── A note that OPENS a frontmatter block and yields nothing (issue #81) ────
+// This is the measured shape of a note the engine cannot read: `  type: prep-1-1`,
+// indented by two spaces, is invalid YAML — the indexer refuses the note, while
+// this dependency-free reader simply skips the line. Telling the two apart is the
+// whole point of `fenced`: "no frontmatter at all" is an ordinary note, "opened a
+// block and produced no keys" is damage.
+test("parseNote — a frontmatter block that yields NO keys is still marked as fenced", () => {
+  const raw = "---\n  type: prep-1-1\n  created: 2026-08-05\n---\nBody\n";
+  const parsed = parseNote(raw);
+  assert.deepEqual(parsed.frontmatter, {}, "the indented keys are not frontmatter");
+  assert.equal(parsed.fenced, true, "and the note DID open a block — that is what makes it damage");
+  assert.equal(parsed.body, "Body\n");
 });

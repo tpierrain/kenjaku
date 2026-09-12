@@ -282,7 +282,11 @@ and **git**. The installer checks each one and tells you cleanly if something's 
   is *waiting*, and what it is for**: before, your brain could update itself but never knew there was
   anything to update, so the offer was a generic *"you can run an update"*. Now it names the version and
   quotes what that release actually gives you — you decide with the answer in front of you, and *"not
-  now"* remains a complete answer. **What this is not**: no remote repository is added to your brain,
+  now"* remains a complete answer. **Since v5.2.0 that question is a choice you click**, instead of one
+  line of text at the bottom of a long message where it was easy to scroll straight past — and the
+  update now also brings, on **each** of your machines, the parts that cannot travel through your
+  backup repository (the automatic behaviours and the search engine's own building blocks), so a second
+  computer stops quietly running last week's. **What this is not**: no remote repository is added to your brain,
   nothing of yours is sent or pushed, and your own backup repo plays no part. It is **one anonymous
   look at the engine's public repo, once a day** — asking only *"is there a newer version?"* — skipped
   entirely when you are already up to date, and silently given up on when you are offline.

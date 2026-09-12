@@ -28,6 +28,7 @@ function fakeDeps(overrides = {}) {
   const logs = [];
   const errors = [];
   const writes = [];
+  const persists = [];
   const existing = new Set(overrides.existing ?? []);
   const deps = {
     cwd: () => "/brain",
@@ -39,10 +40,14 @@ function fakeDeps(overrides = {}) {
     vaultNotes: () => overrides.vaultNotes ?? [],
     author: () => (overrides.author === undefined ? "Thomas Pierrain" : overrides.author),
     writeFile: (p, content) => writes.push({ path: p, content }),
+    persist: () => {
+      persists.push(writes.length);
+      return overrides.persisted ?? "committed";
+    },
     log: (line) => logs.push(line),
     error: (line) => errors.push(line),
   };
-  return { deps, logs, errors, writes };
+  return { deps, logs, errors, writes, persists };
 }
 
 test("runFileBack — writes a conformant note under vault/, logs the path, exits 0", () => {
@@ -716,4 +721,98 @@ test("file-back-note, as a real process — the note carries the name the FILED-
     new RegExp(`^author: ${A_NAME_ONLY_THIS_BRAIN_CARRIES}$`, "m"),
     "the stamp must be the name THIS brain's git carries, read from the brain the CLI was pointed at",
   );
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// #77 — a filed-back note is VERSIONED by the gesture that wrote it.
+//
+// Same defect as its twin `refresh-note.mjs`: the auto-commit hook matches
+// `Write|Edit`, this builder is reached from Bash on purpose (that routing is
+// what makes the note conformant by construction), so the persistence net has
+// never seen a single note it produced.
+// ─────────────────────────────────────────────────────────────────────────────
+
+test("a filed note is committed, and the commit happens AFTER the write", () => {
+  const { deps, errors, persists } = fakeDeps({
+    input: JSON.stringify({
+      type: "topic",
+      title: "Capacity Management",
+      tags: ["capacity"],
+      body: "What it is.",
+      sources: SAID_HERE,
+    }),
+  });
+  assert.equal(runFileBack([], deps), 0);
+  // 1, not 0: committing before the write would version the state before the note.
+  assert.deepEqual(persists, [1]);
+  assert.deepEqual(errors, [], "a commit that worked says nothing");
+});
+
+test("a filed note whose commit FAILED is still reported, and said to be unversioned", () => {
+  const { deps, logs, errors } = fakeDeps({
+    persisted: "failed",
+    input: JSON.stringify({
+      type: "topic",
+      title: "Capacity Management",
+      tags: ["capacity"],
+      body: "What it is.",
+      sources: SAID_HERE,
+    }),
+  });
+  assert.equal(runFileBack([], deps), 0, "the note IS filed — a persistence failure is not a refusal");
+  assert.equal(logs[0], "✓ Filed back: vault/topics/capacity-management.md");
+  assert.equal(errors.length, 1);
+  assert.match(errors[0], /^⚠️ vault\/topics\/capacity-management\.md is written but NOT committed/);
+});
+
+test("a REFUSED filing never reaches persistence — there is nothing to commit", () => {
+  const { deps, persists } = fakeDeps({
+    existing: ["/brain/vault/topics/capacity-management.md"],
+    input: JSON.stringify({
+      type: "topic",
+      title: "Capacity Management",
+      tags: ["capacity"],
+      body: "What it is.",
+      sources: SAID_HERE,
+    }),
+  });
+  assert.equal(runFileBack([], deps), 1);
+  assert.deepEqual(persists, [], "a refusal that commits would version somebody else's dirt");
+});
+
+test("file-back-note, as a real process — the note is committed, with no hook anywhere", () => {
+  const brain = mkdtempSync(join(tmpdir(), "file-back-persist-"));
+  const git = (args) => spawnSync("git", ["-C", brain, ...args], { encoding: "utf8" });
+  git(["init", "-q", "-b", "main"]);
+  git(["config", "user.email", "t@example.com"]);
+  git(["config", "user.name", "Test"]);
+  mkdirSync(join(brain, "vault"), { recursive: true });
+  writeFileSync(join(brain, "vault", ".keep"), "");
+  git(["add", "."]);
+  git(["commit", "-q", "-m", "seed"]);
+
+  const run = spawnSync(
+    process.execPath,
+    [fileURLToPath(new URL("./file-back-note.mjs", import.meta.url))],
+    {
+      cwd: brain,
+      input: JSON.stringify({
+        type: "topic",
+        title: "Capacity Management",
+        tags: ["capacity"],
+        body: "What it is.",
+        sources: SAID_HERE,
+      }),
+      encoding: "utf8",
+    },
+  );
+
+  assert.equal(run.status, 0, run.stderr);
+  assert.equal(run.stderr, "", "a brain with a working git is warned about nothing");
+  assert.equal(
+    git(["status", "--porcelain"]).stdout.trim(),
+    "",
+    "the tree is clean after the process exited — which is the whole of issue #77",
+  );
+  assert.equal(git(["log", "-1", "--format=%s"]).stdout.trim(), "auto: vault/claude sync");
 });

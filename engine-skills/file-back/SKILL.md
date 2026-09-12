@@ -132,7 +132,7 @@ echo '{"path":"people/jane-doe.md","confidence":{"level":"observed","basis":"her
   pages are appended to, not replaced.
 - **Conformant by construction.** Let the builder produce the frontmatter and links — do not hand-roll
   a note that `/lint` would then flag.
-- **Do not run git** (the auto-commit hook persists any accepted change).
+- **Do not run git** — every accepted change is versioned for you: the builder commits the note it just wrote, and the hook covers anything you write with `Write`/`Edit`. If it prints `⚠️ … NOT committed`, relay that line: it is the one case where a note exists only on this machine.
 - **Prefer existing link targets** so you don't trade evaporation for dangling links.
 
 ## Out of scope

@@ -59,6 +59,11 @@ Va les lire là-bas. Ce qui fait d'une prep de 1-1 le **pire** endroit où les e
   démarré : ouvrir le thread. Un message racine, c'est l'instant où la question a été **posée**. Un
   nombre de réponses non nul avec thread non lu interdit « sans réponse », « en attente »,
   « toujours en attente ».
+- **Une absence porte sa portée dans la même phrase, et le mail est dans le périmètre.** « Je n'ai
+  trouvé aucune trace dans tes notes ni dans l'outil de chat ; je n'ai pas cherché dans ton mail »,
+  jamais un « aucune trace » tout court. Les engagements sur lesquels un 1-1 repose sont justement
+  ceux qui voyagent par mail, et une absence énoncée plus large que la recherche qui la fonde, c'est
+  comme ça qu'une affirmation vraie disparaît d'une conversation.
 - **Réconcilier d'abord.** Est-ce que quelque chose de récupéré contredit ce que tu t'apprêtes à
   écrire ? C'est cette skill qui a produit le défaut terrain qui le prouve : elle a annoncé un
   changement de rôle comme « non confirmé » alors que la fiche `people/` du vault l'enregistrait

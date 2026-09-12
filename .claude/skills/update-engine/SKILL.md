@@ -102,7 +102,32 @@ Then, before the yes, explain plainly:
 > where a subjectless present ("récupère un moteur…", "ne touche pas à…") looks like an
 > imperative aimed at the user instead of a description of what the engine does.
 
-Then ask for an explicit **yes** before proceeding.
+#### Then ask — as a control, not as a last line of prose
+
+🛑 **Ask with `AskUserQuestion`, not with a sentence at the end of the message.** Everything
+above is long *by design* — the release prose is quoted in full and never summarised — so a
+question written as prose lands where the screen has already ended. In the field an owner
+believed the upgrade had run; they had simply scrolled past the only actionable sentence.
+A **clickable** question is a visible control; a sentence is text to spot (ADR 0043: where the
+host offers a question control, a real decision uses it).
+
+- **Header**: `Update` · **Question**: *"Shall I run the engine update to vX.Y.Z?"*
+- **Options**: **Run the update** (recommended) · **Not now**
+
+**The release notes still come before the question**, in full — they are what makes the consent
+informed, and the control replaces the *asking*, never the *telling*.
+
+- **Not now** → say it plainly: the brain stays **exactly as it is**, nothing was downloaded,
+  nothing was swapped, and the offer stays open for whenever they want it. A declined update
+  that is reported in silence reads like a failure.
+- **No answer is not a yes.** An unanswered question stays unanswered and nothing runs.
+- ✅ **On `That is the latest release`, this step asks nothing at all** — no control, no prose
+  question. A question with one real answer is noise.
+
+> 🧰 **Fallback, and it is not optional.** Where the host offers no such tool, ask the same
+> question **in prose**, exactly as before, and wait for an explicit yes. The tool is how the
+> question is collected, **not whether** consent is required: that rule is unchanged and
+> unchangeable (see *Golden rule* above).
 
 ### Step 2 — Run the deterministic core
 From the **brain folder**, run:
@@ -213,6 +238,11 @@ changed** and **what the new version brings**. Two or three plain sentences per 
 > **Keep mine** — their version stands. The engine stops raising it until its next release.
 > **Combine them** — the best of both, which is the offer only a conversation can make.
 
+**Ask it with `AskUserQuestion`**, one question per file, with those three as the options —
+they map onto the control one-for-one, and buried in a paragraph they are three sentences the
+reader has to turn back into choices. *Header*: the file in their words ("Your coach skill").
+🧰 **Fallback**: where the host has no such tool, offer the same three in prose, unchanged.
+
 **Combining is your job, and it is why this is a skill and not a script.** Read both
 versions, write the combination yourself, show it to them, and only apply it once they
 agree. A mechanical merge cannot do this here: these files have **no common ancestor**
@@ -252,6 +282,10 @@ If several files are waiting, **group them first**. Name them in one short list,
 offer, for the whole group: **take all the new ones**, **keep all of mine**, or **let's
 go through them one by one**. Only open the per-file conversation above for the ones they
 actually want to look at.
+
+**This grouped offer is an `AskUserQuestion` too**, with those three as its options — it is
+the shape most brains actually meet, and a list of twelve names followed by a paragraph of
+choices is exactly where a reader stops reading.
 
 If they say nothing, or say "later", that is a complete answer: leave everything as it is.
 The offers are not lost — the engine will mention them again, and they never expire before

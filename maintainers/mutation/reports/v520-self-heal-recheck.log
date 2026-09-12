@@ -1,0 +1,65 @@
+[32m10:04:51 (42045) INFO ProjectReader[39m Found 2 of 1046 file(s) to be mutated.
+[32m10:04:51 (42045) INFO Instrumenter[39m Instrumented 2 source file(s) with 78 mutant(s)
+[32m10:04:51 (42045) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m10:04:51 (42045) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-TU9of3
+[32m10:04:51 (42045) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m10:04:51 (42045) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m10:04:52 (42045) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 0 seconds (net 998 ms, overhead 1 ms).
+Mutation testing 6% (elapsed: <1m, remaining: ~2m) 5/78 tested (0 survived, 0 timed out)
+Mutation testing 12% (elapsed: <1m, remaining: ~2m) 10/78 tested (0 survived, 0 timed out)
+Mutation testing 19% (elapsed: <1m, remaining: ~2m) 15/78 tested (0 survived, 0 timed out)
+Mutation testing 25% (elapsed: <1m, remaining: ~1m) 20/78 tested (0 survived, 0 timed out)
+Mutation testing 32% (elapsed: <1m, remaining: ~1m) 25/78 tested (0 survived, 0 timed out)
+Mutation testing 42% (elapsed: ~1m, remaining: ~1m) 33/78 tested (0 survived, 0 timed out)
+Mutation testing 51% (elapsed: ~1m, remaining: ~1m) 40/78 tested (0 survived, 0 timed out)
+Mutation testing 57% (elapsed: ~1m, remaining: <1m) 45/78 tested (1 survived, 0 timed out)
+Mutation testing 64% (elapsed: ~1m, remaining: <1m) 50/78 tested (3 survived, 0 timed out)
+Mutation testing 76% (elapsed: ~1m, remaining: <1m) 60/78 tested (3 survived, 0 timed out)
+Mutation testing 84% (elapsed: ~1m, remaining: <1m) 66/78 tested (5 survived, 0 timed out)
+Mutation testing 91% (elapsed: ~2m, remaining: <1m) 71/78 tested (5 survived, 0 timed out)
+
+All tests
+  ✓ All tests (killed 72)
+
+[Survived] Regex
+scripts/session-self-heal.mjs:102:86
+-           ? `hooks: ${gap.unwiredHooks.map((script) => script.split("/").pop().replace(/\.mjs$/, "")).join(", ")}`
++           ? `hooks: ${gap.unwiredHooks.map((script) => script.split("/").pop().replace(/\.mjs/, "")).join(", ")}`
+
+[Survived] ArrayDeclaration
+scripts/session-self-heal.mjs:199:22
+-       wantedSkillDirs: [...new Set([...mergeSkillDirs, ...stagedSkillDirs])],
++       wantedSkillDirs: [],
+
+[Survived] ArrayDeclaration
+scripts/session-self-heal.mjs:199:34
+-       wantedSkillDirs: [...new Set([...mergeSkillDirs, ...stagedSkillDirs])],
++       wantedSkillDirs: [...new Set([])],
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:221:55
+-       brainHooks: JSON.parse(readFileSync(settingsPath, "utf8")).hooks ?? {},
++       brainHooks: JSON.parse(readFileSync(settingsPath, "")).hooks ?? {},
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:222:58
+-       templateHooks: JSON.parse(readFileSync(templatePath, "utf8")).hooks ?? {},
++       templateHooks: JSON.parse(readFileSync(templatePath, "")).hooks ?? {},
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:238:60
+-       declared: Object.keys(JSON.parse(readFileSync(pkgPath, "utf8")).dependencies ?? {}),
++       declared: Object.keys(JSON.parse(readFileSync(pkgPath, "")).dependencies ?? {}),
+
+Ran 1.00 tests per mutant on average.
+-----------------------|------------------|----------|-----------|------------|----------|----------|
+                       | % Mutation score |          |           |            |          |          |
+File                   |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+-----------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files              |  92.31 |   92.31 |       72 |         0 |          6 |        0 |        0 |
+ lib                   | 100.00 |  100.00 |       36 |         0 |          0 |        0 |        0 |
+  self-heal-detect.mjs | 100.00 |  100.00 |       36 |         0 |          0 |        0 |        0 |
+ session-self-heal.mjs |  85.71 |   85.71 |       36 |         0 |          6 |        0 |        0 |
+-----------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m10:06:57 (42045) INFO MutationTestExecutor[39m Done in 2 minutes and 6 seconds.
+[32m10:06:57 (42045) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-TU9of3.

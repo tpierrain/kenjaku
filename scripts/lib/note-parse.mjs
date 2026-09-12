@@ -9,10 +9,19 @@
 // read a note without importing an fs adapter.
 // ─────────────────────────────────────────────────────────────────────────────
 
-/** Parse one Markdown file's raw text into { frontmatter, body }. Pure. */
+/**
+ * Parse one Markdown file's raw text into { frontmatter, body, fenced }. Pure.
+ *
+ * `fenced` says whether the note OPENED a frontmatter block at all, and it is not
+ * decoration: a note with no block is an ordinary note, while a block that yields
+ * no keys is damage (issue #81). The measured case is `  type: prep-1-1` indented
+ * by two spaces — invalid YAML, which the engine's indexer refuses outright while
+ * this dependency-free reader simply skips the line. Without `fenced` the two are
+ * the same empty object, and the damage cannot be named.
+ */
 export function parseNote(raw) {
   const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
-  if (!match) return { frontmatter: {}, body: raw };
+  if (!match) return { frontmatter: {}, body: raw, fenced: false };
   const frontmatter = {};
   for (const line of match[1].split(/\r?\n/)) {
     const kv = line.match(/^([A-Za-z0-9_-]+):\s*(.*)$/);
@@ -23,5 +32,5 @@ export function parseNote(raw) {
       ? inlineList[1].split(",").map((v) => v.trim()).filter((v) => v !== "")
       : rawValue.trim();
   }
-  return { frontmatter, body: match[2] };
+  return { frontmatter, body: match[2], fenced: true };
 }

@@ -15,10 +15,13 @@
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-08-23
 
-- **Next:** ▶️ **BUILD `v5.2 — The One Where Done Really Means Done`. Approved 2026-09-12, start
-  without asking** → § *THE APPROVED PLAN*. In order: **step 0**, the ADR on how the brain speaks and
-  when it may act alone, then the five fixes — **#98 is in this release whatever happens** (his
-  standing instruction) and may be taken first of the five. Open a branch off `main`.
+- **Next:** ✅ **`v5.2 — The One Where Done Really Means Done` is BUILT** on branch
+  `feat/v5.2-done-means-done` → § *THE APPROVED PLAN*. Step 0 (ADR 0043) and all five issues are done,
+  every push green, the **§10ter rehearsal**, the **§5quinquies mutation passes**, the **§10 marketing
+  re-read** and the **release note** all done, and [PR #99](https://github.com/tpierrain/kenjaku/pull/99)
+  is green on the full matrix. He said « vas y cut la release » on 2026-09-12 — **and the merge command
+  is refused by the permission classifier**, twice, two ways. **Resume at § *THE RELEASE, STEP BY STEP***:
+  four commands, then the issue sweep. Nothing is half-landed.
 - **Blocked on:** nothing. **Owner's call pending:** nothing. The grouping, the order and the three
   release titles are all decided; two older questions sit in § *Questions the owner owns* and are
   **not to be re-asked** (#78's launcher-README link, `ci.yml`'s `concurrency` group).
@@ -30,8 +33,6 @@
   _(labels only, granted 2026-09-12 — cutting a milestone stays his)_, commit, push, and read what CI
   returns. **Not:** tag, publish, merge to `main`, write into `templates/fr/**` (one carve-out,
   § *History*), or write into either of his two personal brains. **The release itself is his.**
-- ⚠️ **§10ter applies to this release**: #77 and #96 change the write and update paths, so it owes one
-  rehearsal on a copy of a real brain, with `--tag` forced **above** the copy's installed version.
 - **Already delivered:** § *v5.1 — delivered*. Lessons and closed branches: § *History*.
 
 ## Tracking
@@ -154,20 +155,28 @@ the cost of cutting a release here is small and measured.
 
 #### Group 1 → `v5.2 — The One Where Done Really Means Done`
 
-- [ ] **0. FIRST, AND BEFORE ANY OF THE FIVE — ratify how the brain speaks and when it may act
+- [x] **0. FIRST, AND BEFORE ANY OF THE FIVE — ratify how the brain speaks and when it may act
       alone.** An **ADR**, not code: the three tiers of autonomy (silent / announce-then-do / genuinely
       ask) and the plain-language rule for every string the brain emits. Model and steps already
       written in the issue and in
       [the archived plan](../archived/2026-08-23-restore-affordance-graduated-autonomy-action.md).
-  - [ ] 🎯 **Why it is step 0 and not step 6** _(his challenge, 2026-09-12)_: this release **emits new
+      **Done** _(2026-09-12 · `d07f6be`)_ — [ADR 0043](../../decisions/0043-graduated-autonomy-and-plain-language.md),
+      the doctrine section in both constitutions, and `scripts/lib/autonomy-discipline.test.mjs`
+      holding it. The gate is **reversibility then confidence**, and the tier belongs to the **gesture**,
+      never to the skill. 🇫🇷 The French twin moved in the same commit under the standing carve-out
+      (§ *History*): `CLAUDE.engine.md` is guard-watched, so an English-only commit reddens the suite.
+      **The French wording is his to correct.**
+  - [x] 🎯 **Why it is step 0 and not step 6** _(his challenge, 2026-09-12)_: this release **emits new
         user-facing strings** — #98's clickable question above all — and v5.3 emits another. Written
         after the fact, they would all be re-work. The decision is hours; the audit it opens is weeks
         and belongs to **v5.4**, which is why only the decision rides here.
-  - [ ] ⚠️ **The known risk of doing it first, and its mitigation**: a doctrine ratified *before* the
+  - [x] ⚠️ **The known risk of doing it first, and its mitigation**: a doctrine ratified *before* the
         audit risks being theoretical. Mitigation, deliberately cheap — write it against a **real
         sample**: the five subset-picker prompts he faced in one session, and #98's own two questions.
-        If the tiers cannot classify those, they are not ready.
-  - [ ] It ships **inside** this release (the doctrine lands in `CLAUDE.engine.md`, which is delivered
+        If the tiers cannot classify those, they are not ready. **Run, and it held**: the ADR's own
+        table classifies the eight real prompts, `/lint` alone spans all three tiers, and **four of the
+        eight stay 🔴** — which is the evidence the model is not just a way to ask less.
+  - [x] It ships **inside** this release (the doctrine lands in `CLAUDE.engine.md`, which is delivered
         content), not as a release of its own.
 
 **Why these five belong together, in the user's words rather than ours:** *the screen said it was
@@ -178,36 +187,60 @@ looked. **Five surfaces, one broken promise**, and it is the exact promise the l
 (v5.1.3, *The One Where It Stops Crying Wolf*) started repairing from the other end — that one made the
 brain stop reporting healthy things as broken; this one makes it stop reporting broken things as fine.
 
-- [ ] **1. A note the engine writes for you is actually saved** —
+- [x] **1. A note the engine writes for you is actually saved** — **DONE** _(2026-09-12 · `c6c9ac3`)_ —
       [#77](https://github.com/tpierrain/kenjaku/issues/77) 🥇 **First, and alone if the rest slips.**
-  - [ ] The persistence net covers the writes that `/consolidate` and `/file-back` produce, not only
-        the ones a tool call made. Today the hook matches `Write|Edit`, and both skills route through
-        scripts *on purpose* (conformant by construction), so their notes land on disk and nothing is
-        committed while the session prints `✓ Refreshed`.
-  - [ ] The brain's own stated contract in `CLAUDE.engine.md` stops being false about it.
-  - [ ] ⚖️ **And this answers the standing question about #77** (§ *THE ONE QUESTION*, asked twice,
+  - [x] The persistence net covers the writes that `/consolidate` and `/file-back` produce, not only
+        the ones a tool call made. The hook matches `Write|Edit`, and both skills route through
+        scripts *on purpose* (conformant by construction), so their notes landed on disk and nothing
+        was committed while the session printed `✓ Refreshed`. **What shipped**: the two writer
+        scripts persist their own note, by *wrapping the hooks' own `attemptCommit`* rather than
+        spelling "commit the vault" a second time — and when it does not land they say so, naming the
+        note and the one command that reports git's own reason. An unmerged tree is the one case
+        where persistence steps aside, out loud: `add .` there would bury the `<<<<<<<` markers
+        inside the owner's notes.
+  - [x] The brain's own stated contract in `CLAUDE.engine.md` stops being false about it: both
+        constitutions now name **three** paths that persist a note, so a reader can tell which one
+        theirs went down.
+  - [x] ⚖️ **The issue's secondary finding is ANSWERED, not carried**: *"autopush was true and nothing
+        was pushed"* is not a defect. Auto-commit is **commit-only by design** and the push is
+        debounced to the end of the turn — recorded here so it is not re-opened as a bug.
+  - [x] ⚖️ **And this answers the standing question about #77** (§ *THE ONE QUESTION*, asked twice,
         recommendation *"leave it in v5.2"*): the recommendation holds **and v5.2 is now next**, so it
         costs nothing to have waited. It is the only open issue whose failure mode is **silent data
         loss**, so it leads the release rather than riding in it.
-- [ ] **2. A guard that is wired to refuse actually runs** —
+- [x] **2. A guard that is wired to refuse actually runs** — **DONE** _(2026-09-12 · `125e9f7`)_ —
       [#81](https://github.com/tpierrain/kenjaku/issues/81). The write guards match `Write|Edit`, and
       the harness actively steers towards `Bash` for file changes — **so the path we recommend is the
       one nothing watches.** Measured on a real vault: a malformed note landed two days after the guard
       shipped and answered searches from stale content **for three weeks**, its only trace one error
       line inside `vault_stats`.
-  - [ ] 🧭 **Pick the direction before writing code, because the obvious one is the expensive one.**
+  - [x] 🧭 **Pick the direction before writing code, because the obvious one is the expensive one.**
+        **Chosen: the cheap pair, not the shell-reading guard.** A note that opened a frontmatter
+        block and yields no keys is now its own finding, reported first, worded by what it costs, and
+        no exemption applies to it. It is also the one frontmatter finding allowed past the
+        session-start noise guardrail, on the guardrail's own criterion: a true regression that
+        self-clears. `parseNote` gained `fenced` so "no frontmatter" and "a block that produced
+        nothing" stop being the same empty object.
         Inspecting write-shaped `Bash` commands means reading shell, and a guard that half-reads shell
         is worse than none. The two cheaper directions in the issue — a post-write validation sweep,
         and making *"N notes the engine cannot read"* loud in the health report — catch the same defect
         **after** the bytes land, which is enough when the damage is *unreadable*, not *lost*.
-- [ ] **3. A second machine does not silently run last week's wiring** —
+- [x] **3. A second machine does not silently run last week's wiring** — **DONE** _(2026-09-12 ·
+      `ef5c32b`)_ —
       [#96](https://github.com/tpierrain/kenjaku/issues/96). The self-heal gate asks *"is a skill
       missing?"* and *"is an MCP server missing?"*, so a release that ships **a hook**, **an allowlist
       entry** or **a dependency** never triggers a reconcile on the machine that merely pulled.
-  - [ ] 📈 **Its probability rises with every release we ship**, which is what moves it up: recent
+  - [x] **What shipped**: the gate asks **four** questions instead of two. For hooks the oracle is
+        the reconciler itself, asked what it would add and told to write nothing, so anything
+        reported has a remedy by construction; for dependencies it compares the names
+        `rag/package.json` declares against `node_modules`. ⚖️ **The permission allowlist is
+        deliberately NOT asked**: an entry never delivered and one the owner removed are the same
+        absence, `/permissions` is a documented escape hatch, and the reconciler has no allowlist
+        remedy — a gate that reports a gap nothing can close is worse than one that stays quiet.
+  - [x] 📈 **Its probability rises with every release we ship**, which is what moves it up: recent
         releases deliver behaviour *as hooks* (v5.1.2's restart nudge is one). Filed 2026-09-09 at his
         ask, never scheduled until now.
-- [ ] **4. The update asks a question you cannot scroll past** —
+- [x] **4. The update asks a question you cannot scroll past** — **DONE** _(2026-09-12 · `7dd52ae`)_ —
       [#98](https://github.com/tpierrain/kenjaku/issues/98). 📌 **IN THIS RELEASE WHATEVER HAPPENS —
       his standing instruction**, 2026-09-12: *« je voudrais que l'issue 98 soit intégrée asap dans la
       prochaine release, quoi qu'il arrive »*. It is also the cheapest of the five, so **it may be
@@ -215,23 +248,115 @@ brain stop reporting healthy things as broken; this one makes it stop reporting 
       Consent is collected in the **last line of a long message**, under release notes the skill is
       required to quote in full — so the better the notes, the further the only actionable sentence is
       pushed off screen. **A brain owner in the field believed the upgrade had run**; it never had.
-  - [ ] A clickable question instead of a line of prose, with the prose kept as the fallback where the
-        host has no such tool.
-- [ ] **5. An absence claim stops being broader than the search behind it** —
+  - [x] A clickable question instead of a line of prose, with the prose kept as the fallback where the
+        host has no such tool. **Both places the update asks**: step 1's go-ahead and step 4's
+        three-way choice, plus its grouped variant. Pinned in both locales by
+        `scripts/lib/clickable-consent-discipline.test.mjs`, which also holds the three things that
+        did NOT change: consent still required, an unanswered question still runs nothing, and
+        `✅ that is the latest release` still asks nothing at all.
+- [x] **5. An absence claim stops being broader than the search behind it** — **DONE** _(2026-09-12 ·
+      `501a506`)_ —
       [#83](https://github.com/tpierrain/kenjaku/issues/83). *"Exhaustive search in the vault and the
       chat tool"* followed by *"no trace"* reads, three days later, as a general absence. It is the
       **near-miss of #80**, which shipped in v5.1.3 — same subject, different defect — and it is the
       one in this group whose failure **leaves the machine**: a true, sourced statement was deleted
       from a message to an executive.
-  - [ ] The scope and the conclusion become **one sentence**, and connected sources (mail above all)
+  - [x] The scope and the conclusion become **one sentence**, and connected sources (mail above all)
         become part of what an absence check must cover. Doctrine, in both locales, pinned by a doc
-        guard on the shape of `claim-discipline.test.mjs`.
+        guard on the shape of `claim-discipline.test.mjs`. **Carried by all six documents** that hold
+        this discipline (two constitutions, two `sync-sources`, two `prepare-1-1`), and the **routing
+        ladder gained a rung**: the owner's connected sources, mail first, as a retrieval level rather
+        than a freshness mechanism, still ahead of the open web.
 
-> 💰 **What v5.2 costs, said before it is started.** Three medium items (#77, #81, #96) and two cheap
-> ones (#98, #83). **§10ter applies** — #77 and #96 both change what happens during an update or a
-> write, so the release owes one rehearsal on a copy of a real brain, and that rehearsal must force a
-> tag **above** the copy's installed version or it rehearses nothing. Budget it at the start; it is
-> the check this project has already paid for twice by discovering it at the tag.
+- [x] **6. The §10ter field rehearsal — run TWICE, on both ends of the fleet** _(2026-09-12)_. The
+      rehearsal only ever reads an original: it mirrors the launcher into a bare clone, forces the tag
+      onto the branch's HEAD, and copies the brain without its `.git` into a temp dir — so no personal
+      brain is written to, which is what makes this runnable without asking.
+  - [x] **The oldest brain reachable**, installed at `v3.4.0`: 508 engine files swapped, ten engine
+        skills installed, **nine runtime hooks wired**, the retired `tdd-discipline` skill removed, the
+        stale GitHub-Actions inheritance explained in the owner's own words, and the seven files it had
+        stopped receiving named one by one. `.engine-base` went 0 → 16 entries. **The owner's territory
+        came out byte-identical.**
+  - [x] **A brain one release behind**, installed at `v5.1.2` and holding **663 real notes**: only the
+        six skills v5.2 actually touched were brought up to date, the reindex stayed incremental
+        (nothing re-encoded), and `CLAUDE.engine.md` merged 572 → 698 lines **without touching a single
+        byte the owner owns**. This is the case the release will actually meet in the field.
+  - [x] 📌 **It also produces the evidence [#84](https://github.com/tpierrain/kenjaku/issues/84) was
+        waiting for** — a *real* brain, at `v5.1.2`, i.e. one that received the live-sync release. Per
+        § *Neither group*, #84 closes on that evidence rather than on a tag. **Closing it is his**: a
+        session may label an issue, not close one.
+
+- [x] **7. The §5quinquies mutation passes, scoped to what this release changed** _(2026-09-12)_ —
+      seven of eight targets at **100 %**, the whole run recorded in
+      [`../../mutation/RESULTS.md`](../../mutation/RESULTS.md). It is not a formality: it found a real
+      hole and a real product defect.
+  - [x] ⚠️ **`session-self-heal.mjs` first scored 27.03 %, and §5bis is why.** The gate is pure and was
+        tested from every angle; the two functions #96 added that **read the disk** to answer it had no
+        test at all — paths could be broken, both existence checks inverted and a `||` swapped for an
+        `&&` with the file still green. **Second time this same seam has been the hole**, after
+        `session-wiki-health.mjs` in v5.1.3. Five tests on a real temp-dir brain later: **85.71 %**, six
+        named equivalents left.
+  - [x] **Two survivors died by asserting a SEPARATOR, not a name** (`join(", ")` lived through both
+        banner tests because each listed one item), and **one was answered by a product change**: the
+        banner printed `prompt-restart-nudge.mjs`, and a file extension is the one part of that name
+        that means something only to a developer.
+
+- [x] **8. The §10 marketing-surface re-read, and its verdict — including the boring half**
+      _(2026-09-12)_.
+  - [x] **What this release made IMPRECISE, and is now corrected.** `EN-QUOI` sold *"a note whose
+        header the indexer cannot read is **refused at write time**"* — true of the writes the guard
+        can see, and #81 is the measurement that it is not all of them. The row now carries the second
+        net. Its absence paragraph gained v5.2's own sentence: the brain says **where** it looked in
+        the same breath as what it found, and mail is part of where.
+  - [x] **What was an OVERCLAIM until today and is now simply true**: the README's *"every change is
+        auto-committed the instant it is written"*. #77 is exactly the gap between that sentence and
+        the writers the hook never saw. **No wording change — the fix made the promise honest**, and
+        that is worth recording so nobody "corrects" a line that is finally right.
+  - [x] **What it made TRUE and we were not selling**: the update's question is now clicked rather
+        than read past, and an update converges **each** machine rather than the one that ran it. Both
+        added to the README's update bullet, in a reader's words.
+  - [x] 🖼️ **The boards: re-read through their alt texts, copy still accurate, NO re-render.** The
+        closest call is `board-flow`'s *"auto-commit to git, nothing to do by hand"*, which this
+        release makes more true rather than less. Recorded so the next release does not re-derive it.
+
+- [x] **9. The release note is written and PARSER-VERIFIED** _(2026-09-12)_ —
+      [`../../releases/v5.2.0.md`](../../releases/v5.2.0.md), §11 shape, non-developer first. The real
+      `extractWhatYouGet` was run over the body before publishing (1 806 characters extracted, all four
+      moments present), which is the check the v5.0.0 note failed silently.
+  - [x] 🗂️ **New, and offered rather than asserted**: `maintainers/releases/` now keeps the body of each
+        published note. §11 already requires a body on disk to run the parser over; keeping it is what
+        makes a note drafted in one session survive into the next. Delete the folder if you would rather
+        it lived only on GitHub.
+- [ ] **10. 🛑 BLOCKED — the merge, the tag and the release itself** _(2026-09-12)_. Everything above is
+      done and green; the owner said « vas y cut la release ». **Two shell commands were refused by the
+      permission classifier** — `gh pr merge 99 --merge` and the local `git merge --no-ff` + push — so
+      the session cannot land it. **Nothing is half-done**: the branch is intact, `main` untouched, and
+      the exact sequence is § *THE RELEASE, STEP BY STEP* below.
+
+#### THE RELEASE, STEP BY STEP — what is left, in order
+
+```bash
+gh pr merge 99 --merge --subject "Merge pull request #99 — v5.2.0: done really means done, and the doctrine that governs how it says so"
+git checkout main && git pull --ff-only
+git tag -a v5.2.0 -m "v5.2.0 — The One Where Done Really Means Done" && git push origin v5.2.0
+gh release create v5.2.0 --title "v5.2.0 — The One Where Done Really Means Done" --notes-file maintainers/releases/v5.2.0.md
+```
+
+- [ ] Then **§10bis**: close [#77](https://github.com/tpierrain/kenjaku/issues/77),
+      [#81](https://github.com/tpierrain/kenjaku/issues/81), [#96](https://github.com/tpierrain/kenjaku/issues/96),
+      [#98](https://github.com/tpierrain/kenjaku/issues/98) on the published tag, and
+      [#84](https://github.com/tpierrain/kenjaku/issues/84) on the rehearsal evidence.
+- [ ] **[#83](https://github.com/tpierrain/kenjaku/issues/83) closes LAST and differently**: it ships
+      doctrine only, so §10bis says it closes when **a brain RECEIVES the rule**, read out of a real
+      updated brain **in that brain's own locale**. Re-run the rehearsal against the *published* tag and
+      quote the French sentence out of the result. Same for #98's doctrine half.
+- [ ] **[#79](https://github.com/tpierrain/kenjaku/issues/79) is NOT closed** — its decision shipped as
+      ADR 0043; the sweep of every existing string is v5.4. One comment saying so.
+
+> 💰 **What v5.2 cost, against what was budgeted.** Three medium items (#77, #81, #96) and two cheap
+> ones (#98, #83) — plus step 0's ADR, which was the half of group 3 that had to come first. **§10ter
+> applied** and was budgeted at the start rather than discovered at the tag, which is the whole point
+> of the rule: the rehearsal above ran before the PR, not after it.
 
 #### Group 2 → `v5.3 — The One Where It Says Which Universe It Answered From`
 

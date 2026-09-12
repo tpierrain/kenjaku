@@ -9,7 +9,13 @@ import { wikiHealthNudge, buildWikiHealthHookOutput } from "./wiki-health-nudge.
 // ONLY the self-clearing / true-regression signals (dangling links + consolidation
 // candidates); orphans/stale/frontmatter stay in the on-demand /lint.
 
-const emptyLint = { danglingLinks: [], orphans: [], staleEntityPages: [], frontmatterViolations: [] };
+const emptyLint = {
+  danglingLinks: [],
+  orphans: [],
+  staleEntityPages: [],
+  frontmatterViolations: [],
+  unreadableNotes: [],
+};
 const emptyConsolidation = { newPages: [], refreshes: [] };
 
 test("wikiHealthNudge — both reports empty → null (quiet, no session-start noise)", () => {
@@ -62,6 +68,7 @@ test("wikiHealthNudge — orphans/stale/frontmatter but no dangling & no candida
     orphans: ["notes/lonely.md", "notes/unlinked.md"],
     staleEntityPages: [{ path: "people/bob.md", updated: "2025-01-01", freshestReference: "2026-07-01" }],
     frontmatterViolations: [{ path: "notes/bad.md", missing: ["tags"] }],
+    unreadableNotes: [],
   };
   const nudge = wikiHealthNudge({ lintReport, consolidationReport: emptyConsolidation });
   assert.equal(nudge, null);
@@ -102,4 +109,44 @@ test("buildWikiHealthHookOutput keeps the echoed payload short — volume IS the
   const framing = ctx.length - nudge.length;
 
   assert.ok(framing <= 170, `the housekeeping framing grew back to ${framing} chars:\n${ctx}`);
+});
+
+// ── #81 — the one frontmatter finding that is NOT a standing backlog ────────
+// The noise guardrail keeps orphans, stale pages and missing keys out of session
+// start, and rightly: they are a backlog on any real vault. A note the engine
+// cannot read is the opposite — it is a true regression, it self-clears the moment
+// the note is fixed, and while it stands the vault answers from stale content. It
+// was measured standing for three weeks with no signal a human could see.
+
+test("wikiHealthNudge — an unreadable note ALONE is worth a nudge", () => {
+  const lintReport = { ...emptyLint, unreadableNotes: ["prep-1-1/marie.md"] };
+  const nudge = wikiHealthNudge({ lintReport, consolidationReport: emptyConsolidation });
+  assert.equal(nudge, "1 note the engine cannot read (it answers from stale content)");
+});
+
+test("wikiHealthNudge — two of them are counted, and named in plain words", () => {
+  const lintReport = { ...emptyLint, unreadableNotes: ["a.md", "b.md"] };
+  const nudge = wikiHealthNudge({ lintReport, consolidationReport: emptyConsolidation });
+  assert.equal(nudge, "2 notes the engine cannot read (they answer from stale content)");
+  assert.doesNotMatch(nudge, /yaml|frontmatter/i, "name what it costs, not what is wrong with the file");
+});
+
+test("wikiHealthNudge — unreadable notes lead, ahead of housekeeping", () => {
+  const lintReport = {
+    ...emptyLint,
+    unreadableNotes: ["a.md"],
+    danglingLinks: [{ from: "daily/x.md", target: "Nowhere" }],
+  };
+  const consolidationReport = { newPages: [{ target: "Acme" }], refreshes: [] };
+  const nudge = wikiHealthNudge({ lintReport, consolidationReport });
+  assert.equal(
+    nudge,
+    "1 note the engine cannot read (it answers from stale content), 1 consolidation candidates and 1 dangling links",
+  );
+});
+
+test("buildWikiHealthHookOutput — the directive tells the agent which command fixes an unreadable note", () => {
+  const ctx = buildWikiHealthHookOutput("1 note the engine cannot read (it answers from stale content)")
+    .hookSpecificOutput.additionalContext;
+  assert.match(ctx, /\/lint/, "the command that lists them by path");
 });

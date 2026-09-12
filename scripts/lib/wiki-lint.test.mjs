@@ -3,7 +3,13 @@ import assert from "node:assert/strict";
 
 import { extractWikiLinks, lintVault, hasFindings, reportLines, isUnderZone } from "./wiki-lint.mjs";
 
-const CLEAN = { danglingLinks: [], orphans: [], staleEntityPages: [], frontmatterViolations: [] };
+const CLEAN = {
+  danglingLinks: [],
+  orphans: [],
+  staleEntityPages: [],
+  frontmatterViolations: [],
+  unreadableNotes: [],
+};
 
 // ═══════════════════════════════════════════════════════════════════════════
 // wiki-lint — the pure, I/O-free core of the Axis-1 `/lint` wiki-health scanner
@@ -663,4 +669,84 @@ test("lintVault — the `.md` stripped from a link spelling is the EXTENSION, no
   const report = lintVault(notes);
   assert.deepEqual(report.danglingLinks, []);
   assert.deepEqual(report.orphans, ["a.md"], "the target was reached, so only the linking note is an orphan");
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// #81 — a note the ENGINE cannot read, told apart from a note missing a key.
+//
+// Measured on a real vault (2026-08-05, two days after the write guard shipped):
+// a note created through Bash carried `  type: prep-1-1`, indented by two spaces.
+// That is invalid YAML, so the indexer refused it outright and the note answered
+// searches from its last good content FOR THREE WEEKS — its only trace one error
+// line inside vault_stats.
+//
+// The two failures look identical to a lax reader (both yield no keys) and are
+// nothing alike to a user: a missing `tags:` is a tidiness backlog, a note the
+// engine cannot read is a note that lies. So they are separate findings, and only
+// this one is loud.
+// ═══════════════════════════════════════════════════════════════════════════
+
+test("lintVault — a note that opened a frontmatter block and yields NO keys is unreadable, not untidy", () => {
+  const report = lintVault([
+    { path: "prep-1-1/marie.md", frontmatter: {}, body: "hi", fenced: true },
+  ]);
+  assert.deepEqual(report.unreadableNotes, ["prep-1-1/marie.md"]);
+  assert.deepEqual(
+    report.frontmatterViolations,
+    [],
+    "reporting it twice would put the loud finding behind four missing keys",
+  );
+});
+
+test("lintVault — a note with NO frontmatter block at all stays an ordinary frontmatter violation", () => {
+  const report = lintVault([{ path: "topic.md", frontmatter: {}, body: "", fenced: false }]);
+  assert.deepEqual(report.unreadableNotes, [], "never opening a block is not damage");
+  assert.deepEqual(report.frontmatterViolations, [
+    { path: "topic.md", missing: ["type", "created", "updated", "tags"] },
+  ]);
+});
+
+test("lintVault — a block that yields SOME keys is readable, however incomplete", () => {
+  const report = lintVault([
+    { path: "topic.md", frontmatter: { type: "topic" }, body: "", fenced: true },
+  ]);
+  assert.deepEqual(report.unreadableNotes, []);
+  assert.deepEqual(report.frontmatterViolations, [
+    { path: "topic.md", missing: ["created", "updated", "tags"] },
+  ]);
+});
+
+test("lintVault — a raw-capture zone is exempt from missing keys, NOT from being unreadable", () => {
+  // The exemption says "a raw dump is not a curated node", which is about taxonomy.
+  // It says nothing about YAML the engine chokes on: an unreadable note in _inbox/
+  // is just as invisible to a search as one in topics/.
+  const report = lintVault([{ path: "_inbox/capture.md", frontmatter: {}, body: "", fenced: true }]);
+  assert.deepEqual(report.frontmatterViolations, []);
+  assert.deepEqual(report.unreadableNotes, ["_inbox/capture.md"]);
+});
+
+test("lintVault — the engine's OWN notes are exempt from taxonomy, never from unreadability", () => {
+  const report = lintVault([
+    { path: "engine-health/health-check.md", frontmatter: {}, body: "", fenced: true },
+  ]);
+  assert.deepEqual(report.unreadableNotes, ["engine-health/health-check.md"]);
+});
+
+test("hasFindings — an unreadable note alone is enough to make the vault bleed", () => {
+  assert.equal(hasFindings({ ...CLEAN, unreadableNotes: ["bad.md"] }), true);
+});
+
+test("reportLines — unreadable notes come FIRST, and say what it costs rather than naming YAML", () => {
+  const report = { ...CLEAN, unreadableNotes: ["prep-1-1/marie.md"], orphans: ["c.md"] };
+  const lines = reportLines(report);
+  assert.deepEqual(lines.slice(0, 4), [
+    "✗ Wiki health: issues found",
+    "",
+    "Notes the engine cannot read (1) — they answer searches from stale content until fixed:",
+    "  prep-1-1/marie.md",
+  ]);
+  assert.ok(
+    lines.indexOf("Orphans (1):") > lines.indexOf("  prep-1-1/marie.md"),
+    "a finding that loses answers must not sit under a tidiness backlog",
+  );
 });
