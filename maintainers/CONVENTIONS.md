@@ -876,29 +876,36 @@ one by one whether this release covers it, and close the ones it does.
 > and re-labelling someone else's report is both rude and lossy. We classify our own reports; theirs we
 > classify with the milestone and the labels, which sit beside the title instead of over it.
 
-### What belongs in the tracker, and what a title has to say _(2026-09-12)_
+### 🚫 THE TRACKER IS PUBLIC — it is not the maintainer's notebook _(2026-09-12, measured the hard way)_
 
-Ten issues were opened in one evening, to get the remaining work out of the plans and somewhere a
-cleared session would find it. Two of them had to be closed the same hour, and that is the rule:
+**Ten issues were opened in one evening and all ten were deleted within the hour.** The ask that
+produced them was reasonable — *"je voudrais que tout ce qui reste à faire soit listé dans les
+issues"*, so that clearing a conversation loses nothing. The result was not. His verdict:
+**« ces tickets sont comme des discussions privées entre moi et moi-même »**, on the one he opened at
+random, which listed *"tracks A to F"* of a plan a reader cannot see.
 
-- 🚫 **A question put to one person is not a ticket. The tracker holds the WORK a decision unblocks,
-  never the question itself.** *"Re-read the French wording shipped in v5.2.0"* was opened as an
-  issue and closed within the hour: nobody but the owner can do it, nothing is blocked by it, and on a
-  **public** repository a personal reminder reads as project work. What *does* belong is an issue whose
-  title names the work, carrying the **`needs owner decision`** label — the label says it is waiting on
-  him, so the title is free to say what will happen when he answers.
-- 🚫 **An item explicitly parked as conditional is not pending work.** Two engine steps gated on a
-  quality ceiling that has never been observed were filed, then closed: an issue nobody will ever pick
-  up is noise in the one list whose job is to say what is left. It becomes an issue **the day its
-  trigger fires**, and its plan keeps the description until then.
-- ✅ **A title says the thing and its stake, in words that need no glossary** _(his ask: « rendre les
-  titres des tickets plus lisibles et précis, c'est toujours un peu compliqué de comprendre »)_.
-  *"Decide what the nightly quality run is for: it cannot measure the whole codebase in one night"*,
-  not *"QUESTION: what is the nightly mutation run FOR?"*. **A `QUESTION:` prefix is a defect** — it
-  duplicates the label and describes the conversation instead of the work.
+**The failure was the venue, not the wording.** Those issues were rewritten twice — shorter titles,
+plain language, the `QUESTION:` prefix removed — and stayed incomprehensible, because their *subject*
+was internal: re-reading one's own test diff, where a finished plan gets filed, which half of a form
+check to build first. **No amount of rewriting makes a maintainer's bookkeeping into a public ticket.**
 
-> ⚠️ **The `BUG:` / `FEAT:` prefix above applies to these too, and all ten were opened without it.**
-> The omission was caught the same evening, by re-reading this section rather than by any check.
+> ✅ **The test, and it takes one second.** *Would a **user** of Kenjaku — not a maintainer — recognise
+> this as something about the product they use?*
+> **No → it belongs in a plan.** Plans are versioned, reached through [`plans/ACTIVE.md`](plans/ACTIVE.md),
+> and survive a cleared conversation perfectly well. That was never the problem.
+> **Yes → open the issue, and write it so it stands alone**: no plan section numbers, no track letters,
+> no internal vocabulary, no link the reader must follow to understand the first sentence.
+
+Two of the ten passed that test and were rewritten from scratch: a quality figure **promised in a
+published release note**, and *nothing proves that consolidating notes improves the answers* — a claim
+the product makes to the people using it. Everything else went back to the plans it came from.
+
+- 🚫 **A question put to one person is never a ticket**, whatever the label says. It waits in the plan
+  section that owns it.
+- 🚫 **An item parked as conditional is not pending work.** It becomes an issue **the day its trigger
+  fires**, not before; until then its plan holds the description.
+- ⚠️ **And the `BUG:` / `FEAT:` prefix above was missing from all ten.** Caught by re-reading this
+  section, not by any check — which is the only reason it is worth writing rules down.
 
 ### 🙏 An issue or PR opened by SOMEONE ELSE is thanked when it is closed — always
 

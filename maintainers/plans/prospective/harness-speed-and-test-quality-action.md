@@ -17,15 +17,14 @@ permanence des plans énormes qui sont déjà faits."* → **S3**.
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-05
 
-- **Next:** ▶️ **resume at S2**, the quality lever — now tracked as
-  [#104](https://github.com/tpierrain/kenjaku/issues/104). S2.1 (the re-read of one's own test diff,
-  catalogue in hand) and S2.2 (the greppable shapes) are unstarted; S2.0 and S2.0bis already say what
-  they buy. **S3 is untouched**, tracked as [#105](https://github.com/tpierrain/kenjaku/issues/105),
-  and its trigger is written. The three levers are independent and may be taken in any order.
+- **Next:** ▶️ **resume at S2**, the quality lever. S2.1 (the re-read of one's own test diff, catalogue
+  in hand) and S2.2 (the greppable shapes) are unstarted; S2.0 and S2.0bis already say what they buy.
+  **S3 is untouched** and its trigger is written. The three levers are independent and may be taken in
+  any order.
 - ✅ **S1 is done and merged** — [PR #91](https://github.com/tpierrain/kenjaku/pull/91) — **and S1.5
   with it**: `CONVENTIONS` §5quinquies has carried the measured per-mutant figure since 2026-09-07, so
   the *"1-3 minutes"* it is ticked against is gone. What the runs proved is in § *What S1 proved*.
-- 💸 **One debt is public and still unpaid** → [#103](https://github.com/tpierrain/kenjaku/issues/103),
+- 💸 **One debt is public and still unpaid** → [#113](https://github.com/tpierrain/kenjaku/issues/113),
   and § *The re-measurement that was promised in public* for why it is owed.
 - **Blocked on:** nothing. **Owner's call pending:** nothing.
 - **A session may, alone:** take S2 and S3 test-first on a branch off `main`, push every green commit

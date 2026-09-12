@@ -7,8 +7,8 @@
 **"On reprend" means: open the plan below, read its `## 📍 STATE` block, announce the step, work.**
 No memory lookup, no ROADMAP scan, no grep. Sub-plans are reached **through** it, never directly.
 
-📋 **Everything still to do is in the [tracker](https://github.com/tpierrain/kenjaku/issues)** — the
-owner's ask, 2026-09-12. The plans below keep the *reasoning*; the issues hold *what is left*.
+📋 **What is left to do lives in these plans, not in the tracker** — the tracker is public, and it
+only carries what a user of Kenjaku could read and care about (2026-09-12, tried the other way round).
 
 ## The active plan
 

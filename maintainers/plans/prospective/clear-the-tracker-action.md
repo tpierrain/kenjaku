@@ -21,9 +21,10 @@
   step-detail plan of its own before any code**, the way v5.3 got one.
 - **🛑 The autonomy grant STOPS HERE.** It was given « jusqu'à la fin de la release » for **v5.3**, by
   name, and v5.3 is out. **A session may prepare and design v5.4, and must ASK before cutting it.**
-- **Blocked on:** nothing. **What waits on him is in the TRACKER now** — [#106](https://github.com/tpierrain/kenjaku/issues/106)
-  and [#108](https://github.com/tpierrain/kenjaku/issues/108), neither gating anything. **One item stays
-  out of it on purpose:** the French wording shipped in v5.2.0 → § *What the tracker does not hold*.
+- **Blocked on:** nothing. **THREE things wait on him, none gating anything:** what the nightly quality
+  run is FOR → § *Inherited from v5.0.0*; `ci.yml`'s `concurrency` → § *Questions the owner owns*; the
+  French wording shipped in v5.2.0, his to re-read at leisure. **They stay HERE, not in the tracker** →
+  § *What the tracker does not hold*.
 - **A session may, alone:** work test-first end to end on a branch, **label** issues, commit, push,
   read what CI returns. **Not:** cut a release without a grant by name, write into `templates/fr/**`
   (one carve-out, § *History*) or into either of his two personal brains.
@@ -484,17 +485,27 @@ nights, and it needs **no hand dispatch to see** — the cron already answers it
           guards were written; it is now true again for a different reason, and the comment
           explains neither.
 
-## 📋 What the tracker does not hold _(2026-09-12)_
+## 📋 What the tracker does not hold — tried, and reverted the same evening _(2026-09-12)_
 
-The owner asked that everything left to do be listed in the issues, *"pour pouvoir clear"*. Ten were
-opened; two were closed the same hour, and the survivors of that hour are the rule:
+The owner asked that everything left to do be listed in the issues, *"pour pouvoir clear"*. **Ten were
+opened and all ten were deleted within the hour**, at his call, and the reason is worth more than the
+attempt: *« ces tickets sont comme des discussions privées entre moi et moi-même »*.
 
-- **The one item that stays in this plan:** the **French wording shipped in v5.2.0**, his to re-read at
-  leisure. Opened as #107, closed immediately — nobody but him can do it, nothing is blocked by it, and
-  on a **public** repository a personal reminder reads as project work.
-- **His rule, generalised, and now in CONVENTIONS §10bis:** the tracker holds **the work a decision
-  unblocks**, never the question itself; an item parked as *conditional* is not pending work and
-  becomes an issue the day its trigger fires.
+- **What went wrong was not the wording, it was the venue.** The issues were rewritten twice — shorter
+  titles, plainer language — and stayed unreadable, because their *subject* was internal: a re-read of
+  one's own test diff, where a finished plan should be filed, which half of a form check to build.
+  Nothing there means anything to someone who has not read the plans. One of them listed *"tracks A to
+  F"* of a plan the reader cannot see, which is when he stopped it.
+- **The test that was missing, and it is now in CONVENTIONS §10bis:** *would a user of Kenjaku — not a
+  maintainer — recognise this as something about the product?* No → it belongs in a plan.
+- **So the remaining work stays in the plans**, which are versioned, reached through the door, and
+  survive a cleared conversation perfectly well. That was never the problem.
+- **Two survived, rewritten from scratch** and only because they pass that test: the quality figure
+  [#113](https://github.com/tpierrain/kenjaku/issues/113) (a promise made in a **published** release
+  note) and [#114](https://github.com/tpierrain/kenjaku/issues/114) (nothing proves that consolidating
+  notes improves the answers — a claim the product makes to its users).
+- **The three questions that wait on him stay HERE**, as they always did: the nightly quality run's
+  purpose, `ci.yml`'s `concurrency`, and the French wording shipped in v5.2.0.
 
 ## 🙋 Questions the owner owns — asked, and NOT to be re-asked
 
