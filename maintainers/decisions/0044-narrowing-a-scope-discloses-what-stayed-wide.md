@@ -93,6 +93,64 @@ be re-derived wrong, the answer is a guard at the moment it would be got wrong, 
 every session start.** Disclosure is about the *shape* of the answer, never a licence to widen what
 rides the ambient channel.
 
+## How a write-time correction sequences with indexing and committing
+
+The safety invariant above sends a must-never-be-wrong fact to **a guard at the write** rather than to
+the session-start channel. That guard **corrects and reports afterwards; it never asks** — ADR 0043's
+announce-then-act tier — because the case it exists for is a brain sent off to prepare eight meetings,
+where a question waiting for an answer is a halt, and a halt is worse than a misspelling.
+
+Three processes then touch the same file within a few seconds, so the ordering is part of the design
+and not an implementation detail:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Owner
+    participant Brain as Brain (the agent)
+    participant Fixer as Corrector<br/>(PostToolUse hook)
+    participant Commit as auto-commit<br/>(PostToolUse hook)
+    participant Rag as Watcher + indexer<br/>(search server)
+
+    Owner->>Brain: "prepare my eight meetings"
+    Brain->>Fixer: writes the note, carrying the wrong spelling
+    Note over Rag: T0 — write detected,<br/>5 s debounce armed
+    Fixer->>Fixer: reads the file, replaces the declared<br/>wrong spelling, writes it back (~30 ms)
+    Note over Rag: T0+30 ms — the correction is<br/>itself a write: debounce RE-ARMED
+    Fixer-->>Brain: short directive: "corrected X into Y"
+    Brain->>Commit: (same event) commits the CORRECTED bytes
+    Note over Rag: T0+5 s — indexes the<br/>corrected content only
+    Brain-->>Owner: result + one batched sentence:<br/>"I corrected the spelling; say so and I undo it"
+```
+
+**Why the original version is never what gets indexed**, in order of how much each argument is worth:
+
+1. **The incremental index diffs on a `sha256` of the file's raw content, never on a timestamp.** A run
+   skips a document only when the hash it stored **equals** the file's current hash — that is, when
+   what is indexed *is* what is on disk. A corrected file therefore has a different hash from the
+   indexed version and is re-indexed, always. **This is the load-bearing guarantee: no permanent
+   divergence is representable.**
+2. **The debounce is re-armed by the correction.** The indexer fires 5 s after the *last* write, not
+   the first, so the corrective write pushes the run past itself and the run reads the final bytes.
+3. **The orders of magnitude are two apart** (tens of milliseconds against five seconds). There is no
+   tight race to lose.
+
+**The residual window, stated because it exists:** if anything delayed the corrector beyond the
+debounce, a run could read the pre-correction text and a search would return the wrong spelling for a
+few seconds. The corrective write then lands during or after that run, the hashes differ, and the next
+catch-up repairs it. **Bounded, self-healing, never durable.**
+
+**The one ordering the design cannot assume.** The corrector and `auto-commit` are triggered by the
+**same** event. Run in sequence, with the corrector first, one correction is one commit and the owner's
+*"undo it"* is a single `git revert`. Run concurrently, `auto-commit` may capture the uncorrected bytes
+and the correction lands in a second commit, which makes the undo two gestures instead of one. **The
+behaviour of the host is therefore measured before this is built, not assumed**, and the resulting
+order is pinned by a test rather than by the position of a line in a settings file.
+
+**What the corrector never rewrites**, because falsifying a record is a worse defect than the one being
+repaired: fenced and inline code, link targets, and **quoted material**. A wrong spelling inside
+*"Marie wrote: …"* is what Marie wrote; there the guard reports and leaves the bytes alone.
+
 ## Consequences
 
 - Every core that re-points a scope grows a small pure reminder beside it, and a test asserting **both**
