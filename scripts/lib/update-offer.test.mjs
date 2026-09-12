@@ -362,6 +362,14 @@ test("updateOfferDirective — a quote of exactly the budget is still whole", ()
 });
 
 test("updateOfferDirective — the cut lands on a line boundary, and says where the rest is", () => {
+  // Several whole lines, then one that does not fit: the quote keeps the lines it can
+  // — AS lines, with their breaks — and stops at the boundary rather than mid-word.
+  const head = ["- one thing", "- another thing", "- a third thing"].join("\n");
+  const filler = "A".repeat(360 - head.length - 2);
+  const multi = { ...AVAILABLE, releases: [{ version: "v5.3.0", whatYouGet: `${head}\n${filler}\nB` }] };
+  const kept = updateOfferDirective({ verdict: multi, state: null, now: NOW });
+  assert.ok(kept.includes(`quoted and not paraphrased:\n${head}\n${filler}\n…`), "kept lines stay lines");
+
   // 359 characters then one more line: the first line fits the budget to the byte, the
   // second does not, so the quote stops between them rather than mid-word.
   const body = `${"A".repeat(359)}\nB`;

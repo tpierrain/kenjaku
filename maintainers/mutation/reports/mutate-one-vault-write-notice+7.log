@@ -1,179 +1,177 @@
-[32m16:21:43 (29666) INFO ProjectReader[39m Found 8 of 1073 file(s) to be mutated.
-[32m16:21:43 (29666) INFO Instrumenter[39m Instrumented 8 source file(s) with 620 mutant(s)
-[32m16:21:43 (29666) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
-[32m16:21:44 (29666) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-yPN6hy
-[32m16:21:44 (29666) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
-[32m16:21:44 (29666) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
-[32m16:21:52 (29666) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 8 seconds (net 8816 ms, overhead 0 ms).
-Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/620 tested (0 survived, 0 timed out)
-Mutation testing 0% (elapsed: <1m, remaining: ~41m) 5/620 tested (3 survived, 0 timed out)
-Mutation testing 1% (elapsed: <1m, remaining: ~30m) 10/620 tested (4 survived, 0 timed out)
-Mutation testing 1% (elapsed: <1m, remaining: ~40m) 10/620 tested (4 survived, 0 timed out)
-Mutation testing 2% (elapsed: <1m, remaining: ~33m) 15/620 tested (8 survived, 0 timed out)
-Mutation testing 3% (elapsed: ~1m, remaining: ~30m) 20/620 tested (8 survived, 0 timed out)
-Mutation testing 3% (elapsed: ~1m, remaining: ~30m) 23/620 tested (10 survived, 0 timed out)
-Mutation testing 4% (elapsed: ~1m, remaining: ~31m) 25/620 tested (10 survived, 0 timed out)
-Mutation testing 4% (elapsed: ~1m, remaining: ~29m) 30/620 tested (10 survived, 0 timed out)
-Mutation testing 5% (elapsed: ~1m, remaining: ~27m) 35/620 tested (11 survived, 0 timed out)
-Mutation testing 5% (elapsed: ~1m, remaining: ~29m) 36/620 tested (11 survived, 0 timed out)
-Mutation testing 6% (elapsed: ~2m, remaining: ~29m) 40/620 tested (11 survived, 0 timed out)
-Mutation testing 7% (elapsed: ~2m, remaining: ~27m) 45/620 tested (11 survived, 0 timed out)
-Mutation testing 7% (elapsed: ~2m, remaining: ~27m) 48/620 tested (12 survived, 0 timed out)
-Mutation testing 8% (elapsed: ~2m, remaining: ~27m) 51/620 tested (13 survived, 0 timed out)
-Mutation testing 8% (elapsed: ~2m, remaining: ~27m) 55/620 tested (13 survived, 0 timed out)
-Mutation testing 9% (elapsed: ~2m, remaining: ~26m) 60/620 tested (13 survived, 0 timed out)
-Mutation testing 10% (elapsed: ~3m, remaining: ~26m) 63/620 tested (13 survived, 0 timed out)
-Mutation testing 10% (elapsed: ~3m, remaining: ~26m) 66/620 tested (13 survived, 0 timed out)
-Mutation testing 11% (elapsed: ~3m, remaining: ~25m) 71/620 tested (13 survived, 0 timed out)
-Mutation testing 12% (elapsed: ~3m, remaining: ~25m) 75/620 tested (15 survived, 0 timed out)
-Mutation testing 12% (elapsed: ~3m, remaining: ~26m) 76/620 tested (16 survived, 0 timed out)
-Mutation testing 13% (elapsed: ~3m, remaining: ~25m) 81/620 tested (17 survived, 0 timed out)
-Mutation testing 13% (elapsed: ~4m, remaining: ~24m) 86/620 tested (21 survived, 0 timed out)
-Mutation testing 14% (elapsed: ~4m, remaining: ~25m) 88/620 tested (22 survived, 0 timed out)
-Mutation testing 14% (elapsed: ~4m, remaining: ~25m) 91/620 tested (24 survived, 0 timed out)
-Mutation testing 15% (elapsed: ~4m, remaining: ~24m) 96/620 tested (24 survived, 0 timed out)
-Mutation testing 16% (elapsed: ~4m, remaining: ~23m) 101/620 tested (26 survived, 0 timed out)
-Mutation testing 16% (elapsed: ~4m, remaining: ~24m) 103/620 tested (26 survived, 0 timed out)
-Mutation testing 17% (elapsed: ~5m, remaining: ~24m) 106/620 tested (26 survived, 0 timed out)
-Mutation testing 17% (elapsed: ~5m, remaining: ~23m) 111/620 tested (26 survived, 0 timed out)
-Mutation testing 18% (elapsed: ~5m, remaining: ~23m) 116/620 tested (30 survived, 0 timed out)
-Mutation testing 18% (elapsed: ~5m, remaining: ~23m) 116/620 tested (30 survived, 0 timed out)
-Mutation testing 19% (elapsed: ~5m, remaining: ~23m) 121/620 tested (32 survived, 0 timed out)
-Mutation testing 20% (elapsed: ~5m, remaining: ~22m) 126/620 tested (36 survived, 0 timed out)
-Mutation testing 20% (elapsed: ~6m, remaining: ~22m) 129/620 tested (36 survived, 0 timed out)
-Mutation testing 21% (elapsed: ~6m, remaining: ~23m) 131/620 tested (36 survived, 0 timed out)
-Mutation testing 21% (elapsed: ~6m, remaining: ~22m) 136/620 tested (38 survived, 0 timed out)
-Mutation testing 22% (elapsed: ~6m, remaining: ~22m) 141/620 tested (38 survived, 0 timed out)
-Mutation testing 22% (elapsed: ~6m, remaining: ~22m) 142/620 tested (38 survived, 0 timed out)
-Mutation testing 23% (elapsed: ~6m, remaining: ~22m) 146/620 tested (38 survived, 0 timed out)
-Mutation testing 24% (elapsed: ~7m, remaining: ~21m) 151/620 tested (38 survived, 0 timed out)
-Mutation testing 24% (elapsed: ~7m, remaining: ~21m) 153/620 tested (38 survived, 0 timed out)
-Mutation testing 25% (elapsed: ~7m, remaining: ~21m) 157/620 tested (38 survived, 0 timed out)
-Mutation testing 25% (elapsed: ~7m, remaining: ~21m) 161/620 tested (38 survived, 0 timed out)
-Mutation testing 26% (elapsed: ~7m, remaining: ~20m) 166/620 tested (38 survived, 0 timed out)
-Mutation testing 27% (elapsed: ~7m, remaining: ~21m) 168/620 tested (38 survived, 0 timed out)
-Mutation testing 27% (elapsed: ~8m, remaining: ~20m) 172/620 tested (38 survived, 0 timed out)
-Mutation testing 28% (elapsed: ~8m, remaining: ~20m) 177/620 tested (38 survived, 0 timed out)
-Mutation testing 28% (elapsed: ~8m, remaining: ~20m) 179/620 tested (38 survived, 0 timed out)
-Mutation testing 29% (elapsed: ~8m, remaining: ~20m) 183/620 tested (39 survived, 0 timed out)
-Mutation testing 30% (elapsed: ~8m, remaining: ~20m) 187/620 tested (39 survived, 0 timed out)
-Mutation testing 30% (elapsed: ~8m, remaining: ~19m) 192/620 tested (40 survived, 0 timed out)
-Mutation testing 31% (elapsed: ~9m, remaining: ~19m) 194/620 tested (41 survived, 0 timed out)
-Mutation testing 32% (elapsed: ~9m, remaining: ~19m) 199/620 tested (43 survived, 0 timed out)
-Mutation testing 32% (elapsed: ~9m, remaining: ~19m) 203/620 tested (44 survived, 0 timed out)
-Mutation testing 33% (elapsed: ~9m, remaining: ~18m) 207/620 tested (44 survived, 0 timed out)
-Mutation testing 33% (elapsed: ~9m, remaining: ~18m) 210/620 tested (44 survived, 0 timed out)
-Mutation testing 34% (elapsed: ~9m, remaining: ~18m) 214/620 tested (44 survived, 0 timed out)
-Mutation testing 35% (elapsed: ~10m, remaining: ~18m) 218/620 tested (44 survived, 0 timed out)
-Mutation testing 35% (elapsed: ~10m, remaining: ~18m) 222/620 tested (44 survived, 0 timed out)
-Mutation testing 36% (elapsed: ~10m, remaining: ~18m) 225/620 tested (44 survived, 0 timed out)
-Mutation testing 37% (elapsed: ~10m, remaining: ~17m) 230/620 tested (44 survived, 0 timed out)
-Mutation testing 37% (elapsed: ~10m, remaining: ~17m) 234/620 tested (44 survived, 0 timed out)
-Mutation testing 38% (elapsed: ~10m, remaining: ~17m) 238/620 tested (44 survived, 0 timed out)
-Mutation testing 38% (elapsed: ~11m, remaining: ~17m) 240/620 tested (44 survived, 0 timed out)
-Mutation testing 39% (elapsed: ~11m, remaining: ~17m) 245/620 tested (44 survived, 0 timed out)
-Mutation testing 40% (elapsed: ~11m, remaining: ~16m) 250/620 tested (45 survived, 0 timed out)
-Mutation testing 40% (elapsed: ~11m, remaining: ~16m) 253/620 tested (46 survived, 0 timed out)
-Mutation testing 41% (elapsed: ~11m, remaining: ~16m) 255/620 tested (47 survived, 0 timed out)
-Mutation testing 41% (elapsed: ~11m, remaining: ~16m) 260/620 tested (49 survived, 0 timed out)
-Mutation testing 42% (elapsed: ~12m, remaining: ~16m) 265/620 tested (50 survived, 0 timed out)
-Mutation testing 42% (elapsed: ~12m, remaining: ~16m) 266/620 tested (51 survived, 0 timed out)
-Mutation testing 43% (elapsed: ~12m, remaining: ~15m) 270/620 tested (51 survived, 0 timed out)
-Mutation testing 44% (elapsed: ~12m, remaining: ~15m) 275/620 tested (51 survived, 0 timed out)
-Mutation testing 45% (elapsed: ~12m, remaining: ~15m) 280/620 tested (53 survived, 0 timed out)
-Mutation testing 45% (elapsed: ~12m, remaining: ~15m) 281/620 tested (54 survived, 0 timed out)
-Mutation testing 45% (elapsed: ~13m, remaining: ~15m) 285/620 tested (56 survived, 0 timed out)
-Mutation testing 46% (elapsed: ~13m, remaining: ~14m) 290/620 tested (56 survived, 0 timed out)
-Mutation testing 47% (elapsed: ~13m, remaining: ~14m) 295/620 tested (58 survived, 0 timed out)
-Mutation testing 47% (elapsed: ~13m, remaining: ~14m) 296/620 tested (58 survived, 0 timed out)
-Mutation testing 48% (elapsed: ~13m, remaining: ~14m) 300/620 tested (59 survived, 0 timed out)
-Mutation testing 49% (elapsed: ~13m, remaining: ~14m) 305/620 tested (62 survived, 0 timed out)
-Mutation testing 49% (elapsed: ~14m, remaining: ~14m) 306/620 tested (63 survived, 0 timed out)
-Mutation testing 50% (elapsed: ~14m, remaining: ~14m) 311/620 tested (65 survived, 0 timed out)
-Mutation testing 50% (elapsed: ~14m, remaining: ~13m) 316/620 tested (67 survived, 0 timed out)
-Mutation testing 51% (elapsed: ~14m, remaining: ~13m) 320/620 tested (67 survived, 0 timed out)
-Mutation testing 52% (elapsed: ~14m, remaining: ~13m) 323/620 tested (67 survived, 0 timed out)
-Mutation testing 52% (elapsed: ~14m, remaining: ~13m) 326/620 tested (67 survived, 0 timed out)
-Mutation testing 53% (elapsed: ~15m, remaining: ~13m) 331/620 tested (67 survived, 0 timed out)
-Mutation testing 53% (elapsed: ~15m, remaining: ~13m) 333/620 tested (67 survived, 0 timed out)
-Mutation testing 54% (elapsed: ~15m, remaining: ~12m) 336/620 tested (67 survived, 0 timed out)
-Mutation testing 55% (elapsed: ~15m, remaining: ~12m) 341/620 tested (67 survived, 0 timed out)
-Mutation testing 55% (elapsed: ~15m, remaining: ~12m) 346/620 tested (67 survived, 0 timed out)
-Mutation testing 56% (elapsed: ~15m, remaining: ~12m) 348/620 tested (68 survived, 0 timed out)
-Mutation testing 56% (elapsed: ~16m, remaining: ~12m) 351/620 tested (68 survived, 0 timed out)
-Mutation testing 57% (elapsed: ~16m, remaining: ~11m) 356/620 tested (68 survived, 0 timed out)
-Mutation testing 58% (elapsed: ~16m, remaining: ~11m) 361/620 tested (70 survived, 0 timed out)
-Mutation testing 58% (elapsed: ~16m, remaining: ~11m) 364/620 tested (73 survived, 0 timed out)
-Mutation testing 59% (elapsed: ~16m, remaining: ~11m) 366/620 tested (74 survived, 0 timed out)
-Mutation testing 59% (elapsed: ~16m, remaining: ~11m) 371/620 tested (78 survived, 0 timed out)
-Mutation testing 60% (elapsed: ~17m, remaining: ~11m) 376/620 tested (79 survived, 0 timed out)
-Mutation testing 61% (elapsed: ~17m, remaining: ~10m) 379/620 tested (80 survived, 0 timed out)
-Mutation testing 61% (elapsed: ~17m, remaining: ~10m) 383/620 tested (80 survived, 0 timed out)
-Mutation testing 62% (elapsed: ~17m, remaining: ~10m) 386/620 tested (81 survived, 0 timed out)
-Mutation testing 63% (elapsed: ~17m, remaining: ~10m) 391/620 tested (81 survived, 0 timed out)
-Mutation testing 63% (elapsed: ~17m, remaining: ~10m) 394/620 tested (81 survived, 0 timed out)
-Mutation testing 64% (elapsed: ~18m, remaining: ~9m) 399/620 tested (81 survived, 0 timed out)
-Mutation testing 64% (elapsed: ~18m, remaining: ~9m) 401/620 tested (83 survived, 0 timed out)
-Mutation testing 65% (elapsed: ~18m, remaining: ~9m) 406/620 tested (84 survived, 0 timed out)
-Mutation testing 65% (elapsed: ~18m, remaining: ~9m) 409/620 tested (85 survived, 0 timed out)
-Mutation testing 66% (elapsed: ~18m, remaining: ~9m) 414/620 tested (85 survived, 0 timed out)
-Mutation testing 67% (elapsed: ~18m, remaining: ~9m) 416/620 tested (85 survived, 0 timed out)
-Mutation testing 67% (elapsed: ~19m, remaining: ~9m) 419/620 tested (85 survived, 0 timed out)
-Mutation testing 68% (elapsed: ~19m, remaining: ~8m) 424/620 tested (86 survived, 0 timed out)
-Mutation testing 69% (elapsed: ~19m, remaining: ~8m) 429/620 tested (87 survived, 0 timed out)
-Mutation testing 69% (elapsed: ~19m, remaining: ~8m) 431/620 tested (88 survived, 0 timed out)
-Mutation testing 70% (elapsed: ~19m, remaining: ~8m) 434/620 tested (88 survived, 0 timed out)
-Mutation testing 70% (elapsed: ~19m, remaining: ~8m) 439/620 tested (89 survived, 0 timed out)
-Mutation testing 71% (elapsed: ~20m, remaining: ~8m) 442/620 tested (89 survived, 0 timed out)
-Mutation testing 71% (elapsed: ~20m, remaining: ~7m) 446/620 tested (89 survived, 0 timed out)
-Mutation testing 72% (elapsed: ~20m, remaining: ~7m) 449/620 tested (90 survived, 0 timed out)
-Mutation testing 73% (elapsed: ~20m, remaining: ~7m) 454/620 tested (92 survived, 0 timed out)
-Mutation testing 73% (elapsed: ~20m, remaining: ~7m) 457/620 tested (94 survived, 0 timed out)
-Mutation testing 74% (elapsed: ~20m, remaining: ~7m) 461/620 tested (96 survived, 0 timed out)
-Mutation testing 74% (elapsed: ~21m, remaining: ~7m) 464/620 tested (99 survived, 0 timed out)
-Mutation testing 75% (elapsed: ~21m, remaining: ~6m) 469/620 tested (101 survived, 0 timed out)
-Mutation testing 76% (elapsed: ~21m, remaining: ~6m) 472/620 tested (101 survived, 0 timed out)
-Mutation testing 76% (elapsed: ~21m, remaining: ~6m) 476/620 tested (101 survived, 0 timed out)
-Mutation testing 77% (elapsed: ~21m, remaining: ~6m) 479/620 tested (103 survived, 0 timed out)
-Mutation testing 78% (elapsed: ~21m, remaining: ~6m) 484/620 tested (105 survived, 0 timed out)
-Mutation testing 78% (elapsed: ~22m, remaining: ~6m) 487/620 tested (105 survived, 0 timed out)
-Mutation testing 79% (elapsed: ~22m, remaining: ~5m) 492/620 tested (105 survived, 0 timed out)
-Mutation testing 80% (elapsed: ~22m, remaining: ~5m) 496/620 tested (107 survived, 0 timed out)
-Mutation testing 80% (elapsed: ~22m, remaining: ~5m) 499/620 tested (108 survived, 0 timed out)
-Mutation testing 80% (elapsed: ~22m, remaining: ~5m) 502/620 tested (108 survived, 0 timed out)
-Mutation testing 81% (elapsed: ~22m, remaining: ~5m) 507/620 tested (110 survived, 0 timed out)
-Mutation testing 82% (elapsed: ~23m, remaining: ~4m) 511/620 tested (112 survived, 0 timed out)
-Mutation testing 82% (elapsed: ~23m, remaining: ~4m) 514/620 tested (112 survived, 0 timed out)
-Mutation testing 83% (elapsed: ~23m, remaining: ~4m) 517/620 tested (112 survived, 0 timed out)
-Mutation testing 84% (elapsed: ~23m, remaining: ~4m) 522/620 tested (112 survived, 0 timed out)
-Mutation testing 84% (elapsed: ~23m, remaining: ~4m) 526/620 tested (112 survived, 0 timed out)
-Mutation testing 85% (elapsed: ~23m, remaining: ~4m) 529/620 tested (112 survived, 0 timed out)
-Mutation testing 85% (elapsed: ~24m, remaining: ~3m) 532/620 tested (112 survived, 0 timed out)
-Mutation testing 86% (elapsed: ~24m, remaining: ~3m) 537/620 tested (114 survived, 0 timed out)
-Mutation testing 87% (elapsed: ~24m, remaining: ~3m) 541/620 tested (115 survived, 0 timed out)
-Mutation testing 87% (elapsed: ~24m, remaining: ~3m) 544/620 tested (116 survived, 0 timed out)
-Mutation testing 88% (elapsed: ~24m, remaining: ~3m) 547/620 tested (119 survived, 0 timed out)
-Mutation testing 89% (elapsed: ~24m, remaining: ~3m) 552/620 tested (120 survived, 0 timed out)
-Mutation testing 89% (elapsed: ~25m, remaining: ~2m) 556/620 tested (121 survived, 0 timed out)
-Mutation testing 90% (elapsed: ~25m, remaining: ~2m) 559/620 tested (121 survived, 0 timed out)
-Mutation testing 90% (elapsed: ~25m, remaining: ~2m) 562/620 tested (122 survived, 0 timed out)
-Mutation testing 91% (elapsed: ~25m, remaining: ~2m) 567/620 tested (123 survived, 0 timed out)
-Mutation testing 92% (elapsed: ~25m, remaining: ~2m) 572/620 tested (125 survived, 0 timed out)
-Mutation testing 92% (elapsed: ~25m, remaining: ~2m) 574/620 tested (127 survived, 0 timed out)
-Mutation testing 93% (elapsed: ~26m, remaining: ~1m) 577/620 tested (128 survived, 0 timed out)
-Mutation testing 93% (elapsed: ~26m, remaining: ~1m) 582/620 tested (130 survived, 0 timed out)
-Mutation testing 94% (elapsed: ~26m, remaining: ~1m) 587/620 tested (130 survived, 0 timed out)
-Mutation testing 95% (elapsed: ~26m, remaining: ~1m) 589/620 tested (130 survived, 0 timed out)
-Mutation testing 95% (elapsed: ~26m, remaining: ~1m) 592/620 tested (130 survived, 0 timed out)
-Mutation testing 96% (elapsed: ~26m, remaining: ~1m) 597/620 tested (130 survived, 0 timed out)
-Mutation testing 97% (elapsed: ~27m, remaining: <1m) 602/620 tested (130 survived, 0 timed out)
-Mutation testing 97% (elapsed: ~27m, remaining: <1m) 605/620 tested (130 survived, 0 timed out)
-Mutation testing 97% (elapsed: ~27m, remaining: <1m) 607/620 tested (130 survived, 0 timed out)
-Mutation testing 98% (elapsed: ~27m, remaining: <1m) 612/620 tested (131 survived, 0 timed out)
-Mutation testing 99% (elapsed: ~27m, remaining: <1m) 617/620 tested (131 survived, 0 timed out)
+[32m17:02:06 (73661) INFO ProjectReader[39m Found 8 of 1074 file(s) to be mutated.
+[32m17:02:07 (73661) INFO Instrumenter[39m Instrumented 8 source file(s) with 600 mutant(s)
+[32m17:02:07 (73661) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m17:02:07 (73661) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-maC1Vf
+[32m17:02:07 (73661) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m17:02:07 (73661) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m17:02:15 (73661) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 8 seconds (net 8575 ms, overhead 0 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/600 tested (0 survived, 0 timed out)
+Mutation testing 0% (elapsed: <1m, remaining: ~39m) 5/600 tested (2 survived, 0 timed out)
+Mutation testing 1% (elapsed: <1m, remaining: ~37m) 8/600 tested (2 survived, 0 timed out)
+Mutation testing 1% (elapsed: <1m, remaining: ~39m) 10/600 tested (2 survived, 0 timed out)
+Mutation testing 2% (elapsed: <1m, remaining: ~32m) 15/600 tested (4 survived, 0 timed out)
+Mutation testing 3% (elapsed: ~1m, remaining: ~29m) 20/600 tested (4 survived, 0 timed out)
+Mutation testing 3% (elapsed: ~1m, remaining: ~32m) 21/600 tested (4 survived, 0 timed out)
+Mutation testing 4% (elapsed: ~1m, remaining: ~30m) 25/600 tested (4 survived, 0 timed out)
+Mutation testing 5% (elapsed: ~1m, remaining: ~28m) 30/600 tested (4 survived, 0 timed out)
+Mutation testing 5% (elapsed: ~1m, remaining: ~28m) 33/600 tested (4 survived, 0 timed out)
+Mutation testing 6% (elapsed: ~1m, remaining: ~28m) 36/600 tested (4 survived, 0 timed out)
+Mutation testing 6% (elapsed: ~2m, remaining: ~28m) 39/600 tested (4 survived, 0 timed out)
+Mutation testing 7% (elapsed: ~2m, remaining: ~28m) 43/600 tested (4 survived, 0 timed out)
+Mutation testing 7% (elapsed: ~2m, remaining: ~27m) 47/600 tested (4 survived, 0 timed out)
+Mutation testing 8% (elapsed: ~2m, remaining: ~26m) 51/600 tested (4 survived, 0 timed out)
+Mutation testing 9% (elapsed: ~2m, remaining: ~26m) 54/600 tested (4 survived, 0 timed out)
+Mutation testing 9% (elapsed: ~2m, remaining: ~26m) 57/600 tested (4 survived, 1 timed out)
+Mutation testing 10% (elapsed: ~3m, remaining: ~27m) 60/600 tested (4 survived, 1 timed out)
+Mutation testing 10% (elapsed: ~3m, remaining: ~26m) 63/600 tested (4 survived, 1 timed out)
+Mutation testing 11% (elapsed: ~3m, remaining: ~26m) 66/600 tested (4 survived, 1 timed out)
+Mutation testing 11% (elapsed: ~3m, remaining: ~26m) 69/600 tested (4 survived, 1 timed out)
+Mutation testing 12% (elapsed: ~3m, remaining: ~26m) 72/600 tested (5 survived, 1 timed out)
+Mutation testing 12% (elapsed: ~3m, remaining: ~26m) 76/600 tested (6 survived, 2 timed out)
+Mutation testing 13% (elapsed: ~4m, remaining: ~26m) 79/600 tested (6 survived, 3 timed out)
+Mutation testing 13% (elapsed: ~4m, remaining: ~26m) 82/600 tested (6 survived, 3 timed out)
+Mutation testing 14% (elapsed: ~4m, remaining: ~25m) 87/600 tested (7 survived, 3 timed out)
+Mutation testing 15% (elapsed: ~4m, remaining: ~25m) 91/600 tested (9 survived, 3 timed out)
+Mutation testing 15% (elapsed: ~4m, remaining: ~24m) 95/600 tested (9 survived, 3 timed out)
+Mutation testing 16% (elapsed: ~4m, remaining: ~25m) 97/600 tested (9 survived, 3 timed out)
+Mutation testing 17% (elapsed: ~5m, remaining: ~24m) 102/600 tested (9 survived, 3 timed out)
+Mutation testing 17% (elapsed: ~5m, remaining: ~23m) 107/600 tested (9 survived, 3 timed out)
+Mutation testing 18% (elapsed: ~5m, remaining: ~23m) 111/600 tested (9 survived, 3 timed out)
+Mutation testing 18% (elapsed: ~5m, remaining: ~23m) 112/600 tested (9 survived, 3 timed out)
+Mutation testing 19% (elapsed: ~5m, remaining: ~23m) 117/600 tested (10 survived, 3 timed out)
+Mutation testing 20% (elapsed: ~5m, remaining: ~22m) 122/600 tested (10 survived, 3 timed out)
+Mutation testing 20% (elapsed: ~6m, remaining: ~23m) 124/600 tested (10 survived, 3 timed out)
+Mutation testing 21% (elapsed: ~6m, remaining: ~22m) 127/600 tested (11 survived, 3 timed out)
+Mutation testing 22% (elapsed: ~6m, remaining: ~22m) 132/600 tested (13 survived, 3 timed out)
+Mutation testing 22% (elapsed: ~6m, remaining: ~21m) 137/600 tested (13 survived, 3 timed out)
+Mutation testing 22% (elapsed: ~6m, remaining: ~22m) 137/600 tested (13 survived, 3 timed out)
+Mutation testing 23% (elapsed: ~6m, remaining: ~22m) 142/600 tested (13 survived, 3 timed out)
+Mutation testing 24% (elapsed: ~7m, remaining: ~21m) 147/600 tested (13 survived, 3 timed out)
+Mutation testing 25% (elapsed: ~7m, remaining: ~21m) 150/600 tested (13 survived, 3 timed out)
+Mutation testing 25% (elapsed: ~7m, remaining: ~21m) 152/600 tested (13 survived, 3 timed out)
+Mutation testing 26% (elapsed: ~7m, remaining: ~21m) 157/600 tested (13 survived, 3 timed out)
+Mutation testing 27% (elapsed: ~7m, remaining: ~20m) 162/600 tested (13 survived, 3 timed out)
+Mutation testing 27% (elapsed: ~7m, remaining: ~21m) 163/600 tested (13 survived, 3 timed out)
+Mutation testing 27% (elapsed: ~8m, remaining: ~20m) 167/600 tested (13 survived, 3 timed out)
+Mutation testing 28% (elapsed: ~8m, remaining: ~20m) 172/600 tested (13 survived, 3 timed out)
+Mutation testing 29% (elapsed: ~8m, remaining: ~19m) 177/600 tested (13 survived, 3 timed out)
+Mutation testing 29% (elapsed: ~8m, remaining: ~20m) 178/600 tested (13 survived, 3 timed out)
+Mutation testing 30% (elapsed: ~8m, remaining: ~19m) 183/600 tested (14 survived, 3 timed out)
+Mutation testing 31% (elapsed: ~8m, remaining: ~19m) 187/600 tested (14 survived, 3 timed out)
+Mutation testing 31% (elapsed: ~9m, remaining: ~19m) 190/600 tested (14 survived, 3 timed out)
+Mutation testing 32% (elapsed: ~9m, remaining: ~19m) 193/600 tested (14 survived, 3 timed out)
+Mutation testing 33% (elapsed: ~9m, remaining: ~18m) 198/600 tested (14 survived, 3 timed out)
+Mutation testing 33% (elapsed: ~9m, remaining: ~18m) 202/600 tested (14 survived, 3 timed out)
+Mutation testing 34% (elapsed: ~9m, remaining: ~18m) 205/600 tested (14 survived, 3 timed out)
+Mutation testing 34% (elapsed: ~9m, remaining: ~18m) 209/600 tested (14 survived, 3 timed out)
+Mutation testing 35% (elapsed: ~10m, remaining: ~18m) 213/600 tested (14 survived, 3 timed out)
+Mutation testing 36% (elapsed: ~10m, remaining: ~17m) 218/600 tested (14 survived, 3 timed out)
+Mutation testing 36% (elapsed: ~10m, remaining: ~17m) 220/600 tested (14 survived, 3 timed out)
+Mutation testing 37% (elapsed: ~10m, remaining: ~17m) 224/600 tested (14 survived, 3 timed out)
+Mutation testing 38% (elapsed: ~10m, remaining: ~17m) 228/600 tested (14 survived, 3 timed out)
+Mutation testing 38% (elapsed: ~10m, remaining: ~17m) 233/600 tested (14 survived, 3 timed out)
+Mutation testing 39% (elapsed: ~11m, remaining: ~16m) 236/600 tested (14 survived, 3 timed out)
+Mutation testing 40% (elapsed: ~11m, remaining: ~16m) 240/600 tested (14 survived, 3 timed out)
+Mutation testing 40% (elapsed: ~11m, remaining: ~16m) 244/600 tested (14 survived, 3 timed out)
+Mutation testing 41% (elapsed: ~11m, remaining: ~16m) 248/600 tested (14 survived, 3 timed out)
+Mutation testing 41% (elapsed: ~11m, remaining: ~16m) 251/600 tested (14 survived, 3 timed out)
+Mutation testing 42% (elapsed: ~11m, remaining: ~15m) 256/600 tested (15 survived, 3 timed out)
+Mutation testing 43% (elapsed: ~12m, remaining: ~15m) 260/600 tested (15 survived, 3 timed out)
+Mutation testing 44% (elapsed: ~12m, remaining: ~15m) 264/600 tested (15 survived, 3 timed out)
+Mutation testing 44% (elapsed: ~12m, remaining: ~15m) 266/600 tested (15 survived, 3 timed out)
+Mutation testing 45% (elapsed: ~12m, remaining: ~15m) 271/600 tested (15 survived, 3 timed out)
+Mutation testing 45% (elapsed: ~12m, remaining: ~14m) 275/600 tested (15 survived, 3 timed out)
+Mutation testing 46% (elapsed: ~12m, remaining: ~14m) 279/600 tested (15 survived, 3 timed out)
+Mutation testing 46% (elapsed: ~13m, remaining: ~14m) 281/600 tested (15 survived, 3 timed out)
+Mutation testing 47% (elapsed: ~13m, remaining: ~14m) 286/600 tested (15 survived, 3 timed out)
+Mutation testing 48% (elapsed: ~13m, remaining: ~14m) 290/600 tested (15 survived, 3 timed out)
+Mutation testing 48% (elapsed: ~13m, remaining: ~14m) 292/600 tested (15 survived, 3 timed out)
+Mutation testing 49% (elapsed: ~13m, remaining: ~14m) 296/600 tested (15 survived, 3 timed out)
+Mutation testing 50% (elapsed: ~13m, remaining: ~13m) 301/600 tested (15 survived, 3 timed out)
+Mutation testing 51% (elapsed: ~14m, remaining: ~13m) 306/600 tested (17 survived, 3 timed out)
+Mutation testing 51% (elapsed: ~14m, remaining: ~13m) 309/600 tested (17 survived, 3 timed out)
+Mutation testing 51% (elapsed: ~14m, remaining: ~13m) 311/600 tested (18 survived, 3 timed out)
+Mutation testing 52% (elapsed: ~14m, remaining: ~13m) 316/600 tested (18 survived, 3 timed out)
+Mutation testing 53% (elapsed: ~14m, remaining: ~12m) 321/600 tested (18 survived, 3 timed out)
+Mutation testing 54% (elapsed: ~14m, remaining: ~12m) 324/600 tested (18 survived, 3 timed out)
+Mutation testing 54% (elapsed: ~15m, remaining: ~12m) 326/600 tested (18 survived, 3 timed out)
+Mutation testing 55% (elapsed: ~15m, remaining: ~12m) 331/600 tested (18 survived, 3 timed out)
+Mutation testing 56% (elapsed: ~15m, remaining: ~12m) 336/600 tested (18 survived, 3 timed out)
+Mutation testing 56% (elapsed: ~15m, remaining: ~12m) 338/600 tested (18 survived, 3 timed out)
+Mutation testing 56% (elapsed: ~15m, remaining: ~11m) 342/600 tested (18 survived, 3 timed out)
+Mutation testing 57% (elapsed: ~15m, remaining: ~11m) 346/600 tested (19 survived, 3 timed out)
+Mutation testing 58% (elapsed: ~16m, remaining: ~11m) 351/600 tested (19 survived, 3 timed out)
+Mutation testing 58% (elapsed: ~16m, remaining: ~11m) 353/600 tested (19 survived, 3 timed out)
+Mutation testing 59% (elapsed: ~16m, remaining: ~11m) 358/600 tested (21 survived, 3 timed out)
+Mutation testing 60% (elapsed: ~16m, remaining: ~10m) 362/600 tested (21 survived, 3 timed out)
+Mutation testing 61% (elapsed: ~16m, remaining: ~10m) 366/600 tested (21 survived, 3 timed out)
+Mutation testing 61% (elapsed: ~16m, remaining: ~10m) 369/600 tested (21 survived, 3 timed out)
+Mutation testing 62% (elapsed: ~17m, remaining: ~10m) 374/600 tested (22 survived, 3 timed out)
+Mutation testing 63% (elapsed: ~17m, remaining: ~10m) 378/600 tested (23 survived, 3 timed out)
+Mutation testing 63% (elapsed: ~17m, remaining: ~9m) 382/600 tested (23 survived, 3 timed out)
+Mutation testing 64% (elapsed: ~17m, remaining: ~9m) 386/600 tested (23 survived, 3 timed out)
+Mutation testing 64% (elapsed: ~17m, remaining: ~9m) 389/600 tested (23 survived, 3 timed out)
+Mutation testing 65% (elapsed: ~17m, remaining: ~9m) 394/600 tested (23 survived, 3 timed out)
+Mutation testing 66% (elapsed: ~18m, remaining: ~9m) 397/600 tested (23 survived, 3 timed out)
+Mutation testing 66% (elapsed: ~18m, remaining: ~9m) 399/600 tested (23 survived, 3 timed out)
+Mutation testing 67% (elapsed: ~18m, remaining: ~8m) 404/600 tested (23 survived, 3 timed out)
+Mutation testing 68% (elapsed: ~18m, remaining: ~8m) 409/600 tested (23 survived, 3 timed out)
+Mutation testing 68% (elapsed: ~18m, remaining: ~8m) 412/600 tested (23 survived, 3 timed out)
+Mutation testing 69% (elapsed: ~18m, remaining: ~8m) 414/600 tested (23 survived, 3 timed out)
+Mutation testing 69% (elapsed: ~19m, remaining: ~8m) 419/600 tested (23 survived, 3 timed out)
+Mutation testing 70% (elapsed: ~19m, remaining: ~7m) 424/600 tested (23 survived, 3 timed out)
+Mutation testing 71% (elapsed: ~19m, remaining: ~7m) 428/600 tested (23 survived, 3 timed out)
+Mutation testing 71% (elapsed: ~19m, remaining: ~7m) 430/600 tested (23 survived, 3 timed out)
+Mutation testing 72% (elapsed: ~19m, remaining: ~7m) 434/600 tested (24 survived, 3 timed out)
+Mutation testing 73% (elapsed: ~19m, remaining: ~7m) 439/600 tested (25 survived, 3 timed out)
+Mutation testing 73% (elapsed: ~20m, remaining: ~7m) 442/600 tested (25 survived, 3 timed out)
+Mutation testing 74% (elapsed: ~20m, remaining: ~7m) 445/600 tested (25 survived, 3 timed out)
+Mutation testing 74% (elapsed: ~20m, remaining: ~6m) 449/600 tested (25 survived, 3 timed out)
+Mutation testing 75% (elapsed: ~20m, remaining: ~6m) 451/600 tested (25 survived, 3 timed out)
+Mutation testing 75% (elapsed: ~20m, remaining: ~6m) 452/600 tested (25 survived, 3 timed out)
+Mutation testing 75% (elapsed: ~20m, remaining: ~6m) 453/600 tested (25 survived, 3 timed out)
+Mutation testing 75% (elapsed: ~21m, remaining: ~6m) 454/600 tested (25 survived, 3 timed out)
+Mutation testing 75% (elapsed: ~21m, remaining: ~6m) 455/600 tested (25 survived, 3 timed out)
+Mutation testing 76% (elapsed: ~21m, remaining: ~6m) 459/600 tested (25 survived, 6 timed out)
+Mutation testing 77% (elapsed: ~21m, remaining: ~6m) 463/600 tested (25 survived, 6 timed out)
+Mutation testing 77% (elapsed: ~21m, remaining: ~6m) 466/600 tested (25 survived, 7 timed out)
+Mutation testing 78% (elapsed: ~21m, remaining: ~6m) 470/600 tested (25 survived, 7 timed out)
+Mutation testing 79% (elapsed: ~22m, remaining: ~5m) 474/600 tested (25 survived, 7 timed out)
+Mutation testing 79% (elapsed: ~22m, remaining: ~5m) 478/600 tested (25 survived, 7 timed out)
+Mutation testing 80% (elapsed: ~22m, remaining: ~5m) 483/600 tested (25 survived, 7 timed out)
+Mutation testing 80% (elapsed: ~22m, remaining: ~5m) 485/600 tested (25 survived, 7 timed out)
+Mutation testing 81% (elapsed: ~22m, remaining: ~5m) 490/600 tested (27 survived, 7 timed out)
+Mutation testing 82% (elapsed: ~22m, remaining: ~4m) 494/600 tested (27 survived, 7 timed out)
+Mutation testing 82% (elapsed: ~23m, remaining: ~4m) 496/600 tested (27 survived, 7 timed out)
+Mutation testing 83% (elapsed: ~23m, remaining: ~4m) 500/600 tested (27 survived, 7 timed out)
+Mutation testing 84% (elapsed: ~23m, remaining: ~4m) 505/600 tested (27 survived, 7 timed out)
+Mutation testing 84% (elapsed: ~23m, remaining: ~4m) 509/600 tested (27 survived, 7 timed out)
+Mutation testing 85% (elapsed: ~23m, remaining: ~4m) 511/600 tested (27 survived, 7 timed out)
+Mutation testing 86% (elapsed: ~23m, remaining: ~3m) 516/600 tested (27 survived, 7 timed out)
+Mutation testing 86% (elapsed: ~24m, remaining: ~3m) 520/600 tested (27 survived, 7 timed out)
+Mutation testing 87% (elapsed: ~24m, remaining: ~3m) 525/600 tested (27 survived, 7 timed out)
+Mutation testing 87% (elapsed: ~24m, remaining: ~3m) 527/600 tested (27 survived, 7 timed out)
+Mutation testing 88% (elapsed: ~24m, remaining: ~3m) 531/600 tested (28 survived, 7 timed out)
+Mutation testing 89% (elapsed: ~24m, remaining: ~2m) 536/600 tested (29 survived, 7 timed out)
+Mutation testing 90% (elapsed: ~24m, remaining: ~2m) 540/600 tested (29 survived, 7 timed out)
+Mutation testing 90% (elapsed: ~25m, remaining: ~2m) 543/600 tested (29 survived, 7 timed out)
+Mutation testing 91% (elapsed: ~25m, remaining: ~2m) 547/600 tested (30 survived, 7 timed out)
+Mutation testing 91% (elapsed: ~25m, remaining: ~2m) 551/600 tested (32 survived, 7 timed out)
+Mutation testing 92% (elapsed: ~25m, remaining: ~2m) 556/600 tested (34 survived, 7 timed out)
+Mutation testing 93% (elapsed: ~25m, remaining: ~1m) 560/600 tested (34 survived, 7 timed out)
+Mutation testing 93% (elapsed: ~25m, remaining: ~1m) 562/600 tested (34 survived, 7 timed out)
+Mutation testing 94% (elapsed: ~26m, remaining: ~1m) 567/600 tested (34 survived, 7 timed out)
+Mutation testing 95% (elapsed: ~26m, remaining: ~1m) 571/600 tested (34 survived, 7 timed out)
+Mutation testing 96% (elapsed: ~26m, remaining: ~1m) 576/600 tested (34 survived, 7 timed out)
+Mutation testing 96% (elapsed: ~26m, remaining: ~1m) 577/600 tested (34 survived, 7 timed out)
+Mutation testing 97% (elapsed: ~26m, remaining: <1m) 582/600 tested (34 survived, 7 timed out)
+Mutation testing 97% (elapsed: ~26m, remaining: <1m) 587/600 tested (34 survived, 7 timed out)
+Mutation testing 98% (elapsed: ~27m, remaining: <1m) 591/600 tested (34 survived, 7 timed out)
+Mutation testing 98% (elapsed: ~27m, remaining: <1m) 593/600 tested (34 survived, 7 timed out)
+Mutation testing 99% (elapsed: ~27m, remaining: <1m) 597/600 tested (34 survived, 7 timed out)
 
 All tests
-  ✓ All tests (killed 489)
+  ✓ All tests (killed 559)
 
 [Survived] Regex
 scripts/lib/declared-spellings.mjs:36:15
@@ -183,17 +181,7 @@ scripts/lib/declared-spellings.mjs:36:15
 [Survived] Regex
 scripts/lib/declared-spellings.mjs:36:15
 -   const ENTRY = /^(.+?)\s+[—–-]\s+(?:never|not)\s*:?\s+(.+)$/i;
-+   const ENTRY = /^(.+?)\s[—–-]\s+(?:never|not)\s*:?\s+(.+)$/i;
-
-[Survived] Regex
-scripts/lib/declared-spellings.mjs:36:15
--   const ENTRY = /^(.+?)\s+[—–-]\s+(?:never|not)\s*:?\s+(.+)$/i;
 +   const ENTRY = /(.+?)\s+[—–-]\s+(?:never|not)\s*:?\s+(.+)$/i;
-
-[Survived] Regex
-scripts/lib/declared-spellings.mjs:36:15
--   const ENTRY = /^(.+?)\s+[—–-]\s+(?:never|not)\s*:?\s+(.+)$/i;
-+   const ENTRY = /^(.+?)\s+[—–-]\s(?:never|not)\s*:?\s+(.+)$/i;
 
 [Survived] Regex
 scripts/lib/declared-spellings.mjs:36:15
@@ -203,166 +191,40 @@ scripts/lib/declared-spellings.mjs:36:15
 [Survived] Regex
 scripts/lib/declared-spellings.mjs:36:15
 -   const ENTRY = /^(.+?)\s+[—–-]\s+(?:never|not)\s*:?\s+(.+)$/i;
-+   const ENTRY = /^(.+?)\s+[—–-]\s+(?:never|not)\s*:\s+(.+)$/i;
-
-[Survived] Regex
-scripts/lib/declared-spellings.mjs:36:15
--   const ENTRY = /^(.+?)\s+[—–-]\s+(?:never|not)\s*:?\s+(.+)$/i;
 +   const ENTRY = /^(.+?)\s+[—–-]\s+(?:never|not)\s*:?\s(.+)$/i;
 
-[Survived] Regex
-scripts/lib/declared-spellings.mjs:36:15
--   const ENTRY = /^(.+?)\s+[—–-]\s+(?:never|not)\s*:?\s+(.+)$/i;
-+   const ENTRY = /^(.+?)\s+[—–-]\s+(?:never|not)\s*:?\S+(.+)$/i;
-
-[Survived] MethodExpression
-scripts/lib/declared-spellings.mjs:48:18
--         canonical: canonical.trim(),
-+         canonical: canonical,
-
-[Survived] MethodExpression
-scripts/lib/declared-spellings.mjs:49:14
--         wrong: wrong
--           .split(",")
--           .map((one) => one.trim())
--           .filter(Boolean),
-+         wrong: wrong.split(",").map(one => one.trim()),
-
-[Survived] ConditionalExpression
-scripts/lib/declared-spellings.mjs:66:29
--     if (rules.length === 0 || typeof text !== "string") {
-+     if (rules.length === 0 || false) {
-
-[Survived] EqualityOperator
-scripts/lib/declared-spellings.mjs:72:42
--       protectedRanges.some(([from, to]) => at < to && end > from);
-+       protectedRanges.some(([from, to]) => at <= to && end > from);
-
-[Survived] EqualityOperator
-scripts/lib/declared-spellings.mjs:72:53
--       protectedRanges.some(([from, to]) => at < to && end > from);
-+       protectedRanges.some(([from, to]) => at < to && end >= from);
-
-[Survived] MethodExpression
-scripts/lib/declared-spellings.mjs:100:10
--     return (Array.isArray(entries) ? entries : [])
--       .flatMap(({ canonical, wrong }) => (wrong ?? []).map((from) => ({ from, to: canonical })))
--       .filter(({ from, to }) => typeof from === "string" && from.length > 0 && typeof to === "string")
-+     return (Array.isArray(entries) ? entries : []).flatMap(({
-+     canonical,
-+     wrong
-+   }) => (wrong ?? []).map(from => ({
-+     from,
-+     to: canonical
-+   })))
-
 [Survived] ArrayDeclaration
-scripts/lib/declared-spellings.mjs:100:46
+scripts/lib/declared-spellings.mjs:104:46
 -     return (Array.isArray(entries) ? entries : [])
 +     return (Array.isArray(entries) ? entries : ["Stryker was here"])
 
 [Survived] ArrayDeclaration
-scripts/lib/declared-spellings.mjs:101:50
+scripts/lib/declared-spellings.mjs:105:50
 -       .flatMap(({ canonical, wrong }) => (wrong ?? []).map((from) => ({ from, to: canonical })))
 +       .flatMap(({ canonical, wrong }) => (wrong ?? ["Stryker was here"]).map((from) => ({ from, to: canonical })))
 
 [Survived] ConditionalExpression
-scripts/lib/declared-spellings.mjs:102:31
--       .filter(({ from, to }) => typeof from === "string" && from.length > 0 && typeof to === "string")
-+       .filter(({ from, to }) => true)
-
-[Survived] ConditionalExpression
-scripts/lib/declared-spellings.mjs:102:31
--       .filter(({ from, to }) => typeof from === "string" && from.length > 0 && typeof to === "string")
-+       .filter(({ from, to }) => true && typeof to === "string")
-
-[Survived] LogicalOperator
-scripts/lib/declared-spellings.mjs:102:31
--       .filter(({ from, to }) => typeof from === "string" && from.length > 0 && typeof to === "string")
-+       .filter(({ from, to }) => typeof from === "string" && from.length > 0 || typeof to === "string")
-
-[Survived] ConditionalExpression
-scripts/lib/declared-spellings.mjs:102:31
--       .filter(({ from, to }) => typeof from === "string" && from.length > 0 && typeof to === "string")
-+       .filter(({ from, to }) => true && from.length > 0 && typeof to === "string")
-
-[Survived] LogicalOperator
-scripts/lib/declared-spellings.mjs:102:31
--       .filter(({ from, to }) => typeof from === "string" && from.length > 0 && typeof to === "string")
-+       .filter(({ from, to }) => typeof from === "string" || from.length > 0 && typeof to === "string")
-
-[Survived] ConditionalExpression
-scripts/lib/declared-spellings.mjs:102:59
+scripts/lib/declared-spellings.mjs:106:59
 -       .filter(({ from, to }) => typeof from === "string" && from.length > 0 && typeof to === "string")
 +       .filter(({ from, to }) => typeof from === "string" && true && typeof to === "string")
 
 [Survived] EqualityOperator
-scripts/lib/declared-spellings.mjs:102:59
+scripts/lib/declared-spellings.mjs:106:59
 -       .filter(({ from, to }) => typeof from === "string" && from.length > 0 && typeof to === "string")
 +       .filter(({ from, to }) => typeof from === "string" && from.length >= 0 && typeof to === "string")
 
 [Survived] ConditionalExpression
-scripts/lib/declared-spellings.mjs:102:78
+scripts/lib/declared-spellings.mjs:106:78
 -       .filter(({ from, to }) => typeof from === "string" && from.length > 0 && typeof to === "string")
 +       .filter(({ from, to }) => typeof from === "string" && from.length > 0 && true)
 
-[Survived] StringLiteral
-scripts/lib/declared-spellings.mjs:106:66
--   const escapeRegExp = (raw) => raw.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-+   const escapeRegExp = (raw) => raw.replace(/[.*+?^${}()|[\]\\]/g, "");
-
 [Survived] Regex
-scripts/lib/declared-spellings.mjs:112:3
--     /^---\n[\s\S]*?\n---/, //          frontmatter: machine-read (a universe slug, tags,
-+     /---\n[\s\S]*?\n---/, //          frontmatter: machine-read (a universe slug, tags,
-
-[Survived] Regex
-scripts/lib/declared-spellings.mjs:118:3
--     /<[^>\s]+>/g, //                   …and so is an autolink
-+     /<[^>\s]>/g, //                   …and so is an autolink
-
-[Survived] Regex
-scripts/lib/declared-spellings.mjs:118:3
--     /<[^>\s]+>/g, //                   …and so is an autolink
-+     /<[>\s]+>/g, //                   …and so is an autolink
-
-[Survived] Regex
-scripts/lib/declared-spellings.mjs:118:3
--     /<[^>\s]+>/g, //                   …and so is an autolink
-+     /<[^>\S]+>/g, //                   …and so is an autolink
-
-[Survived] Regex
-scripts/lib/declared-spellings.mjs:119:3
--     /^>.*$/gm, //                      a blockquote is someone else's words
-+     />.*$/gm, //                      a blockquote is someone else's words
-
-[Survived] Regex
-scripts/lib/declared-spellings.mjs:119:3
+scripts/lib/declared-spellings.mjs:123:3
 -     /^>.*$/gm, //                      a blockquote is someone else's words
 +     /^>.*/gm, //                      a blockquote is someone else's words
 
-[Survived] Regex
-scripts/lib/declared-spellings.mjs:121:3
--     /“[^”\n]*”/g, //                   "Marie wrote: …" is what Marie wrote, and the
-+     /“[^”\n]”/g, //                   "Marie wrote: …" is what Marie wrote, and the
-
-[Survived] Regex
-scripts/lib/declared-spellings.mjs:121:3
--     /“[^”\n]*”/g, //                   "Marie wrote: …" is what Marie wrote, and the
-+     /“[”\n]*”/g, //                   "Marie wrote: …" is what Marie wrote, and the
-
-[Survived] Regex
-scripts/lib/declared-spellings.mjs:122:3
--     /«[^»\n]*»/g, //                   guard reports it rather than rewriting her.
-+     /«[^»\n]»/g, //                   guard reports it rather than rewriting her.
-
-[Survived] Regex
-scripts/lib/declared-spellings.mjs:122:3
--     /«[^»\n]*»/g, //                   guard reports it rather than rewriting her.
-+     /«[»\n]*»/g, //                   guard reports it rather than rewriting her.
-
 [Survived] ArrayDeclaration
-scripts/lib/declared-spellings.mjs:126:17
+scripts/lib/declared-spellings.mjs:130:17
 -     const spans = [];
 +     const spans = ["Stryker was here"];
 
@@ -381,120 +243,15 @@ scripts/lib/update-offer.mjs:93:45
 -     const due = Date.parse(state.nextAskAt ?? "");
 +     const due = Date.parse(state.nextAskAt ?? "Stryker was here!");
 
-[Survived] ConditionalExpression
-scripts/lib/update-offer.mjs:100:10
--     return typeof verdict.target === "string" && verdict.target !== "" ? verdict.target : null;
-+     return true ? verdict.target : null;
-
-[Survived] LogicalOperator
-scripts/lib/update-offer.mjs:100:10
--     return typeof verdict.target === "string" && verdict.target !== "" ? verdict.target : null;
-+     return typeof verdict.target === "string" || verdict.target !== "" ? verdict.target : null;
-
-[Survived] ConditionalExpression
-scripts/lib/update-offer.mjs:100:10
--     return typeof verdict.target === "string" && verdict.target !== "" ? verdict.target : null;
-+     return true && verdict.target !== "" ? verdict.target : null;
-
-[Survived] ConditionalExpression
-scripts/lib/update-offer.mjs:100:48
--     return typeof verdict.target === "string" && verdict.target !== "" ? verdict.target : null;
-+     return typeof verdict.target === "string" && true ? verdict.target : null;
-
-[Survived] StringLiteral
-scripts/lib/update-offer.mjs:100:67
--     return typeof verdict.target === "string" && verdict.target !== "" ? verdict.target : null;
-+     return typeof verdict.target === "string" && verdict.target !== "Stryker was here!" ? verdict.target : null;
-
-[Survived] StringLiteral
-scripts/lib/update-offer.mjs:168:5
--       `past: "Install now" · "Remind me later" · "No thanks". Where no such control exists, ask the same ` +
-+       `` +
-
-[Survived] StringLiteral
-scripts/lib/update-offer.mjs:172:5
--       `Unanswered means nothing runs, and the offer comes back tomorrow.`
-+       ``
-
 [Survived] ArrayDeclaration
 scripts/lib/update-offer.mjs:186:40
 -     const release = (verdict.releases ?? []).find((entry) => entry?.version === version);
 +     const release = (verdict.releases ?? ["Stryker was here"]).find((entry) => entry?.version === version);
 
-[Survived] ConditionalExpression
-scripts/lib/update-offer.mjs:186:60
--     const release = (verdict.releases ?? []).find((entry) => entry?.version === version);
-+     const release = (verdict.releases ?? []).find((entry) => true);
-
-[Survived] OptionalChaining
-scripts/lib/update-offer.mjs:186:60
--     const release = (verdict.releases ?? []).find((entry) => entry?.version === version);
-+     const release = (verdict.releases ?? []).find((entry) => entry.version === version);
-
-[Survived] OptionalChaining
-scripts/lib/update-offer.mjs:187:23
--     const body = typeof release?.whatYouGet === "string" ? release.whatYouGet.trim() : "";
-+     const body = typeof release.whatYouGet === "string" ? release.whatYouGet.trim() : "";
-
-[Survived] MethodExpression
-scripts/lib/update-offer.mjs:187:58
--     const body = typeof release?.whatYouGet === "string" ? release.whatYouGet.trim() : "";
-+     const body = typeof release?.whatYouGet === "string" ? release.whatYouGet : "";
-
-[Survived] ConditionalExpression
-scripts/lib/update-offer.mjs:196:18
--     const quoted = body.length <= QUOTE_MAX ? body : `${cutAtLine(body, QUOTE_MAX)}\n…`;
-+     const quoted = false ? body : `${cutAtLine(body, QUOTE_MAX)}\n…`;
-
-[Survived] EqualityOperator
-scripts/lib/update-offer.mjs:196:18
--     const quoted = body.length <= QUOTE_MAX ? body : `${cutAtLine(body, QUOTE_MAX)}\n…`;
-+     const quoted = body.length < QUOTE_MAX ? body : `${cutAtLine(body, QUOTE_MAX)}\n…`;
-
-[Survived] ConditionalExpression
-scripts/lib/update-offer.mjs:197:17
--     const where = body.length <= QUOTE_MAX ? "" : ` ${full}`;
-+     const where = false ? "" : ` ${full}`;
-
-[Survived] EqualityOperator
-scripts/lib/update-offer.mjs:197:17
--     const where = body.length <= QUOTE_MAX ? "" : ` ${full}`;
-+     const where = body.length < QUOTE_MAX ? "" : ` ${full}`;
-
-[Survived] StringLiteral
-scripts/lib/update-offer.mjs:197:44
--     const where = body.length <= QUOTE_MAX ? "" : ` ${full}`;
-+     const where = body.length <= QUOTE_MAX ? "Stryker was here!" : ` ${full}`;
-
-[Survived] EqualityOperator
-scripts/lib/update-offer.mjs:207:9
--       if (size + line.length + 1 > budget) break;
-+       if (size + line.length + 1 >= budget) break;
-
-[Survived] ArithmeticOperator
-scripts/lib/update-offer.mjs:207:9
--       if (size + line.length + 1 > budget) break;
-+       if (size + line.length - 1 > budget) break;
-
-[Survived] ConditionalExpression
-scripts/lib/update-offer.mjs:211:10
--     return kept.length > 0 ? kept.join("\n") : body.slice(0, budget);
-+     return true ? kept.join("\n") : body.slice(0, budget);
-
-[Survived] EqualityOperator
-scripts/lib/update-offer.mjs:211:10
--     return kept.length > 0 ? kept.join("\n") : body.slice(0, budget);
-+     return kept.length >= 0 ? kept.join("\n") : body.slice(0, budget);
-
 [Survived] StringLiteral
 scripts/lib/update-offer.mjs:211:38
 -     return kept.length > 0 ? kept.join("\n") : body.slice(0, budget);
 +     return kept.length > 0 ? kept.join("") : body.slice(0, budget);
-
-[Survived] MethodExpression
-scripts/lib/update-offer.mjs:211:46
--     return kept.length > 0 ? kept.join("\n") : body.slice(0, budget);
-+     return kept.length > 0 ? kept.join("\n") : body;
 
 [Survived] StringLiteral
 scripts/lib/update-offer.mjs:221:78
@@ -504,234 +261,42 @@ scripts/lib/update-offer.mjs:221:78
 [Survived] ConditionalExpression
 scripts/lib/update-offer.mjs:224:12
 -       return parsed !== null && typeof parsed === "object" ? parsed : null;
-+       return true ? parsed : null;
-
-[Survived] LogicalOperator
-scripts/lib/update-offer.mjs:224:12
--       return parsed !== null && typeof parsed === "object" ? parsed : null;
-+       return parsed !== null || typeof parsed === "object" ? parsed : null;
-
-[Survived] ConditionalExpression
-scripts/lib/update-offer.mjs:224:12
--       return parsed !== null && typeof parsed === "object" ? parsed : null;
 +       return true && typeof parsed === "object" ? parsed : null;
-
-[Survived] ConditionalExpression
-scripts/lib/update-offer.mjs:224:31
--       return parsed !== null && typeof parsed === "object" ? parsed : null;
-+       return parsed !== null && true ? parsed : null;
 
 [Survived] ArrayDeclaration
 scripts/lib/vault-paths.mjs:39:53
 -   export function noteUniverse({ notePath, registry = [] }) {
 +   export function noteUniverse({ notePath, registry = ["Stryker was here"] }) {
 
-[Survived] ConditionalExpression
-scripts/lib/vault-paths.mjs:41:10
--     return segment !== undefined && registry.includes(segment) ? segment : DEFAULT_UNIVERSE;
-+     return true && registry.includes(segment) ? segment : DEFAULT_UNIVERSE;
-
 [Survived] ArrayDeclaration
 scripts/lib/vault-write-notice.mjs:72:14
 -     registry = [],
 +     registry = ["Stryker was here"],
 
-[Survived] ObjectLiteral
-scripts/lib/vault-write-notice.mjs:75:10
--     said = { universes: [], corrections: [] },
-+     said = {},
-
 [Survived] ArrayDeclaration
-scripts/lib/vault-write-notice.mjs:75:23
--     said = { universes: [], corrections: [] },
-+     said = { universes: ["Stryker was here"], corrections: [] },
-
-[Survived] ArrayDeclaration
-scripts/lib/vault-write-notice.mjs:75:40
--     said = { universes: [], corrections: [] },
-+     said = { universes: [], corrections: ["Stryker was here"] },
-
-[Survived] ArrayDeclaration
-scripts/lib/vault-write-notice.mjs:76:12
+scripts/lib/vault-write-notice.mjs:79:12
 -     bypass = [],
 +     bypass = ["Stryker was here"],
 
-[Survived] ObjectLiteral
-scripts/lib/vault-write-notice.mjs:78:62
--     const nothing = { updatedInput: null, context: null, said: { universes: [], corrections: [] }, bypassUsed: false };
-+     const nothing = { updatedInput: null, context: null, said: {}, bypassUsed: false };
-
 [Survived] ArrayDeclaration
-scripts/lib/vault-write-notice.mjs:78:75
--     const nothing = { updatedInput: null, context: null, said: { universes: [], corrections: [] }, bypassUsed: false };
-+     const nothing = { updatedInput: null, context: null, said: { universes: ["Stryker was here"], corrections: [] }, bypassUsed: false };
-
-[Survived] ArrayDeclaration
-scripts/lib/vault-write-notice.mjs:78:92
--     const nothing = { updatedInput: null, context: null, said: { universes: [], corrections: [] }, bypassUsed: false };
-+     const nothing = { updatedInput: null, context: null, said: { universes: [], corrections: ["Stryker was here"] }, bypassUsed: false };
-
-[Survived] BooleanLiteral
-scripts/lib/vault-write-notice.mjs:78:110
--     const nothing = { updatedInput: null, context: null, said: { universes: [], corrections: [] }, bypassUsed: false };
-+     const nothing = { updatedInput: null, context: null, said: { universes: [], corrections: [] }, bypassUsed: true };
-
-[Survived] ConditionalExpression
-scripts/lib/vault-write-notice.mjs:81:7
--     if (notePath === null) return nothing;
-+     if (false) return nothing;
-
-[Survived] ArrayDeclaration
-scripts/lib/vault-write-notice.mjs:83:99
+scripts/lib/vault-write-notice.mjs:86:99
 -     const drift = universeDriftNotice({ notePath, pointer, registry, alreadySaid: said.universes ?? [] });
 +     const drift = universeDriftNotice({ notePath, pointer, registry, alreadySaid: said.universes ?? ["Stryker was here"] });
 
 [Survived] ArrayDeclaration
-scripts/lib/vault-write-notice.mjs:86:76
+scripts/lib/vault-write-notice.mjs:89:76
 -     const fresh = spelling.corrections.filter((one) => !(said.corrections ?? []).includes(correctionKey(one)));
 +     const fresh = spelling.corrections.filter((one) => !(said.corrections ?? ["Stryker was here"]).includes(correctionKey(one)));
 
-[Survived] BooleanLiteral
-scripts/lib/vault-write-notice.mjs:110:87
--     const quiet = { updatedInput: null, corrections: [], protectedHits: [], bypassUsed: false };
-+     const quiet = { updatedInput: null, corrections: [], protectedHits: [], bypassUsed: true };
-
-[Survived] OptionalChaining
-scripts/lib/vault-write-notice.mjs:112:19
--     const written = toolInput?.[field];
-+     const written = toolInput[field];
-
-[Survived] ConditionalExpression
-scripts/lib/vault-write-notice.mjs:113:7
--     if (typeof written !== "string") return quiet;
-+     if (false) return quiet;
-
-[Survived] ConditionalExpression
-scripts/lib/vault-write-notice.mjs:123:7
--     if (entries.length === 0) return { ...quiet, bypassUsed };
-+     if (false) return { ...quiet, bypassUsed };
-
-[Survived] MethodExpression
-scripts/lib/vault-write-notice.mjs:148:10
--     return entries
--       .map((entry) => ({ ...entry, wrong: entry.wrong.filter((one) => !spared.has(one.toLowerCase())) }))
--       .filter((entry) => entry.wrong.length > 0);
-+     return entries.map(entry => ({
-+     ...entry,
-+     wrong: entry.wrong.filter(one => !spared.has(one.toLowerCase()))
-+   }));
-
-[Survived] ConditionalExpression
-scripts/lib/vault-write-notice.mjs:150:24
--       .filter((entry) => entry.wrong.length > 0);
-+       .filter((entry) => true);
-
 [Survived] EqualityOperator
-scripts/lib/vault-write-notice.mjs:150:24
--       .filter((entry) => entry.wrong.length > 0);
-+       .filter((entry) => entry.wrong.length >= 0);
-
-[Survived] MethodExpression
-scripts/lib/vault-write-notice.mjs:159:10
--     return declared.some((entry) =>
--       entry.wrong.some((one) => spared.has(one.toLowerCase()) && haystack.includes(one.toLowerCase())),
--     );
-+     return declared.every(entry => entry.wrong.some(one => spared.has(one.toLowerCase()) && haystack.includes(one.toLowerCase())));
-
-[Survived] ConditionalExpression
-scripts/lib/vault-write-notice.mjs:170:10
--     while (kept.length > 1 && kept.join("\n").length > NOTICE_MAX) kept.pop();
-+     while (true && kept.join("\n").length > NOTICE_MAX) kept.pop();
-
-[Survived] EqualityOperator
-scripts/lib/vault-write-notice.mjs:170:10
--     while (kept.length > 1 && kept.join("\n").length > NOTICE_MAX) kept.pop();
-+     while (kept.length >= 1 && kept.join("\n").length > NOTICE_MAX) kept.pop();
-
-[Survived] EqualityOperator
-scripts/lib/vault-write-notice.mjs:170:29
+scripts/lib/vault-write-notice.mjs:179:29
 -     while (kept.length > 1 && kept.join("\n").length > NOTICE_MAX) kept.pop();
 +     while (kept.length > 1 && kept.join("\n").length >= NOTICE_MAX) kept.pop();
 
 [Survived] StringLiteral
-scripts/lib/vault-write-notice.mjs:170:39
+scripts/lib/vault-write-notice.mjs:179:39
 -     while (kept.length > 1 && kept.join("\n").length > NOTICE_MAX) kept.pop();
 +     while (kept.length > 1 && kept.join("").length > NOTICE_MAX) kept.pop();
-
-[Survived] StringLiteral
-scripts/lib/vault-write-notice.mjs:171:26
--     const text = kept.join("\n");
-+     const text = kept.join("");
-
-[Survived] ConditionalExpression
-scripts/lib/vault-write-notice.mjs:173:10
--     return text.length <= NOTICE_MAX ? text : `${text.slice(0, NOTICE_MAX - 1)}…`;
-+     return true ? text : `${text.slice(0, NOTICE_MAX - 1)}…`;
-
-[Survived] ConditionalExpression
-scripts/lib/vault-write-notice.mjs:173:10
--     return text.length <= NOTICE_MAX ? text : `${text.slice(0, NOTICE_MAX - 1)}…`;
-+     return false ? text : `${text.slice(0, NOTICE_MAX - 1)}…`;
-
-[Survived] EqualityOperator
-scripts/lib/vault-write-notice.mjs:173:10
--     return text.length <= NOTICE_MAX ? text : `${text.slice(0, NOTICE_MAX - 1)}…`;
-+     return text.length < NOTICE_MAX ? text : `${text.slice(0, NOTICE_MAX - 1)}…`;
-
-[Survived] StringLiteral
-scripts/lib/vault-write-notice.mjs:173:45
--     return text.length <= NOTICE_MAX ? text : `${text.slice(0, NOTICE_MAX - 1)}…`;
-+     return text.length <= NOTICE_MAX ? text : ``;
-
-[Survived] EqualityOperator
-scripts/lib/vault-write-notice.mjs:173:10
--     return text.length <= NOTICE_MAX ? text : `${text.slice(0, NOTICE_MAX - 1)}…`;
-+     return text.length > NOTICE_MAX ? text : `${text.slice(0, NOTICE_MAX - 1)}…`;
-
-[Survived] MethodExpression
-scripts/lib/vault-write-notice.mjs:173:48
--     return text.length <= NOTICE_MAX ? text : `${text.slice(0, NOTICE_MAX - 1)}…`;
-+     return text.length <= NOTICE_MAX ? text : `${text}…`;
-
-[Survived] ArithmeticOperator
-scripts/lib/vault-write-notice.mjs:173:62
--     return text.length <= NOTICE_MAX ? text : `${text.slice(0, NOTICE_MAX - 1)}…`;
-+     return text.length <= NOTICE_MAX ? text : `${text.slice(0, NOTICE_MAX + 1)}…`;
-
-[Survived] ConditionalExpression
-scripts/lib/vault-write-notice.mjs:192:7
--     if (items.length <= NAMED_AT_MOST) return items.join(", ");
-+     if (false) return items.join(", ");
-
-[Survived] EqualityOperator
-scripts/lib/vault-write-notice.mjs:192:7
--     if (items.length <= NAMED_AT_MOST) return items.join(", ");
-+     if (items.length < NAMED_AT_MOST) return items.join(", ");
-
-[Survived] StringLiteral
-scripts/lib/vault-write-notice.mjs:192:56
--     if (items.length <= NAMED_AT_MOST) return items.join(", ");
-+     if (items.length <= NAMED_AT_MOST) return items.join("");
-
-[Survived] StringLiteral
-scripts/lib/vault-write-notice.mjs:194:24
--     return `${named.join(", ")} and ${items.length - named.length} more`;
-+     return `${named.join("")} and ${items.length - named.length} more`;
-
-[Survived] StringLiteral
-scripts/update-offer-answer.mjs:38:3
--     "  later       ask me again tomorrow (repeatable for as long as you like)\n" +
-+     "" +
-
-[Survived] StringLiteral
-scripts/update-offer-answer.mjs:39:3
--     "  no-thanks   not this version: +3 days, then +5 days, +3 weeks, +2 months, then no more for it\n" +
-+     "" +
-
-[Survived] StringLiteral
-scripts/update-offer-answer.mjs:40:3
--     "  install     the update is being run now, so the offer stands aside while it does";
-+     "";
 
 [Survived] StringLiteral
 scripts/update-offer-answer.mjs:52:74
@@ -745,51 +310,6 @@ scripts/update-offer-answer.mjs:53:13
 -       }
 +       } catch {}
 
-[Survived] ArrowFunction
-scripts/update-offer-answer.mjs:57:14
--     readState: (brainDir) => readOfferState({ brainDir }),
-+     readState: () => undefined,
-
-[Survived] ObjectLiteral
-scripts/update-offer-answer.mjs:57:43
--     readState: (brainDir) => readOfferState({ brainDir }),
-+     readState: (brainDir) => readOfferState({}),
-
-[Survived] StringLiteral
-scripts/update-offer-answer.mjs:76:14
--       deps.log("There is no update on offer right now, so there was nothing to record.");
-+       deps.log("");
-
-[Survived] StringLiteral
-scripts/update-offer-answer.mjs:91:7
--         `I could not write your answer down, so nothing remembers it: the offer for ${verdict.target} will come ` +
-+         `` +
-
-[Survived] ConditionalExpression
-scripts/update-offer-answer.mjs:103:7
--     if (state.silenced) return `Noted: ${version} will not be brought up again.`;
-+     if (true) return `Noted: ${version} will not be brought up again.`;
-
-[Survived] MethodExpression
-scripts/update-offer-answer.mjs:104:16
--     const when = new Date(Date.parse(state.nextAskAt)).toISOString().slice(0, 10);
-+     const when = new Date(Date.parse(state.nextAskAt)).toISOString();
-
-[Survived] StringLiteral
-scripts/vault-write-notice.mjs:38:38
--   export const NOTICE_STATE_REL = join(".cache", "write-notices.json");
-+   export const NOTICE_STATE_REL = join("", "write-notices.json");
-
-[Survived] StringLiteral
-scripts/vault-write-notice.mjs:38:48
--   export const NOTICE_STATE_REL = join(".cache", "write-notices.json");
-+   export const NOTICE_STATE_REL = join(".cache", "");
-
-[Survived] StringLiteral
-scripts/vault-write-notice.mjs:43:32
--   export const BYPASS_REL = join(".cache", "spelling-bypass.json");
-+   export const BYPASS_REL = join("", "spelling-bypass.json");
-
 [Survived] StringLiteral
 scripts/vault-write-notice.mjs:45:71
 -   const fsIo = { existsSync, readFileSync: (path) => readFileSync(path, "utf8") };
@@ -799,11 +319,6 @@ scripts/vault-write-notice.mjs:45:71
 scripts/vault-write-notice.mjs:48:36
 -     readInput: () => readFileSync(0, "utf8"),
 +     readInput: () => readFileSync(0, ""),
-
-[Survived] ArrowFunction
-scripts/vault-write-notice.mjs:58:14
--     readState: (brainDir) => readJson(join(brainDir, NOTICE_STATE_REL)),
-+     readState: () => undefined,
 
 [Survived] ArrayDeclaration
 scripts/vault-write-notice.mjs:60:80
@@ -832,41 +347,21 @@ scripts/vault-write-notice.mjs:70:11
 -     }
 +     } catch {}
 
-[Survived] ObjectLiteral
-scripts/vault-write-notice.mjs:77:30
--       mkdirSync(dirname(path), { recursive: true });
-+       mkdirSync(dirname(path), {});
-
-[Survived] BooleanLiteral
-scripts/vault-write-notice.mjs:77:43
--       mkdirSync(dirname(path), { recursive: true });
-+       mkdirSync(dirname(path), { recursive: false });
-
-[Survived] StringLiteral
-scripts/vault-write-notice.mjs:78:58
--       writeFileSync(path, JSON.stringify(value, null, 2) + "\n");
-+       writeFileSync(path, JSON.stringify(value, null, 2) + "");
-
-[Survived] ConditionalExpression
-scripts/vault-write-notice.mjs:137:9
--       if (notice.updatedInput) payload.updatedInput = notice.updatedInput;
-+       if (true) payload.updatedInput = notice.updatedInput;
-
-Ran 1.00 tests per mutant on average.
+Ran 0.99 tests per mutant on average.
 -------------------------|------------------|----------|-----------|------------|----------|----------|
                          | % Mutation score |          |           |            |          |          |
 File                     |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
 -------------------------|--------|---------|----------|-----------|------------|----------|----------|
-All files                |  78.87 |   78.87 |      489 |         0 |        131 |        0 |        0 |
- lib                     |  78.70 |   78.70 |      388 |         0 |        105 |        0 |        0 |
-  declared-spellings.mjs |  72.52 |   72.52 |       95 |         0 |         36 |        0 |        0 |
+All files                |  94.33 |   94.33 |      559 |         7 |         34 |        0 |        0 |
+ lib                     |  94.71 |   94.71 |      441 |         7 |         25 |        0 |        0 |
+  declared-spellings.mjs |  91.54 |   91.54 |      116 |         3 |         11 |        0 |        0 |
   universe-drift.mjs     |  87.50 |   87.50 |       14 |         0 |          2 |        0 |        0 |
   update-duration.mjs    | 100.00 |  100.00 |        6 |         0 |          0 |        0 |        0 |
-  update-offer.mjs       |  82.94 |   82.94 |      141 |         0 |         29 |        0 |        0 |
-  vault-paths.mjs        |  94.29 |   94.29 |       33 |         0 |          2 |        0 |        0 |
-  vault-write-notice.mjs |  73.33 |   73.33 |       99 |         0 |         36 |        0 |        0 |
- update-offer-answer.mjs |  78.43 |   78.43 |       40 |         0 |         11 |        0 |        0 |
- vault-write-notice.mjs  |  80.26 |   80.26 |       61 |         0 |         15 |        0 |        0 |
+  update-offer.mjs       |  97.06 |   97.06 |      165 |         0 |          5 |        0 |        0 |
+  vault-paths.mjs        |  96.67 |   96.67 |       29 |         0 |          1 |        0 |        0 |
+  vault-write-notice.mjs |  95.04 |   95.04 |      111 |         4 |          6 |        0 |        0 |
+ update-offer-answer.mjs |  96.08 |   96.08 |       49 |         0 |          2 |        0 |        0 |
+ vault-write-notice.mjs  |  90.79 |   90.79 |       69 |         0 |          7 |        0 |        0 |
 -------------------------|--------|---------|----------|-----------|------------|----------|----------|
-[32m16:49:41 (29666) INFO MutationTestExecutor[39m Done in 27 minutes and 57 seconds.
-[32m16:49:41 (29666) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-yPN6hy.
+[32m17:29:37 (73661) INFO MutationTestExecutor[39m Done in 27 minutes and 30 seconds.
+[32m17:29:37 (73661) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-maC1Vf.

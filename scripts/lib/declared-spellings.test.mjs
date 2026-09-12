@@ -159,12 +159,15 @@ test("a half-written profile entry is skipped, and the sound ones still apply", 
   // The list is hand-edited in Obsidian, so an empty spelling, a missing canonical and
   // a canonical that is not text all reach this function eventually. An empty spelling
   // in particular would become an alternative matching the empty string EVERYWHERE.
-  const { text, corrections } = applyDeclaredSpellings("Cortex here", [
+  // The trailing full stop is load-bearing: an empty alternative only ever matches
+  // BETWEEN two non-letters, so it is punctuation and line ends that a `''` rule
+  // splatters the canonical name across — never the middle of a sentence.
+  const { text, corrections } = applyDeclaredSpellings("Cortex here.", [
     { canonical: "cortAIx", wrong: ["", "Cortex", null] },
     { canonical: 42, wrong: ["Cortaix"] },
     { canonical: "X" },
   ]);
-  assert.equal(text, "cortAIx here");
+  assert.equal(text, "cortAIx here.");
   assert.deepEqual(corrections, [{ from: "Cortex", to: "cortAIx" }]);
 });
 
