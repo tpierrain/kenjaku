@@ -633,6 +633,58 @@ test("nativeConnectorsReminder warns when leaving the default scope for a named 
   assert.match(msg, /'acme'/);
 });
 
+// ── the disclosure gate, as something the CORE says out loud (#82) ───────────
+// `.claude/skills/switch/SKILL.md` tells the agent the core prints `BELOW the
+// disclosure gate` / `PAST the disclosure gate` and forbids it to infer the answer
+// by counting universes (ADR 0009). Nothing printed those words, so the only thing
+// left to the agent WAS counting. These pin the words the skill promises.
+
+test("runSwitchCli gate says PAST once a second universe exists", () => {
+  const io = fakeFs({ ".vault-rag/universes.json": JSON.stringify({ universes: ["acme"] }) });
+  // One REGISTERED universe plus the implicit default = two, which is the gate.
+  assert.deepEqual(runSwitchCli(io, ".vault-rag", ["gate"]), {
+    code: 0,
+    message: "PAST the disclosure gate",
+  });
+});
+
+test("runSwitchCli gate says BELOW on a brain that never created one", () => {
+  assert.deepEqual(runSwitchCli(fakeFs({}), ".vault-rag", ["gate"]), {
+    code: 0,
+    message: "BELOW the disclosure gate",
+  });
+});
+
+test("runSwitchCli gate reads the REGISTRY, not the pointer", () => {
+  // A pointer aimed at a named universe on a brain whose registry is empty is a
+  // damaged brain, not a multiverse. Deciding from the pointer would tell a
+  // single-universe owner about machinery they have never created.
+  const io = fakeFs({ ".vault-rag/active-universe": "ghost" });
+  assert.equal(runSwitchCli(io, ".vault-rag", ["gate"]).message, "BELOW the disclosure gate");
+});
+
+test("parseSwitchArgs understands the gate verb, and keeps it off the bare-name path", () => {
+  assert.deepEqual(parseSwitchArgs(["gate"]), { action: "gate" });
+  // The escape hatch every other verb has: a universe actually called "gate" is
+  // still reachable, explicitly.
+  assert.deepEqual(parseSwitchArgs(["switch", "gate"]), { action: "switch", name: "gate" });
+});
+
+test("runSwitchCli current stays ONE bare slug, and nothing else", () => {
+  // ⚠️ THE GUARD THAT MAKES `gate` SAFE. `current` is parsed by /sync (twice) and is
+  // the shape other callers rely on, so the gate had to be a new verb rather than a
+  // second line here. A change that breaks this breaks them silently.
+  const io = fakeFs({
+    ".vault-rag/universes.json": JSON.stringify({ universes: ["acme", "blue"] }),
+    ".vault-rag/active-universe": "blue",
+  });
+  const res = runSwitchCli(io, ".vault-rag", ["current"]);
+  assert.deepEqual(res, { code: 0, message: "blue" });
+  // Said twice on purpose: deepEqual above pins the value, this pins the SHAPE —
+  // no newline, no decoration, whatever the value happens to be.
+  assert.doesNotMatch(res.message, /\n|\s/u);
+});
+
 // ── conversationResidueReminder: the scope a switch CANNOT re-point (#68) ─────
 // `/switch` re-scopes retrieval server-side and leaves the conversation window
 // holding everything read in the sphere just left — so the answer LOOKS scoped and

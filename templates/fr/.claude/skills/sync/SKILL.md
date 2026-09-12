@@ -78,18 +78,27 @@ la règle refuse. Résous, puis `git rebase --continue`, et laisse l'étape 5 l'
 ```bash
 git push
 node scripts/set-active-universe.mjs current   # comparer avec ce qu'a lu l'étape 3
+node scripts/set-active-universe.mjs gate      # de quel côté de la porte de divulgation
 ```
 Afficher : commit local oui/non, fichiers récupérés depuis l'autre machine, statut du push.
 
-**Si l'univers a changé**, le dire en UNE ligne, en premier, dans la langue du propriétaire : un
-changement de portée que personne n'annonce, c'est précisément l'échec que cette fonctionnalité
-existe pour supprimer.
+**La condition, c'est la PORTE, pas le changement.** `/sync` est précisément le moment où l'univers
+actif peut arriver d'une autre machine, puisque c'est un état versionné (ADR 0034). Un rapport qui
+nomme tout ce que le côté git n'a *pas* changé, en omettant la seule information qu'une synchro
+peut réellement transporter, laisse le doute là où cette fonctionnalité existe pour l'enlever.
+**Ne jamais trancher en comptant les univers soi-même** (ADR 0009) : la commande `gate` ci-dessus
+répond.
 
-> Tu es maintenant dans ton univers **`<nom>`** (il t'a suivi·e depuis ton autre ordinateur).
-> Les recherches sont limitées à cet univers, plus tes notes transverses.
-
-S'il n'a pas changé, ne rien dire du tout sur les univers : un cerveau mono-contexte ne doit jamais
-entendre parler de la fonctionnalité (divulgation progressive, ADR 0034).
+- **`PAST the disclosure gate`** : le dire en UNE ligne, en premier, dans la langue du propriétaire.
+  **Toujours**, qu'il ait changé ou non.
+  > *(changé)* Tu es maintenant dans ton univers **`<nom>`**.
+  > Il t'a suivi·e depuis ton autre ordinateur, et les recherches sont limitées à cet
+  > univers, plus tes notes transverses.
+  >
+  > *(inchangé)* Univers actif : **`<nom>`**, inchangé.
+- **`BELOW the disclosure gate`** : ne rien dire du tout sur les univers. Un cerveau mono-contexte
+  ne doit jamais entendre parler de la fonctionnalité (divulgation progressive, ADR 0034), et ce
+  silence n'est légitime que dans ce cas précis.
 
 ## Cas limites
 - **Rien à sync** : repo clean + à jour → « Rien à synchroniser (commit abc1234). »

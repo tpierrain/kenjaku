@@ -42,10 +42,13 @@ language:
   single universe, nothing ever created) the notion **does not exist for this user**: never write or
   say *universe* to them, speak of **their context, their world, this place**. The moment a second
   universe exists, the opposite holds: everything is framed as universes, because that is the word
-  they now switch with. **The deterministic core tells you which world you are in** (`BELOW the
-  disclosure gate` / `PAST the disclosure gate`, printed with the offer) — do **not** infer it by
-  counting universes yourself (ADR 0009). File paths the core prints (`vault/universe.md`) are the
-  one exception: a filename is a filename, and quoting it back is fine.
+  they now switch with. **The deterministic core tells you which world you are in** — ask it, in one
+  command, and it answers `BELOW the disclosure gate` or `PAST the disclosure gate`:
+  ```bash
+  node scripts/set-active-universe.mjs gate
+  ```
+  Do **not** infer it by counting universes yourself (ADR 0009). File paths the core prints
+  (`vault/universe.md`) are the one exception: a filename is a filename, and quoting it back is fine.
 - **Creating a universe is create-and-switch** (git `switch -c` ergonomics): register the name and
   make it active in one move. The name is normalized to a safe kebab slug (e.g. "Blue Team" →
   `blue-team`); the reserved name `default` cannot be created.

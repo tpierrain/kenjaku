@@ -78,17 +78,27 @@ the rule refuses. Resolve it, then `git rebase --continue`, and let step 5 annou
 ```bash
 git push
 node scripts/set-active-universe.mjs current   # compare with what step 3 read
+node scripts/set-active-universe.mjs gate      # which side of the disclosure gate
 ```
 Show: local commit yes/no, files pulled in from the other machine, push status.
 
-**If the universe changed**, say it in ONE line, first, in the owner's language — a scope
-change nobody announces is the failure this whole feature exists to remove:
+**The condition is the GATE, not the change.** `/sync` is precisely the moment the active
+universe can arrive from another machine, since it is committed state (ADR 0034) — so a
+report that names everything the git side did *not* change, and omits the one piece of
+state a sync can actually carry, leaves the doubt where this feature exists to remove it.
+**Never decide this by counting universes yourself** (ADR 0009): the `gate` command above
+answers it.
 
-> You are now in your **`<name>`** universe (it followed you from your other computer).
-> Searches are scoped to it plus your cross-cutting notes.
-
-If it did not change, say nothing about universes: a single-context brain must never hear
-about the feature at all (progressive disclosure, ADR 0034).
+- **`PAST the disclosure gate`** → say it in ONE line, first, in the owner's language.
+  **Always**, changed or not:
+  > *(changed)* You are now in your **`<name>`** universe.
+  > It followed you from your other computer, and searches are scoped to it plus your
+  > cross-cutting notes.
+  >
+  > *(unchanged)* Active universe: **`<name>`**, unchanged.
+- **`BELOW the disclosure gate`** → say nothing about universes at all. A single-context
+  brain must never hear about the feature (progressive disclosure, ADR 0034), and that
+  silence is **the only** case where it is right.
 
 ## Edge cases
 - **Nothing to sync**: repo clean + up to date → "Nothing to synchronize (commit abc1234)."

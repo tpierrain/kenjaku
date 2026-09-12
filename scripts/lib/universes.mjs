@@ -120,6 +120,7 @@ export function parseSwitchArgs(argv) {
   if (first === "switch") return { action: "switch", name: rest.join(" ") };
   if (first === "list") return { action: "list" };
   if (first === "current") return { action: "current" };
+  if (first === "gate") return { action: "gate" };
   return { action: "switch", name: argv.join(" ") };
 }
 
@@ -132,7 +133,24 @@ export function runSwitchCli(io, dir, argv) {
   const intent = parseSwitchArgs(argv);
   const current = readActiveUniverse(io, dir);
 
+  // ⚠️ ONE BARE SLUG, and it must stay that way: `/sync` reads this twice (before and
+  // after the rebase) and compares the two, so a second line of decoration here would
+  // break a caller silently. That constraint is WHY the gate below is its own verb
+  // instead of extra output on this one, and a test pins the shape.
   if (intent.action === "current") return { code: 0, message: current };
+
+  // Which side of the progressive-disclosure gate this brain stands on, in the words
+  // the skills already promise their reader (issue #82). The decision needs COUNTING,
+  // and counting is the core's job, never the agent's (ADR 0009) — a skill left to
+  // infer it would meet a single-universe owner with vocabulary they have never used.
+  //
+  // Read off the REGISTRY, never the pointer: a pointer aimed at a universe that is
+  // not registered is a damaged brain (healActiveUniversePointer repairs exactly that),
+  // and a damaged brain is not a multiverse.
+  if (intent.action === "gate") {
+    const past = isMultiverse(readRegistry(io, dir));
+    return { code: 0, message: `${past ? "PAST" : "BELOW"} the disclosure gate` };
+  }
 
   if (intent.action === "list" || intent.action === "menu") {
     const all = listAllUniverses(readRegistry(io, dir));

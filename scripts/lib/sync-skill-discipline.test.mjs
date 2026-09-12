@@ -29,6 +29,45 @@ test("the sync skill resolves a pointer conflict with --theirs — the machine t
   assert.match(SKILL, /machine you are sitting at wins/i);
 });
 
+// Issue #82 — the announcement was conditioned on "the universe CHANGED", and the
+// right condition is "this brain has more than one universe". Measured on a brain with
+// three: `/sync` mid-session produced a complete git report (clean tree, nothing
+// fetched, push up to date) and not a word about the universe. The owner read the
+// silence as an omission rather than as discretion, and had to ask — which is the doubt
+// this feature exists to remove, sitting exactly where the feature was supposed to be.
+test("the sync skill conditions the announcement on the GATE, not on the universe having changed", () => {
+  // It must ASK the core, because deciding needs counting and counting is not the
+  // agent's job (ADR 0009). `\s+` throughout: markdown wraps these lines.
+  assert.match(
+    SKILL,
+    /set-active-universe\.mjs gate/,
+    "the gate is a question for the core — an agent left to infer it counts universes",
+  );
+  assert.match(SKILL, /the\s+condition\s+is\s+the\s+GATE,\s+not\s+the\s+change/i);
+  // The wording for the case that used to be silent. Without it, "always announce"
+  // is an instruction with nothing to say.
+  assert.match(SKILL, /unchanged/i);
+  // And the silence must be tied to the gate, never again to the comparison.
+  assert.match(SKILL, /BELOW the disclosure gate/);
+});
+
+test("the French sync skill carries the same condition — the shipped copy is what a French brain runs", () => {
+  // `templates/fr/**` is the PRODUCT speaking a locale, not a translation of ours to
+  // keep loosely in step: a French brain runs this file and no other. The EN/FR drift
+  // guard watches the pair on unpaired commits; this one watches the CONTENT, which a
+  // commit-pairing check cannot see.
+  const fr = readFileSync(
+    join(REPO_ROOT, "templates", "fr", ".claude", "skills", "sync", "SKILL.md"),
+    "utf8",
+  );
+  assert.match(fr, /set-active-universe\.mjs gate/);
+  // The two markers stay in English on purpose: they are the core's literal output,
+  // and a translated marker is a marker that never matches what the command prints.
+  assert.match(fr, /PAST the disclosure gate/);
+  assert.match(fr, /BELOW the disclosure gate/);
+  assert.match(fr, /inchangé/i);
+});
+
 test("the sync skill reads the active universe on BOTH sides of the rebase — otherwise it cannot announce a change", () => {
   const reads = SKILL.match(/set-active-universe\.mjs current/g) ?? [];
 
