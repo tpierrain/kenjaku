@@ -162,12 +162,14 @@ test("a half-written profile entry is skipped, and the sound ones still apply", 
   // The trailing full stop is load-bearing: an empty alternative only ever matches
   // BETWEEN two non-letters, so it is punctuation and line ends that a `''` rule
   // splatters the canonical name across — never the middle of a sentence.
-  const { text, corrections } = applyDeclaredSpellings("Cortex here.", [
+  // `Cortaix` is in the text on purpose: its entry declares a canonical that is not a
+  // string, and a rule built from it would write `42` into the owner's note.
+  const { text, corrections } = applyDeclaredSpellings("Cortex and Cortaix here.", [
     { canonical: "cortAIx", wrong: ["", "Cortex", null] },
     { canonical: 42, wrong: ["Cortaix"] },
     { canonical: "X" },
   ]);
-  assert.equal(text, "cortAIx here.");
+  assert.equal(text, "cortAIx and Cortaix here.");
   assert.deepEqual(corrections, [{ from: "Cortex", to: "cortAIx" }]);
 });
 

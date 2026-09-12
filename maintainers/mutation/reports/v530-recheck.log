@@ -1,0 +1,95 @@
+[32m17:31:21 (73643) INFO ProjectReader[39m Found 2 of 1074 file(s) to be mutated.
+[32m17:31:21 (73643) INFO Instrumenter[39m Instrumented 2 source file(s) with 300 mutant(s)
+[32m17:31:21 (73643) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m17:31:21 (73643) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-bquyTs
+[32m17:31:21 (73643) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m17:31:21 (73643) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m17:31:22 (73643) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 0 seconds (net 585 ms, overhead 1 ms).
+Mutation testing 11% (elapsed: <1m, remaining: ~1m) 33/300 tested (4 survived, 0 timed out)
+Mutation testing 22% (elapsed: <1m, remaining: ~1m) 68/300 tested (4 survived, 0 timed out)
+Mutation testing 31% (elapsed: <1m, remaining: ~1m) 94/300 tested (7 survived, 0 timed out)
+Mutation testing 40% (elapsed: <1m, remaining: <1m) 121/300 tested (8 survived, 0 timed out)
+Mutation testing 52% (elapsed: <1m, remaining: <1m) 157/300 tested (10 survived, 3 timed out)
+Mutation testing 65% (elapsed: ~1m, remaining: <1m) 197/300 tested (10 survived, 3 timed out)
+Mutation testing 78% (elapsed: ~1m, remaining: <1m) 235/300 tested (11 survived, 3 timed out)
+Mutation testing 90% (elapsed: ~1m, remaining: <1m) 271/300 tested (11 survived, 3 timed out)
+
+All tests
+  ✓ All tests (killed 284)
+
+[Survived] Regex
+scripts/lib/declared-spellings.mjs:36:15
+-   const ENTRY = /^(.+?)\s+[—–-]\s+(?:never|not)\s*:?\s+(.+)$/i;
++   const ENTRY = /^(.+?)\s+[—–-]\s+(?:never|not)\s*:?\s+(.+)/i;
+
+[Survived] Regex
+scripts/lib/declared-spellings.mjs:36:15
+-   const ENTRY = /^(.+?)\s+[—–-]\s+(?:never|not)\s*:?\s+(.+)$/i;
++   const ENTRY = /(.+?)\s+[—–-]\s+(?:never|not)\s*:?\s+(.+)$/i;
+
+[Survived] Regex
+scripts/lib/declared-spellings.mjs:36:15
+-   const ENTRY = /^(.+?)\s+[—–-]\s+(?:never|not)\s*:?\s+(.+)$/i;
++   const ENTRY = /^(.+?)\s+[—–-]\s+(?:never|not)\S*:?\s+(.+)$/i;
+
+[Survived] Regex
+scripts/lib/declared-spellings.mjs:36:15
+-   const ENTRY = /^(.+?)\s+[—–-]\s+(?:never|not)\s*:?\s+(.+)$/i;
++   const ENTRY = /^(.+?)\s+[—–-]\s+(?:never|not)\s*:?\s(.+)$/i;
+
+[Survived] ArrayDeclaration
+scripts/lib/declared-spellings.mjs:104:46
+-     return (Array.isArray(entries) ? entries : [])
++     return (Array.isArray(entries) ? entries : ["Stryker was here"])
+
+[Survived] ArrayDeclaration
+scripts/lib/declared-spellings.mjs:105:50
+-       .flatMap(({ canonical, wrong }) => (wrong ?? []).map((from) => ({ from, to: canonical })))
++       .flatMap(({ canonical, wrong }) => (wrong ?? ["Stryker was here"]).map((from) => ({ from, to: canonical })))
+
+[Survived] ConditionalExpression
+scripts/lib/declared-spellings.mjs:106:78
+-       .filter(({ from, to }) => typeof from === "string" && from.length > 0 && typeof to === "string")
++       .filter(({ from, to }) => typeof from === "string" && from.length > 0 && true)
+
+[Survived] Regex
+scripts/lib/declared-spellings.mjs:123:3
+-     /^>.*$/gm, //                      a blockquote is someone else's words
++     /^>.*/gm, //                      a blockquote is someone else's words
+
+[Survived] ArrayDeclaration
+scripts/lib/declared-spellings.mjs:130:17
+-     const spans = [];
++     const spans = ["Stryker was here"];
+
+[Survived] StringLiteral
+scripts/lib/update-offer.mjs:93:45
+-     const due = Date.parse(state.nextAskAt ?? "");
++     const due = Date.parse(state.nextAskAt ?? "Stryker was here!");
+
+[Survived] ArrayDeclaration
+scripts/lib/update-offer.mjs:186:40
+-     const release = (verdict.releases ?? []).find((entry) => entry?.version === version);
++     const release = (verdict.releases ?? ["Stryker was here"]).find((entry) => entry?.version === version);
+
+[Survived] StringLiteral
+scripts/lib/update-offer.mjs:221:78
+-   export function readOfferState({ brainDir, readFile = (p) => readFileSync(p, "utf8") }) {
++   export function readOfferState({ brainDir, readFile = (p) => readFileSync(p, "") }) {
+
+[Survived] ConditionalExpression
+scripts/lib/update-offer.mjs:224:12
+-       return parsed !== null && typeof parsed === "object" ? parsed : null;
++       return true && typeof parsed === "object" ? parsed : null;
+
+Ran 0.99 tests per mutant on average.
+------------------------|------------------|----------|-----------|------------|----------|----------|
+                        | % Mutation score |          |           |            |          |          |
+File                    |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files               |  95.67 |   95.67 |      284 |         3 |         13 |        0 |        0 |
+ declared-spellings.mjs |  93.08 |   93.08 |      118 |         3 |          9 |        0 |        0 |
+ update-offer.mjs       |  97.65 |   97.65 |      166 |         0 |          4 |        0 |        0 |
+------------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m17:32:49 (73643) INFO MutationTestExecutor[39m Done in 1 minute and 27 seconds.
+[32m17:32:49 (73643) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-bquyTs.

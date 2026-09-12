@@ -233,6 +233,85 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## v5.3 — the pass this release had SKIPPED, and it was hiding 78.87 % — 2026-09-12
+
+State owned by
+[`../plans/prospective/v5.3-universe-disclosure-action.md`](../plans/prospective/v5.3-universe-disclosure-action.md)
+(§ *Step 7*). Branch `feat/v5.3-universe-disclosure`, measured from the merge commit `fd18a74`. Eight
+brand-new production files, ~1 000 lines, two of them on the **write path** — the exact category
+§5quinquies calls not negotiable.
+
+**⚠️ THE ENTRY THAT MATTERS IS WHY THERE ALMOST WAS NO ENTRY.** This release reached a merged PR, seven
+green checks and a written release note with **no mutation pass run at all**, and the plan did not
+record a skip either — so nothing on disk said the measurement was missing. It was caught by the owner
+asking, mid-release, *« est-ce que pour la 5.3 tu as bien exécuté du mutation testing ? »*, with the tag
+one command away. **A missing measurement produces no output**: no red, no warning, no gap in a log —
+which is why the release checklist in § *Step 7* now names §5quinquies beside §10, §10bis and §10ter,
+and why it is the only gate on that list whose absence is invisible.
+
+| File (new, whole) | First pass | After | Survivors left |
+|---|---|---|---|
+| `lib/update-duration.mjs` | **100.00 %** | — | 0 |
+| `lib/update-offer.mjs` | 82.94 % | **97.65 %** | 4, all equivalent |
+| `lib/vault-paths.mjs` | 94.29 % | **96.67 %** | 1, equivalent |
+| `lib/declared-spellings.mjs` | 72.52 % | **93.08 %** | 9, all equivalent |
+| `lib/vault-write-notice.mjs` | 73.33 % | **95.04 %** | 6, all equivalent |
+| `vault-write-notice.mjs` (entry) | 80.26 % | **90.79 %** | 7, all equivalent |
+| `update-offer-answer.mjs` (entry) | 78.43 % | **96.08 %** | 2, both equivalent |
+| `lib/universe-drift.mjs` | 87.50 % | — | 2, both equivalent |
+| **Batch** | **78.87 %** | **94.33 %** | 489 → 559 killed |
+
+**A TAUTOLOGICAL ASSERTION, and this register should recognise the shape on sight.** The payload budget
+was tested — three tests, named for it — with `assert.ok(context.length <= NOTICE_MAX)`. That assertion
+is true of **every output the function can produce**, including a truncation that never runs: the
+longest payload any test could build came to **471 of 560**, so the whole `slice(0, NOTICE_MAX - 1)`
+branch had never executed once. **An upper-bound assertion cannot distinguish "bounded" from "never
+near the bound".** It now takes a single line over the budget, where dropping the line and cutting it
+are different behaviours, and asserts the length is *exactly* the budget and ends in an ellipsis.
+
+**A WHOLE CLASS OF INPUT WITH NO TEST, in the one function that rewrites people's notes.** The declared
+spellings guard protects nine kinds of span; three had no test at all — autolinks, curly quotes and
+**guillemets**, the last of which a French vault is full of. Nor did the **edges**: a spelling that
+begins where inline code ends, or ends where it begins, is prose, and both comparisons were off-by-one
+away from silently sparing it. Same file, one more: an owner typing `Cortex (AI)` as a wrong spelling
+was relying on an `escapeRegExp` that no test exercised.
+
+**BOTH ENTRY POINTS ONLY EVER READ THEIR STATE FILE ON A FIRST RUN.** Each had the process-level test
+§5quater demands, and each ran the process **once**. But "once per session" and the decline ladder are
+made entirely of the *second* read: run, write, run again, read it back. Two new process tests do the
+round trip, and they are also the only ones in which the record is written into a `.cache/` that
+already exists — which is what makes `mkdirSync(..., { recursive: true })` mean something.
+
+**FOUR PIECES OF PRODUCTION WERE DELETED RATHER THAN TESTED**, because the pass proved no input can
+observe them: a `.trim()` the lazy quantifier before it makes unreachable, a shaped default sitting
+beside a key-by-key `??` fallback, an early return on an empty rule set the callee already answers, and
+a `segment !== undefined` guard asking what the `registry.includes` beside it already asks. Each is
+replaced by a comment saying the measurement is what proved it.
+
+**The survivors left are three shapes, and nothing else.**
+
+- **A bogus string seeded into an empty default** (×14): `registry = []`, `bypass = []`,
+  `alreadySaid = []`, `wrong ?? []`, `releases ?? []`, `spans = []`, `?.spellings ?? []`. Every one of
+  those lists is only ever *searched* — for a registered universe slug, a declared spelling, a
+  correction key. Killing one would mean declaring a universe literally named `Stryker was here`.
+- **`readFileSync(path, "")` instead of `"utf8"`** (×5): Node treats a falsy encoding as none and
+  returns a Buffer, which every consumer here hands straight to `JSON.parse`, which coerces it back.
+  The same equivalent the v5.2 run named, in five more places.
+- **Regex mutants the surrounding quantifiers absorb** (×5): on the profile-entry pattern, `(.+)$` →
+  `(.+)` (one line in, `.` greedy), `^(.+?)` → `(.+?)` (the leftmost match already starts at 0), and
+  the `\s+`/`\s*` loosenings, where the lazy group re-absorbs the character and the `.trim()` on the
+  *wrong* side finishes the job. Plus `/^>.*$/gm` → `/^>.*/gm`: under `m`, `.` never crosses a newline,
+  so the anchor adds nothing. Kept in place anyway — an anchor deleted for a score is a worse file.
+- Two more, each named where it sits: `Date.parse(x ?? "")` (both spellings are `NaN`) and
+  `parsed !== null && typeof parsed === "object"` (`typeof null` is `"object"`, and the fallback is
+  `null` too, so the redundant clause changes no answer).
+
+⏱️ **What it cost**: 620 mutants, ~35 min per pass at concurrency 5, three passes (first, confirmation,
+and a two-file re-check after two survivors turned out to be real rather than equivalent). A last test
+change — a non-string canonical reaching the text, which would have written `42` into someone's note —
+landed after the final pass; §5quinquies's *"no confirmation re-run when the delta is predictable"*
+applies, and the **predicted** `declared-spellings.mjs` is **93.85 %**, for the nightly to confirm.
+
 ## v5.2 — done really means done, and the glue that reads a disk was the hole — 2026-09-12
 
 State owned by
