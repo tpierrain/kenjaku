@@ -757,6 +757,33 @@ one by one whether this release covers it, and close the ones it does.
 > and re-labelling someone else's report is both rude and lossy. We classify our own reports; theirs we
 > classify with the milestone and the labels, which sit beside the title instead of over it.
 
+### 🙏 An issue or PR opened by SOMEONE ELSE is thanked when it is closed — always
+
+**A closing comment on an outside contributor's report is not only a status update: it is the only
+reply they will ever get.** A comment that opens on *"Shipped in v5.1.3"* and stops at the evidence is
+accurate, complete, and reads as cold — it treats a person who took an hour of their own time to
+diagnose our code as a ticket that changed state.
+
+So, whenever the issue or PR being closed was opened **by anyone other than us**:
+
+- **Open the comment by thanking them, by name is not required but warmth is** — for taking the trouble
+  to report it, and for using Kenjaku at all. Two sentences at the top, before the evidence.
+- **Say what their report bought**, concretely: what it changed, what it taught, or what it prevented.
+  *"You were right, and the fix is one line further than you suggested"* is worth more than a thank-you
+  in the abstract, because it proves the report was read rather than triaged.
+- **Then the evidence, unchanged** — the closing condition above still applies in full. Warmth replaces
+  nothing; it goes on top.
+- **A report we decline is thanked too**, and more carefully rather than less: closing someone's work
+  with a reason and no thanks is the version of this that actually stings.
+
+> Origin _(2026-09-12, Thomas, after re-reading how [#74](https://github.com/tpierrain/kenjaku/issues/74)
+> was closed)_: *« je trouve que c'est un peu sec comme façon de faire un retour et de fermer la PR …
+> j'aimerais qu'on profite pour faire un petit message de remerciements d'avoir ouvert la PR et
+> d'utiliser Kenjaku »*. The closing comment in question was factually excellent — it quoted a measured
+> figure from a real vault. It simply never said *thank you*, and #74 was a 60-line diagnosis that
+> located the defect, quoted the code, and proposed two fixes. **A contributor who is answered warmly
+> reports again**, which is the same argument §*v5.1* makes for answering them fast.
+
 **The closing condition is what shipped, not what merged.**
 
 - A **code** defect closes when the fix is in the published tag.
