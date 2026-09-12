@@ -1,4 +1,8 @@
-# ADR 0044 — Narrowing a scope discloses, in the same breath, what stayed wide
+# ADR 0044 — Switching universe says what did NOT switch with it
+
+> **The rule is wider than its title**, and the title is deliberately the case everybody meets first:
+> *any* command that makes the brain work on only part of what it had names what it left alone. The
+> universe switch is where it bites hardest, so it is where the decision is written.
 
 - **STATUS:** ACCEPTED (2026-09-12) — ratified by the owner once it fitted on one screen.
 - **Scope:** Second brain (runtime) — the deterministic cores that re-point a scope, and the delivered
@@ -96,6 +100,11 @@ into. So three of the four stay where they were, and each one has its own way of
 
 ## Amendments
 
+- **2026-09-12 — retitled, and the file renamed with it.** It was *"Narrowing a scope discloses, in the
+  same breath, what stayed wide"*, and the owner's objection is the whole point of the ADR: **you could
+  not tell from the title that this is about switching universe.** A title that describes a mechanism
+  instead of a situation fails the same way the body did. The number is unchanged, so `ADR 0044` still
+  resolves everywhere; the published `v5.3.0` note quotes the old title and is **left as it is**.
 - **2026-09-12 — the Crux and the Decision rewritten in plain words, wording only.** The owner, having
   already ratified it: *"c'est incompréhensible"*. What went: *narrows a scope*, *the core says it and
   the skill relays it*, *disclosure*, *the cross-cutting view*. What replaced it: searching only part
