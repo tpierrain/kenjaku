@@ -22,11 +22,13 @@
 - **🛑 The autonomy grant STOPS HERE.** It was given « jusqu'à la fin de la release » for **v5.3**, by
   name, and v5.3 is out. **A session may prepare and design v5.4, and must ASK before cutting it.**
 - **Blocked on:** nothing. **What waits on him now lives in the TRACKER, by his ask of 2026-09-12**
-  (*"je voudrais que tout ce qui reste à faire soit listé dans les issues"*): the nightly mutation run's
-  purpose is [#106](https://github.com/tpierrain/kenjaku/issues/106), the French wording shipped in
-  v5.2.0 is [#107](https://github.com/tpierrain/kenjaku/issues/107), `ci.yml`'s `concurrency` is
-  [#108](https://github.com/tpierrain/kenjaku/issues/108). **None gates anything.** The sections below
-  keep the reasoning; the issues are where the state lives.
+  (*"je voudrais que tout ce qui reste à faire soit listé dans les issues"*): the nightly quality run's
+  purpose is [#106](https://github.com/tpierrain/kenjaku/issues/106), `ci.yml`'s `concurrency` is
+  [#108](https://github.com/tpierrain/kenjaku/issues/108). **Neither gates anything.**
+- **One item stays HERE and not in the tracker:** the **French wording shipped in v5.2.0**, his to
+  re-read at leisure. It was briefly opened as #107 and closed the same evening — *a personal re-read
+  on a public tracker reads as project work, and nobody else can do it*. His rule, generalised: **the
+  tracker holds the work a decision unblocks, never the question itself.**
 - **#78 is answered AND fixed, both halves, and closed** _(2026-09-12)_ → § *Neither group*. Grouping,
   order and the three titles are decided.
 - **A session may, alone:** work test-first end to end on a branch, **label** issues, commit, push,
