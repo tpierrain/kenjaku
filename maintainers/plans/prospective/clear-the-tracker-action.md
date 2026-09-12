@@ -21,13 +21,14 @@
   step-detail plan of its own before any code**, the way v5.3 got one.
 - **🛑 The autonomy grant STOPS HERE.** It was given « jusqu'à la fin de la release » for **v5.3**, by
   name, and v5.3 is out. **A session may prepare and design v5.4, and must ASK before cutting it.**
-- **Blocked on:** nothing. **THREE things wait on him, and none gates anything:** (a) **what the
+- **Blocked on:** nothing. **TWO things wait on him here, and neither gates anything:** (a) **what the
   nightly mutation run is FOR**, a product call → § *Inherited from v5.0.0*; (b) **the French wording
-  shipped in v5.2.0**, live in the fleet, his at leisure; (c) **ratifying ADR 0044**, still PROPOSED —
-  v5.3 shipped the four surfaces it describes and said PROPOSED out loud in the note.
-- **#78 is answered AND fixed, both halves** _(2026-09-12)_ → § *Neither group*. One older question is
-  left in § *Questions the owner owns*, not to be re-asked (`ci.yml`'s `concurrency`). Grouping, order
-  and the three titles are decided.
+  shipped in v5.2.0**, live in the fleet, his at leisure. *(ADR 0044's ratification is a third, and it
+  is **owned** by [`fixture-names-and-adr-brevity-action.md`](fixture-names-and-adr-brevity-action.md)
+  — not restated here, so it cannot go stale in two places.)*
+- **#78 is answered AND fixed, both halves, and closed** _(2026-09-12)_ → § *Neither group*. One older
+  question is left in § *Questions the owner owns*, not to be re-asked (`ci.yml`'s `concurrency`).
+  Grouping, order and the three titles are decided.
 - **A session may, alone:** work test-first end to end on a branch, **label** issues, commit, push,
   read what CI returns. **Not:** cut a release without a grant by name, write into `templates/fr/**`
   (one carve-out, § *History*) or into either of his two personal brains.
@@ -307,8 +308,11 @@ about the same gap: **the brain scopes one thing and leaves another unscoped, wi
     defect in the CODE*), which is where the detail lives rather than here. **It found a production
     defect**, not just thin tests: stripping an inline code span **glued a link together**, so the
     guard could report a file that was fine.
-  - 🏷️ **The issue is NOT closed yet**: it closes with its evidence once those two come back, and the
-    `proposed: v5.3` label on it is now wrong — the fix landed on `main` after v5.3.0 was cut.
+  - 🏷️ **Closed with its evidence** _(2026-09-12,
+    [comment](https://github.com/tpierrain/kenjaku/issues/78#issuecomment-5648084593))_, and the
+    `proposed: v5.3` label removed: the fix landed on `main` **after** v5.3.0 was cut, so it ships with
+    the next release. **CI green on all three code commits** (`1ac5e37`, `9401d4e`, `815c597`).
+    The three sibling false positives stay open and untouched — #71, #73, #74 are vault-side.
 
 #### The three things this proposal is deliberately NOT doing
 
