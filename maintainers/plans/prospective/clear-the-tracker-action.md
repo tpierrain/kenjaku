@@ -17,9 +17,9 @@
 
 - **Next:** ▶️ **BUILDING `v5.2 — The One Where Done Really Means Done`** on branch
   `feat/v5.2-done-means-done` (off `main`, pushed) → § *THE APPROVED PLAN*. **Step 0 done** (ADR 0043 ·
-  `d07f6be`), **#98 done** (the update asks with a control · `7dd52ae`) and **#77 done** (the writer
-  scripts commit their own notes · `c6c9ac3`). **Resume at #81** — the guard the harness steers
-  around; then #96, then #83.
+  `d07f6be`), **#98** (`7dd52ae`), **#77** (`c6c9ac3`), **#81** (`125e9f7`) and **#96** (`ef5c32b`)
+  are all done and green. **Resume at #83**, the last of the five: an absence claim must stop being
+  broader than the search behind it. Then the release is his to cut (§10ter rehearsal first).
 - **Blocked on:** nothing. **Owner's call pending:** nothing. The grouping, the order and the three
   release titles are all decided; two older questions sit in § *Questions the owner owns* and are
   **not to be re-asked** (#78's launcher-README link, `ci.yml`'s `concurrency` group).
@@ -198,22 +198,36 @@ brain stop reporting healthy things as broken; this one makes it stop reporting 
         recommendation *"leave it in v5.2"*): the recommendation holds **and v5.2 is now next**, so it
         costs nothing to have waited. It is the only open issue whose failure mode is **silent data
         loss**, so it leads the release rather than riding in it.
-- [ ] **2. A guard that is wired to refuse actually runs** —
+- [x] **2. A guard that is wired to refuse actually runs** — **DONE** _(2026-09-12 · `125e9f7`)_ —
       [#81](https://github.com/tpierrain/kenjaku/issues/81). The write guards match `Write|Edit`, and
       the harness actively steers towards `Bash` for file changes — **so the path we recommend is the
       one nothing watches.** Measured on a real vault: a malformed note landed two days after the guard
       shipped and answered searches from stale content **for three weeks**, its only trace one error
       line inside `vault_stats`.
-  - [ ] 🧭 **Pick the direction before writing code, because the obvious one is the expensive one.**
+  - [x] 🧭 **Pick the direction before writing code, because the obvious one is the expensive one.**
+        **Chosen: the cheap pair, not the shell-reading guard.** A note that opened a frontmatter
+        block and yields no keys is now its own finding, reported first, worded by what it costs, and
+        no exemption applies to it. It is also the one frontmatter finding allowed past the
+        session-start noise guardrail, on the guardrail's own criterion: a true regression that
+        self-clears. `parseNote` gained `fenced` so "no frontmatter" and "a block that produced
+        nothing" stop being the same empty object.
         Inspecting write-shaped `Bash` commands means reading shell, and a guard that half-reads shell
         is worse than none. The two cheaper directions in the issue — a post-write validation sweep,
         and making *"N notes the engine cannot read"* loud in the health report — catch the same defect
         **after** the bytes land, which is enough when the damage is *unreadable*, not *lost*.
-- [ ] **3. A second machine does not silently run last week's wiring** —
+- [x] **3. A second machine does not silently run last week's wiring** — **DONE** _(2026-09-12 ·
+      `ef5c32b`)_ —
       [#96](https://github.com/tpierrain/kenjaku/issues/96). The self-heal gate asks *"is a skill
       missing?"* and *"is an MCP server missing?"*, so a release that ships **a hook**, **an allowlist
       entry** or **a dependency** never triggers a reconcile on the machine that merely pulled.
-  - [ ] 📈 **Its probability rises with every release we ship**, which is what moves it up: recent
+  - [x] **What shipped**: the gate asks **four** questions instead of two. For hooks the oracle is
+        the reconciler itself, asked what it would add and told to write nothing, so anything
+        reported has a remedy by construction; for dependencies it compares the names
+        `rag/package.json` declares against `node_modules`. ⚖️ **The permission allowlist is
+        deliberately NOT asked**: an entry never delivered and one the owner removed are the same
+        absence, `/permissions` is a documented escape hatch, and the reconciler has no allowlist
+        remedy — a gate that reports a gap nothing can close is worse than one that stays quiet.
+  - [x] 📈 **Its probability rises with every release we ship**, which is what moves it up: recent
         releases deliver behaviour *as hooks* (v5.1.2's restart nudge is one). Filed 2026-09-09 at his
         ask, never scheduled until now.
 - [x] **4. The update asks a question you cannot scroll past** — **DONE** _(2026-09-12 · `7dd52ae`)_ —
