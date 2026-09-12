@@ -95,8 +95,11 @@ export async function sessionSelfHeal({
       gap.missingServers.length ? `MCP: ${gap.missingServers.join(", ")}` : null,
       // The SCRIPT name, never the raw command: the command carries this machine's
       // absolute paths and its node launcher, which is noise to whoever reads this.
+      // The `.mjs` goes too — it is the one part of the name that only means something
+      // to a developer, and the sibling entries on this same line ("skills: …") have
+      // never carried a file extension.
       gap.unwiredHooks.length
-        ? `hooks: ${gap.unwiredHooks.map((script) => script.split("/").pop()).join(", ")}`
+        ? `hooks: ${gap.unwiredHooks.map((script) => script.split("/").pop().replace(/\.mjs$/, "")).join(", ")}`
         : null,
       gap.missingDependencies.length ? `dependencies: ${gap.missingDependencies.join(", ")}` : null,
     ].filter(Boolean);

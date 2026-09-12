@@ -42,6 +42,32 @@ test("detectSelfHealGap — a freshly-shipped MCP server not yet registered → 
   assert.deepEqual(gap.missingServers, ["local-mirror"]);
 });
 
+// Every list here defaults to empty, and the defaults are the whole safety of the
+// gate: a caller that has not ASKED a question must be told nothing found — never
+// nothing wrong, and never a gap it did not describe. Omitting them is the only way
+// to exercise the defaults; passing `[]` exercises the caller instead.
+test("detectSelfHealGap — a caller that names no desired state at all reports nothing, and asks the disk nothing", () => {
+  const asked = [];
+  const gap = detectSelfHealGap({
+    skillDirExists: (dir) => {
+      asked.push(dir);
+      return false;
+    },
+    mcpServerRegistered: (id) => {
+      asked.push(id);
+      return false;
+    },
+  });
+  assert.deepEqual(gap, {
+    needed: false,
+    missingSkills: [],
+    missingServers: [],
+    unwiredHooks: [],
+    missingDependencies: [],
+  });
+  assert.deepEqual(asked, [], "an undescribed desired state must not be invented on the caller's behalf");
+});
+
 test("detectSelfHealGap — empty wanted lists → never needed (a brain that delivers no spec yet)", () => {
   const gap = detectSelfHealGap({
     wantedSkillDirs: [],
@@ -135,6 +161,19 @@ test("missingInstalledDependencies — a fully installed tree reports nothing", 
     missingInstalledDependencies({ declared: ["a", "b"], isInstalled: () => true }),
     [],
   );
+});
+
+// Same reason as the gate's own defaults above: `declared` omitted, not `declared: []`.
+test("missingInstalledDependencies — a caller that declares nothing at all touches nothing", () => {
+  const asked = [];
+  const missing = missingInstalledDependencies({
+    isInstalled: (name) => {
+      asked.push(name);
+      return false;
+    },
+  });
+  assert.deepEqual(missing, []);
+  assert.deepEqual(asked, []);
 });
 
 test("missingInstalledDependencies — a brain declaring nothing asks nothing of the disk", () => {

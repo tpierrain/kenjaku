@@ -1,0 +1,322 @@
+[32m09:41:21 (49476) INFO ProjectReader[39m Found 6 of 1045 file(s) to be mutated.
+[32m09:41:21 (49476) INFO Instrumenter[39m Instrumented 6 source file(s) with 163 mutant(s)
+[32m09:41:21 (49476) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m09:41:21 (49476) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-0LRRIK
+[32m09:41:21 (49476) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m09:41:21 (49476) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m09:41:31 (49476) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 10 seconds (net 10023 ms, overhead 0 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/163 tested (0 survived, 0 timed out)
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/163 tested (0 survived, 0 timed out)
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/163 tested (0 survived, 0 timed out)
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/163 tested (0 survived, 0 timed out)
+Mutation testing 3% (elapsed: <1m, remaining: ~26m) 5/163 tested (0 survived, 0 timed out)
+Mutation testing 3% (elapsed: ~1m, remaining: ~31m) 5/163 tested (0 survived, 0 timed out)
+Mutation testing 3% (elapsed: ~1m, remaining: ~36m) 5/163 tested (0 survived, 0 timed out)
+Mutation testing 3% (elapsed: ~1m, remaining: ~42m) 5/163 tested (0 survived, 0 timed out)
+Mutation testing 6% (elapsed: ~1m, remaining: ~22m) 10/163 tested (0 survived, 0 timed out)
+Mutation testing 6% (elapsed: ~1m, remaining: ~25m) 10/163 tested (0 survived, 0 timed out)
+Mutation testing 6% (elapsed: ~1m, remaining: ~28m) 10/163 tested (0 survived, 0 timed out)
+Mutation testing 9% (elapsed: ~2m, remaining: ~19m) 15/163 tested (0 survived, 0 timed out)
+Mutation testing 9% (elapsed: ~2m, remaining: ~21m) 15/163 tested (0 survived, 0 timed out)
+Mutation testing 9% (elapsed: ~2m, remaining: ~23m) 15/163 tested (0 survived, 0 timed out)
+Mutation testing 9% (elapsed: ~2m, remaining: ~24m) 15/163 tested (0 survived, 0 timed out)
+Mutation testing 12% (elapsed: ~2m, remaining: ~19m) 20/163 tested (0 survived, 0 timed out)
+Mutation testing 12% (elapsed: ~2m, remaining: ~20m) 20/163 tested (0 survived, 0 timed out)
+Mutation testing 12% (elapsed: ~3m, remaining: ~21m) 20/163 tested (0 survived, 0 timed out)
+Mutation testing 12% (elapsed: ~3m, remaining: ~22m) 20/163 tested (0 survived, 0 timed out)
+Mutation testing 14% (elapsed: ~3m, remaining: ~19m) 24/163 tested (0 survived, 0 timed out)
+Mutation testing 15% (elapsed: ~3m, remaining: ~19m) 25/163 tested (0 survived, 0 timed out)
+Mutation testing 15% (elapsed: ~3m, remaining: ~20m) 25/163 tested (0 survived, 0 timed out)
+Mutation testing 15% (elapsed: ~3m, remaining: ~21m) 25/163 tested (0 survived, 0 timed out)
+Mutation testing 18% (elapsed: ~4m, remaining: ~17m) 30/163 tested (0 survived, 0 timed out)
+Mutation testing 18% (elapsed: ~4m, remaining: ~18m) 30/163 tested (0 survived, 0 timed out)
+Mutation testing 18% (elapsed: ~4m, remaining: ~19m) 30/163 tested (0 survived, 0 timed out)
+Mutation testing 18% (elapsed: ~4m, remaining: ~19m) 30/163 tested (0 survived, 0 timed out)
+Mutation testing 21% (elapsed: ~4m, remaining: ~17m) 35/163 tested (1 survived, 0 timed out)
+Mutation testing 21% (elapsed: ~4m, remaining: ~17m) 35/163 tested (1 survived, 0 timed out)
+Mutation testing 21% (elapsed: ~5m, remaining: ~18m) 35/163 tested (1 survived, 0 timed out)
+Mutation testing 22% (elapsed: ~5m, remaining: ~18m) 36/163 tested (2 survived, 0 timed out)
+Mutation testing 24% (elapsed: ~5m, remaining: ~16m) 40/163 tested (2 survived, 0 timed out)
+Mutation testing 24% (elapsed: ~5m, remaining: ~16m) 40/163 tested (2 survived, 0 timed out)
+Mutation testing 24% (elapsed: ~5m, remaining: ~17m) 40/163 tested (2 survived, 0 timed out)
+Mutation testing 25% (elapsed: ~5m, remaining: ~17m) 41/163 tested (2 survived, 0 timed out)
+Mutation testing 27% (elapsed: ~6m, remaining: ~15m) 45/163 tested (2 survived, 0 timed out)
+Mutation testing 27% (elapsed: ~6m, remaining: ~16m) 45/163 tested (2 survived, 0 timed out)
+Mutation testing 27% (elapsed: ~6m, remaining: ~16m) 45/163 tested (2 survived, 0 timed out)
+Mutation testing 29% (elapsed: ~6m, remaining: ~15m) 48/163 tested (2 survived, 0 timed out)
+Mutation testing 30% (elapsed: ~6m, remaining: ~15m) 50/163 tested (2 survived, 0 timed out)
+Mutation testing 30% (elapsed: ~6m, remaining: ~15m) 50/163 tested (2 survived, 0 timed out)
+Mutation testing 31% (elapsed: ~7m, remaining: ~15m) 51/163 tested (2 survived, 0 timed out)
+Mutation testing 33% (elapsed: ~7m, remaining: ~14m) 55/163 tested (2 survived, 0 timed out)
+Mutation testing 33% (elapsed: ~7m, remaining: ~14m) 55/163 tested (2 survived, 0 timed out)
+Mutation testing 33% (elapsed: ~7m, remaining: ~14m) 55/163 tested (2 survived, 0 timed out)
+Mutation testing 34% (elapsed: ~7m, remaining: ~14m) 56/163 tested (2 survived, 0 timed out)
+Mutation testing 36% (elapsed: ~7m, remaining: ~13m) 60/163 tested (2 survived, 0 timed out)
+Mutation testing 36% (elapsed: ~8m, remaining: ~13m) 60/163 tested (2 survived, 0 timed out)
+Mutation testing 36% (elapsed: ~8m, remaining: ~14m) 60/163 tested (2 survived, 0 timed out)
+Mutation testing 39% (elapsed: ~8m, remaining: ~12m) 65/163 tested (2 survived, 0 timed out)
+Mutation testing 39% (elapsed: ~8m, remaining: ~12m) 65/163 tested (2 survived, 0 timed out)
+Mutation testing 39% (elapsed: ~8m, remaining: ~13m) 65/163 tested (2 survived, 0 timed out)
+Mutation testing 40% (elapsed: ~8m, remaining: ~12m) 66/163 tested (3 survived, 0 timed out)
+Mutation testing 42% (elapsed: ~9m, remaining: ~11m) 70/163 tested (3 survived, 0 timed out)
+Mutation testing 42% (elapsed: ~9m, remaining: ~12m) 70/163 tested (3 survived, 0 timed out)
+Mutation testing 42% (elapsed: ~9m, remaining: ~12m) 70/163 tested (3 survived, 0 timed out)
+Mutation testing 43% (elapsed: ~9m, remaining: ~12m) 71/163 tested (3 survived, 0 timed out)
+Mutation testing 46% (elapsed: ~9m, remaining: ~11m) 75/163 tested (3 survived, 0 timed out)
+Mutation testing 46% (elapsed: ~9m, remaining: ~11m) 75/163 tested (3 survived, 0 timed out)
+Mutation testing 46% (elapsed: ~10m, remaining: ~11m) 76/163 tested (3 survived, 0 timed out)
+Mutation testing 49% (elapsed: ~10m, remaining: ~10m) 80/163 tested (3 survived, 0 timed out)
+Mutation testing 49% (elapsed: ~10m, remaining: ~10m) 80/163 tested (3 survived, 0 timed out)
+Mutation testing 49% (elapsed: ~10m, remaining: ~10m) 80/163 tested (3 survived, 0 timed out)
+Mutation testing 49% (elapsed: ~10m, remaining: ~10m) 81/163 tested (3 survived, 0 timed out)
+Mutation testing 52% (elapsed: ~10m, remaining: ~9m) 85/163 tested (3 survived, 0 timed out)
+Mutation testing 52% (elapsed: ~11m, remaining: ~10m) 85/163 tested (3 survived, 0 timed out)
+Mutation testing 52% (elapsed: ~11m, remaining: ~10m) 85/163 tested (3 survived, 0 timed out)
+Mutation testing 52% (elapsed: ~11m, remaining: ~10m) 86/163 tested (3 survived, 0 timed out)
+Mutation testing 55% (elapsed: ~11m, remaining: ~9m) 90/163 tested (3 survived, 0 timed out)
+Mutation testing 55% (elapsed: ~11m, remaining: ~9m) 90/163 tested (3 survived, 0 timed out)
+Mutation testing 55% (elapsed: ~11m, remaining: ~9m) 91/163 tested (3 survived, 0 timed out)
+Mutation testing 56% (elapsed: ~12m, remaining: ~9m) 92/163 tested (3 survived, 0 timed out)
+Mutation testing 58% (elapsed: ~12m, remaining: ~8m) 95/163 tested (3 survived, 0 timed out)
+Mutation testing 58% (elapsed: ~12m, remaining: ~8m) 95/163 tested (3 survived, 0 timed out)
+Mutation testing 58% (elapsed: ~12m, remaining: ~8m) 96/163 tested (3 survived, 0 timed out)
+Mutation testing 59% (elapsed: ~12m, remaining: ~8m) 97/163 tested (3 survived, 0 timed out)
+Mutation testing 61% (elapsed: ~12m, remaining: ~8m) 100/163 tested (3 survived, 0 timed out)
+Mutation testing 61% (elapsed: ~13m, remaining: ~7m) 101/163 tested (3 survived, 0 timed out)
+Mutation testing 62% (elapsed: ~13m, remaining: ~7m) 102/163 tested (3 survived, 0 timed out)
+Mutation testing 63% (elapsed: ~13m, remaining: ~7m) 104/163 tested (3 survived, 0 timed out)
+Mutation testing 64% (elapsed: ~13m, remaining: ~7m) 105/163 tested (3 survived, 0 timed out)
+Mutation testing 65% (elapsed: ~13m, remaining: ~7m) 106/163 tested (3 survived, 0 timed out)
+Mutation testing 65% (elapsed: ~13m, remaining: ~7m) 107/163 tested (3 survived, 0 timed out)
+Mutation testing 68% (elapsed: ~14m, remaining: ~6m) 111/163 tested (3 survived, 0 timed out)
+Mutation testing 68% (elapsed: ~14m, remaining: ~6m) 111/163 tested (3 survived, 0 timed out)
+Mutation testing 68% (elapsed: ~14m, remaining: ~6m) 112/163 tested (3 survived, 0 timed out)
+Mutation testing 69% (elapsed: ~14m, remaining: ~6m) 113/163 tested (3 survived, 0 timed out)
+Mutation testing 71% (elapsed: ~14m, remaining: ~5m) 116/163 tested (3 survived, 0 timed out)
+Mutation testing 71% (elapsed: ~14m, remaining: ~6m) 116/163 tested (3 survived, 0 timed out)
+Mutation testing 71% (elapsed: ~15m, remaining: ~5m) 117/163 tested (3 survived, 0 timed out)
+Mutation testing 74% (elapsed: ~15m, remaining: ~5m) 121/163 tested (3 survived, 0 timed out)
+Mutation testing 74% (elapsed: ~15m, remaining: ~5m) 121/163 tested (3 survived, 0 timed out)
+Mutation testing 74% (elapsed: ~15m, remaining: ~5m) 121/163 tested (3 survived, 0 timed out)
+Mutation testing 74% (elapsed: ~15m, remaining: ~5m) 122/163 tested (3 survived, 0 timed out)
+Mutation testing 77% (elapsed: ~15m, remaining: ~4m) 126/163 tested (3 survived, 0 timed out)
+Mutation testing 77% (elapsed: ~16m, remaining: ~4m) 126/163 tested (3 survived, 0 timed out)
+Mutation testing 77% (elapsed: ~16m, remaining: ~4m) 127/163 tested (3 survived, 0 timed out)
+Mutation testing 80% (elapsed: ~16m, remaining: ~3m) 131/163 tested (3 survived, 0 timed out)
+Mutation testing 80% (elapsed: ~16m, remaining: ~4m) 131/163 tested (3 survived, 0 timed out)
+Mutation testing 80% (elapsed: ~16m, remaining: ~4m) 131/163 tested (3 survived, 0 timed out)
+Mutation testing 80% (elapsed: ~16m, remaining: ~3m) 132/163 tested (3 survived, 0 timed out)
+Mutation testing 83% (elapsed: ~17m, remaining: ~3m) 136/163 tested (6 survived, 0 timed out)
+Mutation testing 83% (elapsed: ~17m, remaining: ~3m) 136/163 tested (6 survived, 0 timed out)
+Mutation testing 83% (elapsed: ~17m, remaining: ~3m) 136/163 tested (6 survived, 0 timed out)
+Mutation testing 84% (elapsed: ~17m, remaining: ~3m) 137/163 tested (7 survived, 0 timed out)
+Mutation testing 86% (elapsed: ~17m, remaining: ~2m) 141/163 tested (9 survived, 0 timed out)
+Mutation testing 86% (elapsed: ~17m, remaining: ~2m) 141/163 tested (9 survived, 0 timed out)
+Mutation testing 87% (elapsed: ~18m, remaining: ~2m) 142/163 tested (10 survived, 0 timed out)
+Mutation testing 89% (elapsed: ~18m, remaining: ~2m) 146/163 tested (14 survived, 0 timed out)
+Mutation testing 89% (elapsed: ~18m, remaining: ~2m) 146/163 tested (14 survived, 0 timed out)
+Mutation testing 89% (elapsed: ~18m, remaining: ~2m) 146/163 tested (14 survived, 0 timed out)
+Mutation testing 90% (elapsed: ~18m, remaining: ~2m) 147/163 tested (15 survived, 0 timed out)
+Mutation testing 92% (elapsed: ~18m, remaining: ~1m) 151/163 tested (19 survived, 0 timed out)
+Mutation testing 92% (elapsed: ~19m, remaining: ~1m) 151/163 tested (19 survived, 0 timed out)
+Mutation testing 93% (elapsed: ~19m, remaining: ~1m) 152/163 tested (20 survived, 0 timed out)
+Mutation testing 94% (elapsed: ~19m, remaining: ~1m) 154/163 tested (21 survived, 0 timed out)
+Mutation testing 95% (elapsed: ~19m, remaining: <1m) 156/163 tested (23 survived, 0 timed out)
+Mutation testing 95% (elapsed: ~19m, remaining: <1m) 156/163 tested (23 survived, 0 timed out)
+Mutation testing 96% (elapsed: ~19m, remaining: <1m) 157/163 tested (24 survived, 0 timed out)
+Mutation testing 98% (elapsed: ~20m, remaining: <1m) 161/163 tested (28 survived, 0 timed out)
+
+All tests
+  ✓ All tests (killed 133)
+
+[Survived] ArrayDeclaration
+scripts/lib/self-heal-detect.mjs:40:21
+-     wantedSkillDirs = [],
++     wantedSkillDirs = ["Stryker was here"],
+
+[Survived] ArrayDeclaration
+scripts/lib/self-heal-detect.mjs:41:21
+-     wantedServerIds = [],
++     wantedServerIds = ["Stryker was here"],
+
+[Survived] ArrayDeclaration
+scripts/lib/self-heal-detect.mjs:74:59
+-   export function missingInstalledDependencies({ declared = [], isInstalled }) {
++   export function missingInstalledDependencies({ declared = ["Stryker was here"], isInstalled }) {
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:99:84
+-           ? `hooks: ${gap.unwiredHooks.map((script) => script.split("/").pop()).join(", ")}`
++           ? `hooks: ${gap.unwiredHooks.map((script) => script.split("/").pop()).join("")}`
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:101:86
+-         gap.missingDependencies.length ? `dependencies: ${gap.missingDependencies.join(", ")}` : null,
++         gap.missingDependencies.length ? `dependencies: ${gap.missingDependencies.join("")}` : null,
+
+[Survived] BlockStatement
+scripts/session-self-heal.mjs:213:39
+-   function deriveUnwiredHooks(brainDir) {
+-     const templatePath = join(brainDir, ".claude", "settings.json.template");
+-     const settingsPath = join(brainDir, ".claude", "settings.json");
+-     if (!existsSync(templatePath) || !existsSync(settingsPath)) return [];
+-     const { hooksAdded } = reconcileHooks({
+-       brainHooks: JSON.parse(readFileSync(settingsPath, "utf8")).hooks ?? {},
+-       templateHooks: JSON.parse(readFileSync(templatePath, "utf8")).hooks ?? {},
+-       projectRoot: brainDir,
+-     });
+-     return hooksAdded;
+-   }
++   function deriveUnwiredHooks(brainDir) {}
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:214:39
+-     const templatePath = join(brainDir, ".claude", "settings.json.template");
++     const templatePath = join(brainDir, "", "settings.json.template");
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:215:39
+-     const settingsPath = join(brainDir, ".claude", "settings.json");
++     const settingsPath = join(brainDir, "", "settings.json");
+
+[Survived] ConditionalExpression
+scripts/session-self-heal.mjs:216:7
+-     if (!existsSync(templatePath) || !existsSync(settingsPath)) return [];
++     if (true) return [];
+
+[Survived] ConditionalExpression
+scripts/session-self-heal.mjs:216:7
+-     if (!existsSync(templatePath) || !existsSync(settingsPath)) return [];
++     if (false) return [];
+
+[Survived] LogicalOperator
+scripts/session-self-heal.mjs:216:7
+-     if (!existsSync(templatePath) || !existsSync(settingsPath)) return [];
++     if (!existsSync(templatePath) && !existsSync(settingsPath)) return [];
+
+[Survived] BooleanLiteral
+scripts/session-self-heal.mjs:216:7
+-     if (!existsSync(templatePath) || !existsSync(settingsPath)) return [];
++     if (existsSync(templatePath) || !existsSync(settingsPath)) return [];
+
+[Survived] BooleanLiteral
+scripts/session-self-heal.mjs:216:36
+-     if (!existsSync(templatePath) || !existsSync(settingsPath)) return [];
++     if (!existsSync(templatePath) || existsSync(settingsPath)) return [];
+
+[Survived] ArrayDeclaration
+scripts/session-self-heal.mjs:216:70
+-     if (!existsSync(templatePath) || !existsSync(settingsPath)) return [];
++     if (!existsSync(templatePath) || !existsSync(settingsPath)) return ["Stryker was here"];
+
+[Survived] ObjectLiteral
+scripts/session-self-heal.mjs:217:41
+-     const { hooksAdded } = reconcileHooks({
+-       brainHooks: JSON.parse(readFileSync(settingsPath, "utf8")).hooks ?? {},
+-       templateHooks: JSON.parse(readFileSync(templatePath, "utf8")).hooks ?? {},
+-       projectRoot: brainDir,
+-     });
++     const { hooksAdded } = reconcileHooks({});
+
+[Survived] LogicalOperator
+scripts/session-self-heal.mjs:218:17
+-       brainHooks: JSON.parse(readFileSync(settingsPath, "utf8")).hooks ?? {},
++       brainHooks: JSON.parse(readFileSync(settingsPath, "utf8")).hooks && {},
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:218:55
+-       brainHooks: JSON.parse(readFileSync(settingsPath, "utf8")).hooks ?? {},
++       brainHooks: JSON.parse(readFileSync(settingsPath, "")).hooks ?? {},
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:219:58
+-       templateHooks: JSON.parse(readFileSync(templatePath, "utf8")).hooks ?? {},
++       templateHooks: JSON.parse(readFileSync(templatePath, "")).hooks ?? {},
+
+[Survived] LogicalOperator
+scripts/session-self-heal.mjs:219:20
+-       templateHooks: JSON.parse(readFileSync(templatePath, "utf8")).hooks ?? {},
++       templateHooks: JSON.parse(readFileSync(templatePath, "utf8")).hooks && {},
+
+[Survived] BlockStatement
+scripts/session-self-heal.mjs:230:46
+-   function deriveMissingDependencies(brainDir) {
+-     const ragDir = join(brainDir, "rag");
+-     const pkgPath = join(ragDir, "package.json");
+-     if (!existsSync(pkgPath)) return [];
+-     return missingInstalledDependencies({
+-       declared: Object.keys(JSON.parse(readFileSync(pkgPath, "utf8")).dependencies ?? {}),
+-       isInstalled: (name) => existsSync(join(ragDir, "node_modules", name)),
+-     });
+-   }
++   function deriveMissingDependencies(brainDir) {}
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:231:33
+-     const ragDir = join(brainDir, "rag");
++     const ragDir = join(brainDir, "");
+
+[Survived] ConditionalExpression
+scripts/session-self-heal.mjs:233:7
+-     if (!existsSync(pkgPath)) return [];
++     if (true) return [];
+
+[Survived] BooleanLiteral
+scripts/session-self-heal.mjs:233:7
+-     if (!existsSync(pkgPath)) return [];
++     if (existsSync(pkgPath)) return [];
+
+[Survived] ConditionalExpression
+scripts/session-self-heal.mjs:233:7
+-     if (!existsSync(pkgPath)) return [];
++     if (false) return [];
+
+[Survived] ObjectLiteral
+scripts/session-self-heal.mjs:234:39
+-     return missingInstalledDependencies({
+-       declared: Object.keys(JSON.parse(readFileSync(pkgPath, "utf8")).dependencies ?? {}),
+-       isInstalled: (name) => existsSync(join(ragDir, "node_modules", name)),
+-     });
++     return missingInstalledDependencies({});
+
+[Survived] ArrayDeclaration
+scripts/session-self-heal.mjs:233:36
+-     if (!existsSync(pkgPath)) return [];
++     if (!existsSync(pkgPath)) return ["Stryker was here"];
+
+[Survived] LogicalOperator
+scripts/session-self-heal.mjs:235:27
+-       declared: Object.keys(JSON.parse(readFileSync(pkgPath, "utf8")).dependencies ?? {}),
++       declared: Object.keys(JSON.parse(readFileSync(pkgPath, "utf8")).dependencies && {}),
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:235:60
+-       declared: Object.keys(JSON.parse(readFileSync(pkgPath, "utf8")).dependencies ?? {}),
++       declared: Object.keys(JSON.parse(readFileSync(pkgPath, "")).dependencies ?? {}),
+
+[Survived] ArrowFunction
+scripts/session-self-heal.mjs:236:18
+-       isInstalled: (name) => existsSync(join(ragDir, "node_modules", name)),
++       isInstalled: () => undefined,
+
+[Survived] StringLiteral
+scripts/session-self-heal.mjs:236:52
+-       isInstalled: (name) => existsSync(join(ragDir, "node_modules", name)),
++       isInstalled: (name) => existsSync(join(ragDir, "", name)),
+
+Ran 1.00 tests per mutant on average.
+------------------------|------------------|----------|-----------|------------|----------|----------|
+                        | % Mutation score |          |           |            |          |          |
+File                    |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files               |  81.60 |   81.60 |      133 |         0 |         30 |        0 |        0 |
+ lib                    |  97.62 |   97.62 |      123 |         0 |          3 |        0 |        0 |
+  note-parse.mjs        | 100.00 |  100.00 |        7 |         0 |          0 |        0 |        0 |
+  note-persistence.mjs  | 100.00 |  100.00 |       27 |         0 |          0 |        0 |        0 |
+  self-heal-detect.mjs  |  91.67 |   91.67 |       33 |         0 |          3 |        0 |        0 |
+  wiki-health-nudge.mjs | 100.00 |  100.00 |       26 |         0 |          0 |        0 |        0 |
+  wiki-lint.mjs         | 100.00 |  100.00 |       30 |         0 |          0 |        0 |        0 |
+ session-self-heal.mjs  |  27.03 |   27.03 |       10 |         0 |         27 |        0 |        0 |
+------------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m10:01:38 (49476) INFO MutationTestExecutor[39m Done in 20 minutes and 17 seconds.
+[32m10:01:38 (49476) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-0LRRIK.

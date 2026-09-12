@@ -1,9 +1,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { sessionSelfHeal, buildSelfHealHookOutput } from "./session-self-heal.mjs";
+import { sessionSelfHeal, buildSelfHealHookOutput, deriveWanted } from "./session-self-heal.mjs";
 import { reconcileHooks } from "./lib/hooks-reconcile.mjs";
 
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -217,7 +218,11 @@ test("settings.json.template wires session-self-heal as a SessionStart hook, and
 
 test("sessionSelfHeal — a hook this machine never wired is a gap, and the banner names it", async () => {
   const { args, calls } = seams({
-    readWanted: () => ({ ...WANTED, unwiredHooks: ["scripts/prompt-restart-nudge.mjs"] }),
+    readWanted: () => ({
+      ...WANTED,
+      // Two, unsorted: one name proves nothing about how a list is rendered.
+      unwiredHooks: ["scripts/prompt-restart-nudge.mjs", "scripts/session-actions-log.mjs"],
+    }),
   });
   const result = await sessionSelfHeal(args);
   assert.equal(result.healed, true);
@@ -225,18 +230,26 @@ test("sessionSelfHeal — a hook this machine never wired is a gap, and the bann
   assert.equal(calls.emitted.length, 1);
   // The SCRIPT name, not the raw command: the command carries this machine's absolute
   // paths and its node launcher, which is noise to the person reading the banner.
-  assert.match(calls.emitted[0], /prompt-restart-nudge/);
+  assert.match(
+    calls.emitted[0],
+    /hooks: prompt-restart-nudge, session-actions-log/,
+    "two hooks must read as a list — run together they are one unreadable word",
+  );
   assert.match(calls.emitted[0], /PLEASE CLOSE CLAUDE AND REOPEN IT/);
 });
 
 test("sessionSelfHeal — a dependency this machine never installed is a gap, and the banner names it", async () => {
   const { args, calls } = seams({
-    readWanted: () => ({ ...WANTED, missingDependencies: ["js-yaml"] }),
+    readWanted: () => ({ ...WANTED, missingDependencies: ["js-yaml", "better-sqlite3"] }),
   });
   const result = await sessionSelfHeal(args);
   assert.equal(result.healed, true);
   assert.equal(calls.emitted.length, 1);
-  assert.match(calls.emitted[0], /js-yaml/);
+  assert.match(
+    calls.emitted[0],
+    /dependencies: js-yaml, better-sqlite3/,
+    "same as the hooks above: a list has to look like one",
+  );
 });
 
 test("sessionSelfHeal — a brain converged on all four questions stays a TRUE no-op", async () => {
@@ -280,4 +293,81 @@ test("the engine's rag/package.json still declares the dependencies the gate com
   const declared = Object.keys(pkg.dependencies ?? {});
   assert.ok(declared.length > 0, "a RAG that declares nothing would make the check vacuous");
   assert.ok(declared.includes("js-yaml"), "the frontmatter parser's dependency is one of them");
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// The two derivations themselves, run against real files on disk.
+//
+// Everything above feeds the gate its answers; these tests make the wrapper GO AND
+// FIND them, which is the half that reads a filesystem and therefore the half no
+// injected seam can vouch for (CONVENTIONS §5bis — "pure I/O" is not an exemption).
+// Measured: before these existed, a mutation pass could delete `.claude` from both
+// paths, invert both existence checks and swap the `||` for an `&&`, and every test
+// in this file stayed green.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// A brain skeleton on disk: relative path → text. Returns the directory.
+// The manifest is always there because `deriveWanted` opens it before anything else —
+// every real brain has one, and the two derivations under test are downstream of it.
+function brainOnDisk(files) {
+  const dir = mkdtempSync(join(tmpdir(), "self-heal-derive-"));
+  for (const [rel, text] of Object.entries({ "engine-manifest.json": "{}", ...files })) {
+    const full = join(dir, ...rel.split("/"));
+    mkdirSync(dirname(full), { recursive: true });
+    writeFileSync(full, text);
+  }
+  return dir;
+}
+
+const hookEntry = (command) => ({ matcher: "", hooks: [{ type: "command", command, timeout: 20000 }] });
+
+test("deriveWanted — a hook the template declares and this machine never wired is named, by the script it runs", (t) => {
+  const dir = brainOnDisk({
+    ".claude/settings.json.template": JSON.stringify({
+      hooks: {
+        SessionStart: [
+          hookEntry('{{NODE}} "{{PROJECT_ROOT}}/scripts/session-status.mjs"'),
+          hookEntry('{{NODE}} "{{PROJECT_ROOT}}/scripts/prompt-restart-nudge.mjs"'),
+        ],
+      },
+    }),
+    // This machine runs the first of the two, under its own launcher — which is what
+    // makes the comparison non-trivial: the wired one must NOT be reported.
+    ".claude/settings.json": JSON.stringify({
+      hooks: { SessionStart: [hookEntry('/bin/sh "/brain/run-node.sh" "/brain/scripts/session-status.mjs"')] },
+    }),
+  });
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+
+  assert.deepEqual(deriveWanted(dir).unwiredHooks, ["scripts/prompt-restart-nudge.mjs"]);
+});
+
+test("deriveWanted — a brain whose settings file does not exist yet reports no unwired hook, rather than crashing", (t) => {
+  const dir = brainOnDisk({
+    ".claude/settings.json.template": JSON.stringify({
+      hooks: { SessionStart: [hookEntry('{{NODE}} "{{PROJECT_ROOT}}/scripts/session-status.mjs"')] },
+    }),
+  });
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+
+  // F14's unwired-machine case, handled long before this gate runs: here it must simply
+  // stay quiet. Reading a file that is not there would turn a session start into a crash.
+  assert.deepEqual(deriveWanted(dir).unwiredHooks, []);
+});
+
+test("deriveWanted — a dependency declared by the RAG and absent from node_modules is named, and an installed one is not", (t) => {
+  const dir = brainOnDisk({
+    "rag/package.json": JSON.stringify({ dependencies: { "js-yaml": "^4.1.0", "better-sqlite3": "^11.0.0" } }),
+    "rag/node_modules/better-sqlite3/package.json": JSON.stringify({ name: "better-sqlite3" }),
+  });
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+
+  assert.deepEqual(deriveWanted(dir).missingDependencies, ["js-yaml"]);
+});
+
+test("deriveWanted — a brain with no rag/package.json asks nothing of the disk", (t) => {
+  const dir = brainOnDisk({});
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+
+  assert.deepEqual(deriveWanted(dir).missingDependencies, []);
 });
