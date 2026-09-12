@@ -23,9 +23,9 @@
   name, and v5.3 is out. **A session may prepare and design v5.4, and must ASK before cutting it.**
 - **Blocked on:** nothing. **TWO things wait on him here, and neither gates anything:** (a) **what the
   nightly mutation run is FOR**, a product call → § *Inherited from v5.0.0*; (b) **the French wording
-  shipped in v5.2.0**, live in the fleet, his at leisure. *(ADR 0044's ratification is a third, and it
-  is **owned** by [`fixture-names-and-adr-brevity-action.md`](fixture-names-and-adr-brevity-action.md)
-  — not restated here, so it cannot go stale in two places.)*
+  shipped in v5.2.0**, live in the fleet, his at leisure. *(ADR 0044's ratification was a third and is
+  **settled**: ACCEPTED on 2026-09-12, its plan closed and archived as
+  [`2026-09-12-fixture-names-and-adr-brevity-action.md`](../archived/2026-09-12-fixture-names-and-adr-brevity-action.md).)*
 - **#78 is answered AND fixed, both halves, and closed** _(2026-09-12)_ → § *Neither group*. One older
   question is left in § *Questions the owner owns*, not to be re-asked (`ci.yml`'s `concurrency`).
   Grouping, order and the three titles are decided.

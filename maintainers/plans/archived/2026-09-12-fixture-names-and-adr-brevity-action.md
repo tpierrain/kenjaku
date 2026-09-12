@@ -3,39 +3,23 @@
 <!-- the same breath: an ADR he could not get through, and a real client's     -->
 <!-- name he found in a published example.                                    -->
 <!--                                                                          -->
-<!-- The `## 📍 STATE` block is this file's only perishable content:           -->
-<!-- ≤ 20 non-empty lines (CONVENTIONS §3ter).                                -->
+<!-- ARCHIVED 2026-09-12 — finished, so it holds no state and its `## 📍 STATE` -->
+<!-- block is gone (CONVENTIONS §7). Read it for the step detail, never for   -->
+<!-- where work stands: that lives in plans/ACTIVE.md and the plan it names.  -->
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 
 # Action plan — names nobody real, and ADRs people actually read
 
-## 📍 STATE — the only perishable block in this file · opened 2026-09-12
-
-- **Next:** ▶️ **put ratification of ADR 0044 to the owner** → § *Step 3*. It is **one question, and
-  it gates nothing**: the code shipped in v5.3.0 either way. Record his answer in § *Step 3* and flip
-  the ADR's STATUS if he accepts.
-- **Done** _(2026-09-12 · `3394c03`)_: **ADR 0044 is rewritten to one screen**, 207 lines → 101, with
-  every claim of the keep-list intact and the probe write-up delegated to the archived v5.3.0 plan.
-- **Done and pushed** _(`71bf859`)_: the **name sweep is complete** — 308 occurrences across nine
-  files, including the delivered `switch` skill, now `globex` / `aXiom` / `Axion` / `Axiom`.
-  Fingerprints regenerated, 3759 tests green. **Nothing public still carries the real names**: the
-  v5.3.0 release note and every issue comment were checked, both clean.
-- **✅ DONE, and the names chantier is closed on the shipping side** _(2026-09-12)_: `v5.3.0` now points
-  at `8e8db36`, its tree searched clean, and **no `v5.3.1` exists** by the owner's call. The published
-  note was left untouched and says nothing of it → § *Step 4* for the reasoning and the way back.
-- ℹ️ **Not recoverable, and he should know rather than be protected from it:** the names stay readable
-  in the **commit history** of a public repo, which moving the tag does not touch and no patch release
-  would have touched either → § *Step 4*. Rewriting published history is a separate, heavier decision
-  and nobody has asked for it.
-- **A session may, alone:** amend the ADR, run the suite, commit, push, read CI. **Not:** mark the ADR
-  ACCEPTED without his answer, cut a release, rewrite published history.
+> **CLOSED 2026-09-12.** The name sweep shipped inside `v5.3.0` (the tag was moved onto it rather than
+> announced, § *Step 4*), and **ADR 0044 is ACCEPTED**, cut from 207 lines to one screen and re-opened
+> on `/switch` and a named universe before the owner would ratify it (§ *Step 2*, § *Step 3*).
 
 ## Tracking
 
 - [x] **Step 1 — the sweep, and the two conventions that stop it recurring**
       _(2026-09-12 · `71bf859`)_ → § *Step 1*
 - [x] **Step 2 — ADR 0044, rewritten to one screen** _(2026-09-12 · `3394c03`)_ → § *Step 2*
-- [ ] **Step 3 — put ratification of ADR 0044 to the owner** (one question, after step 2) → § *Step 3*
+- [x] **Step 3 — ratification: ACCEPTED by the owner** _(2026-09-12)_ → § *Step 3*
 - [x] **Step 4 — move the `v5.3.0` tag onto the rename, silently**
       _(2026-09-12 · tag `8a9d1eb` → `8e8db36`)_ → § *Step 4*
   - [x] the release note drafted for a `v5.3.1` is **deleted, not published** _(2026-09-12)_
@@ -95,7 +79,17 @@ said the long one was unreadable; put the question once, after step 2, and recor
 **Put to him on 2026-09-12**, the one-screen version being on disk (`3394c03`). His answer goes here,
 and ACCEPTED means exactly two edits: the STATUS line of the ADR, and this checkbox.
 
-- **His answer:** _(awaiting)_
+- **His answer, 2026-09-12: ACCEPTED.** « ok je ratifie, passe-la en ACCEPTED », given after he read the
+  one-screen version and had its opening rewritten once more — see below. STATUS flipped in the ADR.
+
+**What ratification actually cost, and it is the lesson of this plan:** the short version was not
+enough. Read tired, its first sentence was still *"whenever the brain narrows what it will answer
+from… you switch to another sphere"*, and his answer was « c'est beaucoup trop abstrait. Sphere c'est
+quoi ? c'est les univers ? ». Two defects in one line: **a word the product does not use** (it is
+*universe*), and **a description of nothing anybody can picture**. The crux now opens on `/switch`, on
+`globex` by name, and on what the same message must say did *not* move. **Brevity was necessary and
+not sufficient** — CONVENTIONS §6sexies asks for lived situations for exactly this reason, and a
+one-screen ADR can still be unreadable in its first three lines.
 
 ## Step 4 — the tag moves, and nothing is announced
 

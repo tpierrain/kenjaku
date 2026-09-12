@@ -1,6 +1,6 @@
 # ADR 0044 — Narrowing a scope discloses, in the same breath, what stayed wide
 
-- **STATUS:** PROPOSED (2026-09-12) — drafted for the owner to accept or amend.
+- **STATUS:** ACCEPTED (2026-09-12) — ratified by the owner once it fitted on one screen.
 - **Scope:** Second brain (runtime) — the deterministic cores that re-point a scope, and the delivered
   skills that relay what they print. **No installer flow change**, no index schema change.
 - **Related:** [`0034`](0034-progressive-disclosure-of-universes.md) (a universe is a soft retrieval
