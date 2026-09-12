@@ -32,7 +32,8 @@
   cleared session picks this up without asking. **Not:** write into `templates/fr/**` (one carve-out,
   § *History*) or into either of his two personal brains. ⚠️ **Cutting a release was granted ONCE**, by
   name, on 2026-09-12 (« vas y cut la release ») — **for v5.2.0 only**. Preparing ≠ cutting: ask again
-  before tagging v5.3.
+  before tagging v5.3. ℹ️ A **plan-only push no longer starts CI** (his call, same day): there is no
+  run to read, and that is not a broken workflow. → § *History*.
 - **Already delivered:** v5.1.3 and v5.2.0, both archived — § *Group 1*, § *v5.1*. Lessons: § *History*.
 
 ## Tracking
@@ -457,6 +458,27 @@ block, precisely so that a session reading STATE does not mistake them for pendi
 _Durable by construction: everything below is finished, or is a lesson. All of it sat in the
 `## 📍 STATE` block until 2026-09-12, which is exactly how that block reached **197 lines**. Nothing
 here expires, so nothing here needs re-reading at a resume._
+
+### CI stopped running on plan-only commits, and the filter is guarded
+
+_(2026-09-12, and it came out of a plain question: « c'est long, comment ça se fait ? »)_
+
+- **What he was waiting on.** Three commits in a row, all Markdown, all plans. Each started **seven
+  parallel checks** (the whole suite on three Node versions × macOS and Windows, plus the end-to-end
+  install on Windows) and each made him wait on the slowest cell: **3 to 4½ minutes of Windows**, for
+  files no test reads. The save-point rule produced the commits; `ci.md` made me read every result.
+- **His rule, and it is now in the harness** (`rules/ci.md`, § *The suite judges the implementation*):
+  the suite runs on **implementation**; it does **not** run on **record-keeping** (plans, issues); and
+  **documentation is neither** — a doc change can change the behaviour the product *announces*, so it
+  is a conversation with him, never a silent addition to the filter.
+- **`maintainers/plans/**` is excused, and nothing else is.** A `paths-ignore` disables a net in
+  silence — green, faster, and no line anywhere says a suite stopped running — so the list is **parsed
+  by a test** (`scripts/lib/ci-path-filter.test.mjs`) that goes red the day it covers anything else.
+  Written test-first: the guard was red on an assertion, not on a loading error, before the workflow
+  changed. `templates/**` is the product and `maintainers/decisions/**` feeds the doctrine guards;
+  neither will ever be in that list.
+- ⚠️ **The consequence to remember at a resume**: after a plan-only push there is **no run to read**,
+  and that is the design rather than a broken workflow.
 
 ### The state block was itself the defect, and the rule already existed
 

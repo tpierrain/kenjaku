@@ -21,8 +21,27 @@ on:
   # still being written — the whole point (see that job). The expensive jobs below
   # carry an `if` restricting them to pull requests and to `main`, so an ordinary
   # branch push costs ONE short Windows job, not the whole matrix.
+  #
+  # ── What is EXCUSED from all of it, and why exactly this (owner's call, 2026-09-12) ──
+  # A commit that touches only `maintainers/plans/**` changes the project's own
+  # record-keeping: what is next, what was decided, which issue rides in which release.
+  # No shipped file reads a plan and no test asserts on one, so running the suite seven
+  # times over — up to four and a half minutes of Windows — proves nothing and makes a
+  # human wait for it. « Quand on ne fait que créer/modifier des issues et des plans, ça
+  # n'a aucun intérêt de relancer toute la suite de test et de me faire patienter. »
+  #
+  # The list stays at ONE directory, and that is enforced rather than trusted:
+  # `scripts/lib/ci-path-filter.test.mjs` reads this file and goes red if anything else
+  # is ever added — `templates/**` is the product, `maintainers/decisions/**` is read by
+  # the doctrine guards, and a filter that quietly grows is a suite that quietly stops.
+  # Documentation is deliberately NOT excused: a README or a constitution can change the
+  # behaviour the product ANNOUNCES, which is a conversation to have, not a run to skip.
   push:
+    paths-ignore:
+      - "maintainers/plans/**"
   pull_request:
+    paths-ignore:
+      - "maintainers/plans/**"
 
 jobs:
   # ── The early Windows tripwire (ADR 0015 / CONVENTIONS §9) ──────────────────
