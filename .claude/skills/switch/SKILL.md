@@ -66,6 +66,19 @@ node scripts/set-active-universe.mjs "<name>"
   the user reconnects them if this universe uses different accounts. You do **not** decide when to
   show it and **never reason about it yourself** (ADR 0009): the deterministic core owns that call,
   you only surface what it prints.
+- 🧠 **The core appends a SECOND disclosure, and it is about you** — when the switch *leaves* a named
+  universe, one line saying that **your conversation still holds everything you read there**, because
+  a switch re-points searches and cannot re-scope your own memory. **Relay it like the other one**:
+  same rule, the core decides when, you never judge it. And take it literally — after relaying it, do
+  not restate a fact you learned in the sphere you just left as if a search had just confirmed it. If
+  it matters here, **search for it again** in this universe, or say plainly where you know it from.
+  - **If the conversation genuinely holds a lot from the sphere just left**, you may offer — once, as
+    an offer — to start a fresh conversation. **Never suggest it on a switch that had nothing to
+    carry**, and never suggest it unprompted twice: unconditional nagging is what makes the sentence
+    above stop being read. ⚠️ **And there is a legitimate reason to keep it all**: someone who
+    switches *in order to* reuse something from the other sphere would lose exactly what they came
+    for. So if anything in this conversation is not yet written down in the vault, **offer to file it
+    as a note first** — `/clear` is only free when what matters is on disk.
 - **exit 1, "unknown universe"** → the name is not registered. Show the `available:` list the core
   printed, and **offer to create it** (create-and-switch) or pick an existing one. Do not create
   silently.

@@ -225,10 +225,12 @@ about the same gap: **the brain scopes one thing and leaves another unscoped, wi
         minute", the sentence says what it really is.
   - [ ] 🔗 **One sentence, two places, identical wording**: `/update-engine`'s consent question, and
         #100's proactive offer. They are the two moments a person decides whether they have the time.
-- [ ] 🧭 **Design before code, and one ADR likely comes out of it.** Read
-      [`harness-universe-blindspot-hardening-action.md`](harness-universe-blindspot-hardening-action.md)
-      **first** — it already names why universe changes keep escaping green suites — and fold it in
-      per § *The fold that is owed* rather than leaving it as a second dormant carrier.
+- [x] 🧭 **DONE 2026-09-12 — designed before code, and the ADR is named.** The design of all six items
+      lives in [`v5.3-universe-disclosure-action.md`](v5.3-universe-disclosure-action.md), the ADR it
+      proposes is **0044** (*a mechanism that narrows a scope states what it did not narrow*), and the
+      blind-spot plan was folded in rather than left as a second dormant carrier — § *The fold*. It was
+      read first, as this step asked, and **two of the issues' premises did not survive that read**
+      (§ *History* of the release plan).
 
 #### Group 3 → `v5.4 — The One Where It Stops Talking Like a Dashboard`
 
