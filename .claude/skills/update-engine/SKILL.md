@@ -96,7 +96,7 @@ Then, before the yes, explain plainly:
 
 **Then say how long it takes, in these exact words, BEFORE the question:**
 
-> The engine will usually be updated in about a minute; if the way your notes are indexed has changed, it will also re-index them, which takes a few minutes more — and either way, nothing you have written is lost.
+> The engine will usually be updated in between 10 seconds and under a minute; if the way your notes are indexed has changed, it will also re-index them, which adds a few minutes on a big set of notes — and either way, nothing you have written is lost.
 
 🛑 **Quote that sentence, do not re-word it** (translate it if you are answering in another
 language, keeping all three of its parts). It is the only duration in this whole message that

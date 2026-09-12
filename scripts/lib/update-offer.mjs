@@ -60,8 +60,17 @@ export const REMIND_LATER_MS = DAY;
  */
 export const DECLINE_LADDER_MS = [3 * DAY, 5 * DAY, 21 * DAY, 60 * DAY];
 
-/** The whole quote budget for the release's own words, before the rest is cut away. */
-const QUOTE_MAX = 420;
+/**
+ * The whole quote budget for the release's own words, before the rest is cut away.
+ *
+ * ⚖️ It is the part that GIVES WAY when the directive grows, and it gave way once:
+ * stating the measured duration as a range rather than a rounded figure cost about
+ * thirty characters, and this dropped from 420 to 360 to keep the whole offer
+ * under its ceiling (a quote is cut on whole LINES, so it gives way in steps). That order is the rule, not a convenience — the instruction and the cost
+ * are what the owner answers with; the quote is what `/update-engine --check`
+ * can always show in full.
+ */
+const QUOTE_MAX = 360;
 
 /**
  * May this verdict be raised right now?

@@ -294,8 +294,8 @@ and **git**. The installer checks each one and tells you cleanly if something's 
   computer stops quietly running last week's. **Since v5.3.0 the question comes back, calmly, until
   you answer it**: an update you never heard about is one you never chose against, and until now the
   news arrived once, at the top of a session, where it was easy to miss entirely. Now your brain
-  offers it — with what the release gives you and **how long it takes**, which is usually about a
-  minute — and *"remind me later"* means tomorrow, while *"no thanks"* really does mean no: it backs
+  offers it — with what the release gives you and **how long it takes**, which is between 10 seconds
+  and under a minute — and *"remind me later"* means tomorrow, while *"no thanks"* really does mean no: it backs
   off further every time, and then stops for that version altogether. A brand-new brain also knows
   from its very first conversation whether it was born a version or two behind. **What this is not**:
   no remote repository is added to your brain, nothing of yours is sent or pushed, and your own backup

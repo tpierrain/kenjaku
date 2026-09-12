@@ -766,7 +766,7 @@ swapped · skills brought up to date (and those left as you tailored them) · wh
 
 Because the engine is **observable** (it knows its own version), your brain does not wait to be asked.
 When a release is waiting, it **offers** it — quoting what that release gives you, saying **how long
-it takes** (usually about a minute), and giving you three answers you click rather than type:
+it takes** (between 10 seconds and under a minute, measured), and giving you three answers you click rather than type:
 
 | You answer | What happens |
 | --- | --- |

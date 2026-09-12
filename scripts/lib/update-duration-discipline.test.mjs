@@ -68,11 +68,13 @@ for (const { locale, path, sentence, asks } of SURFACES) {
 test("the sentence carries all three of its parts — the usual case, the exception, and the reassurance", () => {
   // What makes it answerable rather than merely present. Drop any one of them and
   // it is back to being the scary number on its own, which is the defect.
-  assert.match(UPDATE_DURATION_SENTENCE, /about a minute/);
+  // The ordinary case is stated as the MEASURED RANGE, not as a rounded figure —
+  // the owner's call, 2026-09-12: « intègre la vraie durée dans ce cas ».
+  assert.match(UPDATE_DURATION_SENTENCE, /10 seconds and under a minute/);
   assert.match(UPDATE_DURATION_SENTENCE, /re-index/);
   assert.match(UPDATE_DURATION_SENTENCE, /nothing you have written is lost/);
 
-  assert.match(UPDATE_DURATION_SENTENCE_FR, /environ une minute/);
+  assert.match(UPDATE_DURATION_SENTENCE_FR, /10 secondes à moins d'une minute/);
   assert.match(UPDATE_DURATION_SENTENCE_FR, /réindex/);
   assert.match(UPDATE_DURATION_SENTENCE_FR, /rien de ce que tu as écrit n'est perdu/);
 });

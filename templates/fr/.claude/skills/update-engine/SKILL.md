@@ -102,7 +102,7 @@ Ensuite, avant le oui, explique simplement :
 
 **Puis dis combien de temps ça prend, avec ces mots exacts, AVANT la question :**
 
-> Le moteur sera en général mis à jour en environ une minute ; si la façon dont tes notes sont indexées a changé, il les réindexera aussi, ce qui prend quelques minutes de plus, et dans tous les cas, rien de ce que tu as écrit n'est perdu.
+> Le moteur sera en général mis à jour en 10 secondes à moins d'une minute ; si la façon dont tes notes sont indexées a changé, il les réindexera aussi, ce qui ajoute quelques minutes sur un gros ensemble de notes, et dans tous les cas, rien de ce que tu as écrit n'est perdu.
 
 🛑 **Cite cette phrase, ne la reformule pas** (traduis-la si tu réponds dans une autre langue,
 en gardant ses trois parties). C'est la seule durée de tout ce message qui décrit le cas

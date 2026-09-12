@@ -30,11 +30,13 @@
  * with one. If a later run disagrees, this line is what changes — never one of the
  * surfaces that quote it.
  *
- * So "about a minute" is deliberately the SLOW side of what was measured, and the
- * reason is what the stopwatch could not see: that brain's dependencies were
- * already installed, and a cold `npm install` on a slow line is where the rest of
- * the minute goes. A duration an owner beats is a promise kept; one they miss is
- * the reason they stop believing the next one.
+ * 🗣️ **The sentence states the measured RANGE, and that is the owner's own call**
+ * _(2026-09-12: « intègre la vraie durée dans ce cas => (entre 10 secondes et moins
+ * d'1 minute) »)_. An earlier draft rounded it to "about a minute" to stay on the
+ * safe side; the range is better, because it is what actually happened and it still
+ * has room for what the stopwatch could not see — that brain's dependencies were
+ * already installed, and a cold `npm install` on a slow line is what fills the rest
+ * of the minute. A duration an owner beats is a promise kept.
  *
  * 🔎 And it hedges on purpose. Whether a given update will re-index is NOT knowable
  * before the swap: the target's `indexSchemaVersion` lives in the launcher's own
@@ -45,8 +47,9 @@
  * rounding of one.
  */
 export const UPDATE_DURATION_SENTENCE =
-  "The engine will usually be updated in about a minute; if the way your notes are indexed has changed, " +
-  "it will also re-index them, which takes a few minutes more — and either way, nothing you have written is lost.";
+  "The engine will usually be updated in between 10 seconds and under a minute; if the way your notes are " +
+  "indexed has changed, it will also re-index them, which adds a few minutes on a big set of notes — and " +
+  "either way, nothing you have written is lost.";
 
 /**
  * 🇫🇷 The French twin, shipped in `templates/fr/**`. A SECOND constant rather than
@@ -60,6 +63,6 @@ export const UPDATE_DURATION_SENTENCE =
  * engine does. No em dash either: that is the French typography rule, not a slip.
  */
 export const UPDATE_DURATION_SENTENCE_FR =
-  "Le moteur sera en général mis à jour en environ une minute ; si la façon dont tes notes sont indexées a " +
-  "changé, il les réindexera aussi, ce qui prend quelques minutes de plus, et dans tous les cas, rien de ce " +
-  "que tu as écrit n'est perdu.";
+  "Le moteur sera en général mis à jour en 10 secondes à moins d'une minute ; si la façon dont tes notes " +
+  "sont indexées a changé, il les réindexera aussi, ce qui ajoute quelques minutes sur un gros ensemble de " +
+  "notes, et dans tous les cas, rien de ce que tu as écrit n'est perdu.";
