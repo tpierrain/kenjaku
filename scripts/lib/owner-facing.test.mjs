@@ -59,6 +59,25 @@ test("directiveTraces catches the engine shouting at the model", () => {
   assert.deepEqual(traces, ["shouted: ASK", "shouted: NEVER"]);
 });
 
+// 🛑 JUDGED ON ITS FALSE POSITIVES (CONVENTIONS §5quater), and this one fired on the
+// very first real payload it met: the engine-divergence line names the file it is
+// leaving alone, and that file is `.claude/skills/coach/SKILL.md`. A guard that calls
+// a filename shouting is a guard that gets switched off.
+test("directiveTraces does not mistake a FILENAME for shouting", () => {
+  assert.deepEqual(
+    directiveTraces("The engine is leaving .claude/skills/coach/SKILL.md alone."),
+    [],
+  );
+  assert.deepEqual(directiveTraces("Created a running list (vault/actions-log.md)."), []);
+  assert.deepEqual(directiveTraces("Edit CLAUDE.md, not this one."), []);
+});
+
+test("directiveTraces still hears shouting at the end of a sentence", () => {
+  // The path carve-out must not swallow a real marker just because a full stop
+  // follows it — that would blank the last word of every sentence.
+  assert.deepEqual(directiveTraces("Do not guess. NEVER."), ["shouted: NEVER"]);
+});
+
 test("directiveTraces lets the acronyms an owner legitimately reads pass", () => {
   // A status line says "RAG unavailable" and an error says "MCP server not loaded".
   // Both are the owner's vocabulary, and a length rule would not have told them

@@ -88,6 +88,18 @@ const COMMAND_LINE = /\bnode\s+(scripts|rag)\//;
 // `[onboarding]` — is addressing whoever dispatches the payload, not whoever reads it.
 const ROUTING_TAG = /^\s*\[[^\]\n]+\]/m;
 
+// 🛑 A FILENAME IS NOT SHOUTING, and this carve-out was earned rather than foreseen:
+// the very first real payload the shout rule met was the engine-divergence line, which
+// names `.claude/skills/coach/SKILL.md` — and `SKILL` read as an order to the model.
+// A guard that is wrong about a legitimate string is a guard someone switches off
+// (CONVENTIONS §5quater: judge a checker on its FALSE POSITIVES).
+//
+// A token is path-like when it holds a `/` or an extension — a dot followed by two to
+// five LETTERS. Requiring letters is what keeps a sentence-final full stop out of it:
+// blanking "changes." would erase the last word of every sentence, including the
+// shouted ones this rule exists for.
+const PATH_LIKE = /\S*(?:\/|\.[a-z]{2,5}\b)\S*/g;
+
 /**
  * Every trace of an instruction-to-the-model found in `text`, as plain strings a
  * failing test can print. Empty means the string reads as written for a human.
@@ -105,7 +117,8 @@ export function directiveTraces(text) {
   }
   if (ROUTING_TAG.test(text)) traces.push("routing tag");
   if (COMMAND_LINE.test(text)) traces.push("command line");
-  for (const shout of text.match(SHOUTED) ?? []) {
+  const prose = text.replace(PATH_LIKE, " ");
+  for (const shout of prose.match(SHOUTED) ?? []) {
     if (!SHOUTING_ALLOWED.has(shout)) traces.push(`shouted: ${shout}`);
   }
   return traces;
