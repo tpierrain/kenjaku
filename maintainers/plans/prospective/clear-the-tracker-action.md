@@ -17,9 +17,10 @@
 
 - **Next:** ▶️ **BUILDING `v5.2 — The One Where Done Really Means Done`** on branch
   `feat/v5.2-done-means-done` (off `main`, pushed) → § *THE APPROVED PLAN*. **Step 0 done** (ADR 0043 ·
-  `d07f6be`), **#98** (`7dd52ae`), **#77** (`c6c9ac3`), **#81** (`125e9f7`) and **#96** (`ef5c32b`)
-  are all done and green. **Resume at #83**, the last of the five: an absence claim must stop being
-  broader than the search behind it. Then the release is his to cut (§10ter rehearsal first).
+  `d07f6be`) and **all five issues are done and green**: #98 (`7dd52ae`), #77 (`c6c9ac3`), #81
+  (`125e9f7`), #96 (`ef5c32b`), #83 (`501a506`). **Resume at the §10ter rehearsal** on a copy of a
+  real brain (`--tag` forced above the copy's version), then a PR. **The tag and the release are
+  his.**
 - **Blocked on:** nothing. **Owner's call pending:** nothing. The grouping, the order and the three
   release titles are all decided; two older questions sit in § *Questions the owner owns* and are
   **not to be re-asked** (#78's launcher-README link, `ci.yml`'s `concurrency` group).
@@ -244,15 +245,19 @@ brain stop reporting healthy things as broken; this one makes it stop reporting 
         `scripts/lib/clickable-consent-discipline.test.mjs`, which also holds the three things that
         did NOT change: consent still required, an unanswered question still runs nothing, and
         `✅ that is the latest release` still asks nothing at all.
-- [ ] **5. An absence claim stops being broader than the search behind it** —
+- [x] **5. An absence claim stops being broader than the search behind it** — **DONE** _(2026-09-12 ·
+      `501a506`)_ —
       [#83](https://github.com/tpierrain/kenjaku/issues/83). *"Exhaustive search in the vault and the
       chat tool"* followed by *"no trace"* reads, three days later, as a general absence. It is the
       **near-miss of #80**, which shipped in v5.1.3 — same subject, different defect — and it is the
       one in this group whose failure **leaves the machine**: a true, sourced statement was deleted
       from a message to an executive.
-  - [ ] The scope and the conclusion become **one sentence**, and connected sources (mail above all)
+  - [x] The scope and the conclusion become **one sentence**, and connected sources (mail above all)
         become part of what an absence check must cover. Doctrine, in both locales, pinned by a doc
-        guard on the shape of `claim-discipline.test.mjs`.
+        guard on the shape of `claim-discipline.test.mjs`. **Carried by all six documents** that hold
+        this discipline (two constitutions, two `sync-sources`, two `prepare-1-1`), and the **routing
+        ladder gained a rung**: the owner's connected sources, mail first, as a retrieval level rather
+        than a freshness mechanism, still ahead of the open web.
 
 > 💰 **What v5.2 costs, said before it is started.** Three medium items (#77, #81, #96) and two cheap
 > ones (#98, #83). **§10ter applies** — #77 and #96 both change what happens during an update or a
