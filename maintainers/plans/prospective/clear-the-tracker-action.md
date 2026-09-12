@@ -15,10 +15,10 @@
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-08-23
 
-- **Next:** ▶️ **`v5.4` — the LAST of the three approved releases**, and **nothing of it is started or
-  written up** → § *Group 3*. It is the wide clean-up: [#79](https://github.com/tpierrain/kenjaku/issues/79)'s
-  sweep of every string the brain already emits, under the doctrine ADR 0043 settled. **It needs a
-  step-detail plan of its own before any code**, the way v5.3 got one.
+- **Next:** ▶️ **`v5.4` — the LAST of the three approved releases.** Its step-detail plan **now exists
+  and owns everything about it, its own STATE included** —
+  [`v5.4-stop-talking-like-a-dashboard-action.md`](v5.4-stop-talking-like-a-dashboard-action.md)
+  _(2026-09-12)_. **Nothing of the work itself is started.** Read it there; do not restate it here.
 - **🛑 The autonomy grant STOPS HERE.** It was given « jusqu'à la fin de la release » for **v5.3**, by
   name, and v5.3 is out. **A session may prepare and design v5.4, and must ASK before cutting it.**
 - **Blocked on:** nothing. **THREE things wait on him, none gating anything:** what the nightly quality
@@ -234,6 +234,12 @@ about the same gap: **the brain scopes one thing and leaves another unscoped, wi
 > v5.2** (above). What stays here is the **wide clean-up**: the audit of every existing interaction
 > point and every string, in two locales. That half is weeks with no announceable end, which is why
 > it may not stand in front of a defect that silently loses a note.
+>
+> 📋 **AND IT HAS A STEP-DETAIL PLAN OF ITS OWN SINCE 2026-09-12** —
+> [`v5.4-stop-talking-like-a-dashboard-action.md`](v5.4-stop-talking-like-a-dashboard-action.md),
+> which **owns the whole of v5.4** and is the only place its state lives. The reservation above is
+> answered there rather than here: *"no announceable end"* is true of *rewrite every string* and
+> false of the plan's own unit, **the gesture** — a finite, listable set, counted in its step 1.
 
 - [ ] **The brain interrogates instead of acting** — [#79](https://github.com/tpierrain/kenjaku/issues/79).
       Graduated autonomy (silent / announce-then-do / genuinely ask) plus plain language in every string
