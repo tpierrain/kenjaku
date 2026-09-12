@@ -14,19 +14,16 @@
 
 ## Crux
 
-- **The decision, concretely:** you run `/switch` to your `globex` universe. From that moment search
-  only looks in `globex`'s notes — and **the same message tells you what did NOT change with it**:
-  the conversation already on screen still holds everything it read in the universe you just left, so
-  the next answer can still draw on it.
-- **The rule this is an instance of:** whenever the brain **stops searching all of something and
-  searches only part of it**, the gesture that did the narrowing names, in the same breath, what
-  stayed wide. Narrowing correctly and saying nothing is not a feature working: it is a claim the
-  owner has no way to check.
-- **The guarantee that makes it trustworthy:** the sentence is written by the **code** that performed
-  the narrowing, never composed by the model (ADR 0009). Measured, 2026-09-12: **ten hours of work went
-  by under a stale pointer, every single write landing in the right place** — nothing was wrong, so
-  nothing said anything. A disclosure the assistant chooses whether to make goes missing on the day it
-  matters.
+- **The decision, in one sentence:** when the brain starts searching **only part of your notes**, it
+  tells you straight away **what it did not change along with it**.
+- **What that looks like:** you switch to your `globex` universe. Search now only looks at `globex`
+  notes — and the brain says, right there, that the conversation on screen still holds everything it
+  read before you switched. Doing the switch correctly and saying nothing is not the feature working:
+  you would have no way of knowing which of the two it did.
+- **The guarantee that makes it trustworthy:** the sentence comes from the **program**, never from the
+  assistant (ADR 0009). Measured, 2026-09-12: **ten hours of work went by with the wrong universe
+  active, every note filed in the right place, and nothing said a word.** Nothing was broken, so
+  nothing spoke up — which is precisely why the sentence cannot be left to anyone's judgement.
 - **Prior art:** the principle of least astonishment, and the ordinary discipline of **showing the
   filter next to the result** — `git status` naming the branch before the diff, `kubectl` printing the
   namespace it acted in, a BI tool naming the filters behind a number. The standard is not *filter
@@ -51,15 +48,15 @@ into. So three of the four stay where they were, and each one has its own way of
 
 ## The decision
 
-1. **A command that narrows what the brain works on names what it did NOT narrow, in one sentence, in
-   its own output** — not in the documentation, not on request.
-2. **The core says it, the skill relays it** (ADR 0009). The code that made the change also owns *when*
-   the sentence applies; a skill may never judge whether a disclosure is warranted, because judging
-   needs state the model would have to infer, and that inference is what fails silently. Likewise
-   anything that must be counted (how many universes exist) is asked of the core, never counted by the model.
-3. **Opposite commands may owe opposite sentences, and that is expected, not a bug.** Leaving `globex`
-   for the cross-cutting view *widens* what search reaches, so it owes no warning about leftovers;
-   entering `globex` changes which accounts apply, so it owes the reminder about the connectors.
+1. **A command that makes the brain search only part of your notes says so in its own answer, and
+   says what it left alone** — not in the documentation, and not only if you think to ask.
+2. **The program writes that sentence, not the assistant** (ADR 0009). An assistant deciding each time
+   whether the sentence is warranted is an assistant that stays silent on the day it matters, because
+   deciding means guessing at things it was told once, hours ago. Anything that has to be counted (how
+   many universes exist) is counted by the program too; the assistant only repeats it.
+3. **Going in and coming out do not owe the same sentence.** Coming out of `globex` puts *all* your
+   notes back within reach, so there is nothing to warn about. Going into `globex` changes which Slack
+   or Notion account gets used, and that has to be said.
 
 ## Guardrails
 
@@ -95,6 +92,12 @@ into. So three of the four stay where they were, and each one has its own way of
 
 ## Amendments
 
+- **2026-09-12 — the Crux and the Decision rewritten in plain words, wording only.** The owner, having
+  already ratified it: *"c'est incompréhensible"*. What went: *narrows a scope*, *the core says it and
+  the skill relays it*, *disclosure*, *the cross-cutting view*. What replaced it: searching only part
+  of your notes, the program rather than the assistant, saying it. **Not one claim changed**, which is
+  why ACCEPTED still stands — and the third rewrite of this same page is the measurement behind
+  CONVENTIONS §6sexies: shortening a decision does not make it readable, naming ordinary things does.
 - **2026-09-12 — cut from 207 lines to one screen, unchanged in substance** (CONVENTIONS §6sexies). The
   concurrency probe, the abandoned `PostToolUse` corrector and its sequence diagram moved to where work
   write-ups belong: [`plans/archived/2026-09-12-v5.3.0-universe-disclosure-delivered.md`](../plans/archived/2026-09-12-v5.3.0-universe-disclosure-delivered.md).
