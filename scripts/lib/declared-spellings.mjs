@@ -45,7 +45,11 @@ export function declaredSpellings(rawProfile) {
     .map((line) => line.match(ENTRY))
     .filter(Boolean)
     .map(([, canonical, wrong]) => ({
-      canonical: canonical.trim(),
+      // No `.trim()` on the canonical, and that is a property of the regex rather
+      // than an oversight: `(.+?)` is lazy and the `\s+` after it is greedy, so the
+      // capture can never end in whitespace however the owner spaces the line. The
+      // mutation pass proved it — a run with the trim removed changed no behaviour.
+      canonical,
       wrong: wrong
         .split(",")
         .map((one) => one.trim())

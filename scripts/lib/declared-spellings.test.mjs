@@ -48,6 +48,33 @@ test("declaredSpellings accepts `not:` and a plain hyphen, which is how people w
   assert.deepEqual(declaredSpellings(raw), [{ canonical: "Globex", wrong: ["globbex", "Glowbex"] }]);
 });
 
+test("the colon really is optional, which is the way most people write the line", () => {
+  // `not: globbex` is covered above; this is the same line WITHOUT the colon, and it
+  // is a distinct branch of the entry pattern rather than a rephrasing of that test.
+  assert.deepEqual(declaredSpellings("## Always true here\n\n- Globex - not globbex\n"), [
+    { canonical: "Globex", wrong: ["globbex"] },
+  ]);
+});
+
+test("the spacing around the dash is the owner's, not a format to get right", () => {
+  // Hand-written in Obsidian: extra spaces on either side of the dash are the norm,
+  // and each side is a separate `\s+` in the pattern. Both are exercised here, and the
+  // canonical comes back with no whitespace clinging to it — which is why the code
+  // needs no trim.
+  assert.deepEqual(declaredSpellings("## Always true here\n\n- cortAIx  —  never:  Cortex\n"), [
+    { canonical: "cortAIx", wrong: ["Cortex"] },
+  ]);
+});
+
+test("an empty item in the wrong-spelling list is dropped, not carried as a rule", () => {
+  // A trailing comma and a doubled one are what hand-editing produces. An empty
+  // spelling reaching the matcher would be an alternative that matches the empty
+  // string everywhere.
+  assert.deepEqual(declaredSpellings("## Always true here\n\n- cortAIx — never: Cortex, , Cortaix,\n"), [
+    { canonical: "cortAIx", wrong: ["Cortex", "Cortaix"] },
+  ]);
+});
+
 test("a profile with no such section declares nothing", () => {
   assert.deepEqual(declaredSpellings("# Acme\n\n## People\n\n- Marie\n"), []);
 });
@@ -117,6 +144,40 @@ test("no declared entries means no correction at all", () => {
   assert.deepEqual(applyDeclaredSpellings(raw, []), { text: raw, corrections: [], protectedHits: [] });
 });
 
+test("something that is not text comes back untouched instead of throwing", () => {
+  // The caller is a PreToolUse hook reading a tool's input, so the payload is whatever
+  // the harness hands it. Nothing here may throw on the write path.
+  assert.deepEqual(applyDeclaredSpellings(null, ENTRIES), {
+    text: null,
+    corrections: [],
+    protectedHits: [],
+  });
+  assert.deepEqual(applyDeclaredSpellings(undefined, ENTRIES).text, undefined);
+});
+
+test("a half-written profile entry is skipped, and the sound ones still apply", () => {
+  // The list is hand-edited in Obsidian, so an empty spelling, a missing canonical and
+  // a canonical that is not text all reach this function eventually. An empty spelling
+  // in particular would become an alternative matching the empty string EVERYWHERE.
+  const { text, corrections } = applyDeclaredSpellings("Cortex here", [
+    { canonical: "cortAIx", wrong: ["", "Cortex", null] },
+    { canonical: 42, wrong: ["Cortaix"] },
+    { canonical: "X" },
+  ]);
+  assert.equal(text, "cortAIx here");
+  assert.deepEqual(corrections, [{ from: "Cortex", to: "cortAIx" }]);
+});
+
+test("a spelling containing regex punctuation matches itself, not a pattern", () => {
+  // `Cortex (AI)` is exactly the sort of thing an owner types, and its parentheses are
+  // a grouping construct unless they are escaped on the way into the matcher.
+  const { text, corrections } = applyDeclaredSpellings("Met Cortex (AI) today.", [
+    { canonical: "cortAIx", wrong: ["Cortex (AI)"] },
+  ]);
+  assert.equal(text, "Met cortAIx today.");
+  assert.deepEqual(corrections, [{ from: "Cortex (AI)", to: "cortAIx" }]);
+});
+
 // ── what it must never rewrite: falsifying a record is worse than the typo ────
 
 test("quoted material is what the person actually wrote, so it is left alone", () => {
@@ -149,6 +210,42 @@ test("a link target is an address, not prose", () => {
 test("the link's TEXT is prose, and it is corrected", () => {
   const { text } = applyDeclaredSpellings("See [the Cortex deck](https://example.com/d) here.", ENTRIES);
   assert.equal(text, "See [the cortAIx deck](https://example.com/d) here.");
+});
+
+test("an autolink is an address too", () => {
+  const raw = "See <https://x.test/Cortex> and Cortex.";
+  const { text, protectedHits } = applyDeclaredSpellings(raw, ENTRIES);
+  assert.equal(text, "See <https://x.test/Cortex> and cortAIx.");
+  assert.deepEqual(protectedHits, [{ from: "Cortex", to: "cortAIx" }]);
+});
+
+test("typographic quotes protect what they enclose, in English and in French", () => {
+  // Straight quotes are covered above. These two are what a real vault actually holds:
+  // macOS substitutes curly quotes as you type, and French notes use guillemets.
+  const curly = applyDeclaredSpellings("She said “Cortex will do” then Cortex left.", ENTRIES);
+  assert.equal(curly.text, "She said “Cortex will do” then cortAIx left.");
+  const french = applyDeclaredSpellings("Elle a dit «Cortex confirme» puis Cortex partit.", ENTRIES);
+  assert.equal(french.text, "Elle a dit «Cortex confirme» puis cortAIx partit.");
+});
+
+test("a horizontal rule mid-note is not frontmatter, and its prose IS corrected", () => {
+  // Frontmatter is protected because it is machine-read, and only the block at the very
+  // top is frontmatter. A `---` divider further down is ordinary Markdown, and treating
+  // it as frontmatter would silently exempt the whole rest of the note.
+  const { text } = applyDeclaredSpellings("Notes.\n\n---\nCortex is here\n---\n", ENTRIES);
+  assert.equal(text, "Notes.\n\n---\ncortAIx is here\n---\n");
+});
+
+test("a `>` in the middle of a line is a greater-than sign, not a blockquote", () => {
+  const { text } = applyDeclaredSpellings("5 > 3 and Cortex agrees.", ENTRIES);
+  assert.equal(text, "5 > 3 and cortAIx agrees.");
+});
+
+test("protection stops exactly at the protected span's edges, on both sides", () => {
+  // Touching is not overlapping. A spelling that begins where inline code ends — or
+  // ends where it begins — is prose, and off-by-one here would silently spare it.
+  assert.equal(applyDeclaredSpellings("`Cortex`Cortex here", ENTRIES).text, "`Cortex`cortAIx here");
+  assert.equal(applyDeclaredSpellings("Cortex`x`", ENTRIES).text, "cortAIx`x`");
 });
 
 test("🔒 frontmatter is machine-read, so it is protected whole", () => {

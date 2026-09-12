@@ -38,5 +38,8 @@ export function vaultNotePath({ toolName, filePath, brainDir }) {
  */
 export function noteUniverse({ notePath, registry = [] }) {
   const segment = typeof notePath === "string" ? notePath.split("/")[1] : undefined;
-  return segment !== undefined && registry.includes(segment) ? segment : DEFAULT_UNIVERSE;
+  // No `segment !== undefined` guard: a registry never holds `undefined`, so the
+  // membership test already answers that case. The mutation pass proved the guard
+  // unobservable, and two spellings of one question is how they drift apart.
+  return registry.includes(segment) ? segment : DEFAULT_UNIVERSE;
 }

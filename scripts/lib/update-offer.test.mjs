@@ -308,3 +308,95 @@ test("writeOfferState — the second answer overwrites the first, it does not th
   assert.deepEqual(readOfferState({ brainDir }), second);
   assert.equal(second.declines, 2);
 });
+
+// ── the quote: what is offered is the release's OWN words, whole or honestly cut ──
+
+test("offerDue — 'available' with an EMPTY version names nothing either", () => {
+  // `target: ""` is what a fork with no tags produces. It is not a version, and an
+  // offer that names no version is an offer nobody can weigh.
+  assert.equal(offerDue({ verdict: { ...AVAILABLE, target: "" }, state: null, now: NOW }), false);
+  assert.equal(offerDue({ verdict: { ...AVAILABLE, target: 530 }, state: null, now: NOW }), false);
+});
+
+test("updateOfferDirective — the quote is the TARGET release's notes, not the first on the list", () => {
+  // The endpoint returns several releases; picking the wrong one would describe the
+  // update in another version's words, which is worse than describing it in none.
+  const many = {
+    ...AVAILABLE,
+    releases: [
+      { version: "v5.2.0", whatYouGet: "- the WRONG release's words" },
+      { version: "v5.3.0", whatYouGet: "- the right release's words" },
+    ],
+  };
+  const directive = updateOfferDirective({ verdict: many, state: null, now: NOW });
+  assert.match(directive, /- the right release's words/);
+  assert.doesNotMatch(directive, /WRONG/);
+});
+
+test("updateOfferDirective — a hole in the releases list costs the quote, never the offer", () => {
+  const holed = { ...AVAILABLE, releases: [null, { version: "v5.3.0", whatYouGet: "- the words" }] };
+  assert.match(updateOfferDirective({ verdict: holed, state: null, now: NOW }), /- the words/);
+
+  const missing = { ...AVAILABLE, releases: [{ version: "v5.2.0", whatYouGet: "- another" }] };
+  const directive = updateOfferDirective({ verdict: missing, state: null, now: NOW });
+  assert.match(directive, /could not read that release's notes/);
+  assert.doesNotMatch(directive, /another/);
+});
+
+test("updateOfferDirective — a short quote rides WHOLE, with no pointer to notes it already carries", () => {
+  const tidy = { ...AVAILABLE, releases: [{ version: "v5.3.0", whatYouGet: "\n\n- one\n- two\n\n" }] };
+  const directive = updateOfferDirective({ verdict: tidy, state: null, now: NOW });
+  assert.ok(
+    directive.includes("quoted and not paraphrased:\n- one\n- two\n\n"),
+    `the release's blank lines are trimmed off and its own lines kept: ${JSON.stringify(directive.slice(0, 400))}`,
+  );
+  assert.doesNotMatch(directive, /full notes/, "nothing was cut, so there is nothing to point at");
+});
+
+test("updateOfferDirective — a quote of exactly the budget is still whole", () => {
+  const exact = "x".repeat(360);
+  const at = { ...AVAILABLE, releases: [{ version: "v5.3.0", whatYouGet: exact }] };
+  const directive = updateOfferDirective({ verdict: at, state: null, now: NOW });
+  assert.ok(directive.includes(`quoted and not paraphrased:\n${exact}\n\n`), "kept whole at the budget");
+  assert.doesNotMatch(directive, /full notes/);
+});
+
+test("updateOfferDirective — the cut lands on a line boundary, and says where the rest is", () => {
+  // 359 characters then one more line: the first line fits the budget to the byte, the
+  // second does not, so the quote stops between them rather than mid-word.
+  const body = `${"A".repeat(359)}\nB`;
+  const cut = { ...AVAILABLE, releases: [{ version: "v5.3.0", whatYouGet: body }] };
+  const directive = updateOfferDirective({ verdict: cut, state: null, now: NOW });
+  assert.ok(directive.includes(`quoted and not paraphrased:\n${"A".repeat(359)}\n…`), "cut between lines");
+  assert.doesNotMatch(directive, /\nB\n/, "the line that did not fit is not there");
+  assert.match(directive, /Its full notes: `\/update-engine --check`\./);
+});
+
+test("updateOfferDirective — a first line too long to fit is cut mid-word rather than dropped", () => {
+  // No line boundary is reachable, and quoting nothing would be the machinery deciding
+  // an owner gets no description at all.
+  const body = "Z".repeat(500);
+  const huge = { ...AVAILABLE, releases: [{ version: "v5.3.0", whatYouGet: body }] };
+  const directive = updateOfferDirective({ verdict: huge, state: null, now: NOW });
+  assert.ok(directive.includes(`quoted and not paraphrased:\n${"Z".repeat(360)}\n…`));
+});
+
+test("updateOfferDirective — the three answers are named, and so is what silence means", () => {
+  // The offer's whole point is that it comes back; a directive that dropped that
+  // sentence would read as a one-shot question again, which is #100 exactly.
+  const directive = updateOfferDirective({ verdict: AVAILABLE, state: null, now: NOW });
+  assert.match(directive, /"Install now" · "Remind me later" · "No thanks"/);
+  assert.match(directive, /ask the same three in prose/);
+  assert.match(directive, /Unanswered means nothing runs, and the offer comes back tomorrow\.$/);
+});
+
+test("readOfferState — valid JSON that is not an object is damage too", () => {
+  // `null`, a number and a string all parse. None of them is a record, and treating
+  // one as an answer would silence an offer nobody declined.
+  const brainDir = mkdtempSync(join(tmpdir(), "sbg-offer-shape-"));
+  mkdirSync(join(brainDir, ".cache"));
+  for (const bytes of ["null", "42", '"no-thanks"']) {
+    writeFileSync(join(brainDir, OFFER_STATE_REL), bytes);
+    assert.equal(readOfferState({ brainDir }), null, bytes);
+  }
+});

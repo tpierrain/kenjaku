@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { dirname, join, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { BYPASS_REL, NOTICE_STATE_REL, runNotice, sessionMemory } from "./vault-write-notice.mjs";
@@ -221,4 +221,67 @@ test("what reaches the owner's channel is bounded, because volume IS the defect 
     readInput: () => hookInput({ content: `${many.join(" ")}\n` }),
   });
   assert.ok(emitted[0].hookSpecificOutput.additionalContext.length <= NOTICE_MAX);
+});
+
+test("both throwaway files sit under .cache/, which every brain gitignores", () => {
+  // One laptop's "already said" is not the other's, and an undo's one-shot list is
+  // meaningless two seconds later. Written anywhere else in the brain they would be
+  // auto-committed and pulled by the other machine.
+  assert.deepEqual(NOTICE_STATE_REL.split(sep), [".cache", "write-notices.json"]);
+  assert.deepEqual(BYPASS_REL.split(sep), [".cache", "spelling-bypass.json"]);
+});
+
+test("a drift with nothing to correct emits the context ALONE, with no null input beside it", () => {
+  // `updatedInput: null` in the payload is not the same as no `updatedInput` at all:
+  // the host applies what the key holds, so spelling it out with nothing in it invites
+  // a write of nothing. The key is absent, or it carries bytes.
+  const { emitted } = captured({
+    readInput: () => hookInput({ content: "Nothing to fix here.\n" }),
+    pointer: () => "acme",
+    registry: () => ["acme", "thales"],
+  });
+  assert.equal(emitted.length, 1);
+  assert.deepEqual(Object.keys(emitted[0].hookSpecificOutput).sort(), ["additionalContext", "hookEventName"]);
+});
+
+test("run AS A PROCESS TWICE, the second write says the same thing no more", () => {
+  // 🚨 The round trip the single-run test cannot see: run one writes the session's
+  // memory, run two must READ it back off the disk. Everything about "once per
+  // session" lives in that second read, and it is also the only test in which the
+  // state file is written into a `.cache/` that already exists.
+  const brain = realpathSync(mkdtempSync(join(tmpdir(), "kenjaku-twice-")));
+  try {
+    mkdirSync(join(brain, ".vault-rag"), { recursive: true });
+    mkdirSync(join(brain, "vault", "thales"), { recursive: true });
+    mkdirSync(join(brain, ".cache"), { recursive: true });
+    writeFileSync(join(brain, ".vault-rag", "universes.json"), JSON.stringify({ universes: ["thales"] }));
+    writeFileSync(join(brain, ".vault-rag", "active-universe"), "acme\n");
+    writeFileSync(join(brain, "vault", "thales", "universe.md"), PROFILE);
+    mkdirSync(join(brain, "scripts", "lib"), { recursive: true });
+    cpSync(SCRIPTS_DIR, join(brain, "scripts"), { recursive: true });
+
+    const once = () =>
+      spawnSync(process.execPath, [join(brain, "scripts", "vault-write-notice.mjs")], {
+        input: JSON.stringify({
+          session_id: "s-twice",
+          tool_name: "Write",
+          tool_input: { file_path: join(brain, "vault", "thales", "note.md"), content: "Cortex confirmed.\n" },
+        }),
+        encoding: "utf8",
+      });
+
+    const first = once();
+    assert.equal(first.status, 0, first.stderr);
+    assert.match(JSON.parse(first.stdout).hookSpecificOutput.additionalContext, /'thales'/);
+    const raw = readFileSync(join(brain, NOTICE_STATE_REL), "utf8");
+    assert.ok(raw.endsWith("\n"), "the record is a line, like every other file this brain writes");
+
+    const second = once();
+    assert.equal(second.status, 0, second.stderr);
+    const payload = JSON.parse(second.stdout).hookSpecificOutput;
+    assert.equal(payload.additionalContext, undefined, "the sphere and the correction were already said");
+    assert.equal(payload.updatedInput.content, "cortAIx confirmed.\n", "but the correction is still APPLIED");
+  } finally {
+    rmSync(brain, { recursive: true, force: true });
+  }
 });

@@ -186,3 +186,79 @@ test("the brain's own allowlist lets this answer be recorded without a permissio
     `the allowlist does not cover the answer command:\n${template.permissions.allow.join("\n")}`,
   );
 });
+
+test("the usage names all three answers and what each one costs", () => {
+  // This text is the whole interface: Claude reads it when it gets the call wrong, and
+  // a usage line that lists no answers sends it guessing at the very moment it already
+  // guessed once.
+  assert.match(USAGE, /^usage: node scripts\/update-offer-answer\.mjs later\|no-thanks\|install$/m);
+  assert.match(USAGE, /^ {2}later {7}ask me again tomorrow/m);
+  assert.match(USAGE, /^ {2}no-thanks {3}not this version: \+3 days, then \+5 days, \+3 weeks, \+2 months/m);
+  assert.match(USAGE, /^ {2}install {5}the update is being run now/m);
+});
+
+test("the date the owner reads back is a plain day, not a machine timestamp", () => {
+  // The message is read by a person, in the flow of a conversation. `2026-09-15` is a
+  // date; `2026-09-15T09:00:00.000Z` is a log line, and it says the same thing worse.
+  const { out, deps } = harness();
+
+  assert.equal(runUpdateOfferAnswer(["no-thanks"], deps), 0);
+  assert.deepEqual(out.logged, ["Noted. v5.3.0 will not be brought up again before 2026-09-15."]);
+});
+
+test("the LAST rung reads differently, because it means something different", () => {
+  // Not a longer postponement: an end. The two sentences must not be interchangeable.
+  const { out, deps } = harness({ state: { version: "v5.3.0", declines: 4, nextAskAt: null, silenced: false } });
+
+  assert.equal(runUpdateOfferAnswer(["no-thanks"], deps), 0);
+  assert.deepEqual(out.logged, ["Noted: v5.3.0 will not be brought up again."]);
+});
+
+test("nothing on offer is SAID, not passed over in silence", () => {
+  // The owner just clicked an answer. A command that records nothing and says nothing
+  // is indistinguishable from one that failed.
+  const { out, deps } = harness({ verdict: null });
+
+  assert.equal(runUpdateOfferAnswer(["no-thanks"], deps), 0);
+  assert.deepEqual(out.logged, ["There is no update on offer right now, so there was nothing to record."]);
+});
+
+test("a disk that refuses the answer names the version and the exact consequence", () => {
+  const { out, deps } = harness();
+  deps.writeState = () => {
+    throw new Error("read-only volume");
+  };
+
+  assert.equal(runUpdateOfferAnswer(["no-thanks"], deps), 1);
+  assert.deepEqual(out.errored, [
+    "I could not write your answer down, so nothing remembers it: the offer for v5.3.0 will come " +
+      "back tomorrow. Your brain is fine, and the update itself was not touched.",
+  ]);
+});
+
+test("run as a real process, it READS the ladder already walked instead of restarting it", () => {
+  // The first process test proves the answer is written. This one proves the other
+  // half of the round trip: a refusal recorded yesterday must still count today, or
+  // every "no thanks" is the first one and the ladder never climbs.
+  const dir = mkdtempSync(join(tmpdir(), "sbg-offer-cli-ladder-"));
+  cpSync(HERE, join(dir, "scripts"), { recursive: true });
+  mkdirSync(join(dir, ".cache"));
+  writeFileSync(
+    join(dir, UPSTREAM_CACHE_REL),
+    JSON.stringify({ state: "available", installed: "v5.2.0", target: "v5.3.0", ahead: 1, releases: [] }),
+  );
+  writeFileSync(
+    join(dir, OFFER_STATE_REL),
+    JSON.stringify({ version: "v5.3.0", declines: 2, nextAskAt: null, silenced: false }),
+  );
+
+  const run = spawnSync(process.execPath, [join(dir, "scripts", "update-offer-answer.mjs"), "no-thanks"], {
+    cwd: tmpdir(),
+    encoding: "utf8",
+  });
+
+  assert.equal(run.status, 0, run.stderr);
+  const recorded = JSON.parse(readFileSync(join(dir, OFFER_STATE_REL), "utf8"));
+  assert.equal(recorded.declines, 3, "the third refusal, not the first");
+  assert.ok(readFileSync(join(dir, OFFER_STATE_REL), "utf8").endsWith("\n"));
+});

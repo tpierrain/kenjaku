@@ -72,7 +72,10 @@ export function writeNotice({
   registry = [],
   pointer,
   readProfile,
-  said = { universes: [], corrections: [] },
+  // `{}` rather than a shaped default: the two reads below already fall back key by
+  // key, so a shaped default would be a second spelling of the same fallback — and
+  // the mutation pass proved no input can tell the two apart.
+  said = {},
   bypass = [],
 }) {
   const nothing = { updatedInput: null, context: null, said: { universes: [], corrections: [] }, bypassUsed: false };
@@ -109,7 +112,9 @@ const WRITTEN_TEXT = { Write: "content", Edit: "new_string" };
 function correctSpellings({ toolName, toolInput, notePath, registry, readProfile, bypass }) {
   const quiet = { updatedInput: null, corrections: [], protectedHits: [], bypassUsed: false };
   const field = WRITTEN_TEXT[toolName];
-  const written = toolInput?.[field];
+  // No `?.` here: this runs only past `notePath !== null`, which required a
+  // `file_path` off this very object, so it is an object by the time we arrive.
+  const written = toolInput[field];
   if (typeof written !== "string") return quiet;
 
   const declared = declaredFor(notePath, registry, readProfile);
@@ -119,9 +124,10 @@ function correctSpellings({ toolName, toolInput, notePath, registry, readProfile
   // one of which is worth spending the one shot on.
   const bypassUsed = bypassHit(written, declared, bypass);
 
+  // No early return on an empty list: `applyDeclaredSpellings` already answers an
+  // empty rule set with the text untouched, so a guard clause here would be a second
+  // place deciding the same thing — and the mutation pass proved no input can see it.
   const entries = withoutBypassed(declared, bypass);
-  if (entries.length === 0) return { ...quiet, bypassUsed };
-
   const { text, corrections, protectedHits } = applyDeclaredSpellings(written, entries);
   return {
     updatedInput: corrections.length ? { ...toolInput, [field]: text } : null,
@@ -145,9 +151,12 @@ function declaredFor(notePath, registry, readProfile) {
 
 function withoutBypassed(entries, bypass) {
   const spared = new Set(bypass.map((one) => one.toLowerCase()));
-  return entries
-    .map((entry) => ({ ...entry, wrong: entry.wrong.filter((one) => !spared.has(one.toLowerCase())) }))
-    .filter((entry) => entry.wrong.length > 0);
+  // An entry left with no spellings is dropped downstream anyway (a rule needs a
+  // `from`), so it is not filtered out here: one place decides what a usable rule is.
+  return entries.map((entry) => ({
+    ...entry,
+    wrong: entry.wrong.filter((one) => !spared.has(one.toLowerCase())),
+  }));
 }
 
 // A bypass only counts when it spares a spelling this sphere actually DECLARES and
