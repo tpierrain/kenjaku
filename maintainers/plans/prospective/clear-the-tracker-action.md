@@ -16,10 +16,10 @@
 ## 📍 STATE — the only perishable block in this file · opened 2026-08-23
 
 - **Next:** ▶️ **BUILDING `v5.2 — The One Where Done Really Means Done`** on branch
-  `feat/v5.2-done-means-done` (off `main`, pushed) → § *THE APPROVED PLAN*. **Step 0 done** (ADR 0043,
-  both constitutions, guarded · `d07f6be`) and **#98 done** (the update asks with a control ·
-  `7dd52ae`), both green on CI. **Resume at #77** — the one that can silently lose a note, and the
-  foundation ADR 0043 leans on; then #81, #96, #83.
+  `feat/v5.2-done-means-done` (off `main`, pushed) → § *THE APPROVED PLAN*. **Step 0 done** (ADR 0043 ·
+  `d07f6be`), **#98 done** (the update asks with a control · `7dd52ae`) and **#77 done** (the writer
+  scripts commit their own notes · `c6c9ac3`). **Resume at #81** — the guard the harness steers
+  around; then #96, then #83.
 - **Blocked on:** nothing. **Owner's call pending:** nothing. The grouping, the order and the three
   release titles are all decided; two older questions sit in § *Questions the owner owns* and are
   **not to be re-asked** (#78's launcher-README link, `ci.yml`'s `concurrency` group).
