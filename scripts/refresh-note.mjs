@@ -18,8 +18,10 @@
 import { readFileSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join, posix } from "node:path";
 
+import { defaultGit } from "./lib/engine-fetch.mjs";
 import { refreshNote } from "./lib/note-refresh.mjs";
 import { runAsEntrypoint } from "./lib/entrypoint.mjs";
+import { persistNote, persistenceWarning } from "./lib/note-persistence.mjs";
 
 // Vault paths are compared and written in POSIX form so behaviour is identical
 // across platforms (cf. file-back-note.mjs).
@@ -35,6 +37,12 @@ export const realRefreshDeps = {
     mkdirSync(dirname(p), { recursive: true });
     writeFileSync(p, content);
   },
+  // The refreshed page is versioned by THIS gesture (issue #77). The auto-commit
+  // hook matches `Write|Edit` and this script is reached from Bash, so the net has
+  // never seen the notes it writes. Rooted with `-C` on the brain, like every other
+  // git call here: a command run in the wrong directory succeeds, it just answers
+  // about somewhere else.
+  persist: () => persistNote({ git: (args) => defaultGit(["-C", process.cwd(), ...args]) }),
   log: (...a) => console.log(...a),
   error: (...a) => console.error(...a),
 };
@@ -101,7 +109,14 @@ export function runRefresh(argv, deps = realRefreshDeps) {
   }
 
   deps.writeFile(absPath, next);
+  // Commit BEFORE the ✓ is printed, so the claim and the fact are made in one
+  // breath — and warn when git could not take it, because a refresh reported as
+  // done over an unversioned note is exactly the defect this closes. Written is
+  // still written, so the exit code stays 0: a persistence failure is not a
+  // refusal, and telling the caller otherwise would lose the note's own path.
+  const warning = persistenceWarning(deps.persist(), spec.path);
   deps.log(`✓ Refreshed: vault/${spec.path} (updated: ${deps.today()})`);
+  if (warning) deps.error(warning);
   return 0;
 }
 

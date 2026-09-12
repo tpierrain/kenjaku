@@ -615,7 +615,11 @@ The user should never have to correct "careful, that's already done": it's on Cl
 
 ### Automatic persistence & commit
 
-**Persistence is handled by a hook** (`.claude/settings.json`), not by Claude: `git add` + `commit` (+ `push` if a remote exists) on each file modification — hence the `auto: …` commits.
+**Persistence is not your job, and it never needs a `git` command from you.** Three mechanisms cover it between them, and it is worth knowing which one caught your write — hence the `auto: …` commits they all share:
+
+- **A hook** (`.claude/settings.json`) commits every `Write`/`Edit` you make, as you make it.
+- **The writer scripts commit their own notes**: `scripts/file-back-note.mjs` and `scripts/refresh-note.mjs` version the page they just wrote, in the same breath as their `✓`. They are reached from Bash, so the hook above never sees them — and a note filed by a skill used to land on disk and stay unversioned. If a commit cannot be made, they say so on the spot: `⚠️ … is written but NOT committed`. Take that line seriously and relay it — it is the one moment a note exists only on this machine.
+- **A last hand at the end of the turn** sweeps anything still uncommitted and pushes once, if a remote is configured.
 
 **Consequence: do NOT run `git add` / `commit` / `push` yourself** while the hook runs (a manual commit races the hook and garbles the output). Read-only git commands (`status`, `log`, `diff`) remain OK.
 

@@ -25,6 +25,7 @@ import { localAuthorName } from "./lib/brain-author.mjs";
 import { defaultGit } from "./lib/engine-fetch.mjs";
 import { renderFiledNote, homonymCards, CONFIDENCE } from "./lib/filed-note.mjs";
 import { runAsEntrypoint } from "./lib/entrypoint.mjs";
+import { persistNote, persistenceWarning } from "./lib/note-persistence.mjs";
 import { notesHoldingSource } from "./lib/source-key.mjs";
 import { readActiveUniverse, vaultRagDir } from "./lib/universes.mjs";
 import { readVaultNotes } from "./lib/wiki-lint-io.mjs";
@@ -104,6 +105,11 @@ export const realFileBackDeps = {
     mkdirSync(dirname(p), { recursive: true });
     writeFileSync(p, content);
   },
+  // The filed note is versioned by THIS gesture (issue #77). The auto-commit hook
+  // matches `Write|Edit` and this builder is reached from Bash, so the net has
+  // never seen a note it wrote. Rooted with `-C` on the brain, like the author
+  // lookup above.
+  persist: () => persistNote({ git: (args) => defaultGit(["-C", process.cwd(), ...args]) }),
   log: (...a) => console.log(...a),
   error: (...a) => console.error(...a),
 };
@@ -204,7 +210,13 @@ export function runFileBack(argv, deps = realFileBackDeps) {
   }
 
   deps.writeFile(absPath, note.content);
+  // Committed in the same breath as the ✓, and the failure is said out loud: a
+  // note reported as filed while it sits unversioned on disk is the defect this
+  // closes. Written is still written, so the exit code stays 0 — a persistence
+  // failure is not a refusal, and reporting one would throw away the note's path.
+  const warning = persistenceWarning(deps.persist(), note.path);
   deps.log(`✓ Filed back: vault/${note.path}`);
+  if (warning) deps.error(warning);
   return 0;
 }
 

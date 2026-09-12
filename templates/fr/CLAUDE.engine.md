@@ -645,7 +645,11 @@ La personne ne devrait jamais avoir à corriger « attention, c'est déjà fait 
 
 ### Persistance & commit automatiques
 
-**La persistance est gérée par un hook** (`.claude/settings.json`), pas par Claude : `git add` + `commit` (+ `push` si un remote existe) à chaque modification de fichier — d'où les commits `auto: …`.
+**La persistance n'est pas ton travail, et elle ne demande jamais une commande `git` de ta part.** Trois mécanismes la couvrent à eux trois, et ça vaut le coup de savoir lequel a attrapé ton écriture (d'où les commits `auto: …` qu'ils partagent tous) :
+
+- **Un hook** (`.claude/settings.json`) commite chaque `Write` / `Edit` au moment où tu le fais.
+- **Les scripts d'écriture commitent leurs propres notes** : `scripts/file-back-note.mjs` et `scripts/refresh-note.mjs` versionnent la page qu'ils viennent d'écrire, dans le même souffle que leur `✓`. On les lance depuis Bash, donc le hook ci-dessus ne les voit jamais, et une note classée par un skill se retrouvait sur le disque sans jamais être versionnée. Si le commit ne passe pas, ils le disent sur-le-champ : `⚠️ … is written but NOT committed`. Prends cette ligne au sérieux et relaie-la : c'est le seul moment où une note n'existe que sur cette machine.
+- **Une dernière main en fin de tour** ramasse ce qui reste non commité et pousse une fois, si un remote est configuré.
 
 **Conséquence : ne PAS lancer `git add` / `commit` / `push` soi-même** quand le hook tourne (un commit manuel court après le hook et brouille la sortie). Les commandes git en lecture (`status`, `log`, `diff`) restent OK.
 

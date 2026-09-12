@@ -178,7 +178,7 @@ now sit at or past the captures' dates) — so a next pass naturally resumes on 
 - **Read-only sub-agents, native tools only** (no shell for text): the `sync-sources` constraint.
 - **Flag contradictions, don't adjudicate them.** A capture that conflicts with a stated fact is
   surfaced for the user (Track D); consolidation never overwrites a fact to resolve a conflict on its own.
-- **Do not run git** (the auto-commit hook persists any accepted change).
+- **Do not run git** — every accepted change is versioned for you: the two writer scripts above commit the page they just wrote, and the hook covers anything you write with `Write`/`Edit`. If one of them prints `⚠️ … NOT committed`, relay that line: it is the one case where a page exists only on this machine.
 - **Trust the exit code.** `0` = nothing to consolidate; don't manufacture work.
 
 ## Out of scope

@@ -21,20 +21,26 @@ Earlier body.
 `;
 
 // Records what the CLI would do to disk, so the wiring is testable without one.
-function deps({ files = { "/brain/vault/topics/crise.md": PAGE } } = {}) {
+function deps({ files = { "/brain/vault/topics/crise.md": PAGE }, persisted = "committed" } = {}) {
   const written = [];
   const out = [];
   const errs = [];
+  const persists = [];
   return {
     written,
     out,
     errs,
+    persists,
     cwd: () => "/brain",
     today: () => "2026-07-28",
     readInput: () => JSON.stringify({ path: "topics/crise.md", section: "## 2026-07-28 — x\n\nnew\n" }),
     exists: (p) => p in files,
     readFile: (p) => files[p],
     writeFile: (p, content) => written.push([p, content]),
+    persist: () => {
+      persists.push(written.length);
+      return persisted;
+    },
     log: (m) => out.push(m),
     error: (m) => errs.push(m),
   };
@@ -297,4 +303,74 @@ test("realRefreshDeps — the real ports are what they claim, field by field", (
   // Two levels missing, so a non-recursive mkdir cannot do this one.
   realRefreshDeps.writeFile(join(dir, "a", "b", "written.md"), "body\n");
   assert.equal(readFileSync(join(dir, "a", "b", "written.md"), "utf8"), "body\n");
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// #77 — a refreshed page is VERSIONED by the gesture that wrote it.
+//
+// The auto-commit hook matches `Write|Edit`, and this script is invoked from
+// Bash, so its writes have never been seen by it. Measured on a real brain: five
+// pages refreshed, five `✓ Refreshed` printed, nothing committed.
+// ─────────────────────────────────────────────────────────────────────────────
+
+test("a refreshed page is committed, and the commit happens AFTER the write", () => {
+  const d = deps();
+  assert.equal(runRefresh([], d), 0);
+  // The recorded value is how many writes had landed when persistence ran: 1, not
+  // 0. Committing before the write would commit the previous state of the page.
+  assert.deepEqual(d.persists, [1]);
+  assert.deepEqual(d.errs, [], "a commit that worked says nothing");
+});
+
+test("a page whose commit FAILED still reports the write, and says out loud it is not versioned", () => {
+  const d = deps({ persisted: "failed" });
+  assert.equal(runRefresh([], d), 0, "the page IS refreshed — a persistence failure is not a refusal");
+  assert.equal(d.out[0], "✓ Refreshed: vault/topics/crise.md (updated: 2026-07-28)");
+  assert.equal(d.errs.length, 1);
+  assert.match(d.errs[0], /^⚠️ vault\/topics\/crise\.md is written but NOT committed/);
+  assert.match(d.errs[0], /git add -A && git commit/);
+});
+
+test("a page written into a CONFLICTED repo is not committed, and the reason is the merge", () => {
+  const d = deps({ persisted: "conflicted" });
+  assert.equal(runRefresh([], d), 0);
+  assert.equal(d.errs.length, 1);
+  assert.match(d.errs[0], /merge in progress/);
+  assert.match(d.errs[0], /<<<<<<</);
+});
+
+test("a REFUSED refresh never reaches persistence — there is nothing to commit", () => {
+  const d = deps();
+  d.readInput = () => JSON.stringify({ path: "topics/nope.md", section: "x" });
+  assert.equal(runRefresh([], d), 1);
+  assert.deepEqual(d.persists, [], "a refusal that commits would version somebody else's dirt");
+});
+
+test("the real persist port commits through git, rooted on the brain, not on the caller's cwd", () => {
+  const brain = mkdtempSync(join(tmpdir(), "refresh-persist-"));
+  const git = (args) => spawnSync("git", ["-C", brain, ...args], { encoding: "utf8" });
+  git(["init", "-q", "-b", "main"]);
+  git(["config", "user.email", "t@example.com"]);
+  git(["config", "user.name", "Test"]);
+  mkdirSync(join(brain, "vault", "topics"), { recursive: true });
+  writeFileSync(join(brain, "vault", "topics", "crise.md"), PAGE);
+  git(["add", "."]);
+  git(["commit", "-q", "-m", "seed"]);
+
+  const run = spawnSync(
+    process.execPath,
+    [fileURLToPath(new URL("./refresh-note.mjs", import.meta.url))],
+    {
+      cwd: brain,
+      input: JSON.stringify({ path: "topics/crise.md", section: "## New\n\nAdded." }),
+      encoding: "utf8",
+    },
+  );
+
+  assert.equal(run.status, 0, run.stderr);
+  assert.equal(run.stderr, "", "a brain with a working git is warned about nothing");
+  // The whole point of the issue, asserted the only way that proves it: the tree
+  // is clean after the process exited, with no hook anywhere in the picture.
+  assert.equal(git(["status", "--porcelain"]).stdout.trim(), "");
+  assert.equal(git(["log", "-1", "--format=%s"]).stdout.trim(), "auto: vault/claude sync");
 });
