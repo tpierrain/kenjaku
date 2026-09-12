@@ -75,9 +75,9 @@ only genuine judgment calls become questions.
 
 #### 🟡 Announce them all in ONE message, then act unless stopped
 
-Compose **one** message: the count first, then the list, then the line that says silence proceeds.
-**Do not ask.** The owner's move is a veto — *"Say stop if you'd rather I didn't — otherwise I'll go
-ahead."* Never a question mark, never "shall I?".
+Compose **one** message for the whole batch, **not one per finding**: the count first, then the list,
+then the line that says silence proceeds. **Do not ask.** The owner's move is a veto — *"Say stop if
+you'd rather I didn't — otherwise I'll go ahead."* Never a question mark, never "shall I?".
 
 - **A missing `created` / `updated` the note's own content gives you** — a daily whose filename is
   the date, a note whose body opens on one. No judgment is involved; the count is what the owner

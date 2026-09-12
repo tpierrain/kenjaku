@@ -1,7 +1,7 @@
 ---
 name: consolidate
 description: "Consolidate raw captures into durable entity/topic pages (Axis 1, Track C): review recent meetings / daily / transcripts and PROMOTE their substance into the higher-order wiki — create the page for a person mentioned but never filed, refresh a topic page a fresher note left behind, weave the backlinks. A deterministic scan surfaces WHAT needs consolidating; parallel read-only sub-agents draft each merge; you PROPOSE, the user confirms, and the write reuses the /file-back builder (never overwrites). Triggered by '/consolidate', 'consolidate my captures', 'promote my raw notes', 'update my entity pages', 'compile my wiki', 'consolide mes captures', 'mets à jour mes pages', 'promeus mes notes brutes'."
-version: 1.2.0
+version: 1.3.0
 ---
 
 # consolidate — promote raw captures into the durable wiki ("compile the notes")
@@ -16,6 +16,13 @@ version: 1.2.0
 ## Principle
 
 One promise: **turn what raw captures already say into durable, well-linked pages — proposed first, written only on yes.**
+- 🔴 **Nearly every gesture here is a genuine question, and that is the right tier** (ADR 0043).
+  Creating a page decides how the vault will name a person or a subject from then on, and every later
+  resolution resolves against it; a contradiction between a note and a page is never settled by the
+  brain. **A 🔴 is not a failure of the doctrine.** What this skill changes is not *whether* it asks
+  but **how often**: one message for the whole batch, and each question saying what is at stake
+  before it lists the options. The one 🟡 here is saying what was left for later — a fact, not a
+  request.
 - **Detection is deterministic** (ADR 0009): a pure scanner lists exactly what needs consolidating.
 - **The merge is judgment** (LLM): parallel read-only sub-agents draft each page, never the main context
   (the `sync-sources` fan-out/fan-in shape, to avoid context rot).
@@ -100,10 +107,26 @@ RULES:
 )
 ```
 
-### 4. Synthesise + propose (main context, never write yet)
-Collect the drafts. For each, show the user plainly: the **target path**, **type/tags**, the **[[links]]**
-and **sources**, and the **body** (or, for a refresh, the dated section to append). Ask for a yes. Adjust
-to their edits. Present it as a reviewable diff (this is the honesty requirement).
+### 4. Propose the whole batch in ONE message (main context, never write yet)
+
+Collect the drafts, then put them to the owner **in one message, not one per candidate**. Five
+questions in a row, each with its own list of options, is the complaint this whole discipline exists
+against (issue #79) — and it is a **presentation** defect before it is a tier defect: the answers
+were all still theirs to give, they were simply asked five times, in five turns, in the machinery's
+vocabulary.
+
+- **The count first, then the detail.** *"I've drafted 4 pages from your recent captures — 2 new, 2
+  refreshes. Here they are."* The count is what decides whether they read any further.
+- **Then each candidate, in a block they can skim**: the **target path**, **type/tags**, the
+  **[[links]]** and **sources**, and the **body** (or, for a refresh, the dated section to append).
+  Present it as a reviewable diff — that is the honesty requirement, and it does not change here.
+- **Say what is at stake in one line, before the options** (ADR 0043 §5). Not *"confirm the
+  consolidation of these candidates"* but *"this creates the page your notes will use for this person
+  from now on"*, or *"this adds a dated section; nothing already on the page is touched."* An option
+  list with no stake stated is the jargon wall in a new shape.
+- **One turn, several answers.** They may accept some and decline others in a single reply; take the
+  whole reply as given and write only what they accepted. Do not come back candidate by candidate to
+  re-confirm what they already answered.
 
 **If a draft carries `### contradictions`, surface those FIRST and distinctly** (⚠️ the page says X, this
 capture says Y). Do not bundle a conflict into the additive merge: the user resolves it explicitly (keep
@@ -171,7 +194,10 @@ re-running `consolidate-scan` after the writes will show the consolidated candid
 now sit at or past the captures' dates) — so a next pass naturally resumes on what's left.
 
 ## Guardrails
-- **Propose first, write on yes.** Never consolidate a page the user hasn't agreed to.
+- **Propose first, write on yes.** Never consolidate a page the user hasn't agreed to. The tiers
+  (ADR 0043) changed how often this skill asks, never whether it asks: a page is a fact the vault will
+  answer with for years, and that is a 🔴 by the doctrine's own gate.
+- **Ask once, for the batch.** One message covering every candidate, never one message per candidate.
 - **Never overwrite.** New pages go through the builder (which refuses to clobber); existing pages are
   appended to, not rewritten.
 - **Conformant by construction.** Let the builder produce frontmatter/links so `/lint` stays clean.
