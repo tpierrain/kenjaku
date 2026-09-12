@@ -465,11 +465,18 @@ Both F4 and F5 exist because this table was never established, only assumed, in 
 disagreed with each other. It is now field-verified end to end on **Claude Code v2.1.220**, CLI and
 Desktop Code tab, same brain (`mind-palace`), same session boundary. **This is what goes in the ADR.**
 
+> 🛑 **SUPERSEDED, 2026-09-12 — the third row below is WRONG and the table is kept only as the record
+> of the error.** `additionalContext` is never echoed; the prefixed lines the capture above shows are
+> the `systemMessage` channel, one multi-line payload whose prefix lands on its first line only. The
+> correct matrix, with how each cell was measured on today's host, is in
+> [`maintainers/registers/gestures.md`](../registers/gestures.md) § *The channel matrix, re-measured*.
+> **Read that one. Do not re-derive from this one.**
+
 | Channel | CLI (terminal) | Desktop — Code tab |
 | --- | --- | --- |
 | `statusLine` | ✅ rendered, persistent | ❌ **nothing** (F4) |
 | SessionStart `systemMessage` | ✅ displayed | ❌ dropped |
-| SessionStart `additionalContext` | ⚠️ **echoed verbatim** to the user (F5) | ✅ agent-only, as designed |
+| SessionStart `additionalContext` | ⚠️ **echoed verbatim** to the user (F5) — ❌ **false, see the note above** | ✅ agent-only, as designed |
 | The agent's chat text | ✅ | ✅ **the only channel that reaches both** |
 
 Three consequences that must survive this file:

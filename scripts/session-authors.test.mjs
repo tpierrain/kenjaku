@@ -257,7 +257,9 @@ test("a fusion nobody here endorsed reaches a session that has nothing else to s
   assert.equal(sessionAuthorsNotice(deps), 0);
 
   assert.equal(emitted.length, 1, "silence here is the defect");
-  assert.match(emitted[0].systemMessage, /another machine/i);
+  // ONE channel since v5.4: the agent is the one who says this, in the owner's
+  // language (buildAuthorsHookOutput's own block says why).
+  assert.match(emitted[0].hookSpecificOutput.additionalContext, /another machine/i);
   assert.match(emitted[0].hookSpecificOutput.additionalContext, /decided elsewhere/i);
 });
 
@@ -282,5 +284,8 @@ test("a registry that cannot be read costs the notice, not the session start", (
 
   assert.equal(sessionAuthorsNotice(deps), 0);
 
-  assert.match(emitted[0].systemMessage, /someone else, or them on another machine/i);
+  assert.match(
+    emitted[0].hookSpecificOutput.additionalContext,
+    /someone else, or them on another machine/i,
+  );
 });

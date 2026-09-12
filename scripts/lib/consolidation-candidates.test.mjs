@@ -347,8 +347,16 @@ test("hasCandidates — true when only refresh candidates exist", () => {
 
 // ── reportLines: an honest, human-readable rendering of the candidates ─────────
 
-test("reportLines — a clean report is one reassuring line (nothing to consolidate)", () => {
-  assert.deepEqual(reportLines({ newPages: [], refreshes: [] }), ["✓ Nothing to consolidate"]);
+// 🗣️ v5.4 — the wording moved, deliberately, and these assertions moved with it.
+// The report is read by the person whose notes it is about: it now says what they
+// have ("your pages are up to date with your notes") instead of naming the scan's
+// own outcome ("nothing to consolidate"). The SHAPE is unchanged and still pinned
+// line by line below — one reassuring line when clean, no empty sections, a real
+// separator between sources.
+test("reportLines — a clean report is one reassuring line, in the owner's words", () => {
+  assert.deepEqual(reportLines({ newPages: [], refreshes: [] }), [
+    "✓ Your pages are up to date with your notes",
+  ]);
 });
 
 test("reportLines — renders both sections with counts, sources, and a titled header", () => {
@@ -364,18 +372,18 @@ test("reportLines — renders both sections with counts, sources, and a titled h
     ],
   };
   assert.deepEqual(reportLines(report), [
-    "✗ Consolidation candidates found",
+    "✗ Some of what your notes say has not made it into your pages yet",
     "",
-    "New pages to create (1):",
-    "  [[Marie Dupont]] — cited by 2: daily/2026-07-15.md, meetings/2026-07-16.md",
+    "People and subjects your notes talk about but have no page for (1):",
+    "  [[Marie Dupont]] — mentioned in 2: daily/2026-07-15.md, meetings/2026-07-16.md",
     "",
-    "Entity pages to refresh (1):",
-    "  topics/rag.md (updated 2026-04-01) — 1 fresher: meetings/2026-07-15-revue.md",
+    "Pages your newer notes have moved past (1):",
+    "  topics/rag.md (last updated 2026-04-01) — 1 newer: meetings/2026-07-15-revue.md",
   ]);
 });
 
 test("reportLines — a category with nothing in it gets NO header, not a header reading (0)", () => {
-  // An empty section printed as `Entity pages to refresh (0):` is a finding that
+  // An empty section printed with a trailing `(0):` is a finding that
   // isn't one: the reader scans the headers, not the counts. Same discipline as the
   // clean line above — say only what is true (CONVENTIONS §5quater).
   const report = {
@@ -383,10 +391,10 @@ test("reportLines — a category with nothing in it gets NO header, not a header
     refreshes: [],
   };
   assert.deepEqual(reportLines(report), [
-    "✗ Consolidation candidates found",
+    "✗ Some of what your notes say has not made it into your pages yet",
     "",
-    "New pages to create (1):",
-    "  [[Marie Dupont]] — cited by 1: daily/2026-07-15.md",
+    "People and subjects your notes talk about but have no page for (1):",
+    "  [[Marie Dupont]] — mentioned in 1: daily/2026-07-15.md",
   ]);
 });
 
@@ -405,10 +413,10 @@ test("reportLines — a page with SEVERAL fresher sources lists them comma-separ
     ],
   };
   assert.deepEqual(reportLines(report), [
-    "✗ Consolidation candidates found",
+    "✗ Some of what your notes say has not made it into your pages yet",
     "",
-    "Entity pages to refresh (1):",
-    "  topics/rag.md (updated 2026-04-01) — 2 fresher: daily/2026-07-15.md, daily/2026-07-16.md",
+    "Pages your newer notes have moved past (1):",
+    "  topics/rag.md (last updated 2026-04-01) — 2 newer: daily/2026-07-15.md, daily/2026-07-16.md",
   ]);
 });
 

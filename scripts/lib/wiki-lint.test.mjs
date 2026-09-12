@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import { extractWikiLinks, lintVault, hasFindings, reportLines, isUnderZone } from "./wiki-lint.mjs";
+import { jargonTraces } from "./owner-facing.mjs";
 
 const CLEAN = {
   danglingLinks: [],
@@ -435,16 +436,38 @@ test("hasFindings — true when any single category is non-empty", () => {
 
 // ── reportLines: the human-readable, honest health report ─────────────────────
 
+// 🗣️ WRITTEN FOR THE PERSON READING IT (ADR 0043, v5.4). These headings are the
+// clearest case in the product: `Dangling links`, `Orphans`, `Frontmatter issues` are
+// the scanner's own nouns, shown to someone who asked for their notes to be tidied.
+// One of the five was already right — the unreadable-notes section, worded by what it
+// COSTS, with the reason in a comment beside it. This is the other four catching up.
+test("no heading in the report is written in the machinery's vocabulary", () => {
+  const report = {
+    danglingLinks: [{ from: "a.md", target: "Missing" }],
+    orphans: ["c.md"],
+    staleEntityPages: [{ path: "people/alice.md", updated: "2026-01-01", freshestReference: "2026-06-01" }],
+    frontmatterViolations: [{ path: "bad.md", missing: ["created"] }],
+    unreadableNotes: ["broken.md"],
+  };
+
+  assert.deepEqual(jargonTraces(reportLines(report).join("\n")), []);
+});
+
+test("the reassuring line is reassuring in plain words too", () => {
+  assert.deepEqual(jargonTraces(reportLines(CLEAN).join("\n")), []);
+});
+
+
 test("reportLines — a clean vault reports a single reassuring line", () => {
-  assert.deepEqual(reportLines(CLEAN), ["✓ Wiki health: clean"]);
+  assert.deepEqual(reportLines(CLEAN), ["✓ Your notes are in good shape"]);
 });
 
 test("reportLines — a dangling-only report shows just the dangling section", () => {
   const report = { ...CLEAN, danglingLinks: [{ from: "notes/a.md", target: "Missing" }] };
   assert.deepEqual(reportLines(report), [
-    "✗ Wiki health: issues found",
+    "✗ A few of your notes could use a hand",
     "",
-    "Dangling links (1):",
+    "Links pointing at a note that does not exist (1):",
     "  notes/a.md → [[Missing]]",
   ]);
 });
@@ -452,9 +475,9 @@ test("reportLines — a dangling-only report shows just the dangling section", (
 test("reportLines — orphans render one path per line", () => {
   const report = { ...CLEAN, orphans: ["c.md", "d.md"] };
   assert.deepEqual(reportLines(report), [
-    "✗ Wiki health: issues found",
+    "✗ A few of your notes could use a hand",
     "",
-    "Orphans (2):",
+    "Notes nothing links to (2):",
     "  c.md",
     "  d.md",
   ]);
@@ -466,9 +489,9 @@ test("reportLines — a stale entity page shows its date and its freshest citati
     staleEntityPages: [{ path: "people/alice.md", updated: "2026-01-01", freshestReference: "2026-06-01" }],
   };
   assert.deepEqual(reportLines(report), [
-    "✗ Wiki health: issues found",
+    "✗ A few of your notes could use a hand",
     "",
-    "Stale entity pages (1):",
+    "Pages your newer notes have moved past (1):",
     "  people/alice.md (updated 2026-01-01, cited as fresh as 2026-06-01)",
   ]);
 });
@@ -479,9 +502,9 @@ test("reportLines — a frontmatter violation lists the note and its missing key
     frontmatterViolations: [{ path: "bad.md", missing: ["created", "updated", "tags"] }],
   };
   assert.deepEqual(reportLines(report), [
-    "✗ Wiki health: issues found",
+    "✗ A few of your notes could use a hand",
     "",
-    "Frontmatter issues (1):",
+    "Notes missing their filing details (1):",
     "  bad.md (missing: created, updated, tags)",
   ]);
 });
@@ -740,13 +763,13 @@ test("reportLines — unreadable notes come FIRST, and say what it costs rather 
   const report = { ...CLEAN, unreadableNotes: ["prep-1-1/marie.md"], orphans: ["c.md"] };
   const lines = reportLines(report);
   assert.deepEqual(lines.slice(0, 4), [
-    "✗ Wiki health: issues found",
+    "✗ A few of your notes could use a hand",
     "",
     "Notes the engine cannot read (1) — they answer searches from stale content until fixed:",
     "  prep-1-1/marie.md",
   ]);
   assert.ok(
-    lines.indexOf("Orphans (1):") > lines.indexOf("  prep-1-1/marie.md"),
+    lines.indexOf("Notes nothing links to (1):") > lines.indexOf("  prep-1-1/marie.md"),
     "a finding that loses answers must not sit under a tidiness backlog",
   );
 });

@@ -1,0 +1,21 @@
+[32m00:20:29 (78793) INFO ProjectReader[39m Found 1 of 1092 file(s) to be mutated.
+[32m00:20:29 (78793) INFO Instrumenter[39m Instrumented 1 source file(s) with 20 mutant(s)
+[32m00:20:29 (78793) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m00:20:29 (78793) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-ZZTwKF
+[32m00:20:29 (78793) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m00:20:29 (78793) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m00:20:29 (78793) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 0 seconds (net 282 ms, overhead 0 ms).
+
+All tests
+  ✓ All tests (killed 20)
+
+Ran 1.00 tests per mutant on average.
+------------------------------|------------------|----------|-----------|------------|----------|----------|
+                              | % Mutation score |          |           |            |          |          |
+File                          |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+------------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files                     | 100.00 |  100.00 |       20 |         0 |          0 |        0 |        0 |
+ consolidation-candidates.mjs | 100.00 |  100.00 |       20 |         0 |          0 |        0 |        0 |
+------------------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m00:20:31 (78793) INFO MutationTestExecutor[39m Done in 2 seconds.
+[32m00:20:31 (78793) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-ZZTwKF.

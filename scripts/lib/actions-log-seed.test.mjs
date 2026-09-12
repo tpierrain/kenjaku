@@ -11,6 +11,7 @@ import {
   ACTIONS_LOG_REL,
 } from "./actions-log-seed.mjs";
 import { extractWikiLinks } from "./wiki-lint.mjs";
+import { directiveTraces, jargonTraces } from "./owner-facing.mjs";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Track E — the append-only activity ledger becomes a seeded, first-class
@@ -61,8 +62,15 @@ test("buildActionsLogHookOutput — surfaces a one-time note when it just seeded
   const output = buildActionsLogHookOutput(true);
   assert.equal(output.hookSpecificOutput.hookEventName, "SessionStart");
   assert.match(output.hookSpecificOutput.additionalContext, /actions-log\.md/);
-  assert.match(output.hookSpecificOutput.additionalContext, /append/i);
-  assert.match(output.systemMessage, /ledger/i);
+  // v5.4 — in the owner's words, on both channels: the file is still append-only
+  // (see the seed's own header, pinned below), but "the append-only activity ledger"
+  // is three pieces of vocabulary for a list of what happened.
+  assert.match(output.hookSpecificOutput.additionalContext, /one line per action/i);
+  // ONCE, and in the owner's language. Without this the note is a standing instruction
+  // the agent may repeat at every session start, which is the volume defect (F5) in the
+  // one payload that exists precisely to fire a single time in a brain's life.
+  assert.match(output.hookSpecificOutput.additionalContext, /once, in their language/i);
+  assert.match(output.systemMessage, /running list of what this brain does for you/i);
 });
 
 test("buildActionsLogHookOutput keeps the echoed note short — volume IS the defect (F5)", () => {
@@ -94,4 +102,12 @@ test("initialActionsLog — the documented entry format carries who did it", () 
 test("initialActionsLog — it still says the ledger is one shared file, not one per person", () => {
   assert.match(initialActionsLog("2026-09-02"), /append-only/i);
   assert.doesNotMatch(initialActionsLog("2026-09-02"), /one ledger per/i);
+});
+
+// 🛑 THE OWNER'S CHANNEL (ADR 0043, v5.4): a fact about their vault, in their words.
+test("what the owner reads here is a fact, and it is said in their words", () => {
+  const out = buildActionsLogHookOutput(true);
+
+  assert.deepEqual(directiveTraces(out.systemMessage), []);
+  assert.deepEqual(jargonTraces(out.systemMessage), []);
 });

@@ -6,6 +6,59 @@ import {
   profileCaptureOffer,
 } from "./universe-reminder.mjs";
 import { DEFAULT_UNIVERSE } from "./universes.mjs";
+import { directiveTraces } from "./owner-facing.mjs";
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 🛑 THE OWNER'S CHANNEL CARRIES NOTHING WRITTEN FOR THE MODEL (ADR 0043, v5.4).
+//
+// Re-measured 2026-09-12 on Claude Code v2.1.220: `systemMessage` is what the CLI
+// PRINTS to the owner (prefixed `SessionStart:<matcher> says:`), `additionalContext`
+// is what the model receives and is never displayed. The July note had them the
+// other way round, which is why two directives kept riding the printed one.
+// ═══════════════════════════════════════════════════════════════════════════
+
+test("the owner's channel carries the fact about their brain, and only that", () => {
+  const out = buildUniverseHookOutput({
+    nudge: universeReminder({ registry: ["acme"], active: "acme" }),
+    synthesis: "Role: Head of Engineering. People who matter: Marie, Amina.",
+    offer: profileCaptureOffer({ hasProfile: false, declined: false, multiverse: true }),
+  });
+
+  assert.equal(out.systemMessage, "Active universe: 'acme' (of 2: default, acme).");
+  assert.deepEqual(directiveTraces(out.systemMessage), []);
+});
+
+test("the offer is the AGENT's to make, so the owner never reads the instruction to make it", () => {
+  // What a CLI owner met before this: "No profile yet for this owner's context.
+  // Offer once, in their language, … (never use the word `universe`: they have never
+  // met the notion)". The instruction, vocabulary rule included, instead of the offer.
+  const out = buildUniverseHookOutput({
+    nudge: null,
+    offer: profileCaptureOffer({ hasProfile: false, declined: false }),
+  });
+
+  assert.equal(out.systemMessage, undefined);
+  assert.match(out.hookSpecificOutput.additionalContext, /^\[onboarding\] /);
+});
+
+test("the working-context page is never printed back at its owner", () => {
+  // Its own directive says "use it silently, do not recite it" — and the CLI recited
+  // it verbatim. The constitution gives the second reason: everything routed to a
+  // session-start channel lands on a screen the owner may be sharing.
+  const out = buildUniverseHookOutput({ nudge: null, synthesis: "Role: CTO. Salary review in May." });
+
+  assert.equal(out.systemMessage, undefined);
+  assert.match(out.hookSpecificOutput.additionalContext, /Role: CTO/);
+});
+
+test("nothing was muted — the agent still receives all three", () => {
+  const out = buildUniverseHookOutput({ nudge: "N", synthesis: "S", offer: "O" });
+  const context = out.hookSpecificOutput.additionalContext;
+
+  assert.match(context, /\[universe\] N/);
+  assert.match(context, /\[working context\]\nS/);
+  assert.match(context, /\[onboarding\] O/);
+});
 
 // ── universeReminder: the SessionStart nudge, gated by progressive disclosure ──
 test("universeReminder stays silent for a single-universe brain (below the gate)", () => {
@@ -42,8 +95,11 @@ test("profileCaptureOffer invites the owner to describe their context when there
 });
 
 test("profileCaptureOffer carries the FACT only — never how to run it (F5)", () => {
-  // This payload is echoed VERBATIM to a CLI owner, prefixed `SessionStart:startup says:`
-  // (field-verified 2026-07-28). So the trigger states the fact and stops: the seven
+  // Since v5.4 this payload reaches the MODEL only — it is no longer printed to anyone
+  // (see the block at the top of this file). The bound stays, as defence in depth: a
+  // one-line trigger that leaks somewhere we have not measured is survivable, eight
+  // lines of protocol is not, and the host's channels are not ours to control.
+  // So the trigger states the fact and stops: the seven
   // questions, the skill section, the write command and the decline command all live in
   // the `switch` skill, which the agent loads when the user accepts — or declines. Reciting
   // them upfront duplicates a document that gets read anyway, and it IS the eight lines.
@@ -122,8 +178,8 @@ test("buildUniverseHookOutput frames the synthesis WITHOUT naming universes", ()
 });
 
 test("buildUniverseHookOutput carries the capture offer, and it survives alongside a reminder", () => {
-  // The offer is the whole point of D2's backfill: it must reach the chat channel,
-  // not just the CLI-only systemMessage that Desktop drops on the floor.
+  // The offer is the whole point of D2's backfill: it must reach the model, which is
+  // what composes the real offer in the owner's language.
   const out = buildUniverseHookOutput({
     nudge: "Active universe: 'acme' (of 2: default, acme).",
     offer: "Your brain does not know your context yet.",
@@ -139,11 +195,10 @@ test("buildUniverseHookOutput carries the capture offer, and it survives alongsi
       "it. Say so once, in their language.\n\n" +
       "[onboarding] Your brain does not know your context yet.",
   );
-  assert.equal(
-    out.systemMessage,
-    "Active universe: 'acme' (of 2: default, acme).\n" +
-      "Your brain does not know your context yet.",
-  );
+  // And the owner's channel keeps the FACT alone: the offer is the agent's to make,
+  // in their language, so printing an English copy of it above that is the double
+  // delivery v5.4 removed.
+  assert.equal(out.systemMessage, "Active universe: 'acme' (of 2: default, acme).");
 });
 
 test("buildUniverseHookOutput returns an envelope for a lone offer (no reminder, no digest)", () => {

@@ -134,7 +134,8 @@ there's genuinely something new. *([details in EN-QUOI §2](https://github.com/t
 Kenjaku isn't just a search box: it ships ready-made **skills** — a `/coach` that plays a fierce
 sparring partner to challenge your thinking (grounded in **your own** notes), **self-healing
 wiki-health** skills that keep your notes tidy (`/lint`, `/consolidate`, `/file-back` spot decayed
-links, duplicates and unfiled captures, then **propose** fixes you confirm), plus `import`,
+links, duplicates and unfiled captures, then **repair what is obvious, tell you about the small stuff,
+and ask you about what is genuinely yours to decide**), plus `import`,
 `sync-sources`, `prepare-1-1`, `local-mirror`, `switch` and `update-engine` — and, above all, **you add
 your own just by describing them**. Skills are plain Markdown you can read, tweak and grow. The ones you
 leave alone **keep improving with each engine update**; the ones you tailor become yours — **your words
@@ -428,9 +429,13 @@ tested and fail-loud**. The through-line — **fail loudly rather than pretend**
   that has already **tried and failed**. The "just arrived" case is now caught up **on the spot**,
   instead of being promised for next time.
 - **Keeps its *knowledge* healthy, not just its infra.** A SessionStart nudge and the `/lint`,
-  `/consolidate` and `/file-back` skills watch the wiki for decay — dangling `[[links]]`, orphan notes,
-  stale entity pages, raw captures never filed — and **propose** fixes you confirm (never a silent
-  rewrite). Every write goes through a **deterministic, taxonomy-conformant builder**, so a fix can't
+  `/consolidate` and `/file-back` skills watch the wiki for decay — `[[links]]` pointing at a note that
+  does not exist, notes nothing links to, pages your newer notes moved past, raw captures never filed — and since **v5.4** they act by how much
+  the fix is yours to decide: an unmistakable typo in a link is simply repaired, small reversible
+  tidy-ups are **announced in one message you can stop**, and anything that shapes what your notes
+  *mean* stays **a question you answer**. Nothing happens behind your back — every change lands in your
+  own git history, so anything done without asking is one undo away.
+  Every write goes through a **deterministic, taxonomy-conformant builder**, so a fix can't
   re-introduce the very defects `/lint` reports — and repairing a broken link is no longer allowed to
   invent the person it points at. Self-healing at the *content* layer. **And the checker is held to the
   same standard as the vault**: it no longer reports your raw captures as orphans, nor complains about
