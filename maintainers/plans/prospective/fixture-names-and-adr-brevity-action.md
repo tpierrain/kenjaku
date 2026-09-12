@@ -19,13 +19,17 @@
   files, including the delivered `switch` skill, now `globex` / `aXiom` / `Axion` / `Axiom`.
   Fingerprints regenerated, 3759 tests green. **Nothing public still carries the real names**: the
   v5.3.0 release note and every issue comment were checked, both clean.
-- **⚠️ HIS CALL, and it is the only open question:** the names are fixed on `main`, but a brain
-  installed before today still carries the old ones in its `switch` skill until an engine update
-  reaches it. **That needs a `v5.3.1`, and cutting it is not granted** — the v5.3.0 grant was by name
-  and is spent. Ask; do not assume.
-- ℹ️ **Not recoverable, and he should know rather than be protected from it:** the names stay in the
-  git history and inside the published `v5.3.0` tag. Rewriting published history is a separate,
-  heavier decision and nobody has asked for it.
+- **▶️ AWAITING ONE WORD: the `v5.3.0` TAG IS MOVED onto the rename — no `v5.3.1`, no release note**
+  _(owner's call, 2026-09-12)_ → § *Step 4*, which holds the reasoning, what it buys and what it does
+  not. Everything local is ready and pushed; the only step left is the forced tag push.
+- **Who is exposed, measured, and narrower than first written:** `v5.3.0` is the **only** published
+  version that ever carried the names (audited across all 34 tags), so brains installed **before** it
+  are clean; only an install or engine update made in the hours since it shipped can carry them, in
+  the `switch` skill and six `scripts/` files. `maintainers/` never reaches a brain.
+- ℹ️ **Not recoverable, and he should know rather than be protected from it:** the names stay readable
+  in the **commit history** of a public repo, which moving the tag does not touch and no patch release
+  would have touched either → § *Step 4*. Rewriting published history is a separate, heavier decision
+  and nobody has asked for it.
 - **A session may, alone:** write the ADR, run the suite, commit, push, read CI. **Not:** cut a
   release, rewrite published history.
 
@@ -35,7 +39,10 @@
       _(2026-09-12 · `71bf859`)_ → § *Step 1*
 - [ ] **Step 2 — ADR 0044, rewritten to one screen** → § *Step 2*
 - [ ] **Step 3 — put ratification of ADR 0044 to the owner** (one question, after step 2)
-- [ ] **Step 4 — ask whether a `v5.3.1` carries the renamed skill to installed brains**
+- [ ] **Step 4 — move the `v5.3.0` tag onto the rename, silently** → § *Step 4*
+  - [x] the release note drafted for a `v5.3.1` is **deleted, not published** _(2026-09-12)_
+  - [x] engine fingerprints regenerated under the name `v5.3.0` _(2026-09-12)_
+  - [ ] the forced tag push, on the owner's word
 
 ## Step 1 — the sweep, and why the names were there at all
 
@@ -85,3 +92,42 @@ read). Both carry the owner's own words and the measurement.
 The ADR is **PROPOSED**. The code shipped in v5.3.0 and the release note says PROPOSED out loud, so
 ratifying unblocks nothing and refusing breaks nothing running. He has now read the short form and
 said the long one was unreadable; put the question once, after step 2, and record the answer here.
+
+## Step 4 — the tag moves, and nothing is announced
+
+**The owner's call, 2026-09-12**, taken after a drafted `v5.3.1` note was shown to be the problem
+rather than the fix: « il ne faudrait pas que dans la release note on mentionne ces noms-là parce que
+ça va donner curiosité aux gens », then « vaut mieux patcher la version 5.3.0 en déplaçant un peu le
+tag ». So: **`v5.3.0` is re-pointed at the rename, the published note is left exactly as it is, and no
+`v5.3.1` exists.** The release is two hours old, it is a weekend, and the realistic install count in
+that window is zero.
+
+**What it buys.** Every install and every engine update from now on gets clean bytes, with no note, no
+mention and nothing for anyone to be curious about. A `v5.3.1` would have had to *say something* on the
+most-read artifact we publish, and the only honest thing it could say points straight at what was
+removed.
+
+**What it does NOT buy, and he was told plainly:** the names stay readable in the **commit history** of
+a public repository — `71bbbcf`, `b981d60`, `f8c45ba` and their diffs. Moving the tag changes the
+snapshot, never the history, and **a `v5.3.1` would not have changed it either**. Rewriting published
+history is a separate, heavier decision and nobody has asked for it.
+
+**The two costs, both accepted:**
+
+- **A brain installed inside the window is left behind, silently.** It reports `v5.3.0`, the update
+  check tells it it is up to date, and it keeps the old example until `v5.4` reaches it. A `v5.3.1`
+  would have gone and offered the fix; a moved tag cannot. Accepted because the population is almost
+  certainly empty.
+- **GitHub's tarball for a tag name is cached**, so a fresh install in the minutes right after the
+  push can still receive the old bytes. It settles on its own.
+
+**Why the fingerprint table survives the move.** `generate-fingerprints.mjs` was run **before** the tag
+moved, so it folded both byte-states of `.claude/skills/switch/SKILL.md` under `since: v5.3.0` — the
+one a window brain holds and the one the moved tag delivers. Neither reads as a hand-edited engine
+file. That property lasts until the next release regenerates the table with the tag already moved.
+
+**The command, and it is the whole of what is left:**
+
+```bash
+git tag -f v5.3.0 <commit carrying the rename> && git push --force origin v5.3.0
+```
