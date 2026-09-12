@@ -24,14 +24,16 @@
   change them. Two older questions sit in § *Questions the owner owns* and are **not to be re-asked**
   (#78's launcher-README link, `ci.yml`'s `concurrency` group); **#77's release slot is closed** by the
   proposal, which makes v5.2 next with #77 leading it.
-- **One thing waits on him and on nobody else:** dispatch the nightly mutation workflow by hand and
-  **read the score** → § *Inherited from v5.0.0*. No session may declare that rollout condition met.
-- **A session may, alone:** work v5.2 test-first **once the proposal is approved**, label and
-  milestone issues on GitHub _(granted 2026-09-12)_, commit, push, and read what CI returns.
+- **One thing waits on him and on nobody else, and it CHANGED tonight:** the nightly mutation run was
+  read at last (five crons, 7 → 11 Sept). The old causes are fixed; **two new ones are named**, and one
+  of them is a product call — what the nightly is *for*, given the biggest package cannot fit in six
+  hours. → § *Inherited from v5.0.0*.
+- **A session may, alone:** work v5.2 test-first **once the proposal is approved**, **label** issues on
+  GitHub _(granted 2026-09-12; **labels only** — cutting a milestone stays his)_, commit, push, and
+  read what CI returns.
   **Not:** tag, publish, merge to `main`, write into `templates/fr/**` (one carve-out, § *History*),
   or write into either of his two personal brains.
-- **Already delivered by this plan:** the bugfix release → § *v5.1 — delivered*. Every lesson it left
-  and every branch it closed is in § *History*: finished, therefore not here.
+- **Already delivered:** § *v5.1 — delivered*. Lessons and closed branches: § *History*.
 
 ## Tracking
 
@@ -305,6 +307,40 @@ now **v5.3, group 2** of the proposal above — same three issues, plus #82.)_
 ## 🧊 Inherited from v5.0.0 — the tail that outlived its release
 
 _(That plan is archived; these came here so it could close. They belong to no milestone.)_
+
+### 🌙 THE NIGHTLY MUTATION RUN WAS READ AT LAST — and the two old causes are fixed, so these are NEW
+
+_(Read 2026-09-12, off the five scheduled runs of 7 → 11 September, which is the window this plan
+itself named: **"the cron of 7 September is the first that can produce a score; a red one that morning
+is a NEW cause, not this one."** It was red all five mornings, and it is a new cause — two of them.)_
+
+**The old diagnosis is retired by the evidence**: the job no longer dies in Stryker's initial test run.
+It now gets past it and **mutates for hours**, so the truncated clone and the source-scanning guards
+really were the whole of the old problem. What is happening now is different, identical on all five
+nights, and it needs **no hand dispatch to see** — the cron already answers it:
+
+| Job | Every night, five nights running |
+|---|---|
+| `mutate · rag` | ✅ **succeeds**, in ~1 h 45 |
+| `mutate · local-mirror` | ❌ dies at **~23 minutes**, at roughly 349 of 1181 mutants |
+| `mutate · scripts` | ❌ runs **exactly 6 h 00** and is cancelled by its own `timeout-minutes: 360` |
+
+- [ ] 🧮 **`scripts` cannot fit, and that is arithmetic rather than a bug.** It is the package the
+      speed work measured at **~36 s per mutant** locally at concurrency 5; the nightly runs at
+      **concurrency 2 on a 4-vCPU runner**, over a package whose last full count was **9 833 mutants**.
+      No timeout raise fixes that — 6 h is already the ceiling GitHub gives a job by default. **The
+      honest options are to narrow what the nightly measures** (changed files, or one package a night)
+      **or to stop scheduling the whole package** and keep §5quinquies' per-file discipline as the real
+      instrument. This is a product call about what the nightly is *for*, and it is the owner's.
+- [ ] 🔌 **`local-mirror` is killed, not timed out.** Its log ends *"The runner has received a shutdown
+      signal"* with **no error of its own** and the progress counter frozen for the last ~30 seconds —
+      the shape of a machine that ran out of memory or was reclaimed, not of a failing test. Same
+      minute mark every night, which is too regular for bad luck. **Worth one look at the memory the
+      Stryker workspace holds** before anything else is changed.
+- 🙅 **What this retires**: *"dispatch the workflow by hand and read the score before trusting the
+      cron"* was the rollout condition, and it is **satisfied by reading, not by dispatching** — five
+      crons produced the reading, and a hand dispatch would only reproduce it at the same cost. The
+      score itself is still unknown for `scripts`, and now for a reason that is understood.
 
 - [ ] **The macOS flake gets an instrument.** Over 30 PR runs on the v5 branch: 25 green, 5 red, and
       **all five were the same test on macOS**, never Windows. It is inherited from `main`, not
