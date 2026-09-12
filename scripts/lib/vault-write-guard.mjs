@@ -15,7 +15,9 @@
 // parses differently from the engine measures a fiction.
 // ─────────────────────────────────────────────────────────────────────────────
 import { createRequire } from "node:module";
-import { join, relative, sep } from "node:path";
+import { join } from "node:path";
+
+import { vaultNotePath } from "./vault-paths.mjs";
 
 /**
  * The engine's parse function, resolved from the engine's own dependencies, or
@@ -79,15 +81,16 @@ export function duplicateKeyDetail(raw) {
 
 /**
  * The vault-relative path of a note this tool call would write, or `null` when the
- * call is none of our business (another tool, a file outside `vault/`, a non-note).
- * Only indexed files are guarded: everything else is the owner's to write freely.
+ * call is none of our business. The IMPLEMENTATION moved to the shared vault-path
+ * codec (`vault-paths.mjs`, v5.3 § M2) the day a second consumer appeared: the
+ * universe-drift notice asks the very same question of the very same tool call, and
+ * two spellings of one question are two behaviours to keep in step for ever.
+ *
+ * Only the NAME survives here, because this guard's tests and its own reader know
+ * it by that name — and `vault-paths.test.mjs` pins the two as the same function
+ * rather than as two that happen to agree.
  */
-export function guardedNotePath({ toolName, filePath, brainDir }) {
-  if (toolName !== "Write" && toolName !== "Edit") return null;
-  if (typeof filePath !== "string" || !filePath.toLowerCase().endsWith(".md")) return null;
-  const rel = relative(brainDir, filePath).split(sep).join("/");
-  return rel.startsWith("vault/") ? rel : null;
-}
+export { vaultNotePath as guardedNotePath };
 
 /** Does this note's frontmatter survive the engine's parser? */
 export function frontmatterVerdict({ raw, parse }) {
@@ -144,7 +147,7 @@ export function editedNote({ toolInput, readFile }) {
  * only thing it ever refuses is bytes the engine's parser has actually rejected.
  */
 export function guardDecision({ toolName, toolInput, brainDir, parse, readFile }) {
-  const relPath = guardedNotePath({ toolName, filePath: toolInput?.file_path, brainDir });
+  const relPath = vaultNotePath({ toolName, filePath: toolInput?.file_path, brainDir });
   if (relPath === null || parse === null) return { allow: true };
 
   const raw = toolName === "Write" ? toolInput?.content : editedNote({ toolInput, readFile });
