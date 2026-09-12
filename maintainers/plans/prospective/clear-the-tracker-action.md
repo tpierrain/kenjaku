@@ -32,8 +32,9 @@
   cleared session picks this up without asking. **Not:** write into `templates/fr/**` (one carve-out,
   § *History*) or into either of his two personal brains. ⚠️ **Cutting a release was granted ONCE**, by
   name, on 2026-09-12 (« vas y cut la release ») — **for v5.2.0 only**. Preparing ≠ cutting: ask again
-  before tagging v5.3. ℹ️ A **plan-only push no longer starts CI** (his call, same day): there is no
-  run to read, and that is not a broken workflow. → § *History*.
+  before tagging v5.3. ℹ️ A **plan-only push no longer starts CI** (his call, same day) — no run to
+  read, and not a breakage. ⏳ **FIRST THING: the last code push (the CRLF fix,
+  `scripts/lib/ci-path-filter.mjs`) still has a CI verdict UNREAD.** → § *History*.
 - **Already delivered:** v5.1.3 and v5.2.0, both archived — § *Group 1*, § *v5.1*. Lessons: § *History*.
 
 ## Tracking
