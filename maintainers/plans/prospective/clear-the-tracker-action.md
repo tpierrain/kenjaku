@@ -30,9 +30,10 @@
   issues, commit, push, and read what CI returns. **PREPARING v5.3 UNATTENDED was granted 2026-09-12**
   (« faire un clear et te laisser travailler en autonomie pour préparer la prochaine release ») — so a
   cleared session picks this up without asking. **Not:** write into `templates/fr/**` (one carve-out,
-  § *History*) or into either of his two personal brains. ⚠️ **Cutting a release was granted ONCE**, by
-  name, on 2026-09-12 (« vas y cut la release ») — **for v5.2.0 only**. Preparing ≠ cutting: ask again
-  before tagging v5.3. ℹ️ A **plan-only push no longer starts CI** (his call, same day) — no run to
+  § *History*) or into either of his two personal brains. ⚠️ **Cutting a release is granted per
+  release, by name**: v5.2.0 on 2026-09-12 (« vas y cut la release »), then **v5.3 the same day**
+  (« je te laisse bosser en autonomie jusqu'à la fin de la release »). Anything past v5.3 asks again.
+  ℹ️ A **plan-only push no longer starts CI** (his call, same day) — no run to
   read, and not a breakage. **No CI verdict is outstanding** — § *History*.
 - **Already delivered:** v5.1.3 and v5.2.0, both archived — § *Group 1*, § *v5.1*. Lessons: § *History*.
 
