@@ -18,9 +18,10 @@
 - **Next:** ✅ **`v5.2 — The One Where Done Really Means Done` is BUILT** on branch
   `feat/v5.2-done-means-done` → § *THE APPROVED PLAN*. Step 0 (ADR 0043) and all five issues are done,
   every push green, and the **§10ter rehearsal is run** (two copies, oldest and near-current, owner's
-  territory byte-identical both times). **Resume at: read the PR, then his call.** **The tag, the
-  release and the merge are his** — and so is closing #84, which the rehearsal has now given its
-  evidence.
+  territory byte-identical both times). **Resume at: the §5quinquies mutation passes on what this
+  release changed** _(in flight 2026-09-12; if no score is recorded in step 6, re-run them)_, **then
+  open the PR.** **The tag, the release and the merge are his** — and so is closing #84, which the
+  rehearsal has now given its evidence.
 - **Blocked on:** nothing. **Owner's call pending:** nothing. The grouping, the order and the three
   release titles are all decided; two older questions sit in § *Questions the owner owns* and are
   **not to be re-asked** (#78's launcher-README link, `ci.yml`'s `concurrency` group).
@@ -32,8 +33,6 @@
   _(labels only, granted 2026-09-12 — cutting a milestone stays his)_, commit, push, and read what CI
   returns. **Not:** tag, publish, merge to `main`, write into `templates/fr/**` (one carve-out,
   § *History*), or write into either of his two personal brains. **The release itself is his.**
-- ⚠️ **§10ter is DISCHARGED for this release** _(2026-09-12)_ — what it proved is in § *THE APPROVED
-  PLAN*, step 6. Nothing owed there any more.
 - **Already delivered:** § *v5.1 — delivered*. Lessons and closed branches: § *History*.
 
 ## Tracking
