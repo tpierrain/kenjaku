@@ -92,7 +92,8 @@ capability. Recorded per §10 because *"checked"* and *"not looked at"* must be 
 - ✅ **Shipped, closed, and no longer the active plan.** The SHIPPED block above holds the delivery;
   [#92](https://github.com/tpierrain/kenjaku/issues/92) is closed on field evidence (step 6).
 - **Next:** **step 3, the nudge** — optional, and to be picked up deliberately after reading what the
-  session-start nudge says today. It is the only thing this file still owes.
+  session-start nudge says today. It is the only thing this file still owes, and it is tracked as
+  [#110](https://github.com/tpierrain/kenjaku/issues/110).
 - **Blocked on:** nothing. **Owner's call pending:** nothing.
 - **A session may, alone:** take up step 3, test-first, and ship it in a later release. **Not:**
   modify either of his real brains (a read-only copy is the one sanctioned contact).

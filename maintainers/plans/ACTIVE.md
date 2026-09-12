@@ -7,6 +7,9 @@
 **"On reprend" means: open the plan below, read its `## 📍 STATE` block, announce the step, work.**
 No memory lookup, no ROADMAP scan, no grep. Sub-plans are reached **through** it, never directly.
 
+📋 **Everything still to do is in the [tracker](https://github.com/tpierrain/kenjaku/issues)** — the
+owner's ask, 2026-09-12. The plans below keep the *reasoning*; the issues hold *what is left*.
+
 ## The active plan
 
 - **Subject:** clear the tracker. Everything left in it is planned into three named releases, and the
@@ -19,10 +22,8 @@ No memory lookup, no ROADMAP scan, no grep. Sub-plans are reached **through** it
 
 Links only — each one's own `## 📍 STATE` block says whose it is and where it stands.
 
-- [`prospective/shipped-ci-workflows-action.md`](prospective/shipped-ci-workflows-action.md) — only its
-  optional step 3 is left.
+- [`prospective/shipped-ci-workflows-action.md`](prospective/shipped-ci-workflows-action.md)
 - [`prospective/harness-speed-and-test-quality-action.md`](prospective/harness-speed-and-test-quality-action.md)
-  — its speed half shipped; the quality and record halves are where it resumes.
 - [`../studies/plan-state-single-source-study.md`](../studies/plan-state-single-source-study.md)
 
 > **Why this file exists** (Thomas, 2026-08-22): *"un plan, on est censé avoir qu'un seul plan actif à

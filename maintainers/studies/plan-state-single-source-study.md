@@ -16,7 +16,8 @@
   ⚠️ **Applied is not held**: the ≤ 20-line cap was breached on four of the five plans within three
   weeks, unnoticed. → § *QUEUED FOR AFTER THE v5.0.0 TAG*, third bullet.
 - **Blocked on:** nothing.
-- **Owner's call pending:** **one, and it does not block. The lint**, still unanswered since it was
+- **Owner's call pending:** **one, and it does not block — now tracked as
+  [#109](https://github.com/tpierrain/kenjaku/issues/109). The lint**, still unanswered since it was
   put to him in plain terms on 2026-08-22 (*"un test de plus dans la suite, qui lit la FORME des
   plans"*). Recommendation unchanged: **split it** — the cheap half now, the hard half after the tag.
   → § *The lint, reopened*, and § *QUEUED FOR AFTER THE v5.0.0 TAG*, which own the three failures
@@ -644,7 +645,7 @@ worse.
     at any depth, blockquoted or not*.
 
 - 📂 **AND `prospective/` HOLDS FILES THAT ARE NOT PLANS** _(spotted 2026-09-12, while archiving a
-  finished plan)_. Two of its seven files are the **release note and the PR body of v5.1.0**, shipped
+  finished plan — tracked with S3 as [#105](https://github.com/tpierrain/kenjaku/issues/105))_. Two of its seven files are the **release note and the PR body of v5.1.0**, shipped
   long ago: artefacts of a delivered release sitting in the folder whose name promises *work somebody
   may still pick up*. Nothing is wrong with the files; what is wrong is the **shelf** — CONVENTIONS §7
   routes a finished thing to `archived/` and a non-plan to `studies/` or the tracker, and neither rule
