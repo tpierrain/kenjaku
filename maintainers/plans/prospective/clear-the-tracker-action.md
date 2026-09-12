@@ -19,11 +19,10 @@
   **design-first**: four issues that are one subject seen from four angles, **plus #100 and #101 as
   riders** (his call, 2026-09-12). → § *Group 2*. Read `harness-universe-blindspot-hardening-action.md`
   before writing anything, and expect one ADR out of it. **Nothing is started.**
-- **Blocked on:** nothing — v5.3 can start today. **TWO things wait on him, and on nobody else:**
-  (a) **what the nightly mutation run is FOR**, a product call, now that the biggest package provably
-  cannot fit in six hours → § *Inherited from v5.0.0*; (b) **the French wording shipped in v5.2.0**
-  (ADR 0043's doctrine and the update skill's new prompts, written under the `templates/fr/**`
-  carve-out) — live in the fleet, correct at his leisure, gating nothing.
+- **Blocked on:** nothing — v5.3 can start today. **TWO things wait on him:** (a) **what the nightly
+  mutation run is FOR**, a product call, now that the biggest package provably cannot fit in six hours
+  → § *Inherited from v5.0.0*; (b) **the French wording shipped in v5.2.0** (ADR 0043's doctrine, the
+  update skill's prompts) — live in the fleet, his to correct at leisure, gating nothing.
 - Two older questions sit in § *Questions the owner owns*, **not to be re-asked** (#78's
   launcher-README link, `ci.yml`'s `concurrency`). Grouping, order and the three titles are decided.
 - **A session may, alone:** work the active release test-first end to end on a branch, **label**
