@@ -25,8 +25,16 @@
 
 /**
  * ⏱️ The figure is CONFIRMED BY MEASUREMENT, and it is this constant that carries
- * it: timed on a real brain during the v5.3 release rehearsal. If a later run
- * disagrees, this line is what changes — never one of the surfaces that quote it.
+ * it. Timed for v5.3 on a real brain (a copy of one installed at v3.4.0, 30 notes)
+ * running the actual update, nothing stubbed: **9 s** with no re-index, **24 s**
+ * with one. If a later run disagrees, this line is what changes — never one of the
+ * surfaces that quote it.
+ *
+ * So "about a minute" is deliberately the SLOW side of what was measured, and the
+ * reason is what the stopwatch could not see: that brain's dependencies were
+ * already installed, and a cold `npm install` on a slow line is where the rest of
+ * the minute goes. A duration an owner beats is a promise kept; one they miss is
+ * the reason they stop believing the next one.
  *
  * 🔎 And it hedges on purpose. Whether a given update will re-index is NOT knowable
  * before the swap: the target's `indexSchemaVersion` lives in the launcher's own
