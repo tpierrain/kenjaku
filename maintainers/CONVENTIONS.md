@@ -696,6 +696,37 @@ Node 22/24/26 × macOS + Windows). Use it as the source of truth.
 
 Full rationale: ADR [`0015`](decisions/0015-cross-platform-parity.md) (cross-platform parity).
 
+## 9bis. THE GATES OF A RELEASE, in one list — because the one that goes missing is silent
+
+**Every gate below has its own section, and until v5.3 no single place named them together.** That is
+not a documentation nicety: a release plan's final step is written by reading around for what is owed,
+and what is not on a list is not read.
+
+Before the tag, in this order:
+
+| # | Gate | Where it lives | What it produces if you do it |
+| --- | --- | --- | --- |
+| 1 | **Mutate what the branch wrote** | [§5quinquies](#5quinquies-mutate-a-new-production-file-the-day-it-is-written--not-at-the-release-tail) | a score, and an entry in `mutation/RESULTS.md` |
+| 2 | **Cross-platform** | [§9](#9-cross-platform-parity--local-green--green-the-ci-matrix-is-the-arbiter) | a green matrix on the PR |
+| 3 | **Re-read the marketing surface** | [§10](#10-every-release-re-reads-the-marketing-surface) | edits, or a written "checked, nothing moved" |
+| 4 | **Rehearse the update path**, if the release touches it | [§10ter](#10ter-a-release-that-changes-the-update-path-owes-one-rehearsal-on-a-copy-of-a-real-brain) | `exit 0` and a report read three ways |
+| 5 | **Write the note for a non-developer** | [§11](#11-a-release-note-is-written-for-the-non-developer-first) | a body on disk, run through the real parser |
+| 6 | **Sweep the issues** *(after the tag)* | [§10bis](#10bis-every-release-sweeps-the-open-issues-and-closes-what-it-covers) | closes with evidence, and a reason on each one left open |
+| 7 | **Archive the plan** *(after the tag)* | [§7](#7-plan-done--archived) | a dated file, and a door pointing at what is next |
+
+> 🛑 **GATE 1 IS THE ONLY ONE WHOSE ABSENCE PRODUCES NOTHING**, and that is why it heads the list.
+> Skipping the matrix leaves a PR without checks; skipping the note leaves no note; skipping the sweep
+> leaves issues open. **Skipping the mutation pass leaves no trace at all** — no red, no warning, no
+> hole in a log, and every other signal stays green.
+>
+> **Measured, v5.3.0 _(2026-09-12)_.** That release reached a merged PR, seven green checks, a re-read
+> marketing surface, a rehearsed update path and a finished release note **with no mutation pass run**,
+> and its plan did not record a skip either. It was caught by the owner asking, out of the blue, with
+> the tag one command away. The pass then scored **78.87 %** and found — among 131 survivors — a budget
+> test whose assertion was true of every output the function could produce, and a note-rewriting guard
+> with no test for French guillemets. **A skip is a decision and must be written down as one** (§5quinquies
+> allows it for doc-only or wiring-only slices); what may never happen again is a skip nobody chose.
+
 ## 10. Every release re-reads the marketing surface
 
 **A release is not done when the tag is pushed. It is done when the way we present Kenjaku still tells
