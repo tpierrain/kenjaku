@@ -134,6 +134,30 @@ deterministic core (§3), the offer is still once-and-permanent (§5), writes st
 (§6), and the constitution boundary (§8) is untouched. This is an amendment to *what a session is
 handed*, not a reversal of the decision.
 
+### 6ter — The section a guard reads and a session never shows _(2026-09-12, v5.3)_
+
+§2 keeps the body out of the session-start channel, and the price of that promise is real: a fact the
+owner already resolved — the spelling of a client's name — cannot be carried into the next session by
+ambient context, so a note drafted from a transcript brings the wrong spelling straight back (issue
+#66). The obvious repair was to append those facts to the synthesis. **It is declined, for the reason
+§6bis exists**: they are the *most* likely content to be sensitive (the worked example is a client's
+identity), and the channel prints them before the owner has typed a word.
+
+What is added instead is a **write-time guard**, not a wider session start:
+
+- A profile may carry a section named **`## Always true here`** — the short list of what this sphere
+  has already been got wrong about, never a preventive glossary.
+- `scripts/vault-write-notice.mjs`, a `PreToolUse(Write|Edit)` hook, **reads** it and corrects a
+  declared wrong spelling in the tool input, before the bytes exist (ADR 0044 carries the sequencing
+  and the measurement that put the correction there).
+- **It is read without ever being shown.** The digest quotes only the headings in its own table, so
+  this section rides nothing, and `declared-spellings.test.mjs` asserts exactly that — the invariant
+  §2 promises is now enforced against the one consumer most tempted to break it.
+
+**So §2 is unchanged, and it is now affordable.** The promise used to cost the owner a fact that
+died at every `/clear`; it costs them nothing once something other than the ambient channel is
+allowed to read the note.
+
 ## Consequences
 
 - **No index schema change and no forced reindex.** A profile is a note, not a column: existing brains

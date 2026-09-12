@@ -18,7 +18,8 @@
 - **Next:** ▶️ **`v5.3`**, and its design is now WRITTEN in its own plan —
   [`v5.3-universe-disclosure-action.md`](v5.3-universe-disclosure-action.md) _(2026-09-12)_. **Resume
   from that file's `## 📍 STATE`**, not from § *Group 2*, which owns only the grouping he approved.
-  No code written yet; step 1 is ~15 lines and needs nothing from him.
+  **How far it has got lives there and only there** — a sentence about progress written here is a
+  copy, and a copy goes stale (this one did, within a day).
 - **Blocked on:** nothing — v5.3 can start today. **TWO things wait on him:** (a) **what the nightly
   mutation run is FOR**, a product call, now that the biggest package provably cannot fit in six hours
   → § *Inherited from v5.0.0*; (b) **the French wording shipped in v5.2.0** (ADR 0043's doctrine, the
