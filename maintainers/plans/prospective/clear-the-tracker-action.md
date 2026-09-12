@@ -20,13 +20,14 @@
   time is how four mechanisms end up disagreeing. → § *Group 2*. Read
   `harness-universe-blindspot-hardening-action.md` before writing anything, and expect one ADR out of
   it. **Nothing is started.**
-- **Blocked on:** nothing. **Owner's call pending:** nothing. The grouping, the order and the three
-  release titles are all decided; two older questions sit in § *Questions the owner owns* and are
-  **not to be re-asked** (#78's launcher-README link, `ci.yml`'s `concurrency` group).
-- **One thing waits on him and on nobody else:** the nightly mutation run was read at last on
-  2026-09-12 (five crons, 7 → 11 Sept). The old causes are fixed; **two new ones are named**, and one
-  of them is a product call — what the nightly is *for*, given the biggest package cannot fit in six
-  hours. → § *Inherited from v5.0.0*.
+- **Blocked on:** nothing — v5.3 can start today. **TWO things wait on him, and on nobody else:**
+  (a) **what the nightly mutation run is FOR**, a product call, now that the biggest package provably
+  cannot fit in six hours → § *Inherited from v5.0.0*; (b) **the French wording shipped in v5.2.0**
+  (ADR 0043's doctrine and the update skill's new prompts, written under the `templates/fr/**`
+  carve-out) — live in the fleet, correct at his leisure, gating nothing.
+- Two older questions sit in § *Questions the owner owns* and are **not to be re-asked** (#78's
+  launcher-README link, `ci.yml`'s `concurrency` group). The grouping, the order and the three release
+  titles are all decided.
 - **A session may, alone:** work the active release test-first end to end on a branch, **label**
   issues, commit, push, and read what CI returns. **Not:** write into `templates/fr/**` (one carve-out,
   § *History*) or into either of his two personal brains. ⚠️ **Cutting a release was granted ONCE**, by
@@ -259,7 +260,7 @@ tracker pretends to be a decision he has taken.
   title and body describe a **bug** — a true, sourced statement deleted from a message to an executive
   on the strength of a claim broader than its search.
 
-## 🎙️ THE ONE QUESTION — does the issue that can lose a note really wait for v5.2?
+## 🎙️ ✅ SETTLED — the trade-off pattern for *"should this one ride along?"*
 
 > ✅ **CLOSED, 2026-09-12, by the proposal above and not by a third asking.** The bugfix release
 > shipped without #77 (as he decided), and the proposal makes **v5.2 the very next release with #77
@@ -415,7 +416,7 @@ block, precisely so that a session reading STATE does not mistake them for pendi
   [#77](https://github.com/tpierrain/kenjaku/issues/77). Asked **twice**; his answer on 2026-09-11 was
   *« à l'issue de ça, on se reposera la question »*. It is **answered by the proposal rather than by a
   third asking**: v5.2 is the next release and #77 leads it, so the wait cost nothing. The trade-off
-  stays written out in § *THE ONE QUESTION* as the pattern for the next *"should this ride along?"*.
+  stays written out in § *SETTLED — the trade-off pattern* as the pattern for the next *"should this ride along?"*.
 - **Is a brain's copy of the launcher README meant to link to the launcher's own docs at all?** —
   the product half of [#78](https://github.com/tpierrain/kenjaku/issues/78). Only he can answer it;
   the engineering half (resolve a shipped file's links from where it will be installed) does not wait
