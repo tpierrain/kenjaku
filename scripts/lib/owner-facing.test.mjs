@@ -167,3 +167,70 @@ test("a real routing tag still fires, so the carve-out did not empty the rule", 
   assert.deepEqual(directiveTraces("[wiki-health] 3 notes to fold in"), ["routing tag"]);
   assert.deepEqual(directiveTraces("  [universe] switch happened"), ["routing tag"]);
 });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// What the mutation pass asked for (v5.4, §5quinquies). Nineteen mutants lived
+// through the first run, and all but a couple pointed at the same hole: the
+// FALSE-POSITIVE half of this module — the allow-list and the two carve-outs —
+// was almost entirely unasserted. Emptying any acronym, or shortening the path
+// pattern, changed no test. That is the half a guard is judged on (§5quater),
+// so it is the half that gets the assertions.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// One sentence per allowed acronym, each in an ordinary owner-facing line, so
+// deleting any single entry from the allow-list turns a legitimate message into
+// a "shouted" accusation and fails HERE rather than in the field.
+test("every acronym the owner legitimately reads passes, one by one", () => {
+  const SENTENCES = {
+    RAG: "Your RAG index finished rebuilding.",
+    MCP: "Your MCP connection to Slack is back.",
+    CLI: "This works the same in the CLI.",
+    API: "The API you connected answered again.",
+    YAML: "The YAML block at the top of that note is back in shape.",
+    URL: "That URL now points at a page that exists.",
+    OK: "Everything is OK again.",
+    ID: "The ID on that card did not change.",
+    AI: "The AI summary in that export is kept as a summary.",
+    PR: "The PR you opened was merged.",
+    UTC: "Times are shown in UTC.",
+  };
+
+  for (const [acronym, sentence] of Object.entries(SENTENCES)) {
+    assert.deepEqual(directiveTraces(sentence), [], `${acronym} must not read as shouting`);
+  }
+});
+
+// A word that is NOT on the list still trips, in the same shape of sentence —
+// otherwise the test above would pass just as well with the shout rule deleted.
+test("an acronym nobody allowed still reads as shouting", () => {
+  assert.deepEqual(directiveTraces("Everything is FINE again."), ["shouted: FINE"]);
+});
+
+// The path carve-out must swallow the WHOLE token, not stop at the extension: a
+// doc link carries an anchor, and a heading anchor is upper-case by convention.
+test("a path keeps its carve-out all the way past its anchor", () => {
+  assert.deepEqual(directiveTraces("see .claude/skills/coach/SKILL.md#IDENTITY"), []);
+  assert.deepEqual(directiveTraces("scripts/lib/wiki-lint.mjs:273 — the report"), []);
+});
+
+// A command line stays one however it was laid out: these payloads are composed
+// by joining fragments, and a line that wrapped can arrive with extra spacing.
+test("a command line is still a command line when the spacing is not exactly one space", () => {
+  assert.deepEqual(directiveTraces("run node  scripts/author-identity.mjs"), ["command line"]);
+  assert.deepEqual(directiveTraces("run node\tscripts/author-identity.mjs"), ["command line"]);
+});
+
+// The non-string guard, on the word-list half too: every emitter can hand it an
+// absent value, and a crash at session start is the one outcome nobody recovers
+// from on their own.
+test("jargonTraces survives being handed nothing at all", () => {
+  assert.deepEqual(jargonTraces(null), []);
+  assert.deepEqual(jargonTraces(undefined), []);
+  assert.deepEqual(jargonTraces(""), []);
+  assert.deepEqual(jargonTraces(42), []);
+});
+
+test("directiveTraces survives being handed something that is not a string", () => {
+  assert.deepEqual(directiveTraces(42), []);
+  assert.deepEqual(directiveTraces({ text: "owner" }), []);
+});

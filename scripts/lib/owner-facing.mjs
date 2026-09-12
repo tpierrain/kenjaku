@@ -115,7 +115,11 @@ const PATH_LIKE = /\S*(?:\/|\.[a-z]{2,5}\b)\S*/g;
  * failure message is stable enough to assert on.
  */
 export function directiveTraces(text) {
-  if (typeof text !== "string" || text === "") return [];
+  // Non-strings only: every wrapper here returns `null` when it has nothing to say,
+  // and a guard that threw on one would turn a silent session start into a crash.
+  // The empty string needs no clause of its own — every check below already answers
+  // "no" for it — and one that cannot change an answer is one nothing can test.
+  if (typeof text !== "string") return [];
   const traces = [];
   for (const phrase of DIRECTIVE_PHRASES) {
     // Word boundaries, so `user` does not fire on `username` and `owner` does fire
@@ -169,7 +173,7 @@ const JARGON = [
  * case-insensitive, so `Orphans` and `orphan` both count, and `orphanage` does not.
  */
 export function jargonTraces(text) {
-  if (typeof text !== "string" || text === "") return [];
+  if (typeof text !== "string") return [];
   return JARGON.map((entry) => (typeof entry === "string" ? { word: entry } : entry))
     .filter(({ word, pattern }) => (pattern ?? new RegExp(`\\b${word}s?\\b`, "i")).test(text))
     .map(({ word }) => `jargon: ${word}`);

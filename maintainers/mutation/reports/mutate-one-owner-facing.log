@@ -1,0 +1,116 @@
+[32m00:15:36 (26963) INFO ProjectReader[39m Found 1 of 1086 file(s) to be mutated.
+[32m00:15:36 (26963) INFO Instrumenter[39m Instrumented 1 source file(s) with 116 mutant(s)
+[32m00:15:36 (26963) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m00:15:36 (26963) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-ZNOrTg
+[32m00:15:36 (26963) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m00:15:36 (26963) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m00:15:36 (26963) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 0 seconds (net 137 ms, overhead 0 ms).
+
+All tests
+  ✓ All tests (killed 97)
+
+[Survived] StringLiteral
+scripts/lib/owner-facing.mjs:71:3
+-     "CLI",
++     "",
+
+[Survived] StringLiteral
+scripts/lib/owner-facing.mjs:73:3
+-     "YAML",
++     "",
+
+[Survived] StringLiteral
+scripts/lib/owner-facing.mjs:72:3
+-     "API",
++     "",
+
+[Survived] StringLiteral
+scripts/lib/owner-facing.mjs:74:3
+-     "URL",
++     "",
+
+[Survived] StringLiteral
+scripts/lib/owner-facing.mjs:75:3
+-     "OK",
++     "",
+
+[Survived] StringLiteral
+scripts/lib/owner-facing.mjs:76:3
+-     "ID",
++     "",
+
+[Survived] StringLiteral
+scripts/lib/owner-facing.mjs:78:3
+-     "PR",
++     "",
+
+[Survived] StringLiteral
+scripts/lib/owner-facing.mjs:77:3
+-     "AI",
++     "",
+
+[Survived] StringLiteral
+scripts/lib/owner-facing.mjs:79:3
+-     "UTC",
++     "",
+
+[Survived] Regex
+scripts/lib/owner-facing.mjs:85:22
+-   const COMMAND_LINE = /\bnode\s+(scripts|rag)\//;
++   const COMMAND_LINE = /\bnode\s(scripts|rag)\//;
+
+[Survived] Regex
+scripts/lib/owner-facing.mjs:108:19
+-   const PATH_LIKE = /\S*(?:\/|\.[a-z]{2,5}\b)\S*/g;
++   const PATH_LIKE = /\S*(?:\/|\.[a-z]{2,5}\b)\s*/g;
+
+[Survived] ConditionalExpression
+scripts/lib/owner-facing.mjs:118:35
+-     if (typeof text !== "string" || text === "") return [];
++     if (typeof text !== "string" || false) return [];
+
+[Survived] StringLiteral
+scripts/lib/owner-facing.mjs:118:44
+-     if (typeof text !== "string" || text === "") return [];
++     if (typeof text !== "string" || text === "Stryker was here!") return [];
+
+[Survived] StringLiteral
+scripts/lib/owner-facing.mjs:127:41
+-     const prose = text.replace(PATH_LIKE, " ");
++     const prose = text.replace(PATH_LIKE, "");
+
+[Survived] LogicalOperator
+scripts/lib/owner-facing.mjs:172:7
+-     if (typeof text !== "string" || text === "") return [];
++     if (typeof text !== "string" && text === "") return [];
+
+[Survived] ConditionalExpression
+scripts/lib/owner-facing.mjs:172:7
+-     if (typeof text !== "string" || text === "") return [];
++     if (false) return [];
+
+[Survived] ConditionalExpression
+scripts/lib/owner-facing.mjs:172:7
+-     if (typeof text !== "string" || text === "") return [];
++     if (false || text === "") return [];
+
+[Survived] ConditionalExpression
+scripts/lib/owner-facing.mjs:172:35
+-     if (typeof text !== "string" || text === "") return [];
++     if (typeof text !== "string" || false) return [];
+
+[Survived] StringLiteral
+scripts/lib/owner-facing.mjs:172:44
+-     if (typeof text !== "string" || text === "") return [];
++     if (typeof text !== "string" || text === "Stryker was here!") return [];
+
+Ran 1.00 tests per mutant on average.
+------------------|------------------|----------|-----------|------------|----------|----------|
+                  | % Mutation score |          |           |            |          |          |
+File              |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files         |  83.62 |   83.62 |       97 |         0 |         19 |        0 |        0 |
+ owner-facing.mjs |  83.62 |   83.62 |       97 |         0 |         19 |        0 |        0 |
+------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m00:15:46 (26963) INFO MutationTestExecutor[39m Done in 9 seconds.
+[32m00:15:46 (26963) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-ZNOrTg.
