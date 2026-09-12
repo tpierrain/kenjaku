@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { sessionSelfHeal, buildSelfHealHookOutput } from "./session-self-heal.mjs";
+import { reconcileHooks } from "./lib/hooks-reconcile.mjs";
 
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -203,4 +204,80 @@ test("settings.json.template wires session-self-heal as a SessionStart hook, and
   assert.ok(selfHealIdx >= 0, "session-self-heal.mjs must be wired on SessionStart");
   assert.ok(statusIdx >= 0, "session-status.mjs must stay wired on SessionStart");
   assert.ok(selfHealIdx < statusIdx, "the self-heal's lines are declared ahead of the status banner's");
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// #96 — a second machine pulls the release and is missing what git cannot carry.
+//
+// The banner already exists and already says the right thing; what it never said
+// is that a HOOK or a DEPENDENCY was the thing missing, because the gate never
+// asked. These two tests are about the wiring: the wrapper's answers reach the
+// gate, and the banner names them in words an owner can act on.
+// ═══════════════════════════════════════════════════════════════════════════
+
+test("sessionSelfHeal — a hook this machine never wired is a gap, and the banner names it", async () => {
+  const { args, calls } = seams({
+    readWanted: () => ({ ...WANTED, unwiredHooks: ["scripts/prompt-restart-nudge.mjs"] }),
+  });
+  const result = await sessionSelfHeal(args);
+  assert.equal(result.healed, true);
+  assert.deepEqual(calls.spawned, [{ brainDir: "/brain" }]);
+  assert.equal(calls.emitted.length, 1);
+  // The SCRIPT name, not the raw command: the command carries this machine's absolute
+  // paths and its node launcher, which is noise to the person reading the banner.
+  assert.match(calls.emitted[0], /prompt-restart-nudge/);
+  assert.match(calls.emitted[0], /PLEASE CLOSE CLAUDE AND REOPEN IT/);
+});
+
+test("sessionSelfHeal — a dependency this machine never installed is a gap, and the banner names it", async () => {
+  const { args, calls } = seams({
+    readWanted: () => ({ ...WANTED, missingDependencies: ["js-yaml"] }),
+  });
+  const result = await sessionSelfHeal(args);
+  assert.equal(result.healed, true);
+  assert.equal(calls.emitted.length, 1);
+  assert.match(calls.emitted[0], /js-yaml/);
+});
+
+test("sessionSelfHeal — a brain converged on all four questions stays a TRUE no-op", async () => {
+  const { args, calls } = seams({
+    readWanted: () => ({ ...WANTED, unwiredHooks: [], missingDependencies: [] }),
+  });
+  const result = await sessionSelfHeal(args);
+  assert.equal(result.healed, false);
+  assert.equal(calls.spawned.length, 0);
+  assert.equal(calls.emitted.length, 0);
+});
+
+// The derivation that has to keep working against the files the engine DELIVERS —
+// asserted on this very repository, which IS an engine tree. The gate asks the
+// reconciler itself what it WOULD add, so there is one notion of "this hook is
+// wired" rather than two that drift; this test pins that the template still answers
+// it. A template that stopped naming its hooks would make the new question silently
+// unanswerable while every unit test above passed.
+test("the engine's settings template still names the hooks the gate has to look for", () => {
+  const template = JSON.parse(readFileSync(join(REPO_ROOT, ".claude", "settings.json.template"), "utf8"));
+  // An empty brain wires nothing, so what the reconciler would add IS the delivered set.
+  const { hooksAdded } = reconcileHooks({
+    brainHooks: {},
+    templateHooks: template.hooks,
+    projectRoot: "/brain",
+  });
+
+  assert.ok(hooksAdded.length > 0, "the settings template wires hooks and they must be readable");
+  assert.ok(
+    hooksAdded.every((script) => /^scripts\/[^/]+\.mjs$/.test(script)),
+    `a hook identity must be the engine script it runs, got ${JSON.stringify(hooksAdded)}`,
+  );
+  // The persistence hook is the one no brain may be missing, so it is the one named.
+  assert.ok(hooksAdded.includes("scripts/auto-commit.mjs"), "the persistence hook must be among them");
+});
+
+// And the other half of the same derivation: the RAG's declared dependencies, which a
+// second machine has in its package.json and not necessarily on its disk.
+test("the engine's rag/package.json still declares the dependencies the gate compares against", () => {
+  const pkg = JSON.parse(readFileSync(join(REPO_ROOT, "rag", "package.json"), "utf8"));
+  const declared = Object.keys(pkg.dependencies ?? {});
+  assert.ok(declared.length > 0, "a RAG that declares nothing would make the check vacuous");
+  assert.ok(declared.includes("js-yaml"), "the frontmatter parser's dependency is one of them");
 });

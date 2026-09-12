@@ -24,7 +24,8 @@ import { spawn } from "node:child_process";
 import { dirname, resolve, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { detectSelfHealGap } from "./lib/self-heal-detect.mjs";
+import { detectSelfHealGap, missingInstalledDependencies } from "./lib/self-heal-detect.mjs";
+import { reconcileHooks } from "./lib/hooks-reconcile.mjs";
 import { computeApplyPlan } from "./lib/engine-apply-plan.mjs";
 import { RESTART_FLAG_REL } from "./lib/restart-nudge.mjs";
 import { currentClaudeApp } from "./lib/claude-app-identity.mjs";
@@ -62,8 +63,18 @@ export async function sessionSelfHeal({
       return { healed: false, needsRehydrate: true, missingWiring: unwired };
     }
 
-    const { wantedSkillDirs, wantedServerIds } = readWanted();
-    const gap = detectSelfHealGap({ wantedSkillDirs, wantedServerIds, skillDirExists, mcpServerRegistered });
+    // The two new answers (#96) come from the same seam, and default to empty: a
+    // question this brain's wrapper cannot answer must read as "nothing found", never
+    // as "nothing wrong".
+    const { wantedSkillDirs, wantedServerIds, unwiredHooks = [], missingDependencies = [] } = readWanted();
+    const gap = detectSelfHealGap({
+      wantedSkillDirs,
+      wantedServerIds,
+      unwiredHooks,
+      missingDependencies,
+      skillDirExists,
+      mcpServerRegistered,
+    });
     if (!gap.needed) {
       // F-B7d (A2): a fresh, converged session HAS loaded the on-disk engine state, so any
       // restart nudge left by a previous session is now stale → clear it. This is what makes
@@ -82,6 +93,12 @@ export async function sessionSelfHeal({
     const parts = [
       gap.missingSkills.length ? `skills: ${gap.missingSkills.map((d) => d.split("/").pop()).join(", ")}` : null,
       gap.missingServers.length ? `MCP: ${gap.missingServers.join(", ")}` : null,
+      // The SCRIPT name, never the raw command: the command carries this machine's
+      // absolute paths and its node launcher, which is noise to whoever reads this.
+      gap.unwiredHooks.length
+        ? `hooks: ${gap.unwiredHooks.map((script) => script.split("/").pop()).join(", ")}`
+        : null,
+      gap.missingDependencies.length ? `dependencies: ${gap.missingDependencies.join(", ")}` : null,
     ].filter(Boolean);
     // Calm sentence, one shouted gesture (Thomas, 2026-08-07). The owner is not a developer and
     // skims this banner; the single thing they must not skim past is the restart, so THAT is in
@@ -178,7 +195,46 @@ export function deriveWanted(brainDir) {
   return {
     wantedSkillDirs: [...new Set([...mergeSkillDirs, ...stagedSkillDirs])],
     wantedServerIds,
+    unwiredHooks: deriveUnwiredHooks(brainDir),
+    missingDependencies: deriveMissingDependencies(brainDir),
   };
+}
+
+// ── #96: the two surfaces git cannot carry ──────────────────────────────────
+// `.claude/settings.json` and `rag/node_modules` bake absolute paths or are build
+// output, so they are gitignored by construction: a second machine that pulled the
+// release has the new FILES and the old WIRING, and nothing on screen says so.
+
+// The engine hook entries this machine does not run. The oracle is the RECONCILER
+// ITSELF, asked what it WOULD add and told to write nothing — so "this hook is wired"
+// has one definition instead of two that drift, and anything the gate reports has a
+// remedy by construction. A brain with no settings file yet is F14's unwired-machine
+// case, handled before this gate ever runs; here it simply reports nothing.
+function deriveUnwiredHooks(brainDir) {
+  const templatePath = join(brainDir, ".claude", "settings.json.template");
+  const settingsPath = join(brainDir, ".claude", "settings.json");
+  if (!existsSync(templatePath) || !existsSync(settingsPath)) return [];
+  const { hooksAdded } = reconcileHooks({
+    brainHooks: JSON.parse(readFileSync(settingsPath, "utf8")).hooks ?? {},
+    templateHooks: JSON.parse(readFileSync(templatePath, "utf8")).hooks ?? {},
+    projectRoot: brainDir,
+  });
+  return hooksAdded;
+}
+
+// The RAG dependencies this machine never installed. `rag/node_modules` is build
+// output and never travels, so a release adding a dependency leaves the second
+// machine with the new `package.json` and the old tree — and the server then fails at
+// IMPORT time, on that machine only. The remedy already exists: the reconcile runs
+// `npm install` on every pass.
+function deriveMissingDependencies(brainDir) {
+  const ragDir = join(brainDir, "rag");
+  const pkgPath = join(ragDir, "package.json");
+  if (!existsSync(pkgPath)) return [];
+  return missingInstalledDependencies({
+    declared: Object.keys(JSON.parse(readFileSync(pkgPath, "utf8")).dependencies ?? {}),
+    isInstalled: (name) => existsSync(join(ragDir, "node_modules", name)),
+  });
 }
 
 // ── main: wire the real I/O seams (deterministic glue, not unit-tested) ───────
