@@ -100,7 +100,36 @@ Ensuite, avant le oui, explique simplement :
   `npm install` veut dire installer les **dépendances locales** du moteur RAG — rien n'est
   publié ni récupéré depuis un registre de paquets.
 
-Puis demande un **oui** explicite avant de continuer.
+#### Puis demande, comme un vrai contrôle, pas comme une dernière ligne de prose
+
+🛑 **Pose la question avec `AskUserQuestion`, pas avec une phrase en fin de message.** Tout ce
+qui précède est long **par construction** (la prose des releases est citée en entier, jamais
+résumée), donc une question écrite en prose atterrit là où l'écran est déjà fini. Sur le
+terrain, quelqu'un a cru que la mise à jour avait tourné : la seule phrase à laquelle répondre
+était passée sous le fil. Une question **cliquable** est un contrôle visible ; une phrase, c'est
+un texte à repérer (ADR 0043 : quand l'hôte offre un contrôle de question, une vraie décision
+l'utilise).
+
+- **Titre** : `Mise à jour` · **Question** : « Est-ce que je lance la mise à jour du moteur vers
+  vX.Y.Z ? »
+- **Options** : **Lancer la mise à jour** (recommandé) · **Pas maintenant**
+
+**Les notes de release passent toujours avant la question**, en entier : c'est ce qui rend
+l'accord éclairé, et le contrôle remplace la façon de **demander**, jamais celle de **dire**.
+
+- **Pas maintenant** : dis-le clairement, le cerveau reste **tel quel**, rien n'a été
+  téléchargé, rien n'a été remplacé, et la proposition reste ouverte pour quand elle voudra. Une
+  mise à jour refusée dont on ne dit rien se lit comme un échec.
+- **Pas de réponse ne veut pas dire oui.** Une question sans réponse reste sans réponse, et rien
+  ne tourne.
+- ✅ **Sur « c'est déjà la dernière version », cette étape ne demande rien du tout** : ni
+  contrôle, ni question en prose. Une question qui n'a qu'une seule vraie réponse, c'est du
+  bruit.
+
+> 🧰 **Le repli, et il n'est pas optionnel.** Là où l'hôte n'offre pas ce contrôle, pose la même
+> question **en prose**, exactement comme avant, et attends un oui explicite. L'outil change
+> **comment** l'accord est recueilli, pas le fait qu'il soit obligatoire : cette règle-là ne
+> bouge pas (voir *Règle d'or* plus haut).
 
 ### Étape 2 — Lancer le cœur déterministe
 Depuis le **dossier du cerveau**, lance :
@@ -174,6 +203,12 @@ changé** et **ce qu'apporte la nouvelle version**. Deux ou trois phrases simple
 > **Garder la mienne** : sa version reste. Le moteur arrête d'en parler jusqu'à sa prochaine version.
 > **Combiner les deux** : le meilleur des deux, la seule proposition qu'une conversation peut faire.
 
+**Pose-la avec `AskUserQuestion`**, une question par fichier, avec ces trois-là comme options :
+elles se transposent une pour une sur le contrôle, alors qu'enfouies dans un paragraphe ce sont
+trois phrases qu'il faut retransformer en choix. *Titre* : le fichier avec ses mots à elle
+(« Ton skill coach »). 🧰 **Repli** : là où l'hôte n'a pas ce contrôle, propose les mêmes trois
+choses en prose, à l'identique.
+
 **Combiner, c'est ton travail à toi, et c'est pour ça que c'est un skill et pas un script.**
 Lis les deux versions, écris la combinaison toi-même, montre-la, et ne l'applique qu'une fois
 qu'elle est d'accord. Une fusion mécanique ne sait pas faire ça ici : ces fichiers n'ont
@@ -215,6 +250,10 @@ Si plusieurs fichiers attendent, **regroupe-les d'abord**. Nomme-les en une cour
 propose, pour l'ensemble : **prendre toutes les nouvelles**, **garder toutes les miennes**, ou
 **passons-les en revue un par un**. N'ouvre la conversation détaillée ci-dessus que pour ceux
 qu'elle veut vraiment regarder.
+
+**Cette proposition groupée est un `AskUserQuestion` elle aussi**, avec ces trois-là comme
+options : c'est la forme que la plupart des cerveaux rencontrent vraiment, et une liste de douze
+noms suivie d'un paragraphe de choix, c'est exactement l'endroit où on arrête de lire.
 
 Si elle ne dit rien, ou dit « plus tard », c'est une réponse complète : laisse tout en l'état.
 Les propositions ne sont pas perdues, le moteur les rementionnera, et elles n'expirent jamais
