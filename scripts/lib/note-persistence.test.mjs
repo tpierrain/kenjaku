@@ -110,6 +110,11 @@ test("persistenceWarning — a conflicted tree explains why NOT committing is th
   assert.match(warning, /vault\/topics\/crise\.md/);
   assert.match(warning, /NOT committed/);
   assert.match(warning, /<<<<<<</, "the damage that committing would do is shown, not asserted");
+  assert.match(
+    warning,
+    /Finish the merge first/,
+    "and the remedy is named: a warning that only forbids leaves the reader stuck",
+  );
   assert.doesNotMatch(
     warning,
     /git add -A && git commit/,
