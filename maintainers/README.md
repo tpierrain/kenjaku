@@ -281,6 +281,16 @@
       Thomas's go/no-go + answers to the open questions** (default freshness window, concurrency lock,
       who commits the background-written notes). No code started.
   - **`plans/archived/`** — shipped/closed plans (kept for the detail of the steps):
+    - [`2026-09-12-v5.2.0-done-means-done-delivered.md`](plans/archived/2026-09-12-v5.2.0-done-means-done-delivered.md)
+      — **v5.2.0 — *The One Where Done Really Means Done***: the step detail of five issues that were one
+      defect wearing different clothes — *the brain reports success it has not achieved* — plus the ADR
+      that had to come first because the release emits new strings ([ADR 0043](decisions/0043-graduated-autonomy-and-plain-language.md),
+      graduated autonomy and plain language). Lifted out of the live tracker plan, which still owns v5.3
+      and v5.4. **STATUS: ✅ SHIPPED (2026-09-12, PR #99 → `v5.2.0`).**
+    - [`2026-09-12-v5.1.3-bugfix-release-delivered.md`](plans/archived/2026-09-12-v5.1.3-bugfix-release-delivered.md)
+      — **v5.1.3 — *The One Where It Stops Crying Wolf***: the step detail of the five field-reported
+      issues, the only ones people outside the project took the trouble to report.
+      **STATUS: ✅ SHIPPED (2026-09-11, PR #97 → `v5.1.3`).**
     - [`release-v4.4.0-action.md`](plans/archived/release-v4.4.0-action.md) — **v4.4.0**: the field
       feedback from a real fleet upgrade turned into code — a note is saved while you are still writing
       it, wherever you wrote it (the watcher persists what no `Write|Edit` hook ever sees, on its own
