@@ -23,8 +23,7 @@ Links only — each one's own `## 📍 STATE` block says whose it is and where i
   optional step 3 is left.
 - [`prospective/harness-speed-and-test-quality-action.md`](prospective/harness-speed-and-test-quality-action.md)
   — its speed half shipped; the quality and record halves are where it resumes.
-- [`../studies/plan-state-single-source-study.md`](../studies/plan-state-single-source-study.md) — its
-  queued items come due now that the tag is cut.
+- [`../studies/plan-state-single-source-study.md`](../studies/plan-state-single-source-study.md)
 
 > **Why this file exists** (Thomas, 2026-08-22): *"un plan, on est censé avoir qu'un seul plan actif à
 > l'instant T… et ça c'est pour que le 'on reprend' fonctionne."* Answering one *"on reprends"* that
