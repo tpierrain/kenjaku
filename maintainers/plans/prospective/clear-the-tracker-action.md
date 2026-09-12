@@ -230,6 +230,21 @@ about the same gap: **the brain scopes one thing and leaves another unscoped, wi
 - **Not closing anything to make the count look better.** Every one of the thirteen was read tonight,
   and the two that are not scheduled say what would unblock them.
 
+#### 🏷️ What this proposal put ON the tracker, and what it deliberately did not
+
+Every one of the thirteen now carries its **type** (`bug` / `enhancement`, taken from its own title),
+its **theme** (`silent failure`, `universes`, `what the brain claims`), and a **`proposed: …` label**
+naming the release this proposal suggests. That is all: the labels say *proposed*, so nothing on the
+tracker pretends to be a decision he has taken.
+
+- ⚠️ **The `v5.2` MILESTONE still holds the OLD grouping** — #79, #78, #68, #72, #66 and #77 — and it
+  is deliberately left alone. Milestones are how a release is actually cut, which makes them his, not a
+  session's. **The labels and the milestone therefore disagree on purpose right now**, and the way to
+  settle it is one pass over the milestone the moment he approves (or amends) the grouping above.
+- **One type label was corrected rather than added**: #83 was filed as an `enhancement`, and its own
+  title and body describe a **bug** — a true, sourced statement deleted from a message to an executive
+  on the strength of a claim broader than its search.
+
 ## 🎙️ THE ONE QUESTION — does the issue that can lose a note really wait for v5.2?
 
 > ✅ **CLOSED, 2026-09-12, by the proposal above and not by a third asking.** The bugfix release
