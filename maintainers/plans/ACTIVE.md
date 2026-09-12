@@ -15,8 +15,7 @@ owner's ask, 2026-09-12. The plans below keep the *reasoning*; the issues hold *
 - **Subject:** clear the tracker. Everything left in it is planned into three named releases, and the
   plan's own `## 📍 STATE` says which one is being built and what a session may do alone.
 - **Plan:** [`prospective/clear-the-tracker-action.md`](prospective/clear-the-tracker-action.md)
-- **Active since:** 2026-09-12 — **restored, not newly chosen**, after the chantier that pre-empted it
-  closed.
+- **Active since:** 2026-09-12 — restored after the chantier that pre-empted it closed.
 
 ## Open, but NOT active
 
