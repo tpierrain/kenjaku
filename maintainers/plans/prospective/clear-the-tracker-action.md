@@ -25,8 +25,9 @@
   nightly mutation run is FOR**, a product call → § *Inherited from v5.0.0*; (b) **the French wording
   shipped in v5.2.0**, live in the fleet, his at leisure; (c) **ratifying ADR 0044**, still PROPOSED —
   v5.3 shipped the four surfaces it describes and said PROPOSED out loud in the note.
-- Two older questions sit in § *Questions the owner owns*, **not to be re-asked** (#78's
-  launcher-README link, `ci.yml`'s `concurrency`). Grouping, order and the three titles are decided.
+- **#78 is ANSWERED and therefore unblocked** _(2026-09-12)_: the delivered README's links become
+  absolute GitHub URLs → § *Questions the owner owns*. One older question is left there, not to be
+  re-asked (`ci.yml`'s `concurrency`). Grouping, order and the three titles are decided.
 - **A session may, alone:** work test-first end to end on a branch, **label** issues, commit, push,
   read what CI returns. **Not:** cut a release without a grant by name, write into `templates/fr/**`
   (one carve-out, § *History*) or into either of his two personal brains.
@@ -457,10 +458,15 @@ block, precisely so that a session reading STATE does not mistake them for pendi
   *« à l'issue de ça, on se reposera la question »*. It is **answered by the proposal rather than by a
   third asking**: v5.2 is the next release and #77 leads it, so the wait cost nothing. The trade-off
   stays written out in § *SETTLED — the trade-off pattern* as the pattern for the next *"should this ride along?"*.
-- **Is a brain's copy of the launcher README meant to link to the launcher's own docs at all?** —
-  the product half of [#78](https://github.com/tpierrain/kenjaku/issues/78). Only he can answer it;
-  the engineering half (resolve a shipped file's links from where it will be installed) does not wait
-  on it.
+- ✅ **ANSWERED — "is a brain's copy of the launcher README meant to link to the launcher's own docs
+  at all?"** — the product half of [#78](https://github.com/tpierrain/kenjaku/issues/78). **His answer,
+  2026-09-12: « oui, on les transforme en adresses web complètes vers GitHub ».** So the links **stay**,
+  and they are rewritten as **absolute `https://github.com/tpierrain/kenjaku/...` URLs** so they resolve
+  from inside a brain instead of pointing at a `maintainers/` folder no brain ever receives. The
+  reasoning that was put to him and that he took: someone reading their own brain's README and wanting
+  to understand how the machine is built has a good reason to follow the link, and removing it protects
+  them from nothing. The engineering half (resolve a delivered file's links from where it will be
+  **installed**) never waited on this, and now nothing in #78 is blocked.
 - **Should `ci.yml` get a `concurrency` group?** — recommendation: yes. Offered **three times**,
   gating nothing. It waits here until he raises it.
 
