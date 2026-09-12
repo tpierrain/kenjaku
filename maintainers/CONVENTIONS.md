@@ -594,6 +594,33 @@ like was mostly restatement.
 > person re-opens. Short means fewer claims, each with its reason attached — never the same number of
 > claims with the reasons stripped out.
 
+### SHORT IS NOT READABLE — measured the same evening, on the same page, three times
+
+ADR 0044 was cut from 207 lines to one screen, and Thomas still could not read it. **Three rounds, and
+each one was the same defect wearing a different size:**
+
+1. « **c'est beaucoup trop abstrait. Sphere c'est quoi ? c'est les univers ?** » — the opening said
+   *"whenever the brain narrows what it will answer from… you switch to another sphere"*. Two faults in
+   one line: **a word the product does not use** (it is *universe*), and a description of nothing
+   anybody can picture.
+2. « **c'est incompréhensible** » — about the *already shortened* version. Gone next: *the core says it
+   and the skill relays it*, *disclosure*, *the cross-cutting view*. In their place: the **program**
+   rather than the assistant, **searching only part of your notes**, **saying it**.
+3. « **"ce qu'il n'a pas changé en même temps" ça signifie quoi ?** » — a phrase that names an absence
+   without naming the things. It now lists them: **the conversation on screen, and the accounts your
+   connected tools are signed in as.**
+
+**And the title is part of the text.** *"Narrowing a scope discloses, in the same breath, what stayed
+wide"* named a mechanism, so the heading alone could not tell you the ADR is about switching universe.
+It became **"Switching universe says what did NOT switch with it"**, with one line under it saying the
+rule is wider than the case it is named after.
+
+> ✅ **The test to run on your own draft, before anyone else reads it:** every abstract word (*scope*,
+> *narrow*, *surface*, *disclosure*, *the core*) must either be **replaced by the ordinary thing it
+> stands for**, or **immediately followed by the concrete case**. And a sentence that says something
+> *did not* happen must **name what** — "what it did not change" is not a fact, "the conversation on
+> screen did not change" is.
+
 ## 6septies. FIXTURES AND EXAMPLES NAME NOBODY REAL — this repo is public
 
 _(Thomas, 2026-09-12: « faut pas utiliser la société Thalès comme exemple, parce que c'est un vrai
