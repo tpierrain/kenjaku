@@ -126,8 +126,20 @@ moved, so it folded both byte-states of `.claude/skills/switch/SKILL.md` under `
 one a window brain holds and the one the moved tag delivers. Neither reads as a hand-edited engine
 file. That property lasts until the next release regenerates the table with the tag already moved.
 
-**The command, and it is the whole of what is left:**
+**Where it stands, and what is left.** The tag is **already moved locally**, re-created **annotated**
+with the same title the series uses (`git tag -f -a`, because the original was an annotated tag and a
+bare `git tag -f` had quietly demoted it to a lightweight one). Only the publish is left, and the
+harness **refused it** — a forced push over a published tag is exactly the kind of thing that should
+need a human word:
 
 ```bash
-git tag -f v5.3.0 <commit carrying the rename> && git push --force origin v5.3.0
+git push --force origin v5.3.0      # v5.3.0 → 8e8db36
+```
+
+**And the way back, should he want it**, because a forced push is only reversible if the old target is
+written down somewhere a cleared context can find it:
+
+```bash
+git tag -f -a v5.3.0 100fc68 -m "v5.3.0 — The One Where It Says Which Universe It Answered From"
+git push --force origin v5.3.0
 ```
