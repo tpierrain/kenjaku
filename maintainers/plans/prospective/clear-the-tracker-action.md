@@ -15,24 +15,25 @@
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-08-23
 
-- **Next:** ▶️ **`v5.3` is in its LAST step**, in its own plan —
-  [`v5.3-universe-disclosure-action.md`](v5.3-universe-disclosure-action.md) _(2026-09-12)_. **Resume
-  from that file's `## 📍 STATE`**, not from § *Group 2*, which owns only the grouping he approved.
-  **How far it has got lives there and only there** — a sentence about progress written here is a
-  copy, and a copy goes stale (this one did, within a day).
+- **Next:** ▶️ **`v5.4` — the LAST of the three approved releases**, and **nothing of it is started or
+  written up** → § *Group 3*. It is the wide clean-up: [#79](https://github.com/tpierrain/kenjaku/issues/79)'s
+  sweep of every string the brain already emits, under the doctrine ADR 0043 settled. **It needs a
+  step-detail plan of its own before any code**, the way v5.3 got one.
+- **🛑 The autonomy grant STOPS HERE.** It was given « jusqu'à la fin de la release » for **v5.3**, by
+  name, and v5.3 is out. **A session may prepare and design v5.4, and must ASK before cutting it.**
 - **Blocked on:** nothing. **THREE things wait on him, and none gates anything:** (a) **what the
   nightly mutation run is FOR**, a product call → § *Inherited from v5.0.0*; (b) **the French wording
-  shipped in v5.2.0**, live in the fleet, his at leisure; (c) **ratifying ADR 0044** → the v5.3 plan.
+  shipped in v5.2.0**, live in the fleet, his at leisure; (c) **ratifying ADR 0044**, still PROPOSED —
+  v5.3 shipped the four surfaces it describes and said PROPOSED out loud in the note.
 - Two older questions sit in § *Questions the owner owns*, **not to be re-asked** (#78's
   launcher-README link, `ci.yml`'s `concurrency`). Grouping, order and the three titles are decided.
-- **A session may, alone:** work the active release test-first end to end on a branch, **label**
-  issues, commit, push, read what CI returns — and **CUT the release once it is granted BY NAME**,
-  which it is for v5.3 (« je te laisse bosser en autonomie jusqu'à la fin de la release », after
-  v5.2.0's « vas y cut la release »). Anything past v5.3 asks again. **Not:** write into
-  `templates/fr/**` (one carve-out, § *History*) or into either of his two personal brains.
-  ℹ️ A **plan-only push no longer starts CI** (his call, same day), so there is no run to read there —
-  but **a PR runs the full matrix**, and **the v5.3 plan owns that verdict**, never this file.
-- **Already delivered:** v5.1.3 and v5.2.0, both archived — § *Group 1*, § *v5.1*. Lessons: § *History*.
+- **A session may, alone:** work test-first end to end on a branch, **label** issues, commit, push,
+  read what CI returns. **Not:** cut a release without a grant by name, write into `templates/fr/**`
+  (one carve-out, § *History*) or into either of his two personal brains.
+  ℹ️ A **plan-only push no longer starts CI**, so there is no run to read there — but a PR runs the
+  full matrix.
+- **Already delivered:** v5.1.3, v5.2.0 and **[v5.3.0](https://github.com/tpierrain/kenjaku/releases/tag/v5.3.0)**,
+  all three archived — § *Group 1*, § *v5.1*, § *Group 2*. Lessons: § *History*.
 
 ## Tracking
 
@@ -166,7 +167,7 @@ the cost of cutting a release here is small and measured.
 #### Group 2 → `v5.3 — The One Where It Says Which Universe It Answered From`
 
 > 📐 **Its step detail lives in its own plan, and that is the only place it lives**:
-> [`v5.3-universe-disclosure-action.md`](v5.3-universe-disclosure-action.md) _(opened and designed
+> [`archived/2026-09-12-v5.3.0-universe-disclosure-delivered.md`](../archived/2026-09-12-v5.3.0-universe-disclosure-delivered.md) _(opened and designed
 > 2026-09-12)_. Same split as v5.1.3 and v5.2.0 before it. **Do not restate its steps here** — what
 > stays below is the grouping and the reasoning he approved, which is this plan's to own. The release
 > plan also carries **ADR 0044** to ratify, and it absorbed the universe blind-spot plan (§ *The fold*).
@@ -175,28 +176,28 @@ the cost of cutting a release here is small and measured.
 fixing them one at a time is how four mechanisms end up disagreeing with each other. All four are
 about the same gap: **the brain scopes one thing and leaves another unscoped, without saying so.**
 
-- [ ] **1. A day spent in one sphere while the pointer names another is NOTICED** —
+- [x] **1. A day spent in one sphere while the pointer names another is NOTICED** —
       [#72](https://github.com/tpierrain/kenjaku/issues/72). Measured: ten hours, fourteen notes filed
       correctly under one universe while retrieval served another, and **eight meeting preparations
       built on a corpus amputated of its most relevant half**. The writes were right, the pointer was
       right, and they disagreed in silence. *(This is the most damaging of the four, and it is the
       reason group 2 is not merely polish.)*
-- [ ] **2. Switching says what it did NOT re-scope** —
+- [x] **2. Switching says what it did NOT re-scope** —
       [#68](https://github.com/tpierrain/kenjaku/issues/68). Retrieval is scoped server-side; the
       conversation window still holds everything read from the sphere just left, so **the answer looks
       scoped and is not.** The issue's own first item is a single sentence of output and the issue says
       *"if only one thing ships from this issue, it should be this"* — **so ship that sentence early,
       even before the rest of the group is designed.**
-- [ ] **3. A fact that must never be re-derived wrong survives a `/clear`** —
+- [x] **3. A fact that must never be re-derived wrong survives a `/clear`** —
       [#66](https://github.com/tpierrain/kenjaku/issues/66). The spelling of a client's name, most of
       all. Today the workaround is to put it in the global `CLAUDE.md`, which leaks a per-sphere fact
       into every sphere — **the exact leak universes exist to prevent.**
-- [ ] **4. `/sync` names the active sphere whenever there is more than one** —
+- [x] **4. `/sync` names the active sphere whenever there is more than one** —
       [#82](https://github.com/tpierrain/kenjaku/issues/82). The condition is wrong today: it announces
       only when the pull *changed* it, so a brain with three universes gets a full git report and not a
       word about the one piece of state a sync can actually carry. **The cheapest item of the four**,
       and it belongs here rather than in v5.2 because it is the same disclosure rule.
-- [ ] **5. 🎁 RIDER, and it is not about spheres — an available update must be impossible to miss** —
+- [x] **5. 🎁 RIDER, and it is not about spheres — an available update must be impossible to miss** —
       [#100](https://github.com/tpierrain/kenjaku/issues/100), filed and slotted here **on his explicit
       call, 2026-09-12** (« cette nouvelle issue je veux que tu la glisses dans la prochaine
       release »). Today a waiting release is one grey suffix on the session-start version line, and the
@@ -212,7 +213,7 @@ about the same gap: **the brain scopes one thing and leaves another unscoped, wi
         aller »)_. `The One Where It Says Which Universe It Answered From` **stays**, and the two riders
         get **their own paragraph** in the release note rather than a renamed release. Do not re-open
         this: the title is his pick from three, and a release note has room for a second subject.
-- [ ] **6. 🎁 SECOND RIDER, same subject, same call — say how long an update takes** —
+- [x] **6. 🎁 SECOND RIDER, same subject, same call — say how long an update takes** —
       [#101](https://github.com/tpierrain/kenjaku/issues/101), filed 2026-09-12 minutes after #100 and
       from a **real run**: he ran `/update-engine` on his own brain, confirmed #98's clickable buttons
       work, and named what is still missing. The consent message describes everything the update does
@@ -225,7 +226,7 @@ about the same gap: **the brain scopes one thing and leaves another unscoped, wi
   - [ ] 🔗 **One sentence, two places, identical wording**: `/update-engine`'s consent question, and
         #100's proactive offer. They are the two moments a person decides whether they have the time.
 - [x] 🧭 **DONE 2026-09-12 — designed before code, and the ADR is named.** The design of all six items
-      lives in [`v5.3-universe-disclosure-action.md`](v5.3-universe-disclosure-action.md), the ADR it
+      lives in [`archived/2026-09-12-v5.3.0-universe-disclosure-delivered.md`](../archived/2026-09-12-v5.3.0-universe-disclosure-delivered.md), the ADR it
       proposes is **0044** (*a mechanism that narrows a scope states what it did not narrow*), and the
       blind-spot plan was folded in rather than left as a second dormant carrier — § *The fold*. It was
       read first, as this step asked, and **two of the issues' premises did not survive that read**
@@ -327,7 +328,7 @@ _(Decided 2026-08-23 while sorting `prospective/`; announced in [`studies/README
 now **v5.3, group 2** of the proposal above — same three issues, plus #82.)_
 
 - [x] **DONE 2026-09-12** — folded into
-      [`v5.3-universe-disclosure-action.md`](v5.3-universe-disclosure-action.md)
+      [`archived/2026-09-12-v5.3.0-universe-disclosure-delivered.md`](../archived/2026-09-12-v5.3.0-universe-disclosure-delivered.md)
       § *What the blind-spot plan contributed*, archived as
       [`archived/2026-09-12-harness-universe-blindspot-hardening-folded.md`](../archived/2026-09-12-harness-universe-blindspot-hardening-folded.md),
       and its line dropped from [`ACTIVE.md`](../ACTIVE.md). **M1 did not survive as a milestone**: it

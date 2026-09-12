@@ -236,7 +236,7 @@ local-mirror's `fs-state-store` and `content-hash`.
 ## v5.3 — the pass this release had SKIPPED, and it was hiding 78.87 % — 2026-09-12
 
 State owned by
-[`../plans/prospective/v5.3-universe-disclosure-action.md`](../plans/prospective/v5.3-universe-disclosure-action.md)
+[`../plans/archived/2026-09-12-v5.3.0-universe-disclosure-delivered.md`](../plans/archived/2026-09-12-v5.3.0-universe-disclosure-delivered.md)
 (§ *Step 7*). Branch `feat/v5.3-universe-disclosure`, measured from the merge commit `fd18a74`. Eight
 brand-new production files, ~1 000 lines, two of them on the **write path** — the exact category
 §5quinquies calls not negotiable.

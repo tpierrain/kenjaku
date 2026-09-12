@@ -1,7 +1,7 @@
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 <!-- ARCHIVED 2026-09-12 — FOLDED, not abandoned. Its M1 / M2 / M3 are now    -->
 <!-- steps of the release that actually touches universes:                    -->
-<!-- ../prospective/v5.3-universe-disclosure-action.md                        -->
+<!-- 2026-09-12-v5.3.0-universe-disclosure-delivered.md                           -->
 <!-- § What the blind-spot plan contributed. M1 became a named-universe        -->
 <!-- fixture inside each of that plan's steps; M2 became its step 3, where a   -->
 <!-- second caller finally justified the shared codec; M3 is still owed there. -->
