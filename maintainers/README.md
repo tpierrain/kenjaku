@@ -205,6 +205,16 @@
     any note and run code on the other machine. What the brain owes instead is **visibility** (where
     the access came from, and a fusion recorded elsewhere announced here). Stronger guarantees are the
     host's: signed commits, branch protection, SSO. **Scope: Second brain (runtime).**
+  - [`0043-graduated-autonomy-and-plain-language.md`](decisions/0043-graduated-autonomy-and-plain-language.md) —
+    the binary posture (*read-only runs on its own, every write is confirmed*) becomes **three tiers**
+    chosen by one gate, **reversibility then confidence**: 🟢 act silently · 🟡 announce N gestures in
+    one batched message and act unless vetoed · 🔴 genuinely ask. **Auto-commit is what buys the
+    autonomy** — a 🟢 or 🟡 is one `git revert` away — so a write path that escapes that net cannot be
+    🟢. The tier belongs to the **gesture**, never to the skill: `/lint` alone spans all three. Its
+    inseparable second half is the wording: no tool jargon, a 🔴 says **why it matters**, every reply
+    says whether it asks anything, and where the host offers one a 🔴 uses a **clickable** question
+    with the prose form as fallback. Governs every **new** string; the audit of the shipped ones is a
+    later, larger job. **Scope: Second brain (runtime).**
 - **[`eval-set.md`](eval-set.md)** — 🧪 **dev tool**: the RAG eval-set (Step 2 of the embedder plan).
   Measures the retrieval quality of the current embedder as a **reproducible score** (judge =
   Claude via `claude -p`), on the Flemmr vault → **Gemini baseline** to replay on the local

@@ -348,7 +348,67 @@ qu'elle a coûté plus de contexte, en un seul tour, que n'importe quelle note.
 - **La mémoire durable, c'est le repo, jamais la mémoire locale de Claude Code.** Tout ce qui doit survivre entre sessions va dans le repo : `vault/` pour le contenu, `CLAUDE.md` pour les règles. Le repo est portable (autre machine, backup) et survit à un `/clear` ; la mémoire locale de Claude Code, non. Ne rien laisser d'utile uniquement en mémoire de conversation.
 - Si on touche au harnais (`.claude/`), commit séparé avec message clair (`harness: …`).
 
+### Autonomie graduée : quand agir, quand annoncer, quand demander
+
+**Chaque geste que tu fais appartient à l'un de trois niveaux, et ce niveau ne se décide pas à
+l'humeur : il découle de deux choses, à quel point le geste est réversible, et à quel point tu as
+confiance** (ADR 0043). La posture que ça remplace était binaire (la lecture tournait toute seule,
+chaque écriture était confirmée), et c'est elle qui a transformé un rangement de notes en un mur de
+questions que personne ne pouvait décoder.
+
+- **🟢 Automatique et silencieux** : déterministe, réversible, et tu es sûr·e. Fais-le. Ne demande
+  pas, n'annonce pas. *Réparer un lien dont la cible est manifestement l'orthographe d'une note qui
+  existe ; dater une note à partir de ce qu'elle contient déjà ; laisser le bruit de structure hors
+  d'un rapport de santé.*
+- **🟡 Annonce, puis agis** : réversible, mais la personne en face voudrait savoir que c'est arrivé.
+  **Un seul message groupé** qui nomme les N choses que tu t'apprêtes à faire, puis tu agis sauf si
+  on te dit stop. Son geste à elle, c'est un **veto**, pas une autorisation : le silence veut dire
+  « vas-y ». *Le sync de sources en tâche de fond ; le rituel de fin de session ; ajouter les dates
+  manquantes sur douze notes.*
+- **🔴 Demande pour de vrai** : un vrai choix de jugement, ou quelque chose que tu ne peux pas défaire
+  à bas coût. *Fusionner deux personnes peut-être différentes ; créer une page qui façonne la manière
+  dont le vault nomme les choses ; trancher une contradiction entre une page et une capture plus
+  fraîche ; lancer une mise à jour du moteur.*
+
+**La règle de décision, dans cet ordre : réversibilité, puis confiance.** Impossible à défaire → 🔴,
+même sûr·e de toi. Réversible et certain·e → 🟢. Réversible mais pas sûr·e → 🟡 si le doute porte sur
+le *goût*, 🔴 s'il porte sur un *fait* : un fait incertain écrit dans le vault devient ce que le vault
+sait, et toutes les réponses suivantes s'y fient.
+
+**Ce qui rend l'action acceptable, c'est le filet, pas l'optimisme : tout ce que tu écris est
+auto-committé**, donc un 🟢 ou un 🟡 est à un `git revert` de distance, dans l'historique de la
+personne elle-même. Une écriture qui échappe à ce filet ne peut pas être 🟢.
+
+⚠️ **Le niveau appartient au GESTE, jamais à la compétence.** Une même compétence couvre couramment
+les trois : `/lint` répare une coquille évidente (🟢), propose où raccrocher une note orpheline (🟡),
+et refuse d'inventer toute seule la page d'une personne (🔴). « Cette compétence demande toujours »,
+c'est la façon de coincer une fonctionnalité entière au niveau le plus coûteux.
+
+#### Et les mots, quel que soit le niveau
+
+**Écris pour quelqu'un qui ne connaît pas la mécanique.** Aucun jargon d'outil dans ce qu'un humain
+lit (« orpheline », « frontmatter », « lien mort », « fan-out ») : nomme la chose et ce qu'elle lui
+coûte. Un 🔴 posé en jargon n'est pas une question, c'est un mur, et la moitié du défaut que cette
+doctrine corrige tenait au vocabulaire, pas au nombre de questions.
+
+- **Un 🔴 dit pourquoi ça compte**, en une ligne, avant les options : ce que chaque choix coûte, et ta
+  recommandation.
+- **Chaque réponse dit, à voix haute, si la personne doit décider quelque chose.** Soit « tu n'as rien
+  à décider », soit **la seule question**, seule. Un compte rendu ambigu se lit comme une demande
+  cachée, et oblige à relire un long message en cherchant ce qu'on attend d'elle.
+- **Quand l'hôte offre un vrai contrôle de question, un 🔴 l'utilise** : une question **cliquable**
+  est un contrôle visible, là où une phrase à la fin d'un long message n'est qu'un texte à repérer. Sur
+  le terrain, quelqu'un l'a manquée en croyant qu'une mise à jour avait tourné. **La question en prose
+  reste le repli** là où ce contrôle n'existe pas : ça change la manière de recueillir un accord, pas
+  le fait qu'il soit obligatoire. Une question sans réponse reste sans réponse, et rien ne tourne.
+- **Ça vaut pour toute phrase nouvelle** que tu écris à partir d'aujourd'hui. Reformuler tout ce qui
+  est déjà livré est un autre chantier, bien plus gros ; écrire une phrase de plus dans l'ancien
+  registre, non.
+
 ### Annonce avant d'agir sur un signal
+
+**Cette section est le niveau 🟡 ci-dessus, écrite avant que les niveaux aient un nom** : lis-la comme
+son exemple travaillé, pas comme une deuxième règle.
 
 **Quand une action est déclenchée par un *signal* et non par une demande explicite, dis-le en une
 ligne AVANT de la lancer.** Un signal, c'est la personne qui fait quelque chose qui démarre un travail

@@ -337,7 +337,62 @@ cost more context, in one turn, than any note ever did.
 - **Durable memory is the repo, never Claude Code's local memory.** Anything that must survive between sessions goes into the repo: `vault/` for content, `CLAUDE.md` for rules. The repo is portable (another machine, backup) and survives a `/clear`; Claude Code's local memory is not. Never leave anything useful only in conversation memory.
 - If you touch the harness (`.claude/`), separate commit with a clear message (`harness: …`).
 
+### Graduated autonomy — when to act, when to announce, when to ask
+
+**Every gesture you make belongs to one of three tiers, and the tier is not a matter of mood: it
+follows from how reversible the gesture is and how confident you are** (ADR 0043). The posture this
+replaces was binary — read-only ran on its own, every write was confirmed — and it is what turned a
+tidy-up into a wall of prompts nobody could parse.
+
+- **🟢 Silent auto** — deterministic, reversible, and you are sure. Do it. Do not ask, do not
+  announce. *Repair a link whose target is an unambiguous spelling of a note that exists; stamp a
+  missing date read from the note's own content; leave structural noise out of a health report.*
+- **🟡 Announce, then act** — reversible, but the owner would want to know it happened. **One batched
+  message** naming the N things you are about to do, then act unless they say stop. Their move is a
+  **veto**, not an authorisation: silence means proceed. *The background source sync; the end-of-session
+  ritual; adding the missing dates on twelve notes.*
+- **🔴 Genuinely ask** — a judgment call, or something you cannot cheaply undo. *Merge two
+  maybe-different people; create a page that shapes how the vault names things; resolve a
+  contradiction between a page and a fresher capture; run an engine update.*
+
+**The gate, in order: reversibility, then confidence.** Cannot be undone → 🔴, however sure you are.
+Reversible and certain → 🟢. Reversible but unsure → 🟡 when the doubt is about *taste*, 🔴 when it is
+about *a fact* — an uncertain fact written into the vault becomes what the vault knows, and every
+later answer resolves against it.
+
+**What makes acting acceptable is the safety net, not optimism: everything you write is
+auto-committed**, so a 🟢 or a 🟡 is one `git revert` away, in the owner's own history. A write that
+escapes that net cannot be 🟢.
+
+⚠️ **The tier belongs to the GESTURE, never to the skill.** One skill routinely spans all three:
+`/lint` repairs an obvious typo (🟢), proposes where to weave an orphan note (🟡) and refuses to
+invent a person's page on its own (🔴). "This skill always asks" is how a whole feature ends up at the
+most expensive tier.
+
+#### And the words, whichever tier it is
+
+**Write for someone who does not know the machinery.** No tool jargon in anything a human reads
+(`orphan`, `frontmatter`, `dangling`, `fan-out`): name the thing and what it costs them. A 🔴 asked in
+jargon is not a question, it is a wall — and half the defect this doctrine exists to fix was the
+vocabulary, not the number of prompts.
+
+- **A 🔴 says why it matters**, in one line, before the options — what each choice costs, and your
+  recommendation.
+- **Every reply says, out loud, whether it asks anything of the owner.** Either *nothing to decide*,
+  or **the single question**, alone. An ambiguous report reads as a hidden request and makes them
+  re-read a long message hunting for the ask.
+- **Where the host offers a dedicated question control, a 🔴 uses it** — a **clickable** question is a
+  visible control, while a sentence at the end of a long message is text to spot, and one was scrolled
+  past in the field by an owner who believed an update had run. **The prose question stays the
+  fallback** where no such tool exists: this changes how consent is collected, never whether it is
+  required. An unanswered question stays unanswered, and nothing runs.
+- **This governs every new string** you write from today. Re-wording everything already shipped is a
+  separate, larger job; emitting one more sentence in the old register is not.
+
 ### Announce before acting on a signal
+
+**This section is the 🟡 tier above, written before the tiers had names** — read it as its worked
+example, not as a second rule.
 
 **When an action is triggered by a *signal* rather than by an explicit request, say so in one line
 BEFORE running it.** A signal is the user doing something that starts work they did not ask for in
