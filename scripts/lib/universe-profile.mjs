@@ -186,19 +186,55 @@ const SECTIONS = { People: "people", Topics: "topics", "Connector accounts": "co
 // RAG), so a hand-written section never leaks into every session's context.
 function bodySections(body) {
   const out = { about: [], people: [], topics: [], connectors: [], other: [] };
-  let current = "about";
+  for (const [heading, lines] of headingSections(body)) {
+    const key = heading === ABOUT_HEADING ? "about" : (SECTIONS[heading] ?? "other");
+    // The free text is quoted as written; list sections are quoted as values, so
+    // the digest can join them into one line instead of a bullet list.
+    out[key].push(...(key === "about" ? lines : lines.map(stripBullet)));
+  }
+  return out;
+}
+
+// The free text under the H1 belongs to no `##` section, so it is keyed by a name
+// no heading can produce.
+const ABOUT_HEADING = "";
+
+const stripBullet = (line) => line.replace(/^[-*]\s*/, "");
+
+// Every `## section` of a profile body, in order, as a Map of heading → lines.
+// ONE parser, because two consumers now read this note for two different reasons —
+// the digest quotes the sections it knows, and the write-time guard reads a section
+// the digest must never show. Two spellings of "split this note into sections"
+// would be two behaviours to keep in step for ever.
+function headingSections(body) {
+  const out = new Map([[ABOUT_HEADING, []]]);
+  let current = ABOUT_HEADING;
   for (const line of body.split("\n")) {
     const heading = line.match(/^##\s+(.*)$/);
     if (heading) {
-      current = SECTIONS[heading[1].trim()] ?? "other";
+      current = heading[1].trim();
+      if (!out.has(current)) out.set(current, []);
       continue;
     }
     if (line.startsWith("# ") || line.trim() === "") continue;
-    // The free text is quoted as written; list sections are quoted as values, so
-    // the digest can join them into one line instead of a bullet list.
-    out[current].push(current === "about" ? line : line.replace(/^[-*]\s*/, ""));
+    out.get(current).push(line);
   }
   return out;
+}
+
+/**
+ * The bullets written under one `## heading` of a profile note, as values (the
+ * bullet marker stripped), or [] when the note has no such section. Pure.
+ *
+ * 🔒 Reading a section here is NOT the same as showing it: the digest quotes only
+ * the headings in its own `SECTIONS` table, and anything else stays in the note.
+ * That asymmetry is the safety invariant of ADR 0044 — a section may be read by a
+ * guard at the write without ever riding a session start, where it would be echoed
+ * verbatim before the owner has typed a word (ADR 0035 §2, finding F1).
+ */
+export function profileSectionEntries(raw, heading) {
+  const lines = headingSections(parseNote(String(raw ?? "")).body).get(heading) ?? [];
+  return lines.map(stripBullet);
 }
 
 /**
