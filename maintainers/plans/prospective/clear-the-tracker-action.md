@@ -25,9 +25,9 @@
   nightly mutation run is FOR**, a product call → § *Inherited from v5.0.0*; (b) **the French wording
   shipped in v5.2.0**, live in the fleet, his at leisure; (c) **ratifying ADR 0044**, still PROPOSED —
   v5.3 shipped the four surfaces it describes and said PROPOSED out loud in the note.
-- **#78 is ANSWERED and therefore unblocked** _(2026-09-12)_: the delivered README's links become
-  absolute GitHub URLs → § *Questions the owner owns*. One older question is left there, not to be
-  re-asked (`ci.yml`'s `concurrency`). Grouping, order and the three titles are decided.
+- **#78 is answered AND fixed, both halves** _(2026-09-12)_ → § *Neither group*. One older question is
+  left in § *Questions the owner owns*, not to be re-asked (`ci.yml`'s `concurrency`). Grouping, order
+  and the three titles are decided.
 - **A session may, alone:** work test-first end to end on a branch, **label** issues, commit, push,
   read what CI returns. **Not:** cut a release without a grant by name, write into `templates/fr/**`
   (one carve-out, § *History*) or into either of his two personal brains.
@@ -277,11 +277,25 @@ about the same gap: **the brain scopes one thing and leaves another unscoped, wi
     prove that it did, so removal is built from what was let **in**; the draft is composed from an
     already-clean source; and if the absence of a leak cannot be shown mechanically, the honest answer
     is to keep the whole thing local.
-- **[#78](https://github.com/tpierrain/kenjaku/issues/78) — split it, and ship the half that is not
-  blocked.** The engineering half (resolve a delivered file's links **from its installed location**) is
-  ~20 lines plus tests and is blocked on nothing; the product half is one sentence from him
-  (§ *Questions the owner owns*). **Recommendation: carry the resolver in v5.3** as a small rider —
-  it is the same shape as v5.3's own subject, a checker that judges from the wrong vantage point.
+- ✅ **[#78](https://github.com/tpierrain/kenjaku/issues/78) — DONE, both halves, 2026-09-12.** It was
+  planned as *split it and ship the unblocked half*; his one-sentence answer arrived the same evening,
+  so both shipped together and it never rode in a release as a rider.
+  - **The delivery half** — 17 links in five delivered files (13 of them in `README.md`, plus
+    `SETUP.md`, the installer stub and two `docs/`) rewritten as absolute
+    `https://github.com/tpierrain/kenjaku/blob/main/…` URLs. An owner following one from inside their
+    own brain now reaches the real page instead of a `maintainers/` folder they never received.
+  - **The engineering half** — `scripts/lib/delivered-links.mjs`: a link is resolved from the path the
+    file will occupy **once installed**, which is the distinction the old probe could not make.
+    `engine-skills/<name>/SKILL.md` is read at `.claude/skills/<name>/`, so `../sibling/SKILL.md` is
+    correct in a brain and broken in this tree; `templates/<locale>/<rest>` is read at `<rest>`. The
+    guard measures the **real repository** rather than a fixture, and fails naming every file and
+    target.
+  - 🪤 **What the exercise taught, and it is worth more than the fix.** The one-shot rewriter and the
+    guard used *different* notions of "a link", and the rewriter's was cruder: it mangled a
+    `[text](url)` **example written inside backticks** in `prepare-1-1/SKILL.md`, which the guard had
+    correctly never reported. Reverted. **A link in a fenced block or an inline code span is an
+    example, not a link** — that is now a test of its own, in both directions, including the
+    unterminated fence.
 
 #### The three things this proposal is deliberately NOT doing
 

@@ -619,7 +619,7 @@ perimeter. Worth two minutes before you invite anyone in. The three things peopl
   that. A **shared calendar** is the one thing that crosses over.
 - **Access is the repository's, not the brain's.** Nobody adds themselves, and **ending a duo is
   removing their access on GitHub** — there is nothing to un-declare inside the brain
-  ([ADR 0042](maintainers/decisions/0042-access-belongs-to-the-git-host-the-brain-only-files.md)).
+  ([ADR 0042](https://github.com/tpierrain/kenjaku/blob/main/maintainers/decisions/0042-access-belongs-to-the-git-host-the-brain-only-files.md)).
 - **Your brain asks one question and never guesses**: a second name appearing may be a colleague, or
   you on another machine — it cannot tell, so it asks, and it remembers your answer on both
   computers.

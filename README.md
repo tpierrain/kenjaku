@@ -93,7 +93,7 @@ date. Read-only: it reads your sources, never changes them.*
 
 The web's **stale-while-revalidate** pattern, applied to your memory: you get a **fast** answer from
 what's already indexed; freshness catches up **behind the scenes** and only **amends** the answer if
-there's genuinely something new. *([details in EN-QUOI §2](EN-QUOI-C-EST-DIFFERENT.md#2-how-it-works-answer-right-away-verify-afterwards))*
+there's genuinely something new. *([details in EN-QUOI §2](https://github.com/tpierrain/kenjaku/blob/main/EN-QUOI-C-EST-DIFFERENT.md#2-how-it-works-answer-right-away-verify-afterwards))*
 
 > 💾 **Nothing to save, nothing to lose.** Every change is **auto-committed to your git repo** the
 > instant it's written — and whatever you typed straight into Obsidian, outside your brain, is swept
@@ -117,7 +117,7 @@ there's genuinely something new. *([details in EN-QUOI §2](EN-QUOI-C-EST-DIFFER
 | **Zero-chore** — backup, indexing, freshness, recovery, engine updates run on their own | **Not a synced fleet** — each generated brain is self-sufficient and evolves locally |
 
 *Honesty is part of the approach — the full owned-up limitations are in
-[EN-QUOI §7](EN-QUOI-C-EST-DIFFERENT.md#7-what-it-is-not-the-owned-up-limitations).*
+[EN-QUOI §7](https://github.com/tpierrain/kenjaku/blob/main/EN-QUOI-C-EST-DIFFERENT.md#7-what-it-is-not-the-owned-up-limitations).*
 
 ---
 
@@ -167,7 +167,7 @@ layer a hand-built one lacks: **deterministic software** that makes it **more re
 work off your hands, so all you do is **ask** (the **affordance**).
 
 > 🧬 *A **credited evolution**, a **superset** — not an opposition, and never a priority claim.
-> ([ADR 0033](maintainers/decisions/0033-descends-from-karpathy-llm-wiki-not-graphify.md))*
+> ([ADR 0033](https://github.com/tpierrain/kenjaku/blob/main/maintainers/decisions/0033-descends-from-karpathy-llm-wiki-not-graphify.md))*
 
 ### Side by side
 
@@ -204,7 +204,7 @@ your notes or skills.
 > 🧠 **The embedder is *not* "ChatGPT on your machine".** It's a tiny vectorization model; the AI that
 > **reasons and answers is still Claude**. Changing option re-encodes in a few minutes — no note lost.
 > *(training-controls & pricing detail: [SETUP §9](SETUP.md#9-data-privacy) · the “à la carte RAG”:
-> [EN-QUOI §6](EN-QUOI-C-EST-DIFFERENT.md#6-the-à-la-carte-rag-you-pick-your-engine-according-to-your-constraints))*
+> [EN-QUOI §6](https://github.com/tpierrain/kenjaku/blob/main/EN-QUOI-C-EST-DIFFERENT.md#6-the-à-la-carte-rag-you-pick-your-engine-according-to-your-constraints))*
 
 ---
 
@@ -318,7 +318,7 @@ non-tech user to just ask and sit back, everything underneath had to be handled:
 wherever possible**, **every temporal-coupling case battle-tested**, **debounced**, **upgrades that stay
 extensible**, a **context window kept tight** to fend off context-rot. None of it is tech flex — it's the
 **price of the affordance**. Everything below is optional reading (everything above is all you need to
-*use* it). The full depth lives in **[What makes it different](EN-QUOI-C-EST-DIFFERENT.md)**.
+*use* it). The full depth lives in **[What makes it different](https://github.com/tpierrain/kenjaku/blob/main/EN-QUOI-C-EST-DIFFERENT.md)**.
 
 ---
 
@@ -402,7 +402,7 @@ tested and fail-loud**. The through-line — **fail loudly rather than pretend**
   that matter and tells you how many it set aside: a list handed over whole is the sorting handed back
   to you.
 
-**B · Determinism over guesswork.** *(the ladder of [ADR 0009](maintainers/decisions/0009-prefer-deterministic-mechanisms.md))*
+**B · Determinism over guesswork.** *(the ladder of [ADR 0009](https://github.com/tpierrain/kenjaku/blob/main/maintainers/decisions/0009-prefer-deterministic-mechanisms.md))*
 
 > **A big trap with AI is non-determinism** — so the brain **contains it on purpose**: fully deterministic
 > mechanisms wherever it can, and where it can't, ones that **lean** that way (e.g. **Claude hooks** firing
@@ -478,7 +478,7 @@ tested and fail-loud**. The through-line — **fail loudly rather than pretend**
 ## Reliability, measured
 
 - **Retrieval quality, benchmarked across embedders**: we measured the RAG/embedding options against
-  one another on the project's [eval-set](maintainers/eval-set.md) — real French notes, not English
+  one another on the project's [eval-set](https://github.com/tpierrain/kenjaku/blob/main/maintainers/eval-set.md) — real French notes, not English
   leaderboards. The local **"Gemma inside"** embedder scores **90%**, equal to Ollama and **above the
   Gemini cloud baseline (80%)**: going fully local is **no quality trade-off**.
 - **Test-suite strength**: a **mutation-testing** run (Stryker) scores **90–97%** across the three engine
@@ -486,7 +486,7 @@ tested and fail-loud**. The through-line — **fail loudly rather than pretend**
   injected faults the tests actually catch (line coverage can't tell you that). Each figure is that
   package's last **package-wide** audit; on top of it, **every release re-runs the files it changed**.
   *(detail, per-release runs and the named debt in
-  [`maintainers/mutation/RESULTS.md`](maintainers/mutation/RESULTS.md))*
+  [`maintainers/mutation/RESULTS.md`](https://github.com/tpierrain/kenjaku/blob/main/maintainers/mutation/RESULTS.md))*
 
 ---
 
@@ -498,8 +498,8 @@ The engine is a **hexagon** (**hexagonal architecture** — ports & adapters): t
 stable contract** the whole harness trusts, while the **embedder, vector store and chunking are
 interchangeable adapters**. That's
 what makes "pick your privacy at install" **safe** — you swap the adapter, your notes and skills don't
-move. *([ADR 0006](maintainers/decisions/0006-rag-mcp-is-stable-contract.md) ·
-[ADR 0007](maintainers/decisions/0007-three-embedder-adapters-privacy-scale.md))*
+move. *([ADR 0006](https://github.com/tpierrain/kenjaku/blob/main/maintainers/decisions/0006-rag-mcp-is-stable-contract.md) ·
+[ADR 0007](https://github.com/tpierrain/kenjaku/blob/main/maintainers/decisions/0007-three-embedder-adapters-privacy-scale.md))*
 
 ---
 
@@ -527,7 +527,7 @@ mode**: *one* brain, *one* private remote, two machines, deliberate and with its
 often); a choice you make, not the shape you are put in. And you could walk away from this repo tomorrow without losing a thing.
 
 *The market landscape (Notion AI, Mem, Reflect, Tana, Obsidian plugins, Khoj, AnythingLLM, NotebookLM,
-Glean…) is situated in [EN-QUOI §9](EN-QUOI-C-EST-DIFFERENT.md#9-for-the-record--and-compared-to-the-market-apps).*
+Glean…) is situated in [EN-QUOI §9](https://github.com/tpierrain/kenjaku/blob/main/EN-QUOI-C-EST-DIFFERENT.md#9-for-the-record--and-compared-to-the-market-apps).*
 
 ---
 
@@ -571,10 +571,10 @@ missteps):
 
 ## Going further
 
-- [What makes it different](EN-QUOI-C-EST-DIFFERENT.md) — the in-depth differentiators.
+- [What makes it different](https://github.com/tpierrain/kenjaku/blob/main/EN-QUOI-C-EST-DIFFERENT.md) — the in-depth differentiators.
 - [SETUP](SETUP.md) — step-by-step, privacy, remote repo, engine updates, import, troubleshooting.
 - [CONNECTORS](CONNECTORS.md) — the full connector menu.
-- [`maintainers/decisions/`](maintainers/decisions/) — the ADRs (the *why* of each stance).
+- [`maintainers/decisions/`](https://github.com/tpierrain/kenjaku/tree/main/maintainers/decisions/) — the ADRs (the *why* of each stance).
 - Thomas Pierrain's article series → [medium.com/@tpierrain](https://medium.com/@tpierrain).
 
 ## License

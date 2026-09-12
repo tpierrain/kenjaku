@@ -196,7 +196,7 @@ brain read, wrote or sent would carry the owner's identity, with no way left to 
 ## 7. Who controls access — and how a duo ends
 
 **The brain implements no access control at all, deliberately** (see
-[ADR 0042](../maintainers/decisions/0042-access-belongs-to-the-git-host-the-brain-only-files.md)).
+[ADR 0042](https://github.com/tpierrain/kenjaku/blob/main/maintainers/decisions/0042-access-belongs-to-the-git-host-the-brain-only-files.md)).
 
 - **Who may write is the repository's collaborator list**, on GitHub or wherever the brain is hosted.
   It lives in the owner's authenticated account, with whatever second factor that account carries.
