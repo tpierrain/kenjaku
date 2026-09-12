@@ -32,8 +32,6 @@
 - **A session may, alone:** work test-first end to end on a branch, **label** issues, commit, push,
   read what CI returns. **Not:** cut a release without a grant by name, write into `templates/fr/**`
   (one carve-out, § *History*) or into either of his two personal brains.
-  ℹ️ A **plan-only push no longer starts CI**, so there is no run to read there — but a PR runs the
-  full matrix.
 - **Already delivered:** v5.1.3, v5.2.0 and **[v5.3.0](https://github.com/tpierrain/kenjaku/releases/tag/v5.3.0)**,
   all three archived — § *Group 1*, § *v5.1*, § *Group 2*. Lessons: § *History*.
 
