@@ -86,3 +86,54 @@ test("switch fast path — the two disclosures stay DISTINCT, about two differen
   assert.equal(conversationResidueReminder({ from: "default", to: "acme" }), "");
   assert.notEqual(conversationResidueReminder({ from: "acme", to: "default" }), "");
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Issue #66 — the same rule, one section further: the CODE corrects a declared
+// spelling before the bytes exist, and the half a pure function cannot carry is
+// what the owner is told and what the brain does when they say the correction was
+// wrong. A guard that corrects the UNDO is worse than the typo it fixes, so the
+// escape hatch has to be written down where the agent reads.
+// ─────────────────────────────────────────────────────────────────────────────
+
+function alwaysTrueSection(skill = readFileSync(SKILL_PATH, "utf8")) {
+  const start = skill.indexOf("### `## Always true here`");
+  assert.notEqual(start, -1, "the section must exist — it is what the write-time guard reads");
+  const end = skill.indexOf("\n### ", start + 1);
+  return skill.slice(start, end === -1 ? undefined : end);
+}
+
+test("always-true-here — the section is a short list of past errors, never a glossary", () => {
+  const section = alwaysTrueSection();
+  const claims = {
+    // The heading was chosen over `## Proper names` for exactly this reason: a
+    // glossary is the second CLAUDE.md universes exist to prevent.
+    "says only what has already caused an error goes in": /actually\s+caused\s+an\s+error/i,
+    "refuses a preventive list": /never\s+preventively|not\s+a\s+glossary/i,
+    // Without the written form, the owner writes prose and the guard reads nothing.
+    "shows the one line-shape the guard can read": /never:\s*Cortex/,
+  };
+  const unmet = Object.entries(claims)
+    .filter(([, pattern]) => !pattern.test(section))
+    .map(([claim]) => claim);
+  assert.deepEqual(unmet, [], "the discipline is what keeps this section worth reading");
+});
+
+test("always-true-here — the UNDO is a written gesture, because the guard would redo the correction", () => {
+  const section = alwaysTrueSection();
+  const claims = {
+    "names the one-shot bypass the undo needs": /spelling-bypass\.json/,
+    "says it covers one write only": /covers\s+\S*one\S*\s+write/i,
+    // An undo that only ever bypasses leaves the wrong rule in place for ever.
+    "offers to fix the RULE rather than repeat the bypass": /line\s+to\s+remove\s+from/i,
+  };
+  const unmet = Object.entries(claims)
+    .filter(([, pattern]) => !pattern.test(section))
+    .map(([claim]) => claim);
+  assert.deepEqual(unmet, [], "the owner's word must be able to win against a hook");
+});
+
+test("always-true-here — it says the correction is announced, and that records are never rewritten", () => {
+  const section = alwaysTrueSection();
+  assert.match(section, /tells\s+you\s+once/i, "a silent correction is the one outcome worse than the bug");
+  assert.match(section, /quoted\s+material/i, "falsifying a record is worse than the typo being fixed");
+});

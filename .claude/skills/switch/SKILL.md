@@ -242,6 +242,46 @@ echo '{"universe":"acme","displayName":"Acme Corp","kind":"employer","role":"Hea
 node scripts/set-universe-profile.mjs --decline
 ```
 
+### `## Always true here` — the facts that must survive a `/clear`
+
+A universe's profile may carry a section named exactly **`## Always true here`**: the handful of facts
+this sphere has already been got wrong about. It is **not** a glossary, and the heading is chosen to
+keep it from becoming one — only what has **actually caused an error** goes in, added the day it
+happens, never preventively. A page of definitions nobody consults is the second `CLAUDE.md` universes
+exist to prevent.
+
+**Its most useful entry is a name that has been spelled wrong.** Written in this one form, the brain
+stops re-introducing the wrong spelling by itself:
+
+```markdown
+## Always true here
+
+- cortAIx — never: Cortex, Cortaix, Cortex/Thales
+- The kickoff was in March, not February.
+```
+
+- The **canonical** spelling first, then the wrong ones **that have been seen**. `not:` works as well
+  as `never:`, and a plain hyphen as well as a dash.
+- Any other line in the section is an ordinary fact: kept in the note, searchable, acted on by nobody.
+
+**What happens then, without anyone asking for it.** A deterministic guard reads this section at the
+moment a note is written into that sphere, and **replaces a declared wrong spelling before the note
+exists**. It does not stop to ask — a brain preparing eight meetings must not halt on a typo — and it
+tells you once, in your own words, that it did. It never touches quoted material, code, links or
+frontmatter: rewriting *"Marie wrote: …"* would falsify a record, so there it says so and leaves the
+bytes alone.
+
+**If the owner says the correction was wrong**, put their spelling back — and say so in one line. The
+guard would otherwise correct the undo, which would leave their word losing to a hook. Write the
+one-shot bypass first, from the brain folder, then make the edit:
+
+```bash
+mkdir -p .cache && printf '{"spellings":["Cortex"]}' > .cache/spelling-bypass.json
+```
+
+It covers **one** write and is consumed by it. Then offer to fix the rule itself: a spelling the owner
+wants back is usually a line to remove from `## Always true here`, not a bypass to repeat.
+
 ### Rename a universe — "rename acme to Acme Corp"
 
 A **full** rename (ADR 0034 / decision D4): the folder moves, every note under it is re-stamped, the
