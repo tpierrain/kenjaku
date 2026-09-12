@@ -15,12 +15,15 @@
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-08-23
 
-- **Next:** ▶️ **`v5.4` — the LAST of the three approved releases.** Its step-detail plan **now exists
-  and owns everything about it, its own STATE included** —
-  [`v5.4-stop-talking-like-a-dashboard-action.md`](v5.4-stop-talking-like-a-dashboard-action.md)
-  _(2026-09-12)_. **Nothing of the work itself is started.** Read it there; do not restate it here.
-- **🛑 The autonomy grant STOPS HERE.** It was given « jusqu'à la fin de la release » for **v5.3**, by
-  name, and v5.3 is out. **A session may prepare and design v5.4, and must ASK before cutting it.**
+- **Next:** ▶️ **`v5.4` — the LAST of the three approved releases, and it is BUILT.** Its step-detail
+  plan owns everything about it, its own STATE included —
+  [`v5.4-stop-talking-like-a-dashboard-action.md`](v5.4-stop-talking-like-a-dashboard-action.md).
+  Read it there; do not restate it here. **What is left is the tag, and the tag is his.**
+- **🛑 The autonomy grant, as it stands now.** The line that used to sit here said the v5.3 grant
+  stopped at v5.3 and that a session must **ask** before cutting v5.4. **He superseded it on
+  2026-09-12** — « travaille en toute autonomie cette nuit … je m'occuperai de pousser la release
+  demain matin » — for everything **up to** the tag. The tag itself was already his in v5.4's own
+  step 7, so the two agree: a session prepares the release entire and stops there.
 - **Blocked on:** nothing. **THREE things wait on him, none gating anything:** what the nightly quality
   run is FOR → § *Inherited from v5.0.0*; `ci.yml`'s `concurrency` → § *Questions the owner owns*; the
   French wording shipped in v5.2.0, his to re-read at leisure. **They stay HERE, not in the tracker** →
