@@ -269,20 +269,35 @@ function theirSpelling(entry, me) {
  * it happens once — and needs no marker anybody has to remember to write.
  */
 export function duoConfirmedNotice(name) {
+  // 🗣️ WRITTEN FOR THE PERSON READING IT (ADR 0043, v5.4). This string is printed
+  // straight to stdout by `author-identity.mjs`, so its reader is a human — and its
+  // own sibling branch, the fusion case, was already written that way. It used to
+  // open "Say ONCE, in their language:" and hand the model a script, which is the
+  // one thing a line a human reads may not do.
   return (
-    `Recorded: ${name} is a second person. Say ONCE, in their language: from here on each person's ` +
-    `day gets its own note instead of the two being merged, and a source you both meet is not stored ` +
-    `twice. Nothing to switch on, and nothing else changes. Then, in one sentence: they can write ` +
-    `here because they were added to this brain's repository, and removing them there is what ends ` +
-    `it — this brain grants no access of its own.`
+    `Recorded: ${name} is a second person, not you on another machine. From now on each of you ` +
+    `gets your own note for the day instead of the two being merged into one, and a source you ` +
+    `both meet is kept once rather than twice. There is nothing to switch on and nothing else ` +
+    `changes. ${name} can write here because they were added to this brain's repository — ` +
+    `removing them there is what ends it, since this brain grants no access of its own.`
   );
 }
 
 /**
  * Wraps whatever there is to say into the SessionStart hook output, or null when
  * there is nothing — a solo brain's session start must be byte-identical to what it
- * was. Mirrors buildUniverseHookOutput: `additionalContext` is the only channel
- * Claude Desktop shows, `systemMessage` carries the raw fact for the CLI.
+ * was.
+ *
+ * 🛑 ONE PAYLOAD, ONE READER — and this block's reader is the AGENT (ADR 0043, v5.4).
+ * `additionalContext` reaches the model and is never printed; `systemMessage` is the
+ * line the CLI prints to the owner, prefixed `SessionStart:<matcher> says:`
+ * (re-measured on Claude Code v2.1.220, 2026-09-12 — the opposite of what the July
+ * field note concluded, which is why directives kept being routed here).
+ *
+ * All three of these are relayed by the agent, in the owner's own language, so there
+ * is deliberately NO `systemMessage`: an English copy of a question, printed above
+ * the agent's own version of it, is the double delivery the field capture named — and
+ * these three carried shell commands and their flags onto the owner's first screen.
  */
 export function buildAuthorsHookOutput({ reminder = null, question = null, fusion = null } = {}) {
   if (!reminder && !question && !fusion) return null;
@@ -292,6 +307,5 @@ export function buildAuthorsHookOutput({ reminder = null, question = null, fusio
   if (fusion) parts.push(`[authors — decided elsewhere] ${fusion}`);
   return {
     hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: parts.join("\n\n") },
-    systemMessage: [reminder, question, fusion].filter(Boolean).join("\n"),
   };
 }
