@@ -33,7 +33,7 @@ Concretely, hole by hole:
 |---|---|---|
 | No automatic persistence | Your answers/notes are **never saved**; everything is lost | **Auto-commit hook** (+ *opt-in* push) |
 | No indexing | Search **makes things up** instead of searching your notes | Automatic **incremental reindexing** of the RAG |
-| A note whose header the indexer can't read | The note is **never indexed** — invisible to search — while the counter reads *"pending"*, as if it were on its way | **Refused at write time**, by the engine's own parser, + a **vault ↔ index crosscheck** that names any note the two disagree about |
+| A note whose header the indexer can't read | The note is **never indexed** — invisible to search — while the counter reads *"pending"*, as if it were on its way | **Refused at write time**, by the engine's own parser, + a **vault ↔ index crosscheck** that names any note the two disagree about. And since **v5.2.0**, one that got through anyway is **named first in the health report**, said by what it costs you: until it is fixed, it answers your searches from the version before the damage |
 | A colleague mentioned by first name only | The model **supplies the surname** it doesn't have, and that invented identity is indexed like any fact — then quoted back to you as one | The name is **resolved against your notes before anything is written**; unresolved, it stays plain text; a card says **which** homonym it is, and how sure that identity is |
 | A note written from an **AI-generated summary** (a meeting recap, an auto-transcript) | The summary's own mistakes are stored as facts and **quoted back to you as sources**, indistinguishable from what was actually said | Every note **says what it was built from**; a summary-derived one is **flagged when it is cited**, and the raw source is read **first**, the summary only after |
 | Conversation not "rooted" in the brain | Mute hooks, out-of-vault answers — *and it seems to work* | Onboarding that **forces opening in the right place** + `pwd` check |
@@ -146,7 +146,10 @@ by using it: your notes, your rules (`CLAUDE.md`), your skills.
    nothing"** — never *"nobody decided"*: a silence it has not verified is reported as a silence, not
    promoted into a fact. And since **v5.1.3** it goes one step further: before reporting that a source
    is quiet, it runs a check on that source which it knows must return something, so **a connection
-   that is down stops passing for a week with no news**. The same rule applies to **people**: a first
+   that is down stops passing for a week with no news**. And since **v5.2.0** it says **where it
+   looked, in the same sentence as what it found** — *"nothing in your notes or in Slack"* rather than
+   a bare *"nothing"*, which three days later reads as *"nowhere"* — and your **mail** is now part of
+   what it must look through before saying so. The same rule applies to **people**: a first
    name it cannot resolve against your notes stays a first name, never a surname it filled in for you.
 
 And a rare stance: **safe by construction.** The brain **takes no action** on your

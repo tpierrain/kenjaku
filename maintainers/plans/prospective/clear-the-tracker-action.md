@@ -300,6 +300,24 @@ brain stop reporting healthy things as broken; this one makes it stop reporting 
         banner printed `prompt-restart-nudge.mjs`, and a file extension is the one part of that name
         that means something only to a developer.
 
+- [x] **8. The §10 marketing-surface re-read, and its verdict — including the boring half**
+      _(2026-09-12)_.
+  - [x] **What this release made IMPRECISE, and is now corrected.** `EN-QUOI` sold *"a note whose
+        header the indexer cannot read is **refused at write time**"* — true of the writes the guard
+        can see, and #81 is the measurement that it is not all of them. The row now carries the second
+        net. Its absence paragraph gained v5.2's own sentence: the brain says **where** it looked in
+        the same breath as what it found, and mail is part of where.
+  - [x] **What was an OVERCLAIM until today and is now simply true**: the README's *"every change is
+        auto-committed the instant it is written"*. #77 is exactly the gap between that sentence and
+        the writers the hook never saw. **No wording change — the fix made the promise honest**, and
+        that is worth recording so nobody "corrects" a line that is finally right.
+  - [x] **What it made TRUE and we were not selling**: the update's question is now clicked rather
+        than read past, and an update converges **each** machine rather than the one that ran it. Both
+        added to the README's update bullet, in a reader's words.
+  - [x] 🖼️ **The boards: re-read through their alt texts, copy still accurate, NO re-render.** The
+        closest call is `board-flow`'s *"auto-commit to git, nothing to do by hand"*, which this
+        release makes more true rather than less. Recorded so the next release does not re-derive it.
+
 > 💰 **What v5.2 cost, against what was budgeted.** Three medium items (#77, #81, #96) and two cheap
 > ones (#98, #83) — plus step 0's ADR, which was the half of group 3 that had to come first. **§10ter
 > applied** and was budgeted at the start rather than discovered at the tag, which is the whole point
