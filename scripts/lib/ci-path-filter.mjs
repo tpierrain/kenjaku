@@ -29,7 +29,12 @@ export const ALLOWED_IGNORE_PREFIXES = ["maintainers/plans/"];
  * which trigger let it escape does not change the answer.
  */
 export function ignoredGlobs(yamlText) {
-  const lines = (yamlText ?? "").split("\n");
+  // Split on the line ending, `\r` included: a Windows checkout hands this function
+  // CRLF, and in JavaScript `\r` is a LINE TERMINATOR — `.` never matches it and `$`
+  // never matches before it. Splitting on `\n` alone therefore leaves a `\r` that makes
+  // every `$`-anchored pattern below fail, and the failure is SILENT: the reader returns
+  // "this workflow filters nothing", which is indistinguishable from a clean workflow.
+  const lines = (yamlText ?? "").split(/\r?\n/);
   const globs = [];
 
   for (let i = 0; i < lines.length; i++) {

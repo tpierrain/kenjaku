@@ -87,6 +87,18 @@ test("ignoredGlobs — the inline form is read too, so the guard never goes quie
   assert.deepEqual(ignoredGlobs(yaml), ["templates/**", "scripts/**"]);
 });
 
+test("ignoredGlobs — a CRLF checkout reads exactly like an LF one (Windows)", () => {
+  // Caught by the repo's own Windows cells on the first push, and worth keeping as a
+  // fixture rather than a memory: in JavaScript `\r` is a LINE TERMINATOR, so `.` never
+  // matches it and `$` never matches before it. A regex anchored with `$` therefore
+  // fails on every line of a Windows checkout — silently, by finding nothing at all,
+  // which here reads as "this workflow filters no path" instead of as a parse failure.
+  const lf = ['on:', '  push:', '    paths-ignore:', '      - "maintainers/plans/**"', ""].join("\n");
+
+  assert.deepEqual(ignoredGlobs(lf.replace(/\n/g, "\r\n")), ignoredGlobs(lf));
+  assert.deepEqual(ignoredGlobs(lf.replace(/\n/g, "\r\n")), ["maintainers/plans/**"]);
+});
+
 test("ignoredGlobs — a workflow that filters nothing yields nothing", () => {
   assert.deepEqual(ignoredGlobs("on:\n  push:\n  pull_request:\n"), []);
 });
