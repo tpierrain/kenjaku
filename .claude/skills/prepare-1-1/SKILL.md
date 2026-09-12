@@ -57,6 +57,10 @@ Read them there. What makes a 1-1 prep the **worst** place to break them:
 - **The thread, again.** Before writing that someone never replied, never delivered, never started:
   open the thread. A root message is the moment a question was **asked**. A reply count above zero
   with the thread unread blocks the words "unanswered", "pending", "still waiting".
+- **An absence carries its scope in the same sentence, and mail is in scope.** *"I found no trace of
+  it in your notes or the chat tool; I did not search your mail"* — never a bare *"no trace"*. The
+  commitments a 1-1 turns on are exactly the ones that travel by mail, and an absence stated wider
+  than the search behind it is how a true statement gets dropped from a conversation.
 - **Reconcile first.** Does anything you retrieved contradict what you are about to write? This skill
   produced the field defect that proves it: it announced a role change as *"unconfirmed"* while the
   vault's own `people/` note recorded it **confirmed two months earlier**.

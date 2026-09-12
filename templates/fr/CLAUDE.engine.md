@@ -180,7 +180,13 @@ Les niveaux de retrieval, dans l'ordre. Le niveau 1 est une position, pas une pr
    remontera rien, sans bruit.
 3. **Recherche sémantique** : `mcp__vault-rag__search_vault`, pour les questions ouvertes et
    transversales.
-4. **Le web**, en dernier.
+4. **Les sources connectées de la personne** : le mail avant tout, puis l'agenda, le chat et le
+   drive. C'est un niveau de retrieval, pas seulement un mécanisme de fraîcheur : une décision écrite
+   vit rarement dans le seul vault, et **le mail, c'est là que circulent comptes rendus, engagements
+   datés et confirmations aux clients**. Une affirmation « ça n'existe pas » ne vaut que pour les
+   niveaux réellement cherchés : voir la **Discipline d'affirmation** plus bas, qui possède la
+   formulation.
+5. **Le web**, en dernier.
 
 - **Quand la tâche est définie *par rapport à* cette source** (« complète cet article », « corrige ce
   fichier », « comme dans ce repo »), la source **est la spécification**. Produire une réponse
@@ -532,6 +538,20 @@ personne (« pas de réponse », « personne n'a tranché », « toujours pas d�
   thread avant de citer un message comme un état courant. Un nombre de **réponses** non nul, thread
   non lu, interdit « sans réponse », « en attente », « non tranché ». Citer via le connecteur qui
   expose les compteurs de réponses et les permaliens, pas simplement le moins cher.
+- **Une absence porte sa portée dans la MÊME phrase.** Pas « aucune trace », mais « aucune trace dans
+  tes notes ni dans l'outil de chat ; je n'ai cherché ni dans ton mail ni dans les autres sources
+  connectées ». Deux phrases (la portée, puis la conclusion) se relisent trois jours plus tard comme
+  une absence générale, et c'est comme ça qu'une affirmation **vraie** a été supprimée d'un message
+  adressé à un dirigeant : elle était dans la boîte mail de la personne, reçue la veille. Si nommer le
+  trou rend l'affirmation inutile, c'est le bon signal, pas une gêne : élargir la recherche, ou en
+  faire une question ouverte.
+- **Avant d'affirmer une absence, lister les endroits où le fait vivrait, et chercher dans les
+  sources connectées, à commencer par le MAIL.** Les décisions écrites vivent rarement dans le seul
+  vault : comptes rendus, engagements datés, confirmations aux clients circulent par mail, et le mail
+  est justement le canal que les tables de routage ne mentionnent jamais. Une recherche qui s'arrête
+  au vault et à l'outil de chat est une recherche **partielle**, quel que soit le mot qu'on met
+  dessus. L'asymétrie est toute la raison d'être de cette règle : une affirmation positive à qui il
+  manque une source est seulement incomplète, une affirmation négative est **fausse**, et elle voyage.
 - **Réconcilier avant d'écrire** : est-ce que quelque chose dans ce que j'ai récupéré **contredit**
   ce que je m'apprête à affirmer ? Le matériau l'emporte sur le brouillon.
 - **Le marquer dans l'artefact** : ✅ observé et cité · 🟡 déduit · 🔴 négatif ou comportemental non

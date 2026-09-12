@@ -338,6 +338,17 @@ exactly the phrasing a briefing pulls toward.
    word and removes the entire accusation class.
 2. **A negative claim names its verification, or becomes an open question.** *"I did not find a
    follow-up — does anyone have context?"* instead of *"nobody followed up"*.
+   - **The scope and the conclusion go in the SAME sentence.** Not *"exhaustive search in the vault
+     and the chat tool"* on one line and *"no trace"* on the next: read three days later, that is a
+     general absence. Write *"no trace in the vault or the chat tool; mail and the other connected
+     sources were not searched"*. If naming the gap makes the claim useless, widen the search or ask
+     the question — that is the signal working, not a nuisance.
+   - **List where the fact would live, and search the connected ones — MAIL first.** Minutes, dated
+     commitments and client confirmations circulate by mail, and mail is the channel the routing
+     tables never name, so a check stops at the vault by default. A true, sourced statement was
+     deleted from a message to an executive on the strength of a search that skipped a mailbox where
+     it sat verbatim, received the day before. A positive claim missing a source is incomplete; a
+     negative one is **false**, and it travels.
 3. **The thread is the unit of state; the message is only the unit the tools return.** A root message
    is the moment a question was **asked**, never its resolution. Resolve the thread before citing any
    chat message as **current state**.

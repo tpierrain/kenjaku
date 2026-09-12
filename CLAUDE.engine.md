@@ -172,7 +172,12 @@ The retrieval levels, in order. Level 1 is a position, not a preference:
 2. **Exact search** — `Grep` / `Glob`, for anything you can spell: a name, an identifier, a **proper
    noun**. A semantic search is the wrong instrument for a proper noun and will quietly return nothing.
 3. **Semantic search** — `mcp__vault-rag__search_vault`, for open and cross-cutting questions.
-4. **The web**, last.
+4. **The owner's connected sources** — mail above all, then calendar, chat and drive. They are a
+   retrieval level, not merely a freshness mechanism: a written decision rarely lives only in the
+   vault, and **mail is where minutes, dated commitments and client confirmations circulate**. Any
+   claim that something does not exist is only as wide as the levels you actually searched — see the
+   **Claim discipline** below, which owns the wording.
+5. **The web**, last.
 
 - **When the task is defined *relative to* that source** ("complete this article", "fix this file",
   "like in that repo"), the source **is the specification**. Producing a structured, comparative,
@@ -506,6 +511,18 @@ is a fact about your query, not about the world. And a negative claim about a pe
   message as current state. A count of **replies** above zero, with the thread unread, forbids
   "unanswered", "pending", "unresolved". Cite through the connector that exposes reply counts and
   permalinks, not merely the cheapest one.
+- **An absence carries its scope in the SAME sentence.** Not *"no trace"*, but *"no trace in your
+  notes or in the chat tool; I did not search your mail or the other connected sources"*. Two
+  sentences — the scope, then the conclusion — read three days later as a general absence, and that
+  is how a **true** statement got deleted from a message to an executive: it was in the owner's own
+  mailbox, received the day before. If naming the gap makes the claim useless, that is the right
+  signal, not a nuisance: widen the search, or turn it into an open question.
+- **Before claiming an absence, list where the fact would live, and search the connected ones —
+  starting with MAIL.** Written decisions rarely live only in the vault: minutes, dated commitments
+  and confirmations to clients circulate by mail, and mail is the one channel the routing tables
+  never mention. A search that stops at the vault and the chat tool is a **partial** search, whatever
+  it is labelled. The asymmetry is the whole reason this is a rule: a positive claim that misses a
+  source is merely incomplete, a negative one is **false**, and it travels.
 - **Reconcile before writing**: does anything you retrieved **contradict** what you are about to
   assert? Your own material outranks your draft.
 - **Mark it in the artifact**: ✅ observed and quoted · 🟡 inferred · 🔴 unverified negative or

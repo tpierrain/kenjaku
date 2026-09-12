@@ -86,6 +86,20 @@ const RULES_EN = [
     why: "reconcile the retrieved set BEFORE writing (the worst defect had its own refutation inside the same tool response)",
     pattern: /contradict/i,
   },
+  // ── #83, and the two halves are one defect ────────────────────────────────
+  // A claim was checked BEFORE being sent to an executive. The check covered the
+  // vault and the chat tool, and said so correctly; the conclusion said "no trace".
+  // The claim was true, and the sentence sat verbatim in the owner's own mailbox,
+  // received the day before. The true statement was deleted from the message, and
+  // the wrong conclusion then sat in the vault where later work inherited it.
+  {
+    why: "the scope and the conclusion are ONE sentence — two sentences read, three days later, as a general absence",
+    pattern: /same sentence/i,
+  },
+  {
+    why: "MAIL is named as a channel an absence check must cover: the tables list the vault and the chat tool, and quietly imply that is the world",
+    pattern: /mail/i,
+  },
 ];
 
 const RULES_FR = [
@@ -94,6 +108,14 @@ const RULES_FR = [
   { why: "la résolution du thread avant de citer un message comme un état courant", pattern: /thread/i },
   { why: "un nombre de réponses non nul bloque toute formulation « sans réponse / en attente »", pattern: /réponses/i },
   { why: "la passe de réconciliation avant d'écrire", pattern: /contredit/i },
+  {
+    why: "the scope and the conclusion are ONE sentence — two sentences read, three days later, as a general absence",
+    pattern: /même phrase/i,
+  },
+  {
+    why: "MAIL is named as a channel an absence check must cover",
+    pattern: /mail/i,
+  },
 ];
 
 for (const { name, locale, path } of SKILLS) {
@@ -209,5 +231,40 @@ for (const { locale, layers } of CONSTITUTIONS) {
     const text = layers.map(read).join("\n");
     const pattern = locale === "FR" ? /re-tester|retester/i : /re-test/i;
     assert.match(text, pattern, "a recorded absence with no expiry becomes a false constraint the brain obeys");
+  });
+}
+
+// ── The routing ladder must stop implying the vault is the world (#83) ──────
+// The rules above tell the brain that an absence check covers mail. The ladder is
+// where it picks an instrument, and it listed handed-over sources, exact search,
+// semantic search and the web — connected sources appeared nowhere. So a check
+// stopped at the vault by default, and it was labelled exhaustive when it did.
+const ROUTING = [
+  { locale: "EN", layers: ["CLAUDE.md.template", "CLAUDE.engine.md"], heading: /^#+ Routing/m },
+  {
+    locale: "FR",
+    layers: ["templates/fr/CLAUDE.md.template", "templates/fr/CLAUDE.engine.md"],
+    heading: /^#+ Routage/m,
+  },
+];
+
+for (const { locale, layers, heading } of ROUTING) {
+  test(`${locale} constitution: the routing ladder names the connected sources, mail included`, () => {
+    const section = docSection(layers.map(read).join("\n"), heading);
+    assert.notEqual(section, "", "the routing section must still be there");
+    assert.match(section, /mail/i, "mail is the channel whose absence from this ladder was measured");
+    assert.match(
+      section,
+      /connected sources|sources connectées/i,
+      "and they are named as a class, so the next connector inherits the rule",
+    );
+  });
+
+  test(`${locale} constitution: the web still comes LAST — the ladder's order is the rule`, () => {
+    const section = docSection(layers.map(read).join("\n"), heading);
+    const connected = section.search(/connected sources|sources connectées/i);
+    const web = section.search(locale === "FR" ? /\*\*Le web\*\*/ : /\*\*The web\*\*/);
+    assert.notEqual(web, -1, "the web rung must still be there to be placed against");
+    assert.ok(connected < web, "the owner's own sources are searched before the open web, always");
   });
 }

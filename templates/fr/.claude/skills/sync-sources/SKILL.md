@@ -364,6 +364,19 @@ Le troisième niveau, c'est tout l'enjeu : une affirmation négative sur une per
    X ». Ça coûte un mot et ça supprime toute la classe d'accusations.
 2. **Une affirmation négative nomme sa vérification, ou devient une question ouverte** : « je n'ai
    pas trouvé de suite, quelqu'un a du contexte ? » plutôt que « personne n'a relancé ».
+   - **La portée et la conclusion vont dans la MÊME phrase.** Pas « recherche exhaustive dans le
+     vault et l'outil de chat » sur une ligne et « aucune trace » sur la suivante : relu trois jours
+     plus tard, ça devient une absence générale. Écrire « aucune trace dans le vault ni dans l'outil
+     de chat ; le mail et les autres sources connectées n'ont pas été cherchés ». Si nommer le trou
+     rend l'affirmation inutile, élargir la recherche ou poser la question : c'est le signal qui
+     fonctionne, pas une gêne.
+   - **Lister les endroits où le fait vivrait, et chercher dans les sources connectées, le MAIL
+     d'abord.** Comptes rendus, engagements datés et confirmations aux clients circulent par mail, et
+     le mail est le canal que les tables de routage ne nomment jamais : une vérification s'arrête donc
+     au vault par défaut. Une affirmation vraie et sourcée a été supprimée d'un message à un dirigeant
+     sur la foi d'une recherche qui avait sauté une boîte mail où elle se trouvait mot pour mot, reçue
+     la veille. Une affirmation positive à qui il manque une source est incomplète ; une négative est
+     **fausse**, et elle voyage.
 3. **Le thread est l'unité d'état** ; le message n'est que l'unité que les outils renvoient. Un
    message racine, c'est l'instant où la question a été **posée**, jamais sa résolution. Résoudre le
    thread avant de citer un message comme un état courant.
