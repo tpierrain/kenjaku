@@ -21,16 +21,9 @@
   step-detail plan of its own before any code**, the way v5.3 got one.
 - **🛑 The autonomy grant STOPS HERE.** It was given « jusqu'à la fin de la release » for **v5.3**, by
   name, and v5.3 is out. **A session may prepare and design v5.4, and must ASK before cutting it.**
-- **Blocked on:** nothing. **What waits on him now lives in the TRACKER, by his ask of 2026-09-12**
-  (*"je voudrais que tout ce qui reste à faire soit listé dans les issues"*): the nightly quality run's
-  purpose is [#106](https://github.com/tpierrain/kenjaku/issues/106), `ci.yml`'s `concurrency` is
-  [#108](https://github.com/tpierrain/kenjaku/issues/108). **Neither gates anything.**
-- **One item stays HERE and not in the tracker:** the **French wording shipped in v5.2.0**, his to
-  re-read at leisure. It was briefly opened as #107 and closed the same evening — *a personal re-read
-  on a public tracker reads as project work, and nobody else can do it*. His rule, generalised: **the
-  tracker holds the work a decision unblocks, never the question itself.**
-- **#78 is answered AND fixed, both halves, and closed** _(2026-09-12)_ → § *Neither group*. Grouping,
-  order and the three titles are decided.
+- **Blocked on:** nothing. **What waits on him is in the TRACKER now** — [#106](https://github.com/tpierrain/kenjaku/issues/106)
+  and [#108](https://github.com/tpierrain/kenjaku/issues/108), neither gating anything. **One item stays
+  out of it on purpose:** the French wording shipped in v5.2.0 → § *What the tracker does not hold*.
 - **A session may, alone:** work test-first end to end on a branch, **label** issues, commit, push,
   read what CI returns. **Not:** cut a release without a grant by name, write into `templates/fr/**`
   (one carve-out, § *History*) or into either of his two personal brains.
@@ -490,6 +483,18 @@ nights, and it needs **no hand dispatch to see** — the cron already answers it
           *"the whole harness suite dry-runs green here"*. It was true on 2026-07-28, before these
           guards were written; it is now true again for a different reason, and the comment
           explains neither.
+
+## 📋 What the tracker does not hold _(2026-09-12)_
+
+The owner asked that everything left to do be listed in the issues, *"pour pouvoir clear"*. Ten were
+opened; two were closed the same hour, and the survivors of that hour are the rule:
+
+- **The one item that stays in this plan:** the **French wording shipped in v5.2.0**, his to re-read at
+  leisure. Opened as #107, closed immediately — nobody but him can do it, nothing is blocked by it, and
+  on a **public** repository a personal reminder reads as project work.
+- **His rule, generalised, and now in CONVENTIONS §10bis:** the tracker holds **the work a decision
+  unblocks**, never the question itself; an item parked as *conditional* is not pending work and
+  becomes an issue the day its trigger fires.
 
 ## 🙋 Questions the owner owns — asked, and NOT to be re-asked
 
