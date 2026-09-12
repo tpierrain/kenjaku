@@ -100,52 +100,76 @@ the session-start channel. That guard **corrects and reports afterwards; it neve
 announce-then-act tier — because the case it exists for is a brain sent off to prepare eight meetings,
 where a question waiting for an answer is a halt, and a halt is worse than a misspelling.
 
-Three processes then touch the same file within a few seconds, so the ordering is part of the design
-and not an implementation detail:
+### The measurement that decided it — hooks on one event run CONCURRENTLY
+
+This section used to plan for a corrector sitting on `PostToolUse`, beside `auto-commit`, and said the
+host's ordering had to be **measured before this was built, not assumed**. It was measured, on
+2026-09-12, against Claude Code 2.1.220 on macOS, with two probe hooks that log a monotonic clock,
+busy-wait 700 ms and report what the file contains at each end. **The answer is concurrently**, and it
+is the answer that changes the design:
+
+- Their 700 ms busy phases **overlapped**: the observer finished still seeing the *uncorrected* bytes
+  while the corrector was mid-flight. Start times were µs to ms apart, in two separate processes.
+- **Both shapes behave the same** — two commands inside one `matcher` group, or two `matcher` groups on
+  the same event. There is no sequential shape to reach for.
+- **Declaration order decides nothing**: the corrector was declared first and started second, in both
+  shapes. So *"order the lines in `settings.json.template`"* was never an available lever, and a test
+  pinning that order would have pinned a coincidence.
+
+So a `PostToolUse` corrector cannot guarantee that `auto-commit` commits corrected bytes, and the
+undo would sometimes be one commit and sometimes two — decided by a race, which is the one thing an
+undo instruction may not be.
+
+### What replaces it — correct the tool INPUT, before the bytes exist
+
+The same probes established that a `PreToolUse(Write|Edit)` hook may **rewrite the tool input** and
+have the host apply the rewritten version: emitting `hookSpecificOutput.updatedInput` made the note
+land already corrected, and the `PostToolUse` observer — `auto-commit`'s own seat — never saw anything
+but the corrected content. Two further properties were measured because the design leans on them:
+
+- **It works without claiming a permission decision.** `updatedInput` alone is honoured, so the guard
+  never has to emit `permissionDecision: "allow"` — which would have auto-approved *every* write it
+  touched, including ones the owner's own rules would have stopped. **Correcting must not grant.**
+- **It works on `Edit`, not only `Write`**: the rewrite lands on `new_string`, so a correction applies
+  to an existing note being amended exactly as to one being born.
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor Owner
     participant Brain as Brain (the agent)
-    participant Fixer as Corrector<br/>(PostToolUse hook)
+    participant Guard as Guard<br/>(PreToolUse hook)
+    participant Host as Host (Claude Code)
     participant Commit as auto-commit<br/>(PostToolUse hook)
     participant Rag as Watcher + indexer<br/>(search server)
 
     Owner->>Brain: "prepare my eight meetings"
-    Brain->>Fixer: writes the note, carrying the wrong spelling
-    Note over Rag: T0 — write detected,<br/>5 s debounce armed
-    Fixer->>Fixer: reads the file, replaces the declared<br/>wrong spelling, writes it back (~30 ms)
-    Note over Rag: T0+30 ms — the correction is<br/>itself a write: debounce RE-ARMED
-    Fixer-->>Brain: short directive: "corrected X into Y"
-    Brain->>Commit: (same event) commits the CORRECTED bytes
-    Note over Rag: T0+5 s — indexes the<br/>corrected content only
+    Brain->>Guard: Write/Edit — the wrong spelling is still<br/>in the tool INPUT, nothing on disk yet
+    Guard->>Guard: replaces the declared wrong spelling<br/>in the input, records the correction
+    Guard-->>Host: updatedInput (no permission decision)
+    Host->>Host: applies the CORRECTED input — one write
+    Note over Rag: T0 — the only write there is:<br/>5 s debounce armed on correct bytes
+    Host->>Commit: (PostToolUse) commits — it can only<br/>ever see the corrected file
+    Note over Rag: T0+5 s — indexes the<br/>corrected content, once
     Brain-->>Owner: result + one batched sentence:<br/>"I corrected the spelling; say so and I undo it"
 ```
 
-**Why the original version is never what gets indexed**, in order of how much each argument is worth:
+**What this buys, and it is why the concurrency finding was good news:** the file is written **once**,
+so there is no second write to race, no debounce to re-arm, no window in which a search returns the
+wrong spelling, and no commit that can capture a version the owner never approved. The three-process
+ordering problem is not solved, it is **deleted** — the two remaining processes cannot disagree,
+because only one version of the bytes ever existed.
 
-1. **The incremental index diffs on a `sha256` of the file's raw content, never on a timestamp.** A run
-   skips a document only when the hash it stored **equals** the file's current hash — that is, when
-   what is indexed *is* what is on disk. A corrected file therefore has a different hash from the
-   indexed version and is re-indexed, always. **This is the load-bearing guarantee: no permanent
-   divergence is representable.**
-2. **The debounce is re-armed by the correction.** The indexer fires 5 s after the *last* write, not
-   the first, so the corrective write pushes the run past itself and the run reads the final bytes.
-3. **The orders of magnitude are two apart** (tens of milliseconds against five seconds). There is no
-   tight race to lose.
+**The backstop, kept for any correction that must ever land after the fact**: the incremental index
+diffs on a `sha256` of the file's raw content, never a timestamp, so a file whose bytes changed is
+re-indexed, always. **No permanent divergence between disk and index is representable** — that
+property stands whatever the write path, and it is what makes a post-hoc repair safe if one is ever
+needed.
 
-**The residual window, stated because it exists:** if anything delayed the corrector beyond the
-debounce, a run could read the pre-correction text and a search would return the wrong spelling for a
-few seconds. The corrective write then lands during or after that run, the hashes differ, and the next
-catch-up repairs it. **Bounded, self-healing, never durable.**
-
-**The one ordering the design cannot assume.** The corrector and `auto-commit` are triggered by the
-**same** event. Run in sequence, with the corrector first, one correction is one commit and the owner's
-*"undo it"* is a single `git revert`. Run concurrently, `auto-commit` may capture the uncorrected bytes
-and the correction lands in a second commit, which makes the undo two gestures instead of one. **The
-behaviour of the host is therefore measured before this is built, not assumed**, and the resulting
-order is pinned by a test rather than by the position of a line in a settings file.
+**What the correction costs instead, stated because it is the new trade-off:** the model believes it
+wrote what it submitted. The bytes are right and the writer's recollection is not, which is precisely
+why the report back is not optional decoration — it is the only thing that closes the gap, and why it
+must survive the model forgetting to mention it.
 
 **What the corrector never rewrites**, because falsifying a record is a worse defect than the one being
 repaired: fenced and inline code, link targets, and **quoted material**. A wrong spelling inside
