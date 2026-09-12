@@ -15,10 +15,10 @@
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-08-23
 
-- **Next:** ▶️ **`v5.3 — The One Where It Says Which Universe It Answered From`**, and it is
-  **design-first**: four issues that are one subject seen from four angles, **plus #100 and #101 as
-  riders** (his call, 2026-09-12). → § *Group 2*. Read `harness-universe-blindspot-hardening-action.md`
-  before writing anything, and expect one ADR out of it. **Nothing is started.**
+- **Next:** ▶️ **`v5.3`**, and its design is now WRITTEN in its own plan —
+  [`v5.3-universe-disclosure-action.md`](v5.3-universe-disclosure-action.md) _(2026-09-12)_. **Resume
+  from that file's `## 📍 STATE`**, not from § *Group 2*, which owns only the grouping he approved.
+  No code written yet; step 1 is ~15 lines and needs nothing from him.
 - **Blocked on:** nothing — v5.3 can start today. **TWO things wait on him:** (a) **what the nightly
   mutation run is FOR**, a product call, now that the biggest package provably cannot fit in six hours
   → § *Inherited from v5.0.0*; (b) **the French wording shipped in v5.2.0** (ADR 0043's doctrine, the
@@ -165,6 +165,12 @@ the cost of cutting a release here is small and measured.
       commented rather than closed (#79: its decision shipped as ADR 0043, its sweep is v5.4).
 
 #### Group 2 → `v5.3 — The One Where It Says Which Universe It Answered From`
+
+> 📐 **Its step detail lives in its own plan, and that is the only place it lives**:
+> [`v5.3-universe-disclosure-action.md`](v5.3-universe-disclosure-action.md) _(opened and designed
+> 2026-09-12)_. Same split as v5.1.3 and v5.2.0 before it. **Do not restate its steps here** — what
+> stays below is the grouping and the reasoning he approved, which is this plan's to own. The release
+> plan also carries **ADR 0044** to ratify, and it absorbed the universe blind-spot plan (§ *The fold*).
 
 **Why these four are one release and not four fixes.** They are one subject seen from four angles, and
 fixing them one at a time is how four mechanisms end up disagreeing with each other. All four are
@@ -319,11 +325,15 @@ _(Decided 2026-08-23 while sorting `prospective/`; announced in [`studies/README
 **not executed**, because the session stopped there. Re-aimed 2026-09-12: the group it folds into is
 now **v5.3, group 2** of the proposal above — same three issues, plus #82.)_
 
-- [ ] Fold [`harness-universe-blindspot-hardening-action.md`](harness-universe-blindspot-hardening-action.md)
-      (its M1 / M2 / M3) **into the v5.3 universe group**, then archive it as
-      `archived/<date>-harness-universe-blindspot-hardening-action.md` and drop its line from
-      [`ACTIVE.md`](../ACTIVE.md) § *Open, but NOT active*.
-- [ ] **Why, and not just tidiness**: it is a plan nobody is working that says *why universe changes
+- [x] **DONE 2026-09-12** — folded into
+      [`v5.3-universe-disclosure-action.md`](v5.3-universe-disclosure-action.md)
+      § *What the blind-spot plan contributed*, archived as
+      [`archived/2026-09-12-harness-universe-blindspot-hardening-folded.md`](../archived/2026-09-12-harness-universe-blindspot-hardening-folded.md),
+      and its line dropped from [`ACTIVE.md`](../ACTIVE.md). **M1 did not survive as a milestone**: it
+      became a named-universe fixture inside each of that release's steps, which is where it can
+      actually be enforced. **M2 became step 3**, where #72's guard is the second caller that finally
+      justifies the shared vault-path codec. **M3 is still owed** and is tracked there.
+- [x] **Why, and not just tidiness**: it is a plan nobody is working that says *why universe changes
       keep escaping green suites* — precisely the thing that group must not repeat. As a separate
       dormant plan it is read by nobody; as the group's own opening steps it is read by whoever fixes
       #68/#72/#66/#82. Two carriers for one subject is the shape that produced the thirteen-file pile.

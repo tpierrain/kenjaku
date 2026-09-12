@@ -1,3 +1,16 @@
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- ARCHIVED 2026-09-12 — FOLDED, not abandoned. Its M1 / M2 / M3 are now    -->
+<!-- steps of the release that actually touches universes:                    -->
+<!-- ../prospective/v5.3-universe-disclosure-action.md                        -->
+<!-- § What the blind-spot plan contributed. M1 became a named-universe        -->
+<!-- fixture inside each of that plan's steps; M2 became its step 3, where a   -->
+<!-- second caller finally justified the shared codec; M3 is still owed there. -->
+<!--                                                                          -->
+<!-- Kept unedited below as the record of WHY universe changes escape green    -->
+<!-- suites. Do not resume from this file: it holds no state of its own.       -->
+<!-- plan-carrier-guard: delegates-only                                        -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+
 # Action plan — harden the harness against cross-cutting-contract blind spots (the universe lesson)
 
 > **Why this plan exists.** Introducing universes (ADR 0034) broke **six** distinct components,
