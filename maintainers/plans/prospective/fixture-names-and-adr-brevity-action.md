@@ -19,9 +19,9 @@
   files, including the delivered `switch` skill, now `globex` / `aXiom` / `Axion` / `Axiom`.
   Fingerprints regenerated, 3759 tests green. **Nothing public still carries the real names**: the
   v5.3.0 release note and every issue comment were checked, both clean.
-- **▶️ AWAITING ONE WORD: the `v5.3.0` TAG IS MOVED onto the rename — no `v5.3.1`, no release note**
-  _(owner's call, 2026-09-12)_ → § *Step 4*, which holds the reasoning, what it buys and what it does
-  not. Everything local is ready and pushed; the only step left is the forced tag push.
+- **✅ DONE, and the names chantier is closed on the shipping side** _(2026-09-12)_: `v5.3.0` now points
+  at `8e8db36`, its tree searched clean, and **no `v5.3.1` exists** by the owner's call. The published
+  note was left untouched and says nothing of it → § *Step 4* for the reasoning and the way back.
 - ℹ️ **Not recoverable, and he should know rather than be protected from it:** the names stay readable
   in the **commit history** of a public repo, which moving the tag does not touch and no patch release
   would have touched either → § *Step 4*. Rewriting published history is a separate, heavier decision
@@ -35,10 +35,12 @@
       _(2026-09-12 · `71bf859`)_ → § *Step 1*
 - [ ] **Step 2 — ADR 0044, rewritten to one screen** → § *Step 2*
 - [ ] **Step 3 — put ratification of ADR 0044 to the owner** (one question, after step 2)
-- [ ] **Step 4 — move the `v5.3.0` tag onto the rename, silently** → § *Step 4*
+- [x] **Step 4 — move the `v5.3.0` tag onto the rename, silently**
+      _(2026-09-12 · tag `8a9d1eb` → `8e8db36`)_ → § *Step 4*
   - [x] the release note drafted for a `v5.3.1` is **deleted, not published** _(2026-09-12)_
   - [x] engine fingerprints regenerated under the name `v5.3.0` _(2026-09-12)_
-  - [ ] the forced tag push, on the owner's word
+  - [x] the forced tag push, **run by the owner himself** (the harness refuses it, and rightly)
+  - [x] verified after the push: the tag's tree searched clean, the published note untouched
 
 ## Step 1 — the sweep, and why the names were there at all
 
@@ -130,14 +132,18 @@ moved, so it folded both byte-states of `.claude/skills/switch/SKILL.md` under `
 one a window brain holds and the one the moved tag delivers. Neither reads as a hand-edited engine
 file. That property lasts until the next release regenerates the table with the tag already moved.
 
-**Where it stands, and what is left.** The tag is **already moved locally**, re-created **annotated**
-with the same title the series uses (`git tag -f -a`, because the original was an annotated tag and a
-bare `git tag -f` had quietly demoted it to a lightweight one). Only the publish is left, and the
-harness **refused it** — a forced push over a published tag is exactly the kind of thing that should
-need a human word:
+**Done, 2026-09-12.** `v5.3.0` is tag object `8a9d1eb` on commit `8e8db36`, re-created **annotated**
+with the same title the series uses (`git tag -f -a`: the original was annotated and a bare `git tag -f`
+had quietly demoted it to a lightweight tag). Verified after the push: the tag's tree searched clean,
+and the published note untouched.
+
+🔒 **The forced push itself was run by the owner, not by a session, and that is now known to be the
+only way.** The harness's classifier **refuses `git push --force` over a published tag even with the
+owner's explicit yes in the conversation** — a chat answer is not a permission rule. So a plan that
+ends in a forced push must hand the command over rather than plan to run it:
 
 ```bash
-git push --force origin v5.3.0      # v5.3.0 → 8e8db36
+git push --force origin v5.3.0      # what he ran; v5.3.0 → 8e8db36
 ```
 
 **And the way back, should he want it**, because a forced push is only reversible if the old target is
