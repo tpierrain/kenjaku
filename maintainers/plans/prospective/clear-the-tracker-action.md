@@ -16,10 +16,9 @@
 ## 📍 STATE — the only perishable block in this file · opened 2026-08-23
 
 - **Next:** ▶️ **`v5.3 — The One Where It Says Which Universe It Answered From`**, and it is
-  **design-first**: four issues that are one subject seen from four angles, so fixing them one at a
-  time is how four mechanisms end up disagreeing. → § *Group 2*. Read
-  `harness-universe-blindspot-hardening-action.md` before writing anything, and expect one ADR out of
-  it. **Nothing is started.**
+  **design-first**: four issues that are one subject seen from four angles, **plus #100 as a rider**
+  (his call, 2026-09-12). → § *Group 2*. Read `harness-universe-blindspot-hardening-action.md` before
+  writing anything, and expect one ADR out of it. **Nothing is started.**
 - **Blocked on:** nothing — v5.3 can start today. **TWO things wait on him, and on nobody else:**
   (a) **what the nightly mutation run is FOR**, a product call, now that the biggest package provably
   cannot fit in six hours → § *Inherited from v5.0.0*; (b) **the French wording shipped in v5.2.0**
@@ -128,7 +127,7 @@ the cost of cutting a release here is small and measured.
 | | Theme, in one sentence | Issues | When |
 |---|---|---|---|
 | **v5.2** | *The brain stops reporting work it has not done.* | #77, #96, #81, #98, #83 | ✅ **shipped 2026-09-12** |
-| **v5.3** | *You always know which sphere you are standing in.* | #72, #68, #66, #82 | **next**, design-first |
+| **v5.3** | *You always know which sphere you are standing in.* | #72, #68, #66, #82, + **#100** (rider) | **next**, design-first |
 | **v5.4+** | *The brain asks less and speaks plainly.* | #79 | a chantier, not a release |
 | — | Neither: #84 is now closed on evidence, two still wait on him | #62, #78's product half | see below |
 
@@ -149,7 +148,7 @@ the cost of cutting a release here is small and measured.
 | | Theme, in one sentence | Issues | When |
 |---|---|---|---|
 | **v5.2** | *The brain stops reporting work it has not done.* | #77, #96, #81, #98, #83 | ✅ **shipped 2026-09-12** |
-| **v5.3** | *You always know which sphere you are standing in.* | #72, #68, #66, #82 | **next**, design-first |
+| **v5.3** | *You always know which sphere you are standing in.* | #72, #68, #66, #82, + **#100** (rider) | **next**, design-first |
 | **v5.4+** | *The brain asks less and speaks plainly.* | #79 | a chantier, not a release |
 | — | Neither: #84 is now closed on evidence, two still wait on him | #62, #78's product half | see below |
 
@@ -191,6 +190,21 @@ about the same gap: **the brain scopes one thing and leaves another unscoped, wi
       only when the pull *changed* it, so a brain with three universes gets a full git report and not a
       word about the one piece of state a sync can actually carry. **The cheapest item of the four**,
       and it belongs here rather than in v5.2 because it is the same disclosure rule.
+- [ ] **5. 🎁 RIDER, and it is not about spheres — an available update must be impossible to miss** —
+      [#100](https://github.com/tpierrain/kenjaku/issues/100), filed and slotted here **on his explicit
+      call, 2026-09-12** (« cette nouvelle issue je veux que tu la glisses dans la prochaine
+      release »). Today a waiting release is one grey suffix on the session-start version line, and the
+      owners who most need it — Claude Desktop, one endless auto-compacted conversation — see it
+      **exactly once**, at the top of a conversation they can no longer scroll to. The issue asks for a
+      three-option offer (`Install now` / `Remind me later` / `No thanks`) delivered through the
+      per-prompt channel, with a reminder ladder he specified himself: 24 h after *later*; and after a
+      *no*, +3 days, +5 days, +3 weeks, +2 months, then silence for that version.
+  - [ ] 🔗 **It is the proactive half of [#98](https://github.com/tpierrain/kenjaku/issues/98)**, which
+        shipped in v5.2.0: #98 fixed how consent is *collected* once the owner asks; this fixes how the
+        owner learns there is anything to ask about. Same `AskUserQuestion` shape, same prose fallback.
+  - [ ] ❓ **The one thing it needs from him: the release title.** `The One Where It Says Which
+        Universe It Answered From` does not cover an update offer. Cheapest answer is to keep the title
+        (it is his own pick from three) and give the rider its own paragraph in the release note.
 - [ ] 🧭 **Design before code, and one ADR likely comes out of it.** Read
       [`harness-universe-blindspot-hardening-action.md`](harness-universe-blindspot-hardening-action.md)
       **first** — it already names why universe changes keep escaping green suites — and fold it in
