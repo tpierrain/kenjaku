@@ -11,10 +11,11 @@
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-12
 
-- **Next:** ▶️ **rewrite ADR 0044 to the one-screen shape** that CONVENTIONS §6sexies now prescribes
-  → § *Step 2*. The French short version the owner approved in chat is the model; write it **in
-  English**, keep the Crux, open on two or three lived situations, one line per rejected alternative.
-  **Then put ratification to him** — the ADR is still PROPOSED and he has read the short form.
+- **Next:** ▶️ **put ratification of ADR 0044 to the owner** → § *Step 3*. It is **one question, and
+  it gates nothing**: the code shipped in v5.3.0 either way. Record his answer in § *Step 3* and flip
+  the ADR's STATUS if he accepts.
+- **Done** _(2026-09-12 · `3394c03`)_: **ADR 0044 is rewritten to one screen**, 207 lines → 101, with
+  every claim of the keep-list intact and the probe write-up delegated to the archived v5.3.0 plan.
 - **Done and pushed** _(`71bf859`)_: the **name sweep is complete** — 308 occurrences across nine
   files, including the delivered `switch` skill, now `globex` / `aXiom` / `Axion` / `Axiom`.
   Fingerprints regenerated, 3759 tests green. **Nothing public still carries the real names**: the
@@ -26,15 +27,15 @@
   in the **commit history** of a public repo, which moving the tag does not touch and no patch release
   would have touched either → § *Step 4*. Rewriting published history is a separate, heavier decision
   and nobody has asked for it.
-- **A session may, alone:** write the ADR, run the suite, commit, push, read CI. **Not:** cut a
-  release, rewrite published history.
+- **A session may, alone:** amend the ADR, run the suite, commit, push, read CI. **Not:** mark the ADR
+  ACCEPTED without his answer, cut a release, rewrite published history.
 
 ## Tracking
 
 - [x] **Step 1 — the sweep, and the two conventions that stop it recurring**
       _(2026-09-12 · `71bf859`)_ → § *Step 1*
-- [ ] **Step 2 — ADR 0044, rewritten to one screen** → § *Step 2*
-- [ ] **Step 3 — put ratification of ADR 0044 to the owner** (one question, after step 2)
+- [x] **Step 2 — ADR 0044, rewritten to one screen** _(2026-09-12 · `3394c03`)_ → § *Step 2*
+- [ ] **Step 3 — put ratification of ADR 0044 to the owner** (one question, after step 2) → § *Step 3*
 - [x] **Step 4 — move the `v5.3.0` tag onto the rename, silently**
       _(2026-09-12 · tag `8a9d1eb` → `8e8db36`)_ → § *Step 4*
   - [x] the release note drafted for a `v5.3.1` is **deleted, not published** _(2026-09-12)_
@@ -90,6 +91,11 @@ read). Both carry the owner's own words and the measurement.
 The ADR is **PROPOSED**. The code shipped in v5.3.0 and the release note says PROPOSED out loud, so
 ratifying unblocks nothing and refusing breaks nothing running. He has now read the short form and
 said the long one was unreadable; put the question once, after step 2, and record the answer here.
+
+**Put to him on 2026-09-12**, the one-screen version being on disk (`3394c03`). His answer goes here,
+and ACCEPTED means exactly two edits: the STATUS line of the ADR, and this checkbox.
+
+- **His answer:** _(awaiting)_
 
 ## Step 4 — the tag moves, and nothing is announced
 
