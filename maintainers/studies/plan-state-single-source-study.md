@@ -643,6 +643,15 @@ worse.
     scream on every plan and be turned off within the day. The honest boundary is *the next heading
     at any depth, blockquoted or not*.
 
+- 📂 **AND `prospective/` HOLDS FILES THAT ARE NOT PLANS** _(spotted 2026-09-12, while archiving a
+  finished plan)_. Two of its seven files are the **release note and the PR body of v5.1.0**, shipped
+  long ago: artefacts of a delivered release sitting in the folder whose name promises *work somebody
+  may still pick up*. Nothing is wrong with the files; what is wrong is the **shelf** — CONVENTIONS §7
+  routes a finished thing to `archived/` and a non-plan to `studies/` or the tracker, and neither rule
+  has anything to say about a release artefact. **Not urgent, and not a plan's job**: whoever next
+  touches this study decides between archiving them beside their release and deleting them, then says
+  in §7 where release artefacts live so it stops being decided case by case.
+
 **A candidate for the hard half, cheap and free of prose judgement** _(to be argued, not adopted
 here)_: an item named in the STATE block under *owner's call pending* while the body ticks that same
 item `- [x]` is a **contradiction detectable mechanically** — two lists, one intersection, no reading
