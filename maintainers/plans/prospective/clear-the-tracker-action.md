@@ -16,10 +16,10 @@
 ## 📍 STATE — the only perishable block in this file · opened 2026-08-23
 
 - **Next:** ▶️ **BUILDING `v5.2 — The One Where Done Really Means Done`** on branch
-  `feat/v5.2-done-means-done` (off `main`, pushed) → § *THE APPROVED PLAN*. **Step 0 is done**: ADR
-  0043 ratifies the three tiers and the plain-language rule, carried into both constitutions and
-  guarded _(2026-09-12 · `d07f6be`)_. **Resume at #98**, the cheapest of the five and his standing
-  instruction, whose wording the doctrine now governs; then #77, #81, #96, #83.
+  `feat/v5.2-done-means-done` (off `main`, pushed) → § *THE APPROVED PLAN*. **Step 0 done** (ADR 0043,
+  both constitutions, guarded · `d07f6be`) and **#98 done** (the update asks with a control ·
+  `7dd52ae`), both green on CI. **Resume at #77** — the one that can silently lose a note, and the
+  foundation ADR 0043 leans on; then #81, #96, #83.
 - **Blocked on:** nothing. **Owner's call pending:** nothing. The grouping, the order and the three
   release titles are all decided; two older questions sit in § *Questions the owner owns* and are
   **not to be re-asked** (#78's launcher-README link, `ci.yml`'s `concurrency` group).
@@ -216,7 +216,7 @@ brain stop reporting healthy things as broken; this one makes it stop reporting 
   - [ ] 📈 **Its probability rises with every release we ship**, which is what moves it up: recent
         releases deliver behaviour *as hooks* (v5.1.2's restart nudge is one). Filed 2026-09-09 at his
         ask, never scheduled until now.
-- [ ] **4. The update asks a question you cannot scroll past** —
+- [x] **4. The update asks a question you cannot scroll past** — **DONE** _(2026-09-12 · `7dd52ae`)_ —
       [#98](https://github.com/tpierrain/kenjaku/issues/98). 📌 **IN THIS RELEASE WHATEVER HAPPENS —
       his standing instruction**, 2026-09-12: *« je voudrais que l'issue 98 soit intégrée asap dans la
       prochaine release, quoi qu'il arrive »*. It is also the cheapest of the five, so **it may be
@@ -224,8 +224,12 @@ brain stop reporting healthy things as broken; this one makes it stop reporting 
       Consent is collected in the **last line of a long message**, under release notes the skill is
       required to quote in full — so the better the notes, the further the only actionable sentence is
       pushed off screen. **A brain owner in the field believed the upgrade had run**; it never had.
-  - [ ] A clickable question instead of a line of prose, with the prose kept as the fallback where the
-        host has no such tool.
+  - [x] A clickable question instead of a line of prose, with the prose kept as the fallback where the
+        host has no such tool. **Both places the update asks**: step 1's go-ahead and step 4's
+        three-way choice, plus its grouped variant. Pinned in both locales by
+        `scripts/lib/clickable-consent-discipline.test.mjs`, which also holds the three things that
+        did NOT change: consent still required, an unanswered question still runs nothing, and
+        `✅ that is the latest release` still asks nothing at all.
 - [ ] **5. An absence claim stops being broader than the search behind it** —
       [#83](https://github.com/tpierrain/kenjaku/issues/83). *"Exhaustive search in the vault and the
       chat tool"* followed by *"no trace"* reads, three days later, as a general absence. It is the
