@@ -243,14 +243,28 @@ export function lintVault(notes, options = {}) {
       staleEntityPages.push({ path: note.path, updated, freshestReference: freshest });
     }
   }
+  // A note that OPENED a frontmatter block and produced no keys at all is not untidy,
+  // it is damaged (issue #81): that is the fingerprint of YAML the engine's indexer
+  // refuses — the measured case being `  type: prep-1-1`, indented by two spaces,
+  // which this dependency-free reader skips line by line while the indexer throws.
+  // Such a note keeps answering searches from its last successfully indexed content,
+  // so it is reported on its own, ahead of everything else, and NO exemption applies:
+  // a raw-capture zone is exempt from taxonomy, never from being readable.
+  const unreadableNotes = notes
+    .filter((note) => note.fenced && Object.keys(note.frontmatter).length === 0)
+    .map((note) => note.path);
+  const unreadable = new Set(unreadableNotes);
   const frontmatterViolations = [];
   for (const note of notes) {
+    // Already reported, and louder: listing it here too would bury the finding that
+    // costs answers under four missing keys that cost nothing.
+    if (unreadable.has(note.path)) continue;
     if (frontmatterExempt.some((prefix) => isUnderZone(note.path, prefix))) continue;
     if (isEngineOwned(note)) continue;
     const missing = requiredFrontmatter.filter((key) => !isPresent(note.frontmatter[key]));
     if (missing.length > 0) frontmatterViolations.push({ path: note.path, missing });
   }
-  return { danglingLinks, orphans, staleEntityPages, frontmatterViolations };
+  return { danglingLinks, orphans, staleEntityPages, frontmatterViolations, unreadableNotes };
 }
 
 // The report as human-readable lines (joined by formatReport). Honest and
@@ -259,11 +273,19 @@ export function lintVault(notes, options = {}) {
 export function reportLines(report) {
   if (!hasFindings(report)) return ["✓ Wiki health: clean"];
   const lines = ["✗ Wiki health: issues found"];
-  const section = (title, items) => {
+  const section = (title, items, { counted = false } = {}) => {
     if (items.length === 0) return;
-    lines.push("", `${title} (${items.length}):`);
+    lines.push("", counted ? `${title}:` : `${title} (${items.length}):`);
     for (const item of items) lines.push(`  ${item}`);
   };
+  // FIRST, and worded by what it costs rather than by what is wrong with the file:
+  // "invalid YAML" means nothing to the person whose answers went stale.
+  section(
+    `Notes the engine cannot read (${report.unreadableNotes.length}) — they answer searches ` +
+      `from stale content until fixed`,
+    report.unreadableNotes,
+    { counted: true },
+  );
   section("Dangling links", report.danglingLinks.map((d) => `${d.from} → [[${d.target}]]`));
   section("Orphans", report.orphans);
   section(
@@ -286,6 +308,7 @@ export function hasFindings(report) {
     report.danglingLinks.length > 0 ||
     report.orphans.length > 0 ||
     report.staleEntityPages.length > 0 ||
-    report.frontmatterViolations.length > 0
+    report.frontmatterViolations.length > 0 ||
+    report.unreadableNotes.length > 0
   );
 }

@@ -30,7 +30,14 @@ node scripts/lint-vault.mjs
 - Exit **1** = issues found; the report lists them by category. Read it verbatim.
 - To check a different path: `node scripts/lint-vault.mjs <vault-dir>`.
 
-### 2. Read the report — four categories
+### 2. Read the report — five categories, and the first one is not like the others
+- **Notes the engine cannot read** — listed FIRST, and the only finding here that costs the owner
+  *answers* rather than tidiness. The note opens a frontmatter block the engine's indexer refuses,
+  so it is never re-indexed: it stays searchable and answers **from its last good content**, quietly
+  out of date, for as long as nobody fixes it. One was measured standing three weeks. Say it that
+  way, in their words (*"this note still answers, but with what it said in August"*), never as
+  *"invalid YAML"*. The usual cause is a note written by hand or through a shell command, with the
+  frontmatter keys indented by a space or two.
 - **Dangling links** `from → [[target]]`: a `[[link]]` whose target note does not exist.
   Usually a typo, a renamed/moved note, or a note that was meant to be written and never was.
 - **Orphans**: a note with **zero inbound links** (raw-capture zones `daily/`, `raw-sources/`,
@@ -48,6 +55,10 @@ node scripts/lint-vault.mjs
 ### 3. Propose fixes (never apply silently)
 Group the findings and, for the ones worth acting on, **suggest the concrete gesture** and ask
 before writing:
+- **Unreadable note** → open it, show the owner the frontmatter block as it stands, and offer to
+  put the keys back at the left margin. Change **nothing else**: the body is theirs, and the whole
+  repair is usually the indentation. Once it is fixed, the note re-indexes on its own and the
+  finding disappears — say so, because a finding that clears itself is worth waiting one turn for.
 - **Dangling** → fix the target spelling, point the link at the note that does exist, or remove the
   dead link. Creating the missing note is a fine outcome for a **topic** the vault meant to hold
   (offer to synthesize it from the vault, like `open-note` does).
