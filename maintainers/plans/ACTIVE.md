@@ -9,6 +9,13 @@ No memory lookup, no ROADMAP scan, no grep. Sub-plans are reached **through** it
 
 ## The active plan
 
+- **Subject:** names nobody real, and ADRs people actually read. Opened out of two calls the owner
+  made in one breath on 2026-09-12; its own `## 📍 STATE` says what is left.
+- **Plan:** [`prospective/fixture-names-and-adr-brevity-action.md`](prospective/fixture-names-and-adr-brevity-action.md)
+- **Active since:** 2026-09-12. It **pre-empted** the tracker plan, which stays open and next in line.
+
+## The plan it pre-empted, and the one to go back to
+
 - **Subject:** clear the tracker. The sweep is done and the whole of it is now planned into three
   named releases; the plan's own `## 📍 STATE` says which one is being built.
 - **Plan:** [`prospective/clear-the-tracker-action.md`](prospective/clear-the-tracker-action.md)
