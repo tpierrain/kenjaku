@@ -160,10 +160,20 @@ test("padding and a title are trimmed off the target, in either quote", () => {
 });
 
 test("a colon INSIDE a path is not a scheme", () => {
-  // `^` on the scheme test is what makes the difference, and a dated note name is
-  // exactly the shape that would lose its link without it.
-  assert.deepEqual(markdownLinkTargets("[a](docs/2026:01-notes.md)"), ["docs/2026:01-notes.md"]);
-  assert.equal(resolveDeliveredLink("README.md", "docs/2026:01-notes.md"), "docs/2026:01-notes.md");
+  // 🪤 The pole has to put LETTERS immediately before the colon, or an unanchored
+  // scheme test passes the test by luck: `2026:` cannot start a scheme (a scheme
+  // starts with a letter), so a dated name proves nothing. `notes:` can, and only the
+  // `^` keeps it a path.
+  assert.deepEqual(markdownLinkTargets("[a](docs/notes:1.md)"), ["docs/notes:1.md"]);
+  assert.equal(resolveDeliveredLink("README.md", "docs/notes:1.md"), "docs/notes:1.md");
+});
+
+test("stripping an inline code span must not GLUE a link together", () => {
+  // What the mutation run made visible: removing the span outright turns
+  // `[label]` `code` `(target)` into a link nobody wrote. Inventing a link is the
+  // same defect as missing one, and a checker that invents them reports files that
+  // are fine.
+  assert.deepEqual(markdownLinkTargets("[a label]`some code`(maintainers/x.md)"), []);
 });
 
 test("a link to a DIRECTORY keeps its trailing slash, because the delivery answers for directories too", () => {
@@ -252,16 +262,21 @@ test("a file the scanner cannot read is reported, never skipped in silence", () 
 test("and something thrown that is NOT an Error is still reported, not crashed on", () => {
   // A `throw "boom"` has no `.message`, and a reporter that assumes one turns an
   // unreadable file into a crash of the whole audit.
-  assert.deepEqual(
+  //
+  // 🪤 A string is NOT enough to prove it: `"boom".message` is merely undefined, so
+  // reading it without the optional chain works by accident. Only a thrown `null`
+  // separates the two — which is why both are poled here.
+  const thrown = (value) =>
     deadDeliveredLinks({
       files: ["README.md"],
       read: () => {
-        throw "boom";
+        throw value;
       },
       isDelivered: () => true,
-    }),
-    [{ file: "README.md", target: null, resolved: null, unreadable: "boom" }],
-  );
+    });
+
+  assert.deepEqual(thrown("boom"), [{ file: "README.md", target: null, resolved: null, unreadable: "boom" }]);
+  assert.deepEqual(thrown(null), [{ file: "README.md", target: null, resolved: null, unreadable: "null" }]);
 });
 
 test("what is not a path is never put to the delivered-set question", () => {

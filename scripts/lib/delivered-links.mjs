@@ -58,8 +58,11 @@ function outsideCode(text) {
       fence = marker;
       continue;
     }
-    // Inline code spans are the same argument at sentence scale.
-    kept.push(line.replace(/`[^`]*`/g, ""));
+    // Inline code spans are the same argument at sentence scale. Replaced by a SPACE
+    // rather than by nothing: deleting the span can glue its neighbours into a link
+    // that was never written — `[label]` + `` `code` `` + `(target)` becomes
+    // `[label](target)` — and inventing a link is the same defect as missing one.
+    kept.push(line.replace(/`[^`]*`/g, " "));
   }
   return kept.join("\n");
 }
@@ -77,7 +80,10 @@ const SCHEME = /^[a-z][a-z0-9+.-]*:/i;
 export function markdownLinkTargets(text) {
   const targets = [];
   for (const [, inside] of outsideCode(text).matchAll(LINK)) {
-    let target = inside.trim();
+    // NOT trimmed here: the title stripper below needs the trailing whitespace it was
+    // written against, and it trims what is left. Two trims meant the first one hid
+    // whether the second was doing anything.
+    let target = inside;
     // A quoted title sits after the target, separated by whitespace.
     target = target.replace(/\s+("[^"]*"|'[^']*')\s*$/, "").trim();
     if (target.startsWith("<") && target.endsWith(">")) target = target.slice(1, -1).trim();
@@ -115,9 +121,14 @@ export function deadDeliveredLinks({ files, read, isDelivered }) {
       dead.push({ file, target: null, resolved: null, unreadable: e?.message ?? String(e) });
       continue;
     }
+    // 🛑 `markdownLinkTargets` is the ONE filter: it has already dropped the schemes,
+    // the bare anchors and the absolute paths, so every target reaching here resolves
+    // to a path and `resolveDeliveredLink` cannot answer null. A `=== null` guard on
+    // this line would be a branch no input can reach — unkillable, and load-bearing
+    // to look at. The contract is pinned instead by the test that hands `isDelivered`
+    // a callback refusing anything that is not a path.
     for (const target of markdownLinkTargets(text)) {
       const resolved = resolveDeliveredLink(file, target);
-      if (resolved === null) continue;
       if (!isDelivered(resolved)) dead.push({ file, target, resolved });
     }
   }
