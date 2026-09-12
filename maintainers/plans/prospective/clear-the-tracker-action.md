@@ -265,6 +265,18 @@ about the same gap: **the brain scopes one thing and leaves another unscoped, wi
   friction behind #61 named a client, three colleagues and a slice of their business. **The scrubbing
   is the feature**, and nobody can size a de-identification design before it exists. It stays out of
   every milestone until he decides what scrubbing means.
+  - 🛑 **His non-negotiable, stated 2026-09-12 and now on the issue itself**
+    ([comment](https://github.com/tpierrain/kenjaku/issues/62#issuecomment-5647978452)): **nothing of
+    a user's own world may leave their machine through this skill** — no client name, no colleague, no
+    person, no business context — **and none of it may be used to GENERATE the ticket either**, not as
+    raw input a model paraphrases, not as context "for better wording". His reason, and it is the one
+    to quote when the design is finally scoped: *« ça c'est hyper important pour la confiance de nos
+    users »*. A brain holds the most sensitive material a professional owns, so one real client name
+    on a public tracker does not cost a bug report, it costs the premise of the product. Consequences
+    written out in the issue comment: never an automatic publish; a model asked to remove names cannot
+    prove that it did, so removal is built from what was let **in**; the draft is composed from an
+    already-clean source; and if the absence of a leak cannot be shown mechanically, the honest answer
+    is to keep the whole thing local.
 - **[#78](https://github.com/tpierrain/kenjaku/issues/78) — split it, and ship the half that is not
   blocked.** The engineering half (resolve a delivered file's links **from its installed location**) is
   ~20 lines plus tests and is blocked on nothing; the product half is one sentence from him
