@@ -203,9 +203,10 @@ about the same gap: **the brain scopes one thing and leaves another unscoped, wi
   - [ ] 🔗 **It is the proactive half of [#98](https://github.com/tpierrain/kenjaku/issues/98)**, which
         shipped in v5.2.0: #98 fixed how consent is *collected* once the owner asks; this fixes how the
         owner learns there is anything to ask about. Same `AskUserQuestion` shape, same prose fallback.
-  - [ ] ❓ **The one thing it needs from him: the release title.** `The One Where It Says Which
-        Universe It Answered From` does not cover an update offer. Cheapest answer is to keep the title
-        (it is his own pick from three) and give the rider its own paragraph in the release note.
+  - [x] ✅ **The release title question is ANSWERED, 2026-09-12** _(« on garde le titre, tu peux y
+        aller »)_. `The One Where It Says Which Universe It Answered From` **stays**, and the two riders
+        get **their own paragraph** in the release note rather than a renamed release. Do not re-open
+        this: the title is his pick from three, and a release note has room for a second subject.
 - [ ] **6. 🎁 SECOND RIDER, same subject, same call — say how long an update takes** —
       [#101](https://github.com/tpierrain/kenjaku/issues/101), filed 2026-09-12 minutes after #100 and
       from a **real run**: he ran `/update-engine` on his own brain, confirmed #98's clickable buttons
