@@ -17,11 +17,10 @@
 
 - **Next:** ✅ **`v5.2 — The One Where Done Really Means Done` is BUILT** on branch
   `feat/v5.2-done-means-done` → § *THE APPROVED PLAN*. Step 0 (ADR 0043) and all five issues are done,
-  every push green, and the **§10ter rehearsal is run** (two copies, oldest and near-current, owner's
-  territory byte-identical both times). **Resume at: the §5quinquies mutation passes on what this
-  release changed** _(in flight 2026-09-12; if no score is recorded in step 6, re-run them)_, **then
-  open the PR.** **The tag, the release and the merge are his** — and so is closing #84, which the
-  rehearsal has now given its evidence.
+  every push green, the **§10ter rehearsal is run** (two copies, both leaving the owner's territory
+  byte-identical) and the **§5quinquies mutation passes are done**. **[PR #99](https://github.com/tpierrain/kenjaku/pull/99)
+  is open and waits on him.** **The tag, the release note and the merge are his** — and so is closing
+  #84, which the rehearsal has now given its evidence.
 - **Blocked on:** nothing. **Owner's call pending:** nothing. The grouping, the order and the three
   release titles are all decided; two older questions sit in § *Questions the owner owns* and are
   **not to be re-asked** (#78's launcher-README link, `ci.yml`'s `concurrency` group).
@@ -285,6 +284,21 @@ brain stop reporting healthy things as broken; this one makes it stop reporting 
         waiting for** — a *real* brain, at `v5.1.2`, i.e. one that received the live-sync release. Per
         § *Neither group*, #84 closes on that evidence rather than on a tag. **Closing it is his**: a
         session may label an issue, not close one.
+
+- [x] **7. The §5quinquies mutation passes, scoped to what this release changed** _(2026-09-12)_ —
+      seven of eight targets at **100 %**, the whole run recorded in
+      [`../../mutation/RESULTS.md`](../../mutation/RESULTS.md). It is not a formality: it found a real
+      hole and a real product defect.
+  - [x] ⚠️ **`session-self-heal.mjs` first scored 27.03 %, and §5bis is why.** The gate is pure and was
+        tested from every angle; the two functions #96 added that **read the disk** to answer it had no
+        test at all — paths could be broken, both existence checks inverted and a `||` swapped for an
+        `&&` with the file still green. **Second time this same seam has been the hole**, after
+        `session-wiki-health.mjs` in v5.1.3. Five tests on a real temp-dir brain later: **85.71 %**, six
+        named equivalents left.
+  - [x] **Two survivors died by asserting a SEPARATOR, not a name** (`join(", ")` lived through both
+        banner tests because each listed one item), and **one was answered by a product change**: the
+        banner printed `prompt-restart-nudge.mjs`, and a file extension is the one part of that name
+        that means something only to a developer.
 
 > 💰 **What v5.2 cost, against what was budgeted.** Three medium items (#77, #81, #96) and two cheap
 > ones (#98, #83) — plus step 0's ADR, which was the half of group 3 that had to come first. **§10ter
