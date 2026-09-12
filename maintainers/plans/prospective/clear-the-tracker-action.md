@@ -15,12 +15,12 @@
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-08-23
 
-- **Next:** ▶️ **BUILDING `v5.2 — The One Where Done Really Means Done`** on branch
-  `feat/v5.2-done-means-done` (off `main`, pushed) → § *THE APPROVED PLAN*. **Step 0 done** (ADR 0043 ·
-  `d07f6be`) and **all five issues are done and green**: #98 (`7dd52ae`), #77 (`c6c9ac3`), #81
-  (`125e9f7`), #96 (`ef5c32b`), #83 (`501a506`). **Resume at the §10ter rehearsal** on a copy of a
-  real brain (`--tag` forced above the copy's version), then a PR. **The tag and the release are
-  his.**
+- **Next:** ✅ **`v5.2 — The One Where Done Really Means Done` is BUILT** on branch
+  `feat/v5.2-done-means-done` → § *THE APPROVED PLAN*. Step 0 (ADR 0043) and all five issues are done,
+  every push green, and the **§10ter rehearsal is run** (two copies, oldest and near-current, owner's
+  territory byte-identical both times). **Resume at: read the PR, then his call.** **The tag, the
+  release and the merge are his** — and so is closing #84, which the rehearsal has now given its
+  evidence.
 - **Blocked on:** nothing. **Owner's call pending:** nothing. The grouping, the order and the three
   release titles are all decided; two older questions sit in § *Questions the owner owns* and are
   **not to be re-asked** (#78's launcher-README link, `ci.yml`'s `concurrency` group).
@@ -32,8 +32,8 @@
   _(labels only, granted 2026-09-12 — cutting a milestone stays his)_, commit, push, and read what CI
   returns. **Not:** tag, publish, merge to `main`, write into `templates/fr/**` (one carve-out,
   § *History*), or write into either of his two personal brains. **The release itself is his.**
-- ⚠️ **§10ter applies to this release**: #77 and #96 change the write and update paths, so it owes one
-  rehearsal on a copy of a real brain, with `--tag` forced **above** the copy's installed version.
+- ⚠️ **§10ter is DISCHARGED for this release** _(2026-09-12)_ — what it proved is in § *THE APPROVED
+  PLAN*, step 6. Nothing owed there any more.
 - **Already delivered:** § *v5.1 — delivered*. Lessons and closed branches: § *History*.
 
 ## Tracking
@@ -188,14 +188,24 @@ looked. **Five surfaces, one broken promise**, and it is the exact promise the l
 (v5.1.3, *The One Where It Stops Crying Wolf*) started repairing from the other end — that one made the
 brain stop reporting healthy things as broken; this one makes it stop reporting broken things as fine.
 
-- [ ] **1. A note the engine writes for you is actually saved** —
+- [x] **1. A note the engine writes for you is actually saved** — **DONE** _(2026-09-12 · `c6c9ac3`)_ —
       [#77](https://github.com/tpierrain/kenjaku/issues/77) 🥇 **First, and alone if the rest slips.**
-  - [ ] The persistence net covers the writes that `/consolidate` and `/file-back` produce, not only
-        the ones a tool call made. Today the hook matches `Write|Edit`, and both skills route through
-        scripts *on purpose* (conformant by construction), so their notes land on disk and nothing is
-        committed while the session prints `✓ Refreshed`.
-  - [ ] The brain's own stated contract in `CLAUDE.engine.md` stops being false about it.
-  - [ ] ⚖️ **And this answers the standing question about #77** (§ *THE ONE QUESTION*, asked twice,
+  - [x] The persistence net covers the writes that `/consolidate` and `/file-back` produce, not only
+        the ones a tool call made. The hook matches `Write|Edit`, and both skills route through
+        scripts *on purpose* (conformant by construction), so their notes landed on disk and nothing
+        was committed while the session printed `✓ Refreshed`. **What shipped**: the two writer
+        scripts persist their own note, by *wrapping the hooks' own `attemptCommit`* rather than
+        spelling "commit the vault" a second time — and when it does not land they say so, naming the
+        note and the one command that reports git's own reason. An unmerged tree is the one case
+        where persistence steps aside, out loud: `add .` there would bury the `<<<<<<<` markers
+        inside the owner's notes.
+  - [x] The brain's own stated contract in `CLAUDE.engine.md` stops being false about it: both
+        constitutions now name **three** paths that persist a note, so a reader can tell which one
+        theirs went down.
+  - [x] ⚖️ **The issue's secondary finding is ANSWERED, not carried**: *"autopush was true and nothing
+        was pushed"* is not a defect. Auto-commit is **commit-only by design** and the push is
+        debounced to the end of the turn — recorded here so it is not re-opened as a bug.
+  - [x] ⚖️ **And this answers the standing question about #77** (§ *THE ONE QUESTION*, asked twice,
         recommendation *"leave it in v5.2"*): the recommendation holds **and v5.2 is now next**, so it
         costs nothing to have waited. It is the only open issue whose failure mode is **silent data
         loss**, so it leads the release rather than riding in it.
@@ -259,11 +269,28 @@ brain stop reporting healthy things as broken; this one makes it stop reporting 
         ladder gained a rung**: the owner's connected sources, mail first, as a retrieval level rather
         than a freshness mechanism, still ahead of the open web.
 
-> 💰 **What v5.2 costs, said before it is started.** Three medium items (#77, #81, #96) and two cheap
-> ones (#98, #83). **§10ter applies** — #77 and #96 both change what happens during an update or a
-> write, so the release owes one rehearsal on a copy of a real brain, and that rehearsal must force a
-> tag **above** the copy's installed version or it rehearses nothing. Budget it at the start; it is
-> the check this project has already paid for twice by discovering it at the tag.
+- [x] **6. The §10ter field rehearsal — run TWICE, on both ends of the fleet** _(2026-09-12)_. The
+      rehearsal only ever reads an original: it mirrors the launcher into a bare clone, forces the tag
+      onto the branch's HEAD, and copies the brain without its `.git` into a temp dir — so no personal
+      brain is written to, which is what makes this runnable without asking.
+  - [x] **The oldest brain reachable**, installed at `v3.4.0`: 508 engine files swapped, ten engine
+        skills installed, **nine runtime hooks wired**, the retired `tdd-discipline` skill removed, the
+        stale GitHub-Actions inheritance explained in the owner's own words, and the seven files it had
+        stopped receiving named one by one. `.engine-base` went 0 → 16 entries. **The owner's territory
+        came out byte-identical.**
+  - [x] **A brain one release behind**, installed at `v5.1.2` and holding **663 real notes**: only the
+        six skills v5.2 actually touched were brought up to date, the reindex stayed incremental
+        (nothing re-encoded), and `CLAUDE.engine.md` merged 572 → 698 lines **without touching a single
+        byte the owner owns**. This is the case the release will actually meet in the field.
+  - [x] 📌 **It also produces the evidence [#84](https://github.com/tpierrain/kenjaku/issues/84) was
+        waiting for** — a *real* brain, at `v5.1.2`, i.e. one that received the live-sync release. Per
+        § *Neither group*, #84 closes on that evidence rather than on a tag. **Closing it is his**: a
+        session may label an issue, not close one.
+
+> 💰 **What v5.2 cost, against what was budgeted.** Three medium items (#77, #81, #96) and two cheap
+> ones (#98, #83) — plus step 0's ADR, which was the half of group 3 that had to come first. **§10ter
+> applied** and was budgeted at the start rather than discovered at the tag, which is the whole point
+> of the rule: the rehearsal above ran before the PR, not after it.
 
 #### Group 2 → `v5.3 — The One Where It Says Which Universe It Answered From`
 
