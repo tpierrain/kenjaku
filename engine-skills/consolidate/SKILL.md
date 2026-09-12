@@ -46,10 +46,16 @@ node scripts/consolidate-scan.mjs
 ```
 - Exit **0** = nothing to consolidate (say so plainly, do not invent work).
 - Exit **1** = candidates found; the report has two sections. Read it verbatim.
-  - **New pages to create** — an entity/person `[[mentioned]]` in captures but with **no page** yet,
-    with the count of citing captures (its signal strength) and their paths.
-  - **Entity pages to refresh** — a curated page a **fresher** capture has left behind, with the
-    captures that overtook it.
+  - **People and subjects your notes talk about but have no page for** — an entity/person
+    `[[mentioned]]` in captures but with **no page** yet, with the number of captures mentioning it
+    (its signal strength) and their paths.
+  - **Pages your newer notes have moved past** — a curated page a **fresher** capture has left
+    behind, with the captures that overtook it. *(The health report names the same fact the same
+    way, on purpose: two names for one thing is two things, to whoever reads them.)*
+
+> 🗣️ **Read those headings back as they are.** They are the vocabulary for the whole conversation
+> that follows, and they were rewritten in v5.4 for exactly that reason: what the scanner used to
+> call *entity pages* the owner calls their pages about people and subjects.
 - To scan a different path: `node scripts/consolidate-scan.mjs <vault-dir>`.
 
 ### 2. Bound the batch (judgment)

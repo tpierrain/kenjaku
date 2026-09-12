@@ -133,3 +133,37 @@ test("jargonTraces reports every distinct word once", () => {
   const traces = jargonTraces("The orphan and the other orphans have no frontmatter.");
   assert.deepEqual(traces, ["jargon: orphan", "jargon: frontmatter"]);
 });
+
+// 🗣️ `entity` — added when the sweep of step 6 met `Entity pages to refresh` on the
+// consolidation report. It is the taxonomy's name for "a person, a subject, a
+// company, a project", and it is the one word in that heading an owner cannot
+// picture: they have people and topics, they have never had an entity.
+test("jargonTraces knows the taxonomy's own noun for a person or a subject", () => {
+  assert.deepEqual(jargonTraces("Entity pages to refresh"), ["jargon: entity"]);
+  assert.deepEqual(jargonTraces("2 stale entities"), ["jargon: entity"]);
+});
+
+// The false-positive side, which is the one that gets a guard switched off
+// (CONVENTIONS §5quater): the word list must not fire on ordinary English that
+// merely begins the same way.
+test("jargonTraces does not fire on a word that merely starts like one", () => {
+  assert.deepEqual(jargonTraces("Your entitlement is unchanged."), []);
+  assert.deepEqual(jargonTraces("The chunky notes"), []);
+});
+
+// 🛑 A WIKI LINK IS NOT A ROUTING TAG, and this one was found by the step-6 sweep
+// rather than foreseen: the consolidation report indents each candidate as
+// `  [[people/ada-lovelace]] — cited by 2`, and the doubled bracket read as the
+// `[wiki-health]` dispatch marker. A `[[link]]` is the OWNER'S OWN notation — it
+// is what they type in their notes — so flagging it would have made the guard
+// wrong about the most ordinary string in the product (CONVENTIONS §5quater:
+// judge a checker on its false positives).
+test("a wiki link opening a line is the owner's own notation, not a routing tag", () => {
+  assert.deepEqual(directiveTraces("  [[people/ada-lovelace]] — mentioned in 2 notes"), []);
+  assert.deepEqual(directiveTraces("[[topics/kanban]]"), []);
+});
+
+test("a real routing tag still fires, so the carve-out did not empty the rule", () => {
+  assert.deepEqual(directiveTraces("[wiki-health] 3 notes to fold in"), ["routing tag"]);
+  assert.deepEqual(directiveTraces("  [universe] switch happened"), ["routing tag"]);
+});

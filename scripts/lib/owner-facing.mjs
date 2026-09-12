@@ -86,7 +86,14 @@ const COMMAND_LINE = /\bnode\s+(scripts|rag)\//;
 
 // A bracketed routing tag opening a line — `[wiki-health]`, `[universe]`,
 // `[onboarding]` — is addressing whoever dispatches the payload, not whoever reads it.
-const ROUTING_TAG = /^\s*\[[^\]\n]+\]/m;
+//
+// 🛑 A DOUBLED BRACKET IS EXEMPT, and this carve-out was earned like the filename
+// one below: the consolidation report indents each candidate as
+// `  [[people/ada-lovelace]] — mentioned in 2 notes`, and a `[[link]]` is the
+// owner's OWN notation — the thing they type in their own notes. A guard that is
+// wrong about the most ordinary string in the product is a guard someone switches
+// off (CONVENTIONS §5quater).
+const ROUTING_TAG = /^[ \t]*\[(?!\[)[^\]\n]+\]/m;
 
 // 🛑 A FILENAME IS NOT SHOUTING, and this carve-out was earned rather than foreseen:
 // the very first real payload the shout rule met was the engine-divergence line, which
@@ -134,6 +141,10 @@ export function isOwnerFacing(text) {
 //
 // `link` is deliberately absent and `dangling` is present: a broken link is a thing
 // an owner can picture, "dangling" is the scanner's word for it.
+// A plain entry is matched as itself plus a trailing `s`. An entry that pluralises
+// any other way carries its own pattern, and still reports under the singular name —
+// what a failing test needs to print is the WORD to stop using, not the spelling
+// that happened to be found.
 const JARGON = [
   "orphan",
   "frontmatter",
@@ -145,6 +156,12 @@ const JARGON = [
   "ledger",
   "append-only",
   "payload",
+  // `entity` is the taxonomy's name for "a person, a subject, a company, a project".
+  // The owner has people and topics; they have never had an entity. The pattern is
+  // explicit because `entity` + `s` is not how English pluralises it — and a word
+  // list that silently misses the plural of its own entry is a guard with a hole in
+  // exactly the place the heading used it ("Entity pages", "stale entities").
+  { word: "entity", pattern: /\bentit(?:y|ies)\b/i },
 ];
 
 /**
@@ -153,7 +170,7 @@ const JARGON = [
  */
 export function jargonTraces(text) {
   if (typeof text !== "string" || text === "") return [];
-  return JARGON.filter((word) => new RegExp(`\\b${word}s?\\b`, "i").test(text)).map(
-    (word) => `jargon: ${word}`,
-  );
+  return JARGON.map((entry) => (typeof entry === "string" ? { word: entry } : entry))
+    .filter(({ word, pattern }) => (pattern ?? new RegExp(`\\b${word}s?\\b`, "i")).test(text))
+    .map(({ word }) => `jargon: ${word}`);
 }
