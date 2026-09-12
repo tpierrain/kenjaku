@@ -15,24 +15,23 @@
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-08-23
 
-- **Next:** ▶️ **he reads the product proposal** → § *v5.2 — the product proposal*. **Written and
-  committed 2026-09-12**; the tracker carries its grouping as labels. No code is written against any of
-  those issues until he has read it _(his words: « ne pas attaquer les devs pour ces tickets pour
-  l'instant »)_. Once approved, the first thing to open is **#77**.
-- **Blocked on:** nothing a session can unblock.
-- **Owner's call pending:** the proposal — keep its grouping, its order and its three-release cut, or
-  change them. Two older questions sit in § *Questions the owner owns* and are **not to be re-asked**
-  (#78's launcher-README link, `ci.yml`'s `concurrency` group); **#77's release slot is closed** by the
-  proposal, which makes v5.2 next with #77 leading it.
-- **One thing waits on him and on nobody else, and it CHANGED tonight:** the nightly mutation run was
-  read at last (five crons, 7 → 11 Sept). The old causes are fixed; **two new ones are named**, and one
+- **Next:** ▶️ **BUILD `v5.2 — The One Where Done Really Means Done`. Approved 2026-09-12, start
+  without asking** → § *THE APPROVED PLAN*. In order: **step 0**, the ADR on how the brain speaks and
+  when it may act alone, then the five fixes — **#98 is in this release whatever happens** (his
+  standing instruction) and may be taken first of the five. Open a branch off `main`.
+- **Blocked on:** nothing. **Owner's call pending:** nothing. The grouping, the order and the three
+  release titles are all decided; two older questions sit in § *Questions the owner owns* and are
+  **not to be re-asked** (#78's launcher-README link, `ci.yml`'s `concurrency` group).
+- **One thing waits on him and on nobody else:** the nightly mutation run was read at last on
+  2026-09-12 (five crons, 7 → 11 Sept). The old causes are fixed; **two new ones are named**, and one
   of them is a product call — what the nightly is *for*, given the biggest package cannot fit in six
   hours. → § *Inherited from v5.0.0*.
-- **A session may, alone:** work v5.2 test-first **once the proposal is approved**, **label** issues on
-  GitHub _(granted 2026-09-12; **labels only** — cutting a milestone stays his)_, commit, push, and
-  read what CI returns.
-  **Not:** tag, publish, merge to `main`, write into `templates/fr/**` (one carve-out, § *History*),
-  or write into either of his two personal brains.
+- **A session may, alone:** work v5.2 test-first end to end on a branch, **label** issues on GitHub
+  _(labels only, granted 2026-09-12 — cutting a milestone stays his)_, commit, push, and read what CI
+  returns. **Not:** tag, publish, merge to `main`, write into `templates/fr/**` (one carve-out,
+  § *History*), or write into either of his two personal brains. **The release itself is his.**
+- ⚠️ **§10ter applies to this release**: #77 and #96 change the write and update paths, so it owes one
+  rehearsal on a copy of a real brain, with `--tag` forced **above** the copy's installed version.
 - **Already delivered:** § *v5.1 — delivered*. Lessons and closed branches: § *History*.
 
 ## Tracking
@@ -63,15 +62,53 @@ mutation scores — and it is **the only place** that detail lives. Do not resta
       the pacing was written as the fix either way — so it is **a question to put to them**, not work
       to schedule.
 
-### v5.2 — the product proposal for the whole open tracker
+### ✅ THE APPROVED PLAN — three releases, their order, and their titles
 
-_(Written 2026-09-12, at his ask: « j'aimerais que tu me fasses une proposition de plan d'action pour
-qu'on tacle tous les issues GitHub qui restent ouvertes… il y a peut-être des thématiques qui vont
-ensemble, une notion d'urgence… voudrais-tu mettre une casquette de product manager… Est-ce que c'est
-une seule release à venir avec tout ? Est-ce que c'est plusieurs ? » — **it is a proposal, and nothing
-is implemented off it until he has read it.**)_
+> **APPROVED BY THE OWNER, 2026-09-12** _(« ok nickel. On part sur cet ordre »)_, after he challenged
+> the ordering himself — *« pourquoi ne pas faire le 3 en 1er ? »* — and the challenge **changed the
+> plan**. What follows is no longer a proposal: it is the decided order, and a session may work it.
 
-#### The answer, first: THREE releases, not one — and the first one is next
+#### The order he validated, and the one thing that moved
+
+**His challenge was half right, and the half that was right is now step 0.** Group 3 (the brain asks
+less and speaks plainly) contains **two very different things**, and the proposal below had wrongly
+treated them as one:
+
+1. **a DECISION** — how the brain speaks, and when it may act instead of asking. Hours of writing, no
+   code. It is what **governs every new string** the next releases will emit, and v5.2 emits two of
+   them (#98's clickable question, #68's disclosure sentence). Doing it last would have manufactured
+   debt in the exact dimension it exists to clean.
+2. **the WIDE CLEAN-UP** of every existing string and prompt, in two locales. Weeks, and **no
+   announceable end** — which is why it may not stand in front of a defect that silently loses a
+   user's note.
+
+**So the order is:** ① the decision, written as an ADR · ② **v5.2**, the five fixes · ③ **v5.3**, the
+spheres · ④ **v5.4**, the wide clean-up. The decision **ships inside v5.2** rather than as a release
+of its own: a release is how it reaches a brain, and there would be nothing else on the tin.
+
+- 📌 **HIS STANDING INSTRUCTION, and it outranks any later re-ranking:**
+  [#98](https://github.com/tpierrain/kenjaku/issues/98) **is in the next release, whatever happens**
+  _(« je voudrais que l'issue 98 soit intégrée asap dans la prochaine release, quoi qu'il arrive »)_.
+  It is also the cheapest of the five, so it may be taken **first** of them.
+
+#### The three titles, settled 2026-09-12
+
+The series convention holds: English, Friends-style `vX.Y.Z — The One …`, and **the em dash stays**
+(it is a titling convention, never a mistake to fix).
+
+| Release | Title, as agreed |
+|---|---|
+| **v5.2** | `v5.2 — The One Where Done Really Means Done` |
+| **v5.3** | `v5.3 — The One Where It Says Which Universe It Answered From` |
+| **v5.4** | `v5.4 — The One Where It Stops Talking Like a Dashboard` |
+
+- **v5.3's title is HIS pick from three**, not the one this plan recommended _(« pour la 5.3 je
+  préfère "The One Where It Says Which Universe It Answered From" »)_. Recorded so nobody
+  re-optimises it: the other two candidates were *"…Stops Answering From the Wrong Universe"* and
+  *"…the Universe Stops Drifting Without You"*.
+- **v5.4's title is his own phrase** given back to him: the brain traded the magic for a dashboard.
+
+#### Why three releases and not one — the reasoning, kept
 
 **Grouping.** The thirteen fall into **three groups and a residue**, and the grouping is not by
 component: it is by **what a user loses**. Two of the groups are the same defect wearing different
@@ -94,7 +131,44 @@ the cost of cutting a release here is small and measured.
 | **v5.4+** | *The brain asks less and speaks plainly.* | #79 | a chantier, not a release |
 | — | Neither: one waits on evidence, two wait on him | #84, #62, #78's product half | see below |
 
-#### Group 1 → v5.2 — the brain stops reporting work it has not done
+**Grouping.** The thirteen fall into **three groups and a residue**, and the grouping is not by
+component: it is by **what a user loses**. Two of the groups are the same defect wearing different
+clothes — *the brain reports success it has not achieved* — and they differ in **what** it is wrong
+about: what it **did** (group 1), and **where it is** (group 2).
+
+**Urgency.** Only group 1 is urgent, and inside it exactly one issue can destroy something a person
+cannot get back. Group 2 is damaging but recoverable. Group 3 is not a defect at all.
+
+**One release or several? Several, and for the same reason the last split worked.** A release is the
+unit in which a user can say *"ah, that is what changed"*. Thirteen issues in one release is a
+changelog nobody reads and a rehearsal nobody can scope; three releases each have **one sentence** on
+the tin. And the tail is cheap: v5.1.1, v5.1.2 and v5.1.3 all shipped within days of each other, so
+the cost of cutting a release here is small and measured.
+
+| | Theme, in one sentence | Issues | When |
+|---|---|---|---|
+| **v5.2** | *The brain stops reporting work it has not done.* | #77, #96, #81, #98, #83 | **next** |
+| **v5.3** | *You always know which sphere you are standing in.* | #72, #68, #66, #82 | after it, design-first |
+| **v5.4+** | *The brain asks less and speaks plainly.* | #79 | a chantier, not a release |
+| — | Neither: one waits on evidence, two wait on him | #84, #62, #78's product half | see below |
+
+#### Group 1 → `v5.2 — The One Where Done Really Means Done`
+
+- [ ] **0. FIRST, AND BEFORE ANY OF THE FIVE — ratify how the brain speaks and when it may act
+      alone.** An **ADR**, not code: the three tiers of autonomy (silent / announce-then-do / genuinely
+      ask) and the plain-language rule for every string the brain emits. Model and steps already
+      written in the issue and in
+      [the archived plan](../archived/2026-08-23-restore-affordance-graduated-autonomy-action.md).
+  - [ ] 🎯 **Why it is step 0 and not step 6** _(his challenge, 2026-09-12)_: this release **emits new
+        user-facing strings** — #98's clickable question above all — and v5.3 emits another. Written
+        after the fact, they would all be re-work. The decision is hours; the audit it opens is weeks
+        and belongs to **v5.4**, which is why only the decision rides here.
+  - [ ] ⚠️ **The known risk of doing it first, and its mitigation**: a doctrine ratified *before* the
+        audit risks being theoretical. Mitigation, deliberately cheap — write it against a **real
+        sample**: the five subset-picker prompts he faced in one session, and #98's own two questions.
+        If the tiers cannot classify those, they are not ready.
+  - [ ] It ships **inside** this release (the doctrine lands in `CLAUDE.engine.md`, which is delivered
+        content), not as a release of its own.
 
 **Why these five belong together, in the user's words rather than ours:** *the screen said it was
 done, and it was not.* A note is saved and never committed; an update is answered "yes" that was never
@@ -134,12 +208,15 @@ brain stop reporting healthy things as broken; this one makes it stop reporting 
         releases deliver behaviour *as hooks* (v5.1.2's restart nudge is one). Filed 2026-09-09 at his
         ask, never scheduled until now.
 - [ ] **4. The update asks a question you cannot scroll past** —
-      [#98](https://github.com/tpierrain/kenjaku/issues/98). Consent is collected in the **last line of
-      a long message**, under release notes the skill is required to quote in full — so the better the
-      notes, the further the only actionable sentence is pushed off screen. **A brain owner in the
-      field believed the upgrade had run**; it never had.
-  - [ ] The cheapest item in the release and the most visible: a clickable question instead of a line
-        of prose, with the prose kept as the fallback where the host has no such tool.
+      [#98](https://github.com/tpierrain/kenjaku/issues/98). 📌 **IN THIS RELEASE WHATEVER HAPPENS —
+      his standing instruction**, 2026-09-12: *« je voudrais que l'issue 98 soit intégrée asap dans la
+      prochaine release, quoi qu'il arrive »*. It is also the cheapest of the five, so **it may be
+      taken first of them**, right after step 0 — whose doctrine is precisely what says how to word it.
+      Consent is collected in the **last line of a long message**, under release notes the skill is
+      required to quote in full — so the better the notes, the further the only actionable sentence is
+      pushed off screen. **A brain owner in the field believed the upgrade had run**; it never had.
+  - [ ] A clickable question instead of a line of prose, with the prose kept as the fallback where the
+        host has no such tool.
 - [ ] **5. An absence claim stops being broader than the search behind it** —
       [#83](https://github.com/tpierrain/kenjaku/issues/83). *"Exhaustive search in the vault and the
       chat tool"* followed by *"no trace"* reads, three days later, as a general absence. It is the
@@ -156,7 +233,7 @@ brain stop reporting healthy things as broken; this one makes it stop reporting 
 > tag **above** the copy's installed version or it rehearses nothing. Budget it at the start; it is
 > the check this project has already paid for twice by discovering it at the tag.
 
-#### Group 2 → v5.3 — you always know which sphere you are standing in
+#### Group 2 → `v5.3 — The One Where It Says Which Universe It Answered From`
 
 **Why these four are one release and not four fixes.** They are one subject seen from four angles, and
 fixing them one at a time is how four mechanisms end up disagreeing with each other. All four are
@@ -188,7 +265,12 @@ about the same gap: **the brain scopes one thing and leaves another unscoped, wi
       **first** — it already names why universe changes keep escaping green suites — and fold it in
       per § *The fold that is owed* rather than leaving it as a second dormant carrier.
 
-#### Group 3 → a chantier, not a release — the brain asks less and speaks plainly
+#### Group 3 → `v5.4 — The One Where It Stops Talking Like a Dashboard`
+
+> ✂️ **SPLIT, 2026-09-12, and the split is the whole point.** Its **decision half is now step 0 of
+> v5.2** (above). What stays here is the **wide clean-up**: the audit of every existing interaction
+> point and every string, in two locales. That half is weeks with no announceable end, which is why
+> it may not stand in front of a defect that silently loses a note.
 
 - [ ] **The brain interrogates instead of acting** — [#79](https://github.com/tpierrain/kenjaku/issues/79).
       Graduated autonomy (silent / announce-then-do / genuinely ask) plus plain language in every string

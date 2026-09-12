@@ -9,8 +9,8 @@ No memory lookup, no ROADMAP scan, no grep. Sub-plans are reached **through** it
 
 ## The active plan
 
-- **Subject:** sweep the tracker — read every open issue and decide, one by one, what this codebase
-  still owes.
+- **Subject:** clear the tracker. The sweep is done and the whole of it is now planned into three
+  named releases; the plan's own `## 📍 STATE` says which one is being built.
 - **Plan:** [`prospective/clear-the-tracker-action.md`](prospective/clear-the-tracker-action.md)
 - **Active since:** 2026-09-09 — **restored, not newly chosen**, and by the same pattern as last
   time: it held the slot until 2026-09-06, the restart-nudge bug pre-empted it, and that bug shipped
