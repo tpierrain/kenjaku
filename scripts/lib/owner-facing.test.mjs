@@ -230,6 +230,14 @@ test("jargonTraces survives being handed nothing at all", () => {
   assert.deepEqual(jargonTraces(42), []);
 });
 
+// And the guard is what makes that safe, not luck. A regex coerces whatever it is
+// handed, so a LIST of lines — the shape a caller most plausibly passes by mistake —
+// would be read as the string "orphan notes" and answered as if it were one. The
+// three cases above all happen to coerce to something harmless; this one does not.
+test("jargonTraces refuses to judge a value that merely LOOKS like a sentence", () => {
+  assert.deepEqual(jargonTraces(["orphan notes"]), []);
+});
+
 test("directiveTraces survives being handed something that is not a string", () => {
   assert.deepEqual(directiveTraces(42), []);
   assert.deepEqual(directiveTraces({ text: "owner" }), []);

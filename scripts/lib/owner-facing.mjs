@@ -128,6 +128,11 @@ export function directiveTraces(text) {
   }
   if (ROUTING_TAG.test(text)) traces.push("routing tag");
   if (COMMAND_LINE.test(text)) traces.push("command line");
+  // The space is a separator, not decoration — though nothing can prove it here, and
+  // that is worth writing down rather than re-deriving: `PATH_LIKE` is greedy on both
+  // sides, so whatever surrounds a path was already separated by whitespace in the
+  // original. Replacing with "" therefore cannot fuse two neighbours into one
+  // all-caps word, and the mutation pass is right that no test can tell the two apart.
   const prose = text.replace(PATH_LIKE, " ");
   for (const shout of prose.match(SHOUTED) ?? []) {
     if (!SHOUTING_ALLOWED.has(shout)) traces.push(`shouted: ${shout}`);
