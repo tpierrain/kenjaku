@@ -269,7 +269,11 @@ for (const { locale, path } of SKILLS.filter((s) => s.name === "prepare-1-1")) {
 // The relative path holds on a deployed brain: both skills are installed siblings
 // under `.claude/skills/`.
 const LINT = "engine-skills/lint/SKILL.md";
-const LINT_FIXES = /^#+ 3\. Propose fixes/m;
+// Anchored on the STEP NUMBER, not on its title. v5.4 retitled step 3 ("Propose
+// fixes" → "Act, announce, or ask"), and the old regex answered that with an EMPTY
+// section — a guard that goes quiet on a rename is a guard that stops guarding. The
+// number is the stable part of the procedure; the wording is what this release moves.
+const LINT_FIXES = /^#+ 3\. /m;
 
 test("the lint skill never offers to create a person to satisfy a dangling link", () => {
   const section = docSection(read(LINT), LINT_FIXES);
