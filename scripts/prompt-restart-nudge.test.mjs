@@ -9,6 +9,7 @@ import { runPromptNudge, realNudgeDeps } from "./prompt-restart-nudge.mjs";
 import { currentClaudeApp } from "./lib/claude-app-identity.mjs";
 import { RESTART_FLAG_REL } from "./lib/restart-nudge.mjs";
 import { armRestartPending } from "./lib/restart-signal.mjs";
+import { UPSTREAM_CACHE_REL } from "./lib/upstream-cache.mjs";
 
 // This test file sits in scripts/, exactly like the hook — so the brain root is one
 // level up from HERE too, computed independently of the code under test.
@@ -18,14 +19,37 @@ const BRAIN_ROOT = resolve(SCRIPTS_DIR, "..");
 // F20's delivery half. The verdict itself is decided elsewhere (restart-signal.mjs reads the
 // disk, restart-nudge.mjs writes the words); this file is only the contract with the harness —
 // ask, and answer in the one dialect `UserPromptSubmit` acts on.
-function deps({ pending = false, trace = null, writeFails = false, universe = "acme" } = {}) {
+function deps({
+  pending = false,
+  trace = null,
+  writeFails = false,
+  universe = "acme",
+  verdict = null,
+  offerState = null,
+  stampFails = false,
+} = {}) {
   const emitted = [];
   const asked = [];
   const written = [];
+  const stamped = [];
+  const offerAsked = [];
   return {
     emitted,
     asked,
     written,
+    stamped,
+    offerAsked,
+    offer: (repo) => {
+      offerAsked.push(repo);
+      return {
+        verdict,
+        state: offerState,
+        stamp: (next) => {
+          if (stampFails) throw new Error("read-only disk");
+          stamped.push(next);
+        },
+      };
+    },
     brainDir: () => "/brain",
     universe: (repo) => {
       asked.push(repo);
@@ -406,4 +430,144 @@ test("what it injects stays short — volume IS the defect (F5)", () => {
 
   const injected = d.emitted[0].hookSpecificOutput.additionalContext;
   assert.ok(injected.length <= 440, `the injected directive grew to ${injected.length} chars:\n${injected}`);
+});
+
+// ── The third message: an update that is waiting becomes an offer (#100) ─────
+// The daily probe has known for a day that a release is out; the session start says
+// so once, at the top of a session that may run for hours, and Desktop drops even
+// that (ADR 0036). This is the same door the restart nudge uses, for the same
+// reason — it repeats, and Desktop receives it — which is also why it is this file
+// that grew a third message rather than a sibling hook: one more node process in
+// front of every prompt an owner types is the latency budget the owner has already
+// ruled on once.
+
+/** A verdict as `upstream-cache.mjs` writes it when a release is waiting. */
+const waiting = (over = {}) => ({
+  state: "available",
+  installed: "v5.2.0",
+  target: "v5.3.0",
+  ahead: 1,
+  reason: null,
+  releases: [{ version: "v5.3.0", title: null, whatYouGet: "- it names the sphere it answered from" }],
+  checkedAt: "2026-09-08T08:00:00.000Z",
+  ...over,
+});
+
+test("an update nobody has been offered yet is offered, and the ask is stamped straight away", () => {
+  const d = deps({ verdict: waiting() });
+
+  assert.equal(runPromptNudge(d), 0);
+  const injected = d.emitted[0].hookSpecificOutput.additionalContext;
+  assert.match(injected, /v5\.3\.0/);
+  assert.ok(injected.includes("- it names the sphere it answered from"), "the release's own words, quoted");
+
+  // The stamp is the FLOOR, and it is written here rather than when an answer
+  // arrives: an owner who never answers is asked again tomorrow, never sooner.
+  assert.equal(d.stamped.length, 1);
+  assert.deepEqual(d.stamped[0], {
+    version: "v5.3.0",
+    declines: 0,
+    nextAskAt: "2026-09-09T09:02:00.000Z",
+    silenced: false,
+  });
+});
+
+test("an offer already made today is not made again, and nothing is re-stamped", () => {
+  const d = deps({ verdict: waiting(), offerState: { version: "v5.3.0", declines: 0, nextAskAt: "2026-09-09T09:02:00.000Z", silenced: false } });
+
+  assert.equal(runPromptNudge(d), 0);
+  assert.deepEqual(d.emitted, []);
+  assert.deepEqual(d.stamped, []);
+});
+
+test("a brain that is current, or that could not find out, is offered nothing", () => {
+  for (const verdict of [
+    { state: "up-to-date", installed: "v5.3.0", target: "v5.3.0", ahead: 0, releases: [] },
+    { state: "unknown", installed: "v5.2.0", target: null, ahead: null, reason: "the source did not answer" },
+    null,
+  ]) {
+    const d = deps({ verdict });
+    assert.equal(runPromptNudge(d), 0);
+    assert.deepEqual(d.emitted, [], JSON.stringify(verdict));
+  }
+});
+
+test("while a restart is pending the offer stays silent — and is not even looked up", () => {
+  // ADR 0036's reason, and it is a precedence rule rather than a tidiness one: a
+  // conversation running the OLD engine is being told to close and reopen. An offer
+  // to install a NEWER one on top of that is two update instructions at once, and
+  // the owner would reasonably do the wrong one first.
+  const d = deps({ pending: true, verdict: waiting() });
+
+  assert.equal(runPromptNudge(d), 0);
+  assert.equal(d.emitted.length, 1);
+  assert.doesNotMatch(d.emitted[0].hookSpecificOutput.additionalContext, /v5\.3\.0/);
+  assert.deepEqual(d.stamped, [], "an offer that was never spoken must not be stamped as asked");
+  assert.deepEqual(d.offerAsked, [], "and the two file reads it needs are not paid for either");
+});
+
+test("notes that arrived AND an update waiting: the news first, the offer last", () => {
+  const d = deps({ trace: arrived(), verdict: waiting() });
+
+  assert.equal(runPromptNudge(d), 0);
+  const injected = d.emitted[0].hookSpecificOutput.additionalContext;
+  assert.ok(injected.indexOf("claire.md") < injected.indexOf("v5.3.0"), injected);
+  assert.equal(d.written.length, 1, "the arrivals are still stamped as said");
+  assert.equal(d.stamped.length, 1, "and so is the offer");
+});
+
+test("an offer that cannot be stamped is still made, and the hook still exits 0", () => {
+  // Worst case: the same offer tomorrow. A brain whose disk refuses one write must
+  // not be a brain whose prompt fails.
+  const d = deps({ verdict: waiting(), stampFails: true });
+
+  assert.equal(runPromptNudge(d), 0);
+  assert.match(d.emitted[0].hookSpecificOutput.additionalContext, /v5\.3\.0/);
+});
+
+test("an offer whose lookup blows up leaves the prompt alone, and the hook still exits 0", () => {
+  const d = deps({ verdict: waiting() });
+  d.offer = () => {
+    throw new Error("the cache is a directory today");
+  };
+
+  assert.equal(runPromptNudge(d), 0);
+  assert.deepEqual(d.emitted, []);
+});
+
+test("the offer's volume is bounded too — it is the message, but it is still a prompt", () => {
+  // A looser ceiling than the restart nudge's 440, and deliberately: this arrives at
+  // most ONCE A DAY, and unlike the nudge it IS the content — the release's own
+  // words are what the owner weighs. Past this bound the quote is cut rather than
+  // summarised, and points at `/update-engine --check` for the rest.
+  const d = deps({
+    verdict: waiting({
+      releases: [{ version: "v5.3.0", title: null, whatYouGet: Array.from({ length: 60 }, (_, i) => `- a bullet, the ${i}th of them`).join("\n") }],
+    }),
+  });
+  runPromptNudge(d);
+
+  const injected = d.emitted[0].hookSpecificOutput.additionalContext;
+  assert.ok(injected.length <= 1400, `the offer grew to ${injected.length} chars:\n${injected}`);
+});
+
+test("realNudgeDeps.offer reads the verdict and the answer of the brain it is handed, and stamps it", () => {
+  // Everything above injects `offer`, so all of it would pass against a brain that
+  // reads the wrong files or writes nowhere.
+  const brainDir = mkdtempSync(join(tmpdir(), "sbg-nudge-offer-"));
+  mkdirSync(join(brainDir, ".cache"));
+  writeFileSync(join(brainDir, UPSTREAM_CACHE_REL), JSON.stringify(waiting()));
+
+  const before = realNudgeDeps.offer(brainDir);
+  assert.equal(before.verdict.target, "v5.3.0");
+  assert.equal(before.state, null, "nothing has been offered on this machine yet");
+
+  const stamp = { version: "v5.3.0", declines: 0, nextAskAt: "2026-09-09T09:02:00.000Z", silenced: false };
+  before.stamp(stamp);
+  assert.deepEqual(realNudgeDeps.offer(brainDir).state, stamp);
+});
+
+test("realNudgeDeps.offer — a brain with no verdict yet offers nothing, and does not throw", () => {
+  const brainDir = mkdtempSync(join(tmpdir(), "sbg-nudge-noverdict-"));
+  assert.equal(realNudgeDeps.offer(brainDir).verdict, null);
 });

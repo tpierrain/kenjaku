@@ -28,6 +28,7 @@
       "Bash(which:*)",
       "Bash(mkdir:*)",
       "Bash(grep:*)",
+      "Bash(node scripts/update-offer-answer.mjs:*)",
       "Bash(node --import tsx --test:*)",
       "Bash(npm test:*)",
       "Bash(open:*)",

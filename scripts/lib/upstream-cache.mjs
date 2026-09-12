@@ -50,14 +50,21 @@ export async function probeUpstream({
 }) {
   try {
     const report = await runCheck({ brainDir, checkUpstream, readFile });
-    // Only the verdict is cached, never the release prose: the session line quotes
-    // none of it, and the skill's `--check` fetches it live at the moment it asks.
+    // The verdict, plus the OFFERED release's own words and nothing else (#100).
+    // This file used to cache no prose at all, on the grounds that its one reader
+    // — the session line — quotes none of it. There is a second reader now: the
+    // offer built in a `UserPromptSubmit` hook, which has to quote the release
+    // verbatim and may not go to the network in front of a prompt an owner is
+    // waiting on. One release, never the backlog: a brain six versions behind
+    // would otherwise park six release bodies in a file read at every prompt, and
+    // `--check` quotes them all by fetching them live anyway.
     const verdict = {
       state: report.state,
       installed: report.installed,
       target: report.target,
       ahead: report.ahead,
       reason: report.reason,
+      releases: offeredRelease(report),
       checkedAt: new Date(now()).toISOString(),
     };
     const path = join(brainDir, UPSTREAM_CACHE_REL);
@@ -69,6 +76,18 @@ export async function probeUpstream({
     // turn a known answer into "checking…", which reads as progress.
     return null;
   }
+}
+
+/**
+ * The one release an owner would be offered, as a single-entry list — or an empty
+ * one when nothing is on offer. A list rather than an object because that is the
+ * shape `checkUpstream` speaks and the shape the offer reads: two shapes for one
+ * fact is the drift this module already avoided once by sharing `checkUpstream`.
+ */
+function offeredRelease(report) {
+  if (report.state !== "available") return [];
+  const offered = (report.releases ?? []).find((entry) => entry?.version === report.target);
+  return offered ? [offered] : [];
 }
 
 async function runCheck({ brainDir, checkUpstream, readFile }) {

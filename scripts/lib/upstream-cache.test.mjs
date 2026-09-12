@@ -71,7 +71,17 @@ test("probeUpstream — writes the verdict, stamped, where the next session star
     checkUpstream: async ({ repo, installedRef }) => {
       assert.equal(repo, "git@github.com:tpierrain/kenjaku.git");
       assert.equal(installedRef, "v4.6.0");
-      return { state: "available", installed: "v4.6.0", target: "v4.7.0", ahead: 1, releases: [], reason: null };
+      return {
+        state: "available",
+        installed: "v4.6.0",
+        target: "v4.7.0",
+        ahead: 1,
+        releases: [
+          { version: "v4.6.1", title: "an older one", whatYouGet: "- not the one being offered" },
+          { version: "v4.7.0", title: "v4.7.0 — The One With The Thing", whatYouGet: "- the thing" },
+        ],
+        reason: null,
+      };
     },
   });
 
@@ -82,13 +92,68 @@ test("probeUpstream — writes the verdict, stamped, where the next session star
     target: "v4.7.0",
     ahead: 1,
     reason: null,
+    // ⚠️ THE TARGET RELEASE'S OWN WORDS ARE CACHED, and that reverses what this
+    // file used to assert ("the release prose is NOT cached"). The old rule was
+    // right for its one consumer: the session line quotes none of it. #100 adds a
+    // second — the offer built in a `UserPromptSubmit` hook, which must quote the
+    // release verbatim and may not touch the network in front of a prompt. So the
+    // prose has to be here, or the offer could only paraphrase what an owner is
+    // being asked to install.
+    releases: [{ version: "v4.7.0", title: "v4.7.0 — The One With The Thing", whatYouGet: "- the thing" }],
     checkedAt: "2026-08-05T10:00:00.000Z",
   });
   assert.deepEqual(written, onDisk, "what it returns is what it wrote");
-  assert.ok(
-    !JSON.stringify(onDisk).includes("releases"),
-    "the release prose is NOT cached: the session line quotes none of it, and a vault repo is not a place to park release notes",
-  );
+});
+
+test("probeUpstream — only the OFFERED release's notes are kept, not the whole backlog", () => {
+  // A brain six releases behind would otherwise park six release bodies in a file
+  // read on every prompt. The offer names exactly one version, so exactly one is
+  // cached — and `--check`, which quotes them all, fetches them live anyway.
+  return (async () => {
+    const brainDir = mkdtempSync(join(tmpdir(), "sbg-upstream-one-"));
+    writeFileSync(join(brainDir, "engine-manifest.json"), JSON.stringify({ source: { repo: "r", ref: "v1.0.0" } }));
+
+    const written = await probeUpstream({
+      brainDir,
+      now: () => NOW,
+      checkUpstream: async () => ({
+        state: "available",
+        installed: "v1.0.0",
+        target: "v1.3.0",
+        ahead: 3,
+        releases: [
+          { version: "v1.1.0", title: null, whatYouGet: "- one" },
+          { version: "v1.2.0", title: null, whatYouGet: "- two" },
+          { version: "v1.3.0", title: null, whatYouGet: "- three" },
+        ],
+        reason: null,
+      }),
+    });
+
+    assert.deepEqual(written.releases, [{ version: "v1.3.0", title: null, whatYouGet: "- three" }]);
+  })();
+});
+
+test("probeUpstream — a verdict that offers nothing carries no release notes at all", () => {
+  return (async () => {
+    const brainDir = mkdtempSync(join(tmpdir(), "sbg-upstream-none-"));
+    writeFileSync(join(brainDir, "engine-manifest.json"), JSON.stringify({ source: { repo: "r", ref: "v1.0.0" } }));
+
+    const current = await probeUpstream({
+      brainDir,
+      now: () => NOW,
+      checkUpstream: async () => ({
+        state: "up-to-date",
+        installed: "v1.0.0",
+        target: "v1.0.0",
+        ahead: 0,
+        releases: [{ version: "v1.0.0", title: null, whatYouGet: "- nothing to offer" }],
+        reason: null,
+      }),
+    });
+
+    assert.deepEqual(current.releases, [], "nothing is being offered, so there is nothing to quote");
+  })();
 });
 
 test("probeUpstream — creates the cache folder it needs, and ends the file with a newline", async () => {

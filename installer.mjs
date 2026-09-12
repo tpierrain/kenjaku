@@ -77,6 +77,7 @@ import {
   NODE_WINDOW,
 } from "./scripts/lib/node-compat.mjs";
 import { needsShell } from "./scripts/lib/spawn-shell.mjs";
+import { probeUpstream } from "./scripts/lib/upstream-cache.mjs";
 
 // ROOT = the LAUNCHER (this cloned repo). READ-ONLY, reusable source: the
 // installer NEVER writes to it. It CREATES a brain folder elsewhere (TARGET),
@@ -974,6 +975,17 @@ try {
 } catch (e) {
   warn(`MCP verification impossible (${e.message}) — see SETUP.md §8.`);
 }
+
+// ── Is this brain already behind? (#100) ──────────────────────────────────────
+// A launcher clone is often a few releases old by the time someone uses it, so the
+// brain it creates can be born behind. The verdict is otherwise written by a
+// detached probe the session start does not wait for, throttled to once a day — so
+// without this, a fresh brain says "checking for updates…" for its first day, which
+// is precisely the day its owner is paying attention.
+//
+// It never fails an install: `probeUpstream` swallows its own errors and returns
+// null when it wrote nothing. A machine offline right now simply learns tomorrow.
+await probeUpstream({ brainDir: TARGET });
 
 // ── End ───────────────────────────────────────────────────────────────────────
 console.log(`\n${c.B}${c.G}✓ Installation complete.${c.X}\n`);
