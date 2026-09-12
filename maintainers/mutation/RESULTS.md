@@ -221,6 +221,7 @@ Entry / MCP
   scripts/lib/**         100.00 %  ████████████████████
   clear-example-notes    100.00 %  ████████████████████
   auto-commit             98.21 %  ███████████████████░
+  delivered-links         97.62 %  ██████████████████░░
   auto-push               92.39 %  ███████████████░░░░░
 ```
 
@@ -232,6 +233,54 @@ are rag's **embedders** (~82 %) and `search-degradation` / `reindex-scheduler` /
 local-mirror's `fs-state-store` and `content-hash`.
 
 ---
+
+## #78 — the run that found a defect in the CODE, not a hole in the tests — 2026-09-12
+
+**`scripts/lib/delivered-links.mjs`, the day it was written** (§5quinquies), in three passes:
+**74.29 % → 92.31 % → 97.62 %** (123 killed, 3 survived, 0 timeout ·
+[log](reports/mutate-one-delivered-links.log)). The module exists so that a link in delivered prose is
+judged from the path the file will occupy **once installed** — `engine-skills/<name>/SKILL.md` is read
+at `.claude/skills/<name>/`, so `../sibling/SKILL.md` is right in a brain and broken in this tree, and
+that is the distinction the old probe could not make.
+
+### 🔴 The one worth the whole run: stripping an inline code span GLUED a link together
+
+Links inside backticks are examples, so the scanner removed them before matching — **and removing
+them outright joined their neighbours**. `[label]` followed by a code span followed by `(target)`
+became `[label](target)`: a link nobody wrote, in a file that was perfectly fine. The mutant that
+exposed it looked trivial (replace `""` with a marker string), and reading *why* it survived is what
+showed the deletion was the bug. Replaced by a **space**, and poled. **Inventing a link is the same
+defect as missing one**, and it is worse in a guard: it reports the innocent.
+
+### What the survivors were, by class
+
+- **Four unreachable branches — deleted, not tested.** `path.startsWith("#")` (the anchor is cut
+  first, so a bare `#section` is already the empty string the falsy test catches); `if (!target)`
+  (covered one line later by the same test); `dir === "." ? "" : dir` (`join(".", x)` normalises back
+  to `x`); and `resolved === null` in the scanner (`markdownLinkTargets` is the one filter and has
+  already dropped every target that could resolve to null). Unkillable **and** load-bearing to look
+  at, which is the pair this register keeps warning about.
+- **Two poles that were passing by luck.** `docs/2026:01-notes.md` does not prove a scheme test is
+  anchored — `2026:` cannot *begin* a scheme, so an unanchored regex passes it for free; the pole has
+  to put letters against the colon (`docs/notes:1.md`). And `throw "boom"` does not prove an optional
+  chain: a string's `.message` is merely `undefined`, so the naive read works by accident. Only a
+  thrown `null` separates them.
+- **One redundancy hiding three survivors.** The target was trimmed twice; the first trim hid whether
+  the second did anything, and three mutants on the title stripper lived in that shadow. Deleting the
+  first killed all three.
+- **Six survivors on one line nobody had exercised**: the `<…>` angle form of a link target, written
+  into the module and never tested. One test closed all six.
+- ⚖️ **And one of the new assertions was WRONG while the code was right**: unwrapping `<…>` belongs to
+  the extractor, not the resolver. Fixed in the test — a red that is the test's fault is still a red
+  worth having seen.
+
+### The three left are equivalents, and named as such
+
+- `const kept = []` → `["Stryker was here"]` — the array is only ever joined and scanned for links,
+  and the injected line contains no link syntax, so no input distinguishes it.
+- `\s+` → `\s` before a quoted title — the match is found at the last whitespace either way.
+- `\s*$` → `\s*` after it — a title is at the end of the target **by definition**, so the anchor has
+  nothing reachable to add.
 
 ## v5.3 — the pass this release had SKIPPED, and it was hiding 78.87 % — 2026-09-12
 

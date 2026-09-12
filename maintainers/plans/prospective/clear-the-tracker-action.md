@@ -302,11 +302,11 @@ about the same gap: **the brain scopes one thing and leaves another unscoped, wi
     **six survivors on one line**, was the `<…>` angle form of a link target, which nothing exercised at
     all. Hardened to 24 tests in `9401d4e`. **One of the new assertions was wrong and the code was
     right** (unwrapping `<…>` belongs to the extractor, not the resolver) — fixed in the test.
-  - ⏳ **Still in flight at the hand-back of 2026-09-12**: the **re-measured** mutation score (to be
-    written into `maintainers/mutation/RESULTS.md`, § *scripts (harness)*), and the **CI verdicts** on
-    `1ac5e37` and `9401d4e`. Re-run it with
-    `node maintainers/mutation/mutate-one.mjs scripts/lib/delivered-links.mjs` — the runner refuses an
-    uncommitted tree, which is how it avoids scoring the old bytes and saying ✅ in the same words.
+  - ✅ **Re-measured after the hardening: 74.29 % → 92.31 % → 97.62 %**, 3 survivors left and all three
+    named equivalents. Recorded in `maintainers/mutation/RESULTS.md` (§ *#78 — the run that found a
+    defect in the CODE*), which is where the detail lives rather than here. **It found a production
+    defect**, not just thin tests: stripping an inline code span **glued a link together**, so the
+    guard could report a file that was fine.
   - 🏷️ **The issue is NOT closed yet**: it closes with its evidence once those two come back, and the
     `proposed: v5.3` label on it is now wrong — the fix landed on `main` after v5.3.0 was cut.
 
