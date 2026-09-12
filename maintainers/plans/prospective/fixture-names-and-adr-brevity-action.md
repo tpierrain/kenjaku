@@ -22,10 +22,6 @@
 - **▶️ AWAITING ONE WORD: the `v5.3.0` TAG IS MOVED onto the rename — no `v5.3.1`, no release note**
   _(owner's call, 2026-09-12)_ → § *Step 4*, which holds the reasoning, what it buys and what it does
   not. Everything local is ready and pushed; the only step left is the forced tag push.
-- **Who is exposed, measured, and narrower than first written:** `v5.3.0` is the **only** published
-  version that ever carried the names (audited across all 34 tags), so brains installed **before** it
-  are clean; only an install or engine update made in the hours since it shipped can carry them, in
-  the `switch` skill and six `scripts/` files. `maintainers/` never reaches a brain.
 - ℹ️ **Not recoverable, and he should know rather than be protected from it:** the names stay readable
   in the **commit history** of a public repo, which moving the tag does not touch and no patch release
   would have touched either → § *Step 4*. Rewriting published history is a separate, heavier decision
@@ -94,6 +90,14 @@ ratifying unblocks nothing and refusing breaks nothing running. He has now read 
 said the long one was unreadable; put the question once, after step 2, and record the answer here.
 
 ## Step 4 — the tag moves, and nothing is announced
+
+**Who is exposed, audited rather than assumed, and narrower than the first draft of this plan said.**
+`v5.3.0` is the **only** published version that ever carried the names: all 34 tags were searched, from
+`V1` on, and every other one is clean. The names were born and buried inside a single day. So brains
+installed **before** `v5.3.0` are clean, and only an install or an engine update made in the hours
+since it shipped can carry them, through the **seven files that really reach a brain** (the delivered
+`switch` documentation, plus six under `scripts/`). `maintainers/` is excluded from every install by
+construction, so the plans, the mutation register and the release notes never travelled.
 
 **The owner's call, 2026-09-12**, taken after a drafted `v5.3.1` note was shown to be the problem
 rather than the fix: « il ne faudrait pas que dans la release note on mentionne ces noms-là parce que
