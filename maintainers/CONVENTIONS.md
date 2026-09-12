@@ -907,6 +907,38 @@ the product makes to the people using it. Everything else went back to the plans
 - ⚠️ **And the `BUG:` / `FEAT:` prefix above was missing from all ten.** Caught by re-reading this
   section, not by any check — which is the only reason it is worth writing rules down.
 
+### 📣 EVERY issue WE open leads with what it changes for the person using Kenjaku
+
+_(2026-09-12, Thomas, after a plain-language summary of the four open issues: « c'est exactement comme
+ça que je voudrais que tous les tickets soient écrits, décrits ».)_
+
+The section above says an issue must be about the product. This one says **how it must open**, because
+the two failures are different: one is about the *subject*, this one is about the *first paragraph*.
+An issue whose first lines describe machinery — what the code does, which plan it came from, which
+mechanism is at fault — makes the reader assemble the value themselves, and **that is the work the
+person deciding should not have to do**.
+
+So the body opens on a short block, **before any detail**, and it answers one question:
+
+> **`## What it changes for the person using Kenjaku`** — in two or three plain sentences: what they
+> live today, what they would live instead, and how it ranks against the other open items.
+
+- **"Nothing they will see" is a valid answer, and it is written out loud.** A maintenance debt that
+  pretends to user value is worse than one that says plainly it is a promise being paid (see
+  [#113](https://github.com/tpierrain/kenjaku/issues/113)).
+- **Say where it sits**, not only what it is: *the one a user will feel most*, *the least urgent of the
+  open items*. A tracker of four issues each claiming to matter ranks nothing.
+- **The machinery goes below the block, never above it**, and the internal provenance — the plan it was
+  converted from, the section it came out of — goes to the **bottom**, under *Background, for
+  maintainers*.
+- **It applies to issues WE open.** An outside contributor's report is never rewritten
+  (§10bis above): we add the block as a **comment** if the value is worth stating, and leave their
+  words alone.
+
+> Why it earns its place next to the public-tracker rule: that one keeps the maintainer's notebook out
+> of the tracker, and this one keeps the **engineer's register** out of it. Both are the same test read
+> twice — *can someone who does not maintain this decide something from what I just wrote?*
+
 ### 🙏 An issue or PR opened by SOMEONE ELSE is thanked when it is closed — always
 
 **A closing comment on an outside contributor's report is not only a status update: it is the only
