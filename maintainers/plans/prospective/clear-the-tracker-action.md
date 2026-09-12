@@ -506,6 +506,16 @@ attempt: *« ces tickets sont comme des discussions privées entre moi et moi-m�
   notes improves the answers — a claim the product makes to its users).
 - **The three questions that wait on him stay HERE**, as they always did: the nightly quality run's
   purpose, `ci.yml`'s `concurrency`, and the French wording shipped in v5.2.0.
+- ➕ **And passing that test was not enough — the four survivors still opened on machinery**
+  _(2026-09-12, later the same evening)_. Asked what the four open issues would bring to the people
+  using Kenjaku, the answer had to be assembled from their bodies rather than read off them. His
+  verdict on the plain-language summary: *« c'est exactement comme ça que je voudrais que tous les
+  tickets soient écrits »*. So [#79](https://github.com/tpierrain/kenjaku/issues/79),
+  [#113](https://github.com/tpierrain/kenjaku/issues/113),
+  [#114](https://github.com/tpierrain/kenjaku/issues/114) and
+  [#62](https://github.com/tpierrain/kenjaku/issues/62) now **lead with a `## What it changes for the
+  person using Kenjaku` block**, ahead of any detail, and the rule is carved in **CONVENTIONS §10bis**
+  _(`ac97819`)_ so the next issue is written that way without being asked.
 
 ## 🙋 Questions the owner owns — asked, and NOT to be re-asked
 
