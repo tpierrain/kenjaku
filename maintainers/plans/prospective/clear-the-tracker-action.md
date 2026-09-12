@@ -32,8 +32,7 @@
   § *History*) or into either of his two personal brains. ⚠️ **Cutting a release was granted ONCE**, by
   name, on 2026-09-12 (« vas y cut la release ») — **for v5.2.0 only**. Preparing ≠ cutting: ask again
   before tagging v5.3. ℹ️ A **plan-only push no longer starts CI** (his call, same day) — no run to
-  read, and not a breakage. ⏳ **FIRST THING: the last code push (the CRLF fix,
-  `scripts/lib/ci-path-filter.mjs`) still has a CI verdict UNREAD.** → § *History*.
+  read, and not a breakage. **No CI verdict is outstanding** — § *History*.
 - **Already delivered:** v5.1.3 and v5.2.0, both archived — § *Group 1*, § *v5.1*. Lessons: § *History*.
 
 ## Tracking
@@ -479,6 +478,13 @@ _(2026-09-12, and it came out of a plain question: « c'est long, comment ça se
   neither will ever be in that list.
 - ⚠️ **The consequence to remember at a resume**: after a plan-only push there is **no run to read**,
   and that is the design rather than a broken workflow.
+- ✅ **And the guard's own Windows bug is fixed and PROVEN green** _(2026-09-12 · `2ed8a66` · CI run
+  [34688317258](https://github.com/tpierrain/kenjaku/actions/runs/34688317258), 3 min 30, every check
+  passing — read on the resume of the same day)_. The guard read the workflow file with a POSIX-only
+  line split, so on Windows it saw **one single line**, found no `paths-ignore` entry in it, and
+  reported the cheerful conclusion that the filter *"filters nothing"* — a net that judged itself
+  green while measuring nothing. **The lesson is the one this whole section is about**: the guard that
+  watches a silent net was itself silently blind, and only the cross-platform run could say so.
 
 ### The state block was itself the defect, and the rule already existed
 
