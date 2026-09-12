@@ -132,6 +132,11 @@ but the corrected content. Two further properties were measured because the desi
   touched, including ones the owner's own rules would have stopped. **Correcting must not grant.**
 - **It works on `Edit`, not only `Write`**: the rewrite lands on `new_string`, so a correction applies
   to an existing note being amended exactly as to one being born.
+- **A concurrent REFUSAL still wins.** The brain already runs a `PreToolUse(Write|Edit)` hook that
+  denies a note the indexer could not read (F11/F12), and it now runs beside one that rewrites the
+  input. Measured on the same host: with both answering the same call, the write does not happen. So
+  adding a corrector cannot silently disarm the guard next door — which is the one regression this
+  arrangement could have shipped without anybody noticing.
 
 ```mermaid
 sequenceDiagram

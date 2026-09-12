@@ -64,6 +64,16 @@
             "timeout": 10000
           }
         ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "{{NODE}} \"{{PROJECT_ROOT}}/scripts/vault-write-notice.mjs\"",
+            "timeout": 10000
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [

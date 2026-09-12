@@ -27,9 +27,9 @@ test("the sentence names BOTH scopes — where the note lands, and what searches
   });
   assert.equal(
     message,
-    "\n🧭 Heads-up: I filed this note in 'acme', but your active universe is 'globex' — " +
-      "my searches keep answering from 'globex', so this note will not come back until you " +
-      "switch. The write is fine either way; say `/switch acme` if that is where you are working.",
+    "\n🧭 Heads-up: I filed this note in 'acme' while your active universe is 'globex' — " +
+      "my searches keep answering from 'globex', so it will not come back until you switch. " +
+      "Say `/switch acme` if that is where you are working.",
   );
 });
 

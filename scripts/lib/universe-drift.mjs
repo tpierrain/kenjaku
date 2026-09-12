@@ -43,9 +43,8 @@ export function universeDriftNotice({ notePath, pointer, registry = [], alreadyS
   return {
     universe: filedIn,
     message:
-      `\n🧭 Heads-up: I filed this note in '${filedIn}', but your active universe is ` +
-      `'${pointer}' — my searches keep answering from '${pointer}', so this note will not ` +
-      `come back until you switch. The write is fine either way; say \`/switch ${filedIn}\` ` +
-      `if that is where you are working.`,
+      `\n🧭 Heads-up: I filed this note in '${filedIn}' while your active universe is ` +
+      `'${pointer}' — my searches keep answering from '${pointer}', so it will not come back ` +
+      `until you switch. Say \`/switch ${filedIn}\` if that is where you are working.`,
   };
 }

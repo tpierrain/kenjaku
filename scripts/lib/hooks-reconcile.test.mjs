@@ -127,6 +127,7 @@ test("reconcileHooks — a brain with no PreToolUse at all is given the write gu
     [
       { matcher: "Write|Edit", hooks: [{ type: "command", command: '/usr/local/bin/node "/brains/foo/scripts/vault-write-guard.mjs"', timeout: 10000 }] },
       { matcher: "Write|Edit", hooks: [{ type: "command", command: '/usr/local/bin/node "/brains/foo/scripts/engine-write-guard.mjs"', timeout: 10000 }] },
+      { matcher: "Write|Edit", hooks: [{ type: "command", command: '/usr/local/bin/node "/brains/foo/scripts/vault-write-notice.mjs"', timeout: 10000 }] },
     ],
     "the event must be CREATED, matcher and timeout intact, with the brain's own node + dir substituted",
   );

@@ -46,7 +46,7 @@ function emitters() {
   );
 }
 
-test("the F5 audit knows every additionalContext emitter — the field log named three, there are nine", () => {
+test("the F5 audit knows every additionalContext emitter — the field log named three, there are ten", () => {
   // Pin the list. A new hook lands here first, which is the moment to ask whether the
   // owner should be reading its prose at all. The sixth (F20) is the first that is NOT a
   // startup hook: it rides `UserPromptSubmit`, i.e. EVERY prompt rather than one session
@@ -62,6 +62,10 @@ test("the F5 audit knows every additionalContext emitter — the field log named
   // its draft named every author of the brain and explained the whole rule (~900 chars),
   // on a channel that opens before the owner has typed. Shipped, it names three people
   // and counts the rest, and says in one clause what to call instead of composing a path.
+  // The tenth (v5.3's write-time notice) widens the channel once more and is the first on
+  // `PreToolUse`: every write the brain makes, not every session or every prompt. It pays
+  // for that by being silent unless it has something new to say — a sphere or a spelling it
+  // has not named in THIS session — and by naming at most three before counting the rest.
   assert.deepEqual(
     emitters().map(({ name }) => name).sort(),
     [
@@ -73,6 +77,7 @@ test("the F5 audit knows every additionalContext emitter — the field log named
       "session-self-heal.mjs",
       "status-hook-output.mjs",
       "universe-reminder.mjs",
+      "vault-write-notice.mjs",
       "wiki-health-nudge.mjs",
     ],
   );
@@ -95,7 +100,7 @@ test("the scan reads real sources, so an empty result cannot pass for a clean on
   // vacuously forever — the quietest way there is to lose a guard.
   const found = emitters();
 
-  assert.equal(found.length, 9);
+  assert.equal(found.length, 10);
   assert.ok(
     found.every(({ path }) => readFileSync(path, "utf8").includes("hookEventName")),
     "an emitter was matched that does not build a hook output at all",
