@@ -15,10 +15,11 @@
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-08-23
 
-- **Next:** ▶️ **BUILD `v5.2 — The One Where Done Really Means Done`. Approved 2026-09-12, start
-  without asking** → § *THE APPROVED PLAN*. In order: **step 0**, the ADR on how the brain speaks and
-  when it may act alone, then the five fixes — **#98 is in this release whatever happens** (his
-  standing instruction) and may be taken first of the five. Open a branch off `main`.
+- **Next:** ▶️ **BUILDING `v5.2 — The One Where Done Really Means Done`** on branch
+  `feat/v5.2-done-means-done` (off `main`, pushed) → § *THE APPROVED PLAN*. **Step 0 is done**: ADR
+  0043 ratifies the three tiers and the plain-language rule, carried into both constitutions and
+  guarded _(2026-09-12 · `d07f6be`)_. **Resume at #98**, the cheapest of the five and his standing
+  instruction, whose wording the doctrine now governs; then #77, #81, #96, #83.
 - **Blocked on:** nothing. **Owner's call pending:** nothing. The grouping, the order and the three
   release titles are all decided; two older questions sit in § *Questions the owner owns* and are
   **not to be re-asked** (#78's launcher-README link, `ci.yml`'s `concurrency` group).
@@ -154,20 +155,28 @@ the cost of cutting a release here is small and measured.
 
 #### Group 1 → `v5.2 — The One Where Done Really Means Done`
 
-- [ ] **0. FIRST, AND BEFORE ANY OF THE FIVE — ratify how the brain speaks and when it may act
+- [x] **0. FIRST, AND BEFORE ANY OF THE FIVE — ratify how the brain speaks and when it may act
       alone.** An **ADR**, not code: the three tiers of autonomy (silent / announce-then-do / genuinely
       ask) and the plain-language rule for every string the brain emits. Model and steps already
       written in the issue and in
       [the archived plan](../archived/2026-08-23-restore-affordance-graduated-autonomy-action.md).
-  - [ ] 🎯 **Why it is step 0 and not step 6** _(his challenge, 2026-09-12)_: this release **emits new
+      **Done** _(2026-09-12 · `d07f6be`)_ — [ADR 0043](../../decisions/0043-graduated-autonomy-and-plain-language.md),
+      the doctrine section in both constitutions, and `scripts/lib/autonomy-discipline.test.mjs`
+      holding it. The gate is **reversibility then confidence**, and the tier belongs to the **gesture**,
+      never to the skill. 🇫🇷 The French twin moved in the same commit under the standing carve-out
+      (§ *History*): `CLAUDE.engine.md` is guard-watched, so an English-only commit reddens the suite.
+      **The French wording is his to correct.**
+  - [x] 🎯 **Why it is step 0 and not step 6** _(his challenge, 2026-09-12)_: this release **emits new
         user-facing strings** — #98's clickable question above all — and v5.3 emits another. Written
         after the fact, they would all be re-work. The decision is hours; the audit it opens is weeks
         and belongs to **v5.4**, which is why only the decision rides here.
-  - [ ] ⚠️ **The known risk of doing it first, and its mitigation**: a doctrine ratified *before* the
+  - [x] ⚠️ **The known risk of doing it first, and its mitigation**: a doctrine ratified *before* the
         audit risks being theoretical. Mitigation, deliberately cheap — write it against a **real
         sample**: the five subset-picker prompts he faced in one session, and #98's own two questions.
-        If the tiers cannot classify those, they are not ready.
-  - [ ] It ships **inside** this release (the doctrine lands in `CLAUDE.engine.md`, which is delivered
+        If the tiers cannot classify those, they are not ready. **Run, and it held**: the ADR's own
+        table classifies the eight real prompts, `/lint` alone spans all three tiers, and **four of the
+        eight stay 🔴** — which is the evidence the model is not just a way to ask less.
+  - [x] It ships **inside** this release (the doctrine lands in `CLAUDE.engine.md`, which is delivered
         content), not as a release of its own.
 
 **Why these five belong together, in the user's words rather than ours:** *the screen said it was
