@@ -16,22 +16,23 @@
 ## 📍 STATE — the only perishable block in this file · opened 2026-08-23
 
 - **Next:** ▶️ **`v5.3 — The One Where It Says Which Universe It Answered From`**, and it is
-  **design-first**: four issues that are one subject seen from four angles, **plus #100 as a rider**
-  (his call, 2026-09-12). → § *Group 2*. Read `harness-universe-blindspot-hardening-action.md` before
-  writing anything, and expect one ADR out of it. **Nothing is started.**
+  **design-first**: four issues that are one subject seen from four angles, **plus #100 and #101 as
+  riders** (his call, 2026-09-12). → § *Group 2*. Read `harness-universe-blindspot-hardening-action.md`
+  before writing anything, and expect one ADR out of it. **Nothing is started.**
 - **Blocked on:** nothing — v5.3 can start today. **TWO things wait on him, and on nobody else:**
   (a) **what the nightly mutation run is FOR**, a product call, now that the biggest package provably
   cannot fit in six hours → § *Inherited from v5.0.0*; (b) **the French wording shipped in v5.2.0**
   (ADR 0043's doctrine and the update skill's new prompts, written under the `templates/fr/**`
   carve-out) — live in the fleet, correct at his leisure, gating nothing.
-- Two older questions sit in § *Questions the owner owns* and are **not to be re-asked** (#78's
-  launcher-README link, `ci.yml`'s `concurrency` group). The grouping, the order and the three release
-  titles are all decided.
+- Two older questions sit in § *Questions the owner owns*, **not to be re-asked** (#78's
+  launcher-README link, `ci.yml`'s `concurrency`). Grouping, order and the three titles are decided.
 - **A session may, alone:** work the active release test-first end to end on a branch, **label**
-  issues, commit, push, and read what CI returns. **Not:** write into `templates/fr/**` (one carve-out,
+  issues, commit, push, and read what CI returns. **PREPARING v5.3 UNATTENDED was granted 2026-09-12**
+  (« faire un clear et te laisser travailler en autonomie pour préparer la prochaine release ») — so a
+  cleared session picks this up without asking. **Not:** write into `templates/fr/**` (one carve-out,
   § *History*) or into either of his two personal brains. ⚠️ **Cutting a release was granted ONCE**, by
-  name, on 2026-09-12 (« vas y cut la release », then « je t'autorise » after the classifier refused
-  the merge) — **for v5.2.0 only**. It does not carry to v5.3: ask again.
+  name, on 2026-09-12 (« vas y cut la release ») — **for v5.2.0 only**. Preparing ≠ cutting: ask again
+  before tagging v5.3.
 - **Already delivered:** v5.1.3 and v5.2.0, both archived — § *Group 1*, § *v5.1*. Lessons: § *History*.
 
 ## Tracking
@@ -127,7 +128,7 @@ the cost of cutting a release here is small and measured.
 | | Theme, in one sentence | Issues | When |
 |---|---|---|---|
 | **v5.2** | *The brain stops reporting work it has not done.* | #77, #96, #81, #98, #83 | ✅ **shipped 2026-09-12** |
-| **v5.3** | *You always know which sphere you are standing in.* | #72, #68, #66, #82, + **#100** (rider) | **next**, design-first |
+| **v5.3** | *You always know which sphere you are standing in.* | #72, #68, #66, #82, + **#100, #101** (riders) | **next**, design-first |
 | **v5.4+** | *The brain asks less and speaks plainly.* | #79 | a chantier, not a release |
 | — | Neither: #84 is now closed on evidence, two still wait on him | #62, #78's product half | see below |
 
@@ -148,7 +149,7 @@ the cost of cutting a release here is small and measured.
 | | Theme, in one sentence | Issues | When |
 |---|---|---|---|
 | **v5.2** | *The brain stops reporting work it has not done.* | #77, #96, #81, #98, #83 | ✅ **shipped 2026-09-12** |
-| **v5.3** | *You always know which sphere you are standing in.* | #72, #68, #66, #82, + **#100** (rider) | **next**, design-first |
+| **v5.3** | *You always know which sphere you are standing in.* | #72, #68, #66, #82, + **#100, #101** (riders) | **next**, design-first |
 | **v5.4+** | *The brain asks less and speaks plainly.* | #79 | a chantier, not a release |
 | — | Neither: #84 is now closed on evidence, two still wait on him | #62, #78's product half | see below |
 
@@ -205,6 +206,18 @@ about the same gap: **the brain scopes one thing and leaves another unscoped, wi
   - [ ] ❓ **The one thing it needs from him: the release title.** `The One Where It Says Which
         Universe It Answered From` does not cover an update offer. Cheapest answer is to keep the title
         (it is his own pick from three) and give the rider its own paragraph in the release note.
+- [ ] **6. 🎁 SECOND RIDER, same subject, same call — say how long an update takes** —
+      [#101](https://github.com/tpierrain/kenjaku/issues/101), filed 2026-09-12 minutes after #100 and
+      from a **real run**: he ran `/update-engine` on his own brain, confirmed #98's clickable buttons
+      work, and named what is still missing. The consent message describes everything the update does
+      and never says it is over in about a minute; the **only** number it carries today is the scary
+      one (*"a few minutes"*, the reindex case). An unknown cost is postponed, and postponing is what
+      leaves a fleet several releases behind.
+  - [ ] 📏 **The figure is MEASURED, never estimated at the keyboard** — the §10ter field rehearsal this
+        release runs anyway is where it comes from, and it is written down there. If it is not "under a
+        minute", the sentence says what it really is.
+  - [ ] 🔗 **One sentence, two places, identical wording**: `/update-engine`'s consent question, and
+        #100's proactive offer. They are the two moments a person decides whether they have the time.
 - [ ] 🧭 **Design before code, and one ADR likely comes out of it.** Read
       [`harness-universe-blindspot-hardening-action.md`](harness-universe-blindspot-hardening-action.md)
       **first** — it already names why universe changes keep escaping green suites — and fold it in
