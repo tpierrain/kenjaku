@@ -1,0 +1,21 @@
+[32m19:42:33 (51126) INFO ProjectReader[39m Found 1 of 1100 file(s) to be mutated.
+[32m19:42:33 (51126) INFO Instrumenter[39m Instrumented 1 source file(s) with 17 mutant(s)
+[32m19:42:33 (51126) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m19:42:33 (51126) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-7ipT1x
+[32m19:42:33 (51126) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m19:42:33 (51126) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m19:42:34 (51126) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 0 seconds (net 118 ms, overhead 0 ms).
+
+All tests
+  ✓ All tests (killed 17)
+
+Ran 1.00 tests per mutant on average.
+--------------------------|------------------|----------|-----------|------------|----------|----------|
+                          | % Mutation score |          |           |            |          |          |
+File                      |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+--------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files                 | 100.00 |  100.00 |       17 |         0 |          0 |        0 |        0 |
+ batched-announcement.mjs | 100.00 |  100.00 |       17 |         0 |          0 |        0 |        0 |
+--------------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m19:42:34 (51126) INFO MutationTestExecutor[39m Done in 0 seconds.
+[32m19:42:34 (51126) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-7ipT1x.
