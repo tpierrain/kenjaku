@@ -215,6 +215,15 @@
     says whether it asks anything, and where the host offers one a 🔴 uses a **clickable** question
     with the prose form as fallback. Governs every **new** string; the audit of the shipped ones is a
     later, larger job. **Scope: Second brain (runtime).**
+  - [`0045-an-important-question-is-a-control-not-a-sentence.md`](decisions/0045-an-important-question-is-a-control-not-a-sentence.md) —
+    every question that decides the **life of a brain** (installing it, where the text of your notes
+    goes, updating the engine, whether it is backed up anywhere else) is asked with the host's
+    **clickable question**, options spelled out, **never as the last line of a long message** — because
+    a person in a hurry cannot answer by scrolling. It changes **how** a question is asked, never
+    whether the answer is required. Reserved for the questions that deserve to interrupt (a control
+    raised twenty times is clicked unread), and a **destructive** gesture keeps its typed
+    confirmation: a button is easier to hit by accident than a name is to type.
+    **Scope: Second brain (runtime) + Installer.**
 - **[`eval-set.md`](eval-set.md)** — 🧪 **dev tool**: the RAG eval-set (Step 2 of the embedder plan).
   Measures the retrieval quality of the current embedder as a **reproducible score** (judge =
   Claude via `claude -p`), on the Flemmr vault → **Gemini baseline** to replay on the local
