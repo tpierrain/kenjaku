@@ -349,6 +349,26 @@ tracker pretends to be a decision he has taken.
   title and body describe a **bug** — a true, sourced statement deleted from a message to an executive
   on the strength of a claim broader than its search.
 
+## 🖱️ Applying ADR 0045 — the questions that decide a brain's life become controls
+
+**[ADR 0045](../../decisions/0045-an-important-question-is-a-control-not-a-sentence.md) is ACCEPTED**
+(2026-09-13). It generalises what the engine update already does: a question that decides the life of
+a brain is a **clickable control**, never a sentence at the end of a long message. **The decision is
+written; applying it is not scheduled**, and the ADR says so itself.
+
+- [ ] **The install conversation**, where two of the ADR's three lived situations happen: the choice
+      that decides **where the text of your notes goes**, and the closing offer of a **backup
+      elsewhere** — today both are prose in a long message.
+- [ ] **The other lifecycle questions** — importing another brain's notes, and anything the brain
+      cannot undo for the owner afterwards.
+- [ ] **The guard widens with it**: `scripts/lib/clickable-consent-discipline.test.mjs` today holds
+      *"the update asks this way"*; it must come to hold *"each of these asks this way"*, in both
+      locales.
+
+> ⚠️ **The boundary that must survive the sweep** (ADR 0045, *Guardrails*): a **destructive** gesture
+> keeps its **typed** confirmation. A button is easier to hit by accident than a name is to type, so
+> this makes choices harder to miss and must never make deletion easier to reach.
+
 ## 🟢 What v5.4 left to build — three gestures he accepted, and nobody coded
 
 **Answered 2026-09-13, as a clickable question** (which is [ADR 0045](../../decisions/0045-an-important-question-is-a-control-not-a-sentence.md)'s

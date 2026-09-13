@@ -104,7 +104,10 @@ is what a 🔴 looks like when its presentation is an afterthought.
    visible control; a sentence at the end of a long message is text to spot. **The prose question
    stays as the fallback** where the host has none — the same way the engine already handles a
    missing native tool. This changes how consent is collected, never whether it is required: an
-   unanswered question stays unanswered and nothing runs.
+   unanswered question stays unanswered and nothing runs. **Which questions are asked that way, and
+   the guardrails on it, are [ADR 0045](0045-an-important-question-is-a-control-not-a-sentence.md)** —
+   it widens this point beyond 🔴 runtime strings to the install conversation, and this ADR does not
+   restate it.
 
 8. **This governs every NEW user-facing string from now on.** The doctrine ships with v5.2 precisely
    because that release emits new strings; the **audit of the existing ones is a separate, larger
