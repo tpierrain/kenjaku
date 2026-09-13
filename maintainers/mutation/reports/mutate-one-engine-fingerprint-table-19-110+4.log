@@ -1,0 +1,118 @@
+[32m22:13:18 (57213) INFO ProjectReader[39m Found 5 of 1101 file(s) to be mutated.
+[32m22:13:18 (57213) INFO Instrumenter[39m Instrumented 5 source file(s) with 129 mutant(s)
+[32m22:13:18 (57213) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m22:13:18 (57213) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-FQQTHb
+[32m22:13:18 (57213) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m22:13:18 (57213) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m22:13:21 (57213) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 2 seconds (net 2904 ms, overhead 0 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/129 tested (0 survived, 0 timed out)
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/129 tested (0 survived, 0 timed out)
+Mutation testing 3% (elapsed: <1m, remaining: ~12m) 5/129 tested (1 survived, 0 timed out)
+Mutation testing 3% (elapsed: <1m, remaining: ~16m) 5/129 tested (1 survived, 0 timed out)
+Mutation testing 3% (elapsed: <1m, remaining: ~20m) 5/129 tested (1 survived, 0 timed out)
+Mutation testing 7% (elapsed: ~1m, remaining: ~11m) 10/129 tested (1 survived, 0 timed out)
+Mutation testing 7% (elapsed: ~1m, remaining: ~13m) 10/129 tested (1 survived, 0 timed out)
+Mutation testing 7% (elapsed: ~1m, remaining: ~15m) 10/129 tested (1 survived, 0 timed out)
+Mutation testing 11% (elapsed: ~1m, remaining: ~11m) 15/129 tested (1 survived, 0 timed out)
+Mutation testing 11% (elapsed: ~1m, remaining: ~12m) 15/129 tested (1 survived, 0 timed out)
+Mutation testing 15% (elapsed: ~1m, remaining: ~9m) 20/129 tested (1 survived, 0 timed out)
+Mutation testing 15% (elapsed: ~2m, remaining: ~10m) 20/129 tested (1 survived, 0 timed out)
+Mutation testing 15% (elapsed: ~2m, remaining: ~11m) 20/129 tested (1 survived, 0 timed out)
+Mutation testing 19% (elapsed: ~2m, remaining: ~9m) 25/129 tested (1 survived, 0 timed out)
+Mutation testing 19% (elapsed: ~2m, remaining: ~10m) 25/129 tested (1 survived, 0 timed out)
+Mutation testing 19% (elapsed: ~2m, remaining: ~11m) 25/129 tested (1 survived, 0 timed out)
+Mutation testing 23% (elapsed: ~2m, remaining: ~9m) 30/129 tested (1 survived, 0 timed out)
+Mutation testing 23% (elapsed: ~3m, remaining: ~9m) 30/129 tested (1 survived, 0 timed out)
+Mutation testing 23% (elapsed: ~3m, remaining: ~10m) 30/129 tested (1 survived, 0 timed out)
+Mutation testing 27% (elapsed: ~3m, remaining: ~8m) 35/129 tested (1 survived, 0 timed out)
+Mutation testing 28% (elapsed: ~3m, remaining: ~8m) 37/129 tested (1 survived, 0 timed out)
+Mutation testing 28% (elapsed: ~3m, remaining: ~9m) 37/129 tested (1 survived, 0 timed out)
+Mutation testing 31% (elapsed: ~3m, remaining: ~8m) 40/129 tested (1 survived, 0 timed out)
+Mutation testing 32% (elapsed: ~4m, remaining: ~8m) 42/129 tested (1 survived, 0 timed out)
+Mutation testing 34% (elapsed: ~4m, remaining: ~7m) 45/129 tested (2 survived, 0 timed out)
+Mutation testing 37% (elapsed: ~4m, remaining: ~7m) 48/129 tested (2 survived, 0 timed out)
+Mutation testing 37% (elapsed: ~4m, remaining: ~7m) 48/129 tested (2 survived, 0 timed out)
+Mutation testing 41% (elapsed: ~4m, remaining: ~6m) 53/129 tested (2 survived, 0 timed out)
+Mutation testing 41% (elapsed: ~4m, remaining: ~6m) 54/129 tested (2 survived, 0 timed out)
+Mutation testing 43% (elapsed: ~5m, remaining: ~6m) 56/129 tested (2 survived, 0 timed out)
+Mutation testing 45% (elapsed: ~5m, remaining: ~6m) 59/129 tested (3 survived, 0 timed out)
+Mutation testing 47% (elapsed: ~5m, remaining: ~5m) 61/129 tested (3 survived, 0 timed out)
+Mutation testing 49% (elapsed: ~5m, remaining: ~5m) 64/129 tested (3 survived, 0 timed out)
+Mutation testing 51% (elapsed: ~5m, remaining: ~5m) 67/129 tested (3 survived, 0 timed out)
+Mutation testing 55% (elapsed: ~5m, remaining: ~4m) 71/129 tested (3 survived, 0 timed out)
+Mutation testing 57% (elapsed: ~6m, remaining: ~4m) 74/129 tested (3 survived, 0 timed out)
+Mutation testing 58% (elapsed: ~6m, remaining: ~4m) 76/129 tested (3 survived, 0 timed out)
+Mutation testing 59% (elapsed: ~6m, remaining: ~4m) 77/129 tested (3 survived, 0 timed out)
+Mutation testing 62% (elapsed: ~6m, remaining: ~3m) 81/129 tested (4 survived, 0 timed out)
+Mutation testing 64% (elapsed: ~6m, remaining: ~3m) 83/129 tested (5 survived, 0 timed out)
+Mutation testing 66% (elapsed: ~6m, remaining: ~3m) 86/129 tested (5 survived, 0 timed out)
+Mutation testing 68% (elapsed: ~7m, remaining: ~3m) 89/129 tested (5 survived, 0 timed out)
+Mutation testing 69% (elapsed: ~7m, remaining: ~3m) 90/129 tested (5 survived, 0 timed out)
+Mutation testing 72% (elapsed: ~7m, remaining: ~2m) 94/129 tested (6 survived, 0 timed out)
+Mutation testing 73% (elapsed: ~7m, remaining: ~2m) 95/129 tested (6 survived, 1 timed out)
+Mutation testing 73% (elapsed: ~7m, remaining: ~2m) 95/129 tested (6 survived, 1 timed out)
+Mutation testing 77% (elapsed: ~7m, remaining: ~2m) 100/129 tested (6 survived, 1 timed out)
+Mutation testing 79% (elapsed: ~8m, remaining: ~2m) 102/129 tested (6 survived, 1 timed out)
+Mutation testing 80% (elapsed: ~8m, remaining: ~1m) 104/129 tested (6 survived, 1 timed out)
+Mutation testing 82% (elapsed: ~8m, remaining: ~1m) 107/129 tested (6 survived, 1 timed out)
+Mutation testing 82% (elapsed: ~8m, remaining: ~1m) 107/129 tested (6 survived, 1 timed out)
+Mutation testing 86% (elapsed: ~8m, remaining: ~1m) 111/129 tested (7 survived, 1 timed out)
+Mutation testing 87% (elapsed: ~8m, remaining: ~1m) 113/129 tested (7 survived, 1 timed out)
+Mutation testing 90% (elapsed: ~9m, remaining: <1m) 117/129 tested (7 survived, 1 timed out)
+Mutation testing 90% (elapsed: ~9m, remaining: <1m) 117/129 tested (7 survived, 1 timed out)
+Mutation testing 94% (elapsed: ~9m, remaining: <1m) 122/129 tested (7 survived, 1 timed out)
+Mutation testing 94% (elapsed: ~9m, remaining: <1m) 122/129 tested (7 survived, 1 timed out)
+Mutation testing 98% (elapsed: ~9m, remaining: <1m) 127/129 tested (7 survived, 1 timed out)
+
+All tests
+  ✓ All tests (killed 121)
+
+[Survived] Regex
+scripts/lib/engine-fingerprint-table.mjs:34:19
+-   const LOCALIZED = /^templates\/([^/]+)\/(.+)$/;
++   const LOCALIZED = /^templates\/([^/]+)\/(.+)/;
+
+[Survived] EqualityOperator
+scripts/lib/engine-heal.mjs:53:22
+-       .sort((a, b) => (a.rel < b.rel ? -1 : 1));
++       .sort((a, b) => (a.rel <= b.rel ? -1 : 1));
+
+[Survived] ArrayDeclaration
+scripts/lib/engine-source.mjs:48:44
+-     const tombstones = (manifest?.retired ?? []).map(globToRegExp);
++     const tombstones = (manifest?.retired ?? ["Stryker was here"]).map(globToRegExp);
+
+[Survived] ObjectLiteral
+scripts/lib/reconcile-brain.mjs:256:64
+-     const { removed: workflowsRetired } = retireShippedWorkflows({ brainDir, sourceDir });
++     const { removed: workflowsRetired } = retireShippedWorkflows({});
+
+[Survived] Regex
+scripts/lib/reconcile-brain.mjs:280:40
+-       const skillDir = skillGlob.replace(/\/\*\*?$/, ""); // ".../local-mirror/**" → ".../local-mirror"
++       const skillDir = skillGlob.replace(/\/\*\*?/, ""); // ".../local-mirror/**" → ".../local-mirror"
+
+[Survived] StringLiteral
+scripts/lib/reconcile-brain.mjs:285:67
+-           installedFileMap[rel] = readFileSync(join(brainDir, rel), "utf8");
++           installedFileMap[rel] = readFileSync(join(brainDir, rel), "");
+
+[Survived] StringLiteral
+scripts/lib/staged-skills.mjs:44:102
+-       base[SKILLS_PREFIX + rel] = fingerprint(readFileSync(join(stagingDir, rel.split("/").join(sep)), "utf8"));
++       base[SKILLS_PREFIX + rel] = fingerprint(readFileSync(join(stagingDir, rel.split("/").join(sep)), ""));
+
+Ran 0.99 tests per mutant on average.
+------------------------------|------------------|----------|-----------|------------|----------|----------|
+                              | % Mutation score |          |           |            |          |          |
+File                          |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+------------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files                     |  94.57 |   94.57 |      121 |         1 |          7 |        0 |        0 |
+ engine-fingerprint-table.mjs |  97.22 |   97.22 |       35 |         0 |          1 |        0 |        0 |
+ engine-heal.mjs              |  92.86 |   92.86 |       13 |         0 |          1 |        0 |        0 |
+ engine-source.mjs            |  92.31 |   92.31 |       12 |         0 |          1 |        0 |        0 |
+ reconcile-brain.mjs          |  91.43 |   91.43 |       31 |         1 |          3 |        0 |        0 |
+ staged-skills.mjs            |  96.77 |   96.77 |       30 |         0 |          1 |        0 |        0 |
+------------------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m22:23:01 (57213) INFO MutationTestExecutor[39m Done in 9 minutes and 43 seconds.
+[32m22:23:01 (57213) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-FQQTHb.

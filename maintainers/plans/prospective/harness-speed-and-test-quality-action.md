@@ -55,6 +55,27 @@ four of the files those runs covered — *the score of the work, not of the exac
   honest order was S1.4 first. S1.4 landed on 2026-09-07. Re-measuring on the old 81-minute instrument
   was exactly the bill S1 existed to avoid paying twice; that bill is now a third of what it was.
 
+## 🧾 Four pre-existing survivors this chantier inherits — found 2026-09-13, by a window that was too wide
+
+v5.5's own gate-1 pass first ran with generous line ranges, and four of its seven survivors landed on
+lines **that release never touched**. Re-scoped, its own lines score 100 %; these four are nobody's
+yet, and they are written here rather than left in a log so they are not re-found in a year. Full
+adjudication in [`../../mutation/RESULTS.md`](../../mutation/RESULTS.md) § *v5.5 gate 1*.
+
+- [ ] **`reconcile-brain.mjs:256` — the shipped-workflow retirement's RESULT is unasserted.** Emptying
+      its arguments (`retireShippedWorkflows({})`) changes nothing any test can see. This is the one
+      worth a real look: the act it guards is a **deletion in the owner's own repo** (issue #92), and a
+      deletion whose outcome nothing observes is the shape this register keeps finding.
+- [ ] **`reconcile-brain.mjs:280` and `:285` — the install-if-absent branch is not exercised through
+      `reconcileBrain`.** The glob-trimming regex and the `utf8` of the read that seeds a freshly
+      installed skill's provenance base both survive; the loop only runs when a brain is **missing** an
+      engine skill, which no test of this function sets up.
+- [ ] **`staged-skills.mjs:44` — the `utf8` of the staging read in `readStagedProvenance`** survives the
+      same way.
+- ⚠️ **Before writing a test for any of them, check the judging narrowing first.** These mutants are
+      judged by a *selected* set of test files; a survivor can mean "no test covers this" **or** "the
+      narrowing hid the test that does", and those need opposite fixes.
+
 ## 📜 What S1 proved — durable, and none of it expires
 
 _All of this sat in the `## 📍 STATE` block until 2026-09-12, which is how that block reached **241**
