@@ -218,6 +218,11 @@ product call.**
 target is an unambiguous spelling of an existing note, and stamping a missing date read from the
 note's own content.
 
+> ✅ **ANSWERED 2026-09-13 — yes to all three, as recommended.** Asked as a clickable question, which
+> is [ADR 0045](../decisions/0045-an-important-question-is-a-control-not-a-sentence.md)'s own doctrine.
+> **None of it is coded**: he chose in the same breath to ship v5.4 without waiting, so the three
+> land **after the tag**. Their recommendations below are now the specification.
+
 **These three are new, and they are his:**
 
 1. **Put the frontmatter keys back at the left margin on a note the engine cannot read.** Today it
