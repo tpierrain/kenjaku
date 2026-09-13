@@ -18,8 +18,10 @@
 - **Next:** ▶️ **the three approved releases are ALL SHIPPED** — v5.4.0 tagged and published
   2026-09-13 ([release](https://github.com/tpierrain/kenjaku/releases/tag/v5.4.0), plan archived:
   [`2026-09-13-v5.4.0-plain-language-delivered.md`](../archived/2026-09-13-v5.4.0-plain-language-delivered.md)).
-  **What is left of this plan is its tails**, and the first real piece of work among them is the
-  **three 🟢 gestures he accepted and that were not coded** → § *What v5.4 left to build*.
+  **What is left of this plan is its tails**, and two of them are real work, neither started: the
+  **three 🟢 gestures he accepted and nobody coded** → [#118](https://github.com/tpierrain/kenjaku/issues/118),
+  § *What v5.4 left to build*; and **applying ADR 0045** (an important question is a control) to the
+  install conversation → § *Applying ADR 0045*.
 - **🛑 The autonomy grant.** It ran *up to the tag* until 2026-09-13, when he granted the tag itself by
   name — « je t'autorise à cut/merge/push » — for **that release**. **It does not carry forward**: the
   next release needs its own grant, and the standing rule below is the default again.
