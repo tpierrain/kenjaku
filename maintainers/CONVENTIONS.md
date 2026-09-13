@@ -794,7 +794,7 @@ Before the tag, in this order:
 
 | # | Gate | Where it lives | What it produces if you do it |
 | --- | --- | --- | --- |
-| 1 | **Mutate what the branch wrote** | [§5quinquies](#5quinquies-mutate-a-new-production-file-the-day-it-is-written--not-at-the-release-tail) | a score, and an entry in `mutation/RESULTS.md` |
+| 1 | **Mutate what the branch wrote** — the file list comes from `git diff --name-only origin/main...HEAD`, never from memory or from the last commit | [§5quinquies](#5quinquies-mutate-a-new-production-file-the-day-it-is-written--not-at-the-release-tail) | a score, and an entry in `mutation/RESULTS.md` |
 | 2 | **Cross-platform** | [§9](#9-cross-platform-parity--local-green--green-the-ci-matrix-is-the-arbiter) | a green matrix on the PR |
 | 3 | **Re-read the marketing surface** | [§10](#10-every-release-re-reads-the-marketing-surface) | edits, or a written "checked, nothing moved" |
 | 4 | **Rehearse the update path**, if the release touches it | [§10ter](#10ter-a-release-that-changes-the-update-path-owes-one-rehearsal-on-a-copy-of-a-real-brain) | `exit 0` and a report read three ways |
@@ -806,6 +806,17 @@ Before the tag, in this order:
 > Skipping the matrix leaves a PR without checks; skipping the note leaves no note; skipping the sweep
 > leaves issues open. **Skipping the mutation pass leaves no trace at all** — no red, no warning, no
 > hole in a log, and every other signal stays green.
+>
+> ⚠️ **AND THE WORSE SHAPE IS A GATE PAID ON THE WRONG LIST — measured, v5.5 _(2026-09-13)_.** The gate
+> was recorded as paid, with a real log and a real **100 %**, on *"the branch's one production file"*.
+> The branch wrote **six**, and the five that were missed were the entire subject of the release. The
+> claim had been composed from the **last commit** instead of from the branch's diff, and the branch had
+> been mostly plans and tests for a day. Re-run over all six, the honest figure was **97.09 %**.
+> - **Why it is worse than the v5.3.0 skip below**: a skip leaves an absence, and an absence can be
+>   noticed. This left a **green log with a score in it**, which reads as coverage from every angle
+>   except recomputing the file list — including from the plan, which quoted the wrong claim back.
+> - **The fix is the one command in the row above**, run at the gate rather than remembered: a scope
+>   that says *"what the branch wrote"* is answered by `git diff`, and by nothing a session recalls.
 >
 > **Measured, v5.3.0 _(2026-09-12)_.** That release reached a merged PR, seven green checks, a re-read
 > marketing surface, a rehearsed update path and a finished release note **with no mutation pass run**,
