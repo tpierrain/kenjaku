@@ -148,7 +148,8 @@ truth` band entirely, repeated another, and painted the brief's own quotation ma
 A board this dense is a lottery ticket every time it is rolled again — and the copy that is already
 right has no reason to be re-rolled.
 
-**So: attach the finished PNG and ask for an edit.** The paste-ready instruction for this board:
+**So: attach the finished PNG and ask for an edit.** This is the instruction that fixed this board on
+2026-09-13 — **already applied**, kept as the worked example to copy the shape of, not to re-run:
 
 > Edit the attached image. **Change one thing and nothing else.** In the **"Self-healing,
 > desired-state"** band, the last line currently reads: `/lint + /consolidate keep your wiki healthy
