@@ -1,7 +1,7 @@
 ---
 name: switch
 description: "Switch the ACTIVE UNIVERSE of this brain, or create a new one (ADR 0034). A universe is a soft retrieval scope (e.g. successive employers, clients, spheres): when you work one universe, searches default to its notes plus your cross-cutting ones. Use when the user wants to switch / change / set the current universe / context / scope, list their universes, or create / add a new universe / context (e.g. 'switch to the acme universe', 'change de contexte', 'crée un univers Blue Team', 'in which universe am I?', 'liste mes univers'). This is invisible until a second universe exists. Switching itself does NOT touch notes and needs no reindex — it only re-points which universe is active. It ALSO records a universe's PROFILE — what this sphere is, your role in it, the people who matter, the recurring topics, and which accounts your tools use here — so use it whenever the user accepts (or declines) to describe their context, asks to fill in / update it, or asks to SEE it — the session start names this skill as the way to read the description back (e.g. 'yes, let's describe my context', 'oui, décris mon contexte', 'update who I work with', 'show me my context', 'montre-moi la description de cet univers'). It also RENAMES a universe ('rename acme to Acme Corp', 'renomme cet univers'). It is also the one door to DELETING a universe — deliberately inconvenient, never offered, opened only when the user explicitly asks to delete one ('delete my acme universe', 'supprime cet univers')."
-version: 1.6.0
+version: 1.7.0
 ---
 
 # /switch — Change or create the active universe (opt-in, no reindex)
@@ -286,12 +286,13 @@ wants back is usually a line to remove from `## Always true here`, not a bypass 
 
 A **full** rename (ADR 0034 / decision D4): the folder moves, every note under it is re-stamped, the
 registry entry changes name, and the user keeps standing where they were. Unlike deletion, this
-loses nothing and is undone by renaming back — so you may run it yourself, **once they have said yes
-to what it costs**.
+loses nothing and is undone by renaming back — so it is a **🟡** (ADR 0043): you say what it costs,
+then you run it. **It is not a confirmation**, and turning it back into one is the defect this
+release closed: nobody should have to authorise a wait that risks none of their notes.
 
-**Step 1 — say what will happen, and let them answer.** Never rename on the strength of the request
-alone: the re-embed can keep their machine busy for minutes, and someone who was not told will think
-their brain hung. The wording is the core's, not yours — this changes nothing on disk:
+**Step 1 — say what will happen, then go.** Never rename on the strength of the request alone: the
+re-embed can keep their machine busy for minutes, and someone who was not told will think their
+brain hung. The wording is the core's, not yours — this changes nothing on disk:
 
 ```bash
 node scripts/rename-universe.mjs --preflight "<old>" "<new>"
@@ -299,10 +300,13 @@ node scripts/rename-universe.mjs --preflight "<old>" "<new>"
 
 - **exit 0** → relay that message in their language (it names the note count, what moves, and that
   the whole universe gets re-encoded for search: seconds on a small universe, a few minutes on a
-  large one). Then **ask them to confirm**. Nothing is lost either way — it is compute, not data.
+  large one). Then close on the veto, in their language, and **do not wait for an answer**:
+  *"Say stop if you'd rather I didn't — otherwise I'll go ahead."* No question mark, no *"shall I"* —
+  an announcement that waits for a yes is a confirmation wearing a new name. Nothing is lost either
+  way: it is compute, not data, and renaming back undoes it.
 - **exit 1** → relay the refusal and stop. Nothing has run.
 
-**Step 2 — only after they confirm**, run the real thing:
+**Step 2 — unless they stopped you**, run the real thing:
 
 ```bash
 node scripts/rename-universe.mjs "<old>" "<new>"

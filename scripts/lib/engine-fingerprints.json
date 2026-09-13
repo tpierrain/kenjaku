@@ -103,6 +103,10 @@
       "sha256:05a26f01ecef9a502d00a76bc87fbdf06fc06faccf52e4a8e3a3c1c20e4d0f50": {
         "since": "v5.4.0",
         "locale": "en"
+      },
+      "sha256:1e0f0136ae852d95cad7e6268938270198c00c08888d523a6ca4c1da6f6a739c": {
+        "since": "v5.5.0",
+        "locale": "en"
       }
     },
     ".claude/skills/local-mirror/SKILL.md": {
@@ -177,6 +181,10 @@
       "sha256:8dbf992b7bde7fb85edab73c75b87c5f10f43089aac8062c6660be187ee993e9": {
         "since": "v4.4.0",
         "locale": "en"
+      },
+      "sha256:174a63434ccee1e09771ad7b570d0476fa1e486ff235e5691ccb26453dbe5415": {
+        "since": "v5.5.0",
+        "locale": "en"
       }
     },
     ".claude/skills/switch/SKILL.md": {
@@ -210,6 +218,10 @@
       },
       "sha256:d8d5b14061ddbf5bb50ab908789b1ba1b45f50a528526a277bd795ced636352b": {
         "since": "v5.3.0",
+        "locale": "en"
+      },
+      "sha256:f8b4c3ccc62138f91d022e21aaf433d17923c315fa2097fd83f1a71eb1702233": {
+        "since": "v5.5.0",
         "locale": "en"
       }
     },

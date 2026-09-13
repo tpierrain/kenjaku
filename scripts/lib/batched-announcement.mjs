@@ -21,6 +21,15 @@
 import { agreeing } from "./plural.mjs";
 
 /**
+ * The sentence that makes this tier a **veto** rather than a request: silence
+ * proceeds, and nothing is asked. It is exported by name because it is carried
+ * **outside this module** — the delivered skills whose gestures went quiet say it in
+ * their own prose, and their guards hold them to THIS spelling. A sentence retyped
+ * in three skills and a test is four sentences, and they drift.
+ */
+export const VETO_CLOSING = "Say stop if you'd rather I didn't — otherwise I'll go ahead.";
+
+/**
  * Split the gestures into the ones that may be announced and acted on, and the ones
  * that must still be asked.
  *
@@ -55,5 +64,5 @@ export function batchMessage(announce = []) {
   if (announce.length === 0) return null;
   const things = `${announce.length} ${agreeing(announce.length, "thing")}`;
   const list = announce.map((gesture) => gesture.what).join("; ");
-  return `I'm about to do ${things}: ${list}. Say stop if you'd rather I didn't — otherwise I'll go ahead.`;
+  return `I'm about to do ${things}: ${list}. ${VETO_CLOSING}`;
 }

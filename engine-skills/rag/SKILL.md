@@ -1,7 +1,7 @@
 ---
 name: rag
 description: "Reports the state of your brain's search index — the RAG: how many notes and chunks are indexed, whether the live watcher is running, which embedder is in use, and the engine + index-schema versions. Re-indexes on demand too. The front door for the words owners reach for: '/rag', plus 'index status', 'is my index up to date', 'how many notes are indexed', 'reindex my vault', 'où en est mon index', 'combien de notes sont indexées', 'réindexe mes notes'. ('/status' is the host's own built-in and never reaches here — ask in plain words instead.)"
-version: 1.0.0
+version: 1.1.0
 ---
 
 # rag — the front door to your index
@@ -35,7 +35,11 @@ Then say it in the owner's words, briefly. The useful translation, not a gloss o
 - **Documents** = your notes. **Chunks** = the passages they were cut into; search works on those,
   so a rising chunk count on a stable document count simply means notes grew.
 - **The watcher running** = a note saved in Obsidian is searchable **within seconds**, with nothing
-  to run by hand. If it is **not** running, say so plainly and offer step 3.
+  to run by hand. If it is not running, the index has stopped following the notes, so a search can
+  answer from what they said days ago. Say that plainly, then **announce the catch-up and run it**
+  (step 3) — a **🟡** (ADR 0043): it spends compute and touches no note, so it is not something the
+  owner has to authorise. Close on the veto, in their language: *"Say stop if you'd rather I didn't —
+  otherwise I'll go ahead."* No question mark, no *"shall I"*.
 - **A stale index** (embedder changed, or schema moved) = search is gated until a re-index; the
   engine says so itself and offers the re-index. Relay the offer, do not pre-empt it.
 

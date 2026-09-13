@@ -1,7 +1,7 @@
 ---
 name: lint
 description: "Health-check the vault's wiki (Axis 1): report where it bleeds — dangling [[links]], orphan notes nobody links to, stale entity pages left behind by fresher notes, and malformed frontmatter. Runs a deterministic scanner and reads its binary report, then acts, announces or asks depending on the gesture (ADR 0043's three tiers). Triggered by '/lint', 'lint my vault', 'check my wiki health', 'what links are broken', 'où mon wiki fuit', 'vérifie la santé de mes notes'."
-version: 1.2.0
+version: 1.3.0
 ---
 
 # lint — wiki-health check ("where is my wiki bleeding?")
@@ -67,11 +67,21 @@ node scripts/lint-vault.mjs
 matters: the silent repairs happen, the announcement covers everything else that is reversible, and
 only genuine judgment calls become questions.
 
-#### 🟢 Do it, say nothing
+#### 🟢 Do it — neither of these is ever turned into a question
+
+Both are deterministic, certain and one `git revert` away, so neither needs authorising. They differ
+in one thing only: whether the owner is told it happened.
 
 - **A link whose target is an unambiguous spelling of a note that exists** — `[[capacity-managment]]`
   when `topics/capacity-management.md` is right there. Deterministic, certain, revertible; asking
   buys nothing. *Unambiguous means exactly one candidate.* Two plausible targets is a 🟡.
+  **Silent**: a typo that is already gone is not news.
+- **A note the engine cannot read** — put the frontmatter keys back at the left margin, and change
+  **nothing else**: the body is theirs, and the whole repair is usually the indentation. **Named in
+  the batch below**, never held back by it — this one is not tidiness. Until it is fixed the note is
+  never re-read, so it keeps answering searches with what it said weeks ago. Say it in those terms
+  (*"this note had stopped being re-read, so it was still answering with what it said in August"*),
+  and say that it re-indexes on its own from here, so the finding disappears by itself.
 
 #### 🟡 Announce them all in ONE message, then act unless stopped
 
@@ -98,15 +108,6 @@ you'd rather I didn't — otherwise I'll go ahead."* Never a question mark, neve
 - **A page the newer notes have moved past** → offer to refresh it from the notes that cite it (a
   Track-C consolidation gesture) and bump `updated:`. The refresh is distilled content, and content
   is a fact.
-- **A note the engine cannot read** → open it, show the owner the block as it stands, and offer to
-  put the keys back at the left margin. Change **nothing else**: the body is theirs, and the whole
-  repair is usually the indentation. Once it is fixed the note re-indexes on its own and the finding
-  disappears — say so, because a finding that clears itself is worth waiting one turn for.
-
-> 🙋 **This last one is the open question of v5.4**, recorded in
-> [`maintainers/registers/gestures.md`](https://github.com/tpierrain/kenjaku/blob/main/maintainers/registers/gestures.md):
-> the repair is mechanical and it is the one finding that costs the owner *answers* rather than
-> tidiness, so it has a case for 🟢. It stays 🔴 until the owner says otherwise.
 
 #### And whatever the tier, the words
 

@@ -223,6 +223,28 @@ test("runHook — sweeps out-of-band dirt into a commit BEFORE pushing", () => {
   assert.ok(add < commit && commit < push, `sweep before push, got: ${calls.join(" | ")}`);
 });
 
+// 🛑 AND IT SWEEPS ON A BRAIN THAT PUSHES NOWHERE — the default install (issue
+// #118). Push is opt-in: a brain with no remote is not an edge case, it is most of
+// them. The sweep above proves the commit happens on a brain that pushes, which
+// leaves the question that actually matters unasked — and it is load-bearing now:
+// ADR 0043 §3 lets a gesture go quiet ONLY because what it writes is one
+// `git revert` away, and `/switch`'s rename moves every note of a universe from a
+// Bash script, where the PostToolUse net never fires. If the sweep were behind the
+// push, that rename would be un-undoable on exactly the brains that never wired a
+// remote, and it could not be announced-then-done.
+test("runHook — commits the turn's out-of-band writes even with nowhere to push", () => {
+  const { git, calls } = makeGit({
+    remote: "", autopush: false, upstream: false, unpushed: 0,
+    status: " M vault/acme/note.md\n",
+  });
+  const code = runHook({ git, sleep: () => {}, write: () => {} });
+
+  assert.equal(code, 0);
+  assert.ok(calls.includes("add ."), "the notes a script moved are staged");
+  assert.ok(calls.includes(`commit -m ${COMMIT_MESSAGE}`), "and committed — the net is local");
+  assert.ok(!calls.includes("push"), "and nothing leaves a brain that never asked to push");
+});
+
 test("runHook — refuses to sweep an unmerged tree but still pushes what is committed", () => {
   const { git, calls } = makeGit({
     remote: "origin", autopush: true, upstream: true, unpushed: 2,
