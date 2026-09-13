@@ -162,6 +162,31 @@ right has no reason to be re-rolled.
 *If the replacement does not fit on one line, the shorter wording is `(fixes the obvious, asks the
 rest)` — the claim that matters is that some fixes happen without being asked about.*
 
+**Three things this edit cost, so the next one costs none of them** *(2026-09-13, four passes)*:
+
+- **Quote the WHOLE line, never just the fragment that changes.** Asked to swap a parenthesis for a
+  longer one, the tool made room by **deleting words either side of it** (`keep your wiki healthy`
+  vanished) and by truncating a nearby one (`/consolidate` → `/consoidat`). Give it the finished line
+  in full, and add *"do not drop any word to make room; set this line slightly smaller if it is tight."*
+- **A word can come back mangled, and only re-lettering THAT word fixes it** (`the obvious` →
+  `·bvious`). Re-state the whole line again, naming the word to spell out.
+- **Nothing else drifted across four passes.** The five bands, the icons, the mascot, the ribbon and
+  every other line came back pixel-faithful, which is the whole reason to edit rather than re-roll.
+
+### 📦 Post-production — every board, before it is committed
+
+**The repo's boards are all `1760 × 982` and ~600–800 KB**, and that is not cosmetic: the raw renders
+are ~5 MB each, they ship **into every generated brain**, and git keeps each version for ever. The
+recipe (settled 2026-07-25, when 18 boards went from **87 MB to 12 MB**):
+
+```bash
+sips --resampleWidth 1760 board.png                                  # 16:9 → 1760 × 982
+pngquant --quality=70-90 --speed 1 --force --output out.png board.png
+```
+
+Keep the `.png` extension and the exact `board-*.png` filename: the README and the brain's own copy
+reference those slots, so nothing else has to change.
+
 > 📌 **The prompt above stays the source of truth** for a full regeneration, and it already carries the
 > corrected copy. Two figures in it age on their own and are worth refreshing **the next time the board
 > is rebuilt from scratch**: the ADR count (`34 ADRs`) and the mutation range.
