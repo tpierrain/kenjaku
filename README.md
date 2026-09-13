@@ -280,7 +280,12 @@ and **git**. The installer checks each one and tells you cleanly if something's 
   stands and your brain asks you, in plain words, which of three you want: take the new one, keep
   yours, or combine them. It also **stops leaving older brains behind**: a brain frozen since the day
   it was installed can now recognise the files it was given back then, and start receiving improvements
-  again. **Since v4.7.0 it also tells you when the engine
+  again. **Since v5.5 that recognition covers the ready-made skills too** — on a brain that has crossed
+  several releases, `/lint`, `/consolidate` and their siblings could stop updating for good, and the
+  report explained it as *"your customized skill was kept exactly as you wrote it"*, about a file you
+  had never opened. Your brain now checks what it holds against **what the engine really published**,
+  version by version, so a skill nobody edited simply comes up to date and the word *customized* is
+  kept for the ones you truly made yours. **Since v4.7.0 it also tells you when the engine
   answering you is no longer the one on disk** — a session loads its wiring once, at start, so an update
   that lands mid-session (typically pulled from your remote when you open your brain on a **second
   machine**) used to be answered by the old code, silently, for the rest of the session. Now it says so,
@@ -424,7 +429,9 @@ tested and fail-loud**. The through-line — **fail loudly rather than pretend**
 - **And when notes are still waiting, it says *what kind* of waiting.** *"A few notes pending, they'll
   catch up next session"* covered five different situations with one sentence — some that do resolve
   themselves, one that never will. Your brain now tells them apart: notes it **refused** (a header it
-  can't read — those need a fix), a **daily quota** reached (that one genuinely does resume on its own),
+  can't read — **since v5.5 the tidy-up puts that header straight for you**, and says it did: until it
+  is fixed, that note keeps answering your searches with what it said weeks ago), a **daily quota**
+  reached (that one genuinely does resume on its own),
   a run **still going** as you read, notes that simply **arrived** after the last look — and a catch-up
   that has already **tried and failed**. The "just arrived" case is now caught up **on the spot**,
   instead of being promised for next time.
@@ -447,7 +454,10 @@ tested and fail-loud**. The through-line — **fail loudly rather than pretend**
 - **It never loses your work, and it has to *prove* it**: a structural write-allowlist means the
   reconciler and the **self-upgradable engine** only add what's missing, plus two narrow moves they can
   demonstrate are about *their own* files. An engine file is refreshed **only when its fingerprint proves
-  you never edited it** (that's how skill improvements finally reach an existing brain); the moment
+  you never edited it** — and **since v5.5 that proof is the same one for every engine file**, including
+  the ready-made skills, which used to be judged against your own brain's copy of what it was given
+  rather than against the published record, and could therefore be mistaken for your work for ever
+  (that's how skill improvements finally reach an existing brain); the moment
   you've made it yours, the engine can reach it **only through a merge from the exact version it gave
   you last time** — so what shipped since arrives *around* your edits, and if the two touch the same
   lines yours stands and you are asked which one you want. **Nothing is left silently behind**: a file
