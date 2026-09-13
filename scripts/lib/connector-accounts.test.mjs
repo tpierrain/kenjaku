@@ -221,7 +221,7 @@ test("a universe with NO profile page at all is undeclared, and points at the do
     status: "undeclared",
     line:
       "This universe has no profile page yet, so it declares no accounts to check against. " +
-      "Slack is on 'acme'. `/switch` can describe this sphere, accounts included.",
+      "Slack is on 'acme'. `/switch` can describe this universe, accounts included.",
   });
 });
 
@@ -234,7 +234,7 @@ test("no page AND nothing observed still answers, with an empty workspace rather
     status: "undeclared",
     line:
       "This universe has no profile page yet, so it declares no accounts to check against. " +
-      "Slack is on ''. `/switch` can describe this sphere, accounts included.",
+      "Slack is on ''. `/switch` can describe this universe, accounts included.",
   });
 });
 

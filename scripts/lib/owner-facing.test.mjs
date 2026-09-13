@@ -242,3 +242,18 @@ test("directiveTraces survives being handed something that is not a string", () 
   assert.deepEqual(directiveTraces(42), []);
   assert.deepEqual(directiveTraces({ text: "owner" }), []);
 });
+
+// 🗣️ `sphere` — added 2026-09-13, from the field. The owner met the v5.3.0 note
+// quoted back to him and stopped on it: the product calls the thing a **universe**,
+// in both locales, and the prose beside it called the same thing a sphere. Two names
+// for one thing is two things, to whoever reads them — the exact rule the two health
+// reports already follow by sharing a heading.
+//
+// ⚠️ What this does NOT ban is the word's other job: saying what KIND of thing a
+// universe is ("an employer, a client, a personal sphere"). That sentence is a
+// definition, and it lives in the constitution, which this guard never reads — it
+// judges printed literals only. The ban is on `sphere` used as a NAME.
+test("jargonTraces knows the second name the product grew for one thing", () => {
+  assert.deepEqual(jargonTraces("It says which sphere it answered from."), ["jargon: sphere"]);
+  assert.deepEqual(jargonTraces("switching spheres"), ["jargon: sphere"]);
+});

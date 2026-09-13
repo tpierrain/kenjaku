@@ -165,6 +165,13 @@ const JARGON = [
   "ledger",
   "append-only",
   "payload",
+  // `sphere` is not machinery vocabulary, it is a SECOND NAME for something the
+  // product already names: a universe. Two names for one thing is two things, to
+  // whoever reads them — found in the field when the owner met a release note calling
+  // his universes spheres. The word's other job (saying what KIND of thing a universe
+  // is: "an employer, a client, a personal sphere") lives in the constitution, which
+  // this guard never reads: it judges printed literals only.
+  "sphere",
   // `entity` is the taxonomy's name for "a person, a subject, a company, a project".
   // The owner has people and topics; they have never had an entity. The pattern is
   // explicit because `entity` + `s` is not how English pluralises it — and a word

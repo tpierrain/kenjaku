@@ -63,21 +63,38 @@ export function upstreamSegment({ cached, installedRef }) {
   // and repeating it would tell the owner to install what they already have.
   if (!cached || cached.installed !== installedRef) return checking;
 
-  const on = isoDate(cached.checkedAt);
-  const dated = (text, prefix = "") => (on === null ? ` · ${text}` : ` · ${text} (${prefix}${on})`);
+  const on = checkedStamp(cached.checkedAt);
+  const dated = (text) => (on === null ? ` · ${text}` : ` · ${text} (${on})`);
   if (cached.state === "available" && cached.target) {
     const noun = cached.ahead === 1 ? "release" : "releases";
     // No date here on purpose: this one is actionable, and the action is the same
     // whether it was found this morning or an hour ago.
     return ` · ${cached.target} available (${cached.ahead} ${noun} ahead) — ask me to update your engine`;
   }
-  if (cached.state === "up-to-date") return dated("up to date", "checked ");
+  // 🛑 "no newer release when I LAST LOOKED", never "up to date" — measured in the
+  // field, 2026-09-13. A brain showed "v5.2.0 · up to date (checked 2026-09-12)" while
+  // v5.3.0 had been out for five hours: the probe ran at 10:45 and the release landed
+  // at 15:40, and the probe runs once a day. The measurement was true; the SENTENCE
+  // was not, because it made a claim about the world in the present tense when all the
+  // brain holds is a claim about its own memory. The owner read it exactly that way.
+  if (cached.state === "up-to-date") return dated("no newer release when I last looked");
   if (cached.state === "unknown") return dated("could not check for updates");
   return checking;
 }
 
-function isoDate(value) {
-  return typeof value === "string" && /^\d{4}-\d{2}-\d{2}/.test(value) ? value.slice(0, 10) : null;
+// When the verdict was measured, as precisely as the cache can say. The CLOCK is the
+// half that was missing: a date alone reads as "today", and a same-day release is
+// precisely the hole a once-a-day probe can fall into. UTC is named rather than
+// converted to the machine's zone — a line that renders differently per machine cannot
+// be asserted by a test, and an unlabelled clock is worse than an explicit one.
+//
+// A cache written by an older engine carries a bare date and still dates the verdict,
+// one notch less precisely. Degrading beats printing "undefined".
+function checkedStamp(value) {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}/.test(value)) return null;
+  const day = value.slice(0, 10);
+  const clock = /^\d{4}-\d{2}-\d{2}T(\d{2}:\d{2})/.exec(value);
+  return clock === null ? day : `${day}, ${clock[1]} UTC`;
 }
 
 // The startup segment read from disk, with I/O injected so both the branch and

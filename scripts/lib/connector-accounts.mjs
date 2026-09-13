@@ -56,7 +56,7 @@ export function checkSlackAccount({ entries, observed, profilePath }) {
       line:
         `This universe has no profile page yet, so it declares no accounts to check ` +
         `against. Slack is on '${slackWorkspace(observed ?? "")}'. ` +
-        "`/switch` can describe this sphere, accounts included.",
+        "`/switch` can describe this universe, accounts included.",
     };
   }
   const declared = declaredAccountFor(entries, "Slack");

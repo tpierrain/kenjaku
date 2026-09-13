@@ -182,23 +182,63 @@ test("upstreamSegment — an update available is named, with how far ahead and t
   );
 });
 
-test("upstreamSegment — being current is stated, and DATED: a cached verdict is not a live one", () => {
+// 🛑 MEASURED IN THE FIELD, 2026-09-13 (the owner, on his own brain). The line read
+// "v5.2.0 · up to date (checked 2026-09-12)" while v5.3.0 had been out for five hours.
+// Nothing was broken: the probe ran at 10:45 that day and v5.3.0 was published at
+// 15:40, and the probe runs once a day. Two things made a true measurement read as a
+// false claim, and both are wording:
+//
+//   • "up to date" is a claim about the WORLD, in the present tense. What the brain
+//     holds is a claim about its own MEMORY. His words: "ça me laisse croire que le
+//     moteur est à jour".
+//   • the date alone hid the gap. "checked 2026-09-12" reads as "checked today", and
+//     the hole this cache can fall into is exactly a same-day one.
+//
+// So the verb says it is a memory, and the stamp carries the clock. UTC is named
+// rather than converted: a status line that renders differently per machine cannot be
+// asserted, and an unlabelled clock is worse than an explicit one.
+test("upstreamSegment — being current is a MEMORY, said as one, with the clock that dates it", () => {
   assert.equal(
     upstreamSegment({
       cached: { state: "up-to-date", installed: "v4.7.0", target: "v4.7.0", ahead: 0, checkedAt: "2026-08-05T09:12:00.000Z" },
       installedRef: "v4.7.0",
     }),
-    " · up to date (checked 2026-08-05)",
+    " · no newer release when I last looked (2026-08-05, 09:12 UTC)",
   );
 });
 
-test("upstreamSegment — a failed check reads as a failed check, never as 'nothing available'", () => {
+test("upstreamSegment — the same stamp dates a failed check, so neither reads as live", () => {
   assert.equal(
     upstreamSegment({
       cached: { state: "unknown", installed: "v4.7.0", target: null, ahead: null, checkedAt: "2026-08-05T09:12:00.000Z" },
       installedRef: "v4.7.0",
     }),
-    " · could not check for updates (2026-08-05)",
+    " · could not check for updates (2026-08-05, 09:12 UTC)",
+  );
+});
+
+// A cache written by an older engine holds a date and no clock. It still dates the
+// verdict, just less precisely — degrading to the old shape beats printing "undefined".
+test("upstreamSegment — a stamp with no clock in it still dates the verdict", () => {
+  assert.equal(
+    upstreamSegment({
+      cached: { state: "up-to-date", installed: "v4.7.0", target: "v4.7.0", ahead: 0, checkedAt: "2026-08-05" },
+      installedRef: "v4.7.0",
+    }),
+    " · no newer release when I last looked (2026-08-05)",
+  );
+});
+
+// And the one state that must NOT be dated stays undated: an available update is
+// actionable, and the action is the same whether it was found this morning or a week
+// ago. Asserted here so the stamp cannot spread to it by accident.
+test("upstreamSegment — an available update carries no stamp, because the action does not age", () => {
+  assert.doesNotMatch(
+    upstreamSegment({
+      cached: { state: "available", installed: "v4.6.0", target: "v4.7.0", ahead: 1, checkedAt: "2026-08-05T09:12:00.000Z" },
+      installedRef: "v4.6.0",
+    }),
+    /2026-08-05/,
   );
 });
 
@@ -234,7 +274,7 @@ test("upstreamSegment — a verdict about ANOTHER version is not a verdict about
 test("upstreamSegment — a verdict with no date is still shown, minus the date it does not have", () => {
   assert.equal(
     upstreamSegment({ cached: { state: "up-to-date", installed: "v4.7.0" }, installedRef: "v4.7.0" }),
-    " · up to date",
+    " · no newer release when I last looked",
   );
   assert.equal(
     upstreamSegment({ cached: { state: "unknown", installed: "v4.7.0", checkedAt: "not-a-date" }, installedRef: "v4.7.0" }),
@@ -256,7 +296,11 @@ test("upstreamSegment — a date is a date at the START, whole, and a string", (
   assert.equal(segment(20260805), " · could not check for updates");
   assert.equal(segment(null), " · could not check for updates");
   // …and the shape the probe really writes still reads as the date it is.
-  assert.equal(segment("2026-08-05T09:12:00.000Z"), " · could not check for updates (2026-08-05)");
+  assert.equal(segment("2026-08-05T09:12:00.000Z"), " · could not check for updates (2026-08-05, 09:12 UTC)");
+  // A clock that is not a clock degrades to the day alone rather than printing a
+  // fragment: same rule as the day itself, one notch further in.
+  assert.equal(segment("2026-08-05T9:12"), " · could not check for updates (2026-08-05)");
+  assert.equal(segment("2026-08-05 09:12"), " · could not check for updates (2026-08-05)");
 });
 
 test("readStartupVersionLine — a brain that cannot name its version says NOTHING, cache or no cache", () => {
