@@ -5,7 +5,7 @@
 > the life of a brain: installing it, where the text of your notes goes, updating its engine, whether
 > it is backed up anywhere but this laptop.
 
-- **STATUS:** PROPOSED (2026-09-13) — awaiting the owner's ratification.
+- **STATUS:** ACCEPTED (2026-09-13) — ratified by the owner, asked as a clickable question.
 - **Scope:** Second brain (runtime) + Installer — the delivered skills that ask a lifecycle question,
   and the install conversation the bootstrap `CLAUDE.md` drives. **No index schema change**, and no
   change to *which* gestures require consent.
