@@ -12,15 +12,16 @@ only carries what a user of Kenjaku could read and care about (2026-09-12, tried
 
 ## The active plan
 
-- **Subject:** clear the tracker. Everything left in it is planned into three named releases, and the
-  plan's own `## 📍 STATE` says which one is being built and what a session may do alone.
-- **Plan:** [`prospective/clear-the-tracker-action.md`](prospective/clear-the-tracker-action.md)
-- **Active since:** 2026-09-12 — restored after the chantier that pre-empted it closed.
+- **Subject:** v5.5 — a skill on a long-lived brain catches up again, three questions stop being asked,
+  and a quality figure Kenjaku published about itself stops being owed.
+- **Plan:** [`prospective/v5.5-quiet-and-up-to-date-action.md`](prospective/v5.5-quiet-and-up-to-date-action.md)
+- **Active since:** 2026-09-13 — the owner's ask, with the tracker plan's remaining tails folded in.
 
 ## Open, but NOT active
 
 Links only — each one's own `## 📍 STATE` block says whose it is and where it stands.
 
+- [`prospective/clear-the-tracker-action.md`](prospective/clear-the-tracker-action.md)
 - [`prospective/shipped-ci-workflows-action.md`](prospective/shipped-ci-workflows-action.md)
 - [`prospective/harness-speed-and-test-quality-action.md`](prospective/harness-speed-and-test-quality-action.md)
 - [`../studies/plan-state-single-source-study.md`](../studies/plan-state-single-source-study.md)

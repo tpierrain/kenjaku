@@ -259,6 +259,11 @@
   > its run log* → the mode plan; *why a debt exists and when its due date moved* → the debt plan.
   > (Rule and its machine-local net: `CONVENTIONS.md` §3bis.)
   - **🔭 Prospective (`plans/prospective/`):**
+    - [`v5.5-quiet-and-up-to-date-action.md`](plans/prospective/v5.5-quiet-and-up-to-date-action.md) —
+      **🗺️ action plan** for **v5.5**: an engine skill on a long-lived brain catches up again instead of
+      being blamed for an edit its owner never made (#115), three questions stop being asked (#118), and
+      the quality figure the v5.1.0 note said was owed gets paid at the release tail (#113). **The
+      ACTIVE plan** — its own `## 📍 STATE` says where it resumes.
     - [`rag-embedder-plan-action.md`](plans/prospective/rag-embedder-plan-action.md) — **🗺️ action plan**
       that **orchestrates** the embedder effort into **self-contained steps** (port → eval-set →
       OpenAI-compatible adapter → measurement → onboarding → conditional levers), with a **progress

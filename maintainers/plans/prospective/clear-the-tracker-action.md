@@ -15,16 +15,16 @@
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-08-23
 
-- **Next:** ▶️ **the three approved releases are ALL SHIPPED** — v5.4.0 tagged and published
-  2026-09-13 ([release](https://github.com/tpierrain/kenjaku/releases/tag/v5.4.0), plan archived:
-  [`2026-09-13-v5.4.0-plain-language-delivered.md`](../archived/2026-09-13-v5.4.0-plain-language-delivered.md)).
-  **What is left of this plan is its tails**, and two of them are real work, neither started: the
-  **three 🟢 gestures he accepted and nobody coded** → [#118](https://github.com/tpierrain/kenjaku/issues/118),
-  § *What v5.4 left to build*; and **applying ADR 0045** (an important question is a control) to the
-  install conversation → § *Applying ADR 0045*.
-- **🛑 The autonomy grant.** It ran *up to the tag* until 2026-09-13, when he granted the tag itself by
-  name — « je t'autorise à cut/merge/push » — for **that release**. **It does not carry forward**: the
-  next release needs its own grant, and the standing rule below is the default again.
+- **Next:** ▶️ **the three approved releases are ALL SHIPPED**, v5.4.0 last _(2026-09-13,
+  [release](https://github.com/tpierrain/kenjaku/releases/tag/v5.4.0), plan
+  [archived](../archived/2026-09-13-v5.4.0-plain-language-delivered.md))_. **What is left is this plan's
+  tails**, and one of them left on 2026-09-13: the three 🟢 gestures
+  ([#118](https://github.com/tpierrain/kenjaku/issues/118)) now ride the **v5.5** release beside #115
+  and #113 → [`v5.5-quiet-and-up-to-date-action.md`](v5.5-quiet-and-up-to-date-action.md), which owns
+  their state. **Still this plan's own, and unstarted:** applying **ADR 0045** (an important question is
+  a control) to the install conversation → § *Applying ADR 0045*.
+- ⏸️ **No longer the active plan** — the door ([`../ACTIVE.md`](../ACTIVE.md)) says which one is. **And
+  the autonomy grant does not carry forward**: v5.4's was given by name and expired with its tag.
 - **Blocked on:** nothing. **THREE things wait on him, none gating anything:** what the nightly quality
   run is FOR → § *Inherited from v5.0.0*; `ci.yml`'s `concurrency` → § *Questions the owner owns*; the
   French wording shipped in v5.2.0, his to re-read at leisure. **They stay HERE, not in the tracker** →
@@ -372,6 +372,10 @@ written; applying it is not scheduled**, and the ADR says so itself.
 > this makes choices harder to miss and must never make deletion easier to reach.
 
 ## 🟢 What v5.4 left to build — three gestures he accepted, and nobody coded
+
+➡️ **Scheduled 2026-09-13: they are built in v5.5**, as S2 of
+[`v5.5-quiet-and-up-to-date-action.md`](v5.5-quiet-and-up-to-date-action.md). That plan owns whether
+they are done; what follows is only how they got here.
 
 📣 **In the tracker since 2026-09-13 as [#118](https://github.com/tpierrain/kenjaku/issues/118)**, and
 it belongs there rather than here by the tracker's own test: what changes is something a person using

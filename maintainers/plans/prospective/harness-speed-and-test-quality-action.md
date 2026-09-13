@@ -25,7 +25,10 @@ permanence des plans énormes qui sont déjà faits."* → **S3**.
   with it**: `CONVENTIONS` §5quinquies has carried the measured per-mutant figure since 2026-09-07, so
   the *"1-3 minutes"* it is ticked against is gone. What the runs proved is in § *What S1 proved*.
 - 💸 **One debt is public and still unpaid** → [#113](https://github.com/tpierrain/kenjaku/issues/113),
-  and § *The re-measurement that was promised in public* for why it is owed.
+  and § *The re-measurement that was promised in public* for why it is owed. **Its WHEN moved out of
+  this plan on 2026-09-13**: it is scheduled at the v5.5 release tail (S3 of
+  [`v5.5-quiet-and-up-to-date-action.md`](v5.5-quiet-and-up-to-date-action.md)), which owns whether it
+  is done. This file stays the reason and the file list.
 - **Blocked on:** nothing. **Owner's call pending:** nothing.
 - **A session may, alone:** take S2 and S3 test-first on a branch off `main`, push every green commit
   and **read its CI**. **Not:** weaken a test to make a number move, nor touch a measurement that is
