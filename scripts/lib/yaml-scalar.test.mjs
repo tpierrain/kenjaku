@@ -94,6 +94,7 @@ test("a name that merely CONTAINS what YAML re-reads is left exactly as it is", 
   assert.equal(yamlScalar("R2"), "R2", "nor a letter in front of one");
   assert.equal(yamlScalar(".NET"), ".NET", "a dot then letters is a platform, not a fraction");
   assert.equal(yamlScalar("0xDEADBEEF cafe"), "0xDEADBEEF cafe", "hex that stops being hex is text");
+  assert.equal(yamlScalar("Agent 0x1f"), "Agent 0x1f", "…and hex that only STARTS late is text too");
 });
 
 // And the other side of the same boundary: a number all the way to its last
