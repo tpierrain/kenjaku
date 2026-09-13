@@ -1,0 +1,111 @@
+[32m19:18:27 (91262) INFO ProjectReader[39m Found 1 of 1098 file(s) to be mutated.
+[32m19:18:27 (91262) INFO Instrumenter[39m Instrumented 1 source file(s) with 51 mutant(s)
+[32m19:18:27 (91262) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m19:18:28 (91262) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-Tn1S4h
+[32m19:18:28 (91262) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m19:18:28 (91262) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m19:18:38 (91262) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 10 seconds (net 10170 ms, overhead 0 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/51 tested (0 survived, 0 timed out)
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/51 tested (0 survived, 0 timed out)
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/51 tested (0 survived, 0 timed out)
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/51 tested (0 survived, 0 timed out)
+Mutation testing 9% (elapsed: <1m, remaining: ~7m) 5/51 tested (1 survived, 0 timed out)
+Mutation testing 9% (elapsed: ~1m, remaining: ~9m) 5/51 tested (1 survived, 0 timed out)
+Mutation testing 9% (elapsed: ~1m, remaining: ~10m) 5/51 tested (1 survived, 0 timed out)
+Mutation testing 9% (elapsed: ~1m, remaining: ~12m) 5/51 tested (1 survived, 0 timed out)
+Mutation testing 19% (elapsed: ~1m, remaining: ~6m) 10/51 tested (3 survived, 0 timed out)
+Mutation testing 19% (elapsed: ~1m, remaining: ~6m) 10/51 tested (3 survived, 0 timed out)
+Mutation testing 19% (elapsed: ~1m, remaining: ~7m) 10/51 tested (3 survived, 0 timed out)
+Mutation testing 19% (elapsed: ~2m, remaining: ~8m) 10/51 tested (3 survived, 0 timed out)
+Mutation testing 29% (elapsed: ~2m, remaining: ~5m) 15/51 tested (4 survived, 0 timed out)
+Mutation testing 29% (elapsed: ~2m, remaining: ~5m) 15/51 tested (4 survived, 0 timed out)
+Mutation testing 29% (elapsed: ~2m, remaining: ~6m) 15/51 tested (4 survived, 0 timed out)
+Mutation testing 31% (elapsed: ~2m, remaining: ~5m) 16/51 tested (5 survived, 0 timed out)
+Mutation testing 39% (elapsed: ~2m, remaining: ~4m) 20/51 tested (6 survived, 0 timed out)
+Mutation testing 39% (elapsed: ~3m, remaining: ~4m) 20/51 tested (6 survived, 0 timed out)
+Mutation testing 39% (elapsed: ~3m, remaining: ~4m) 20/51 tested (6 survived, 0 timed out)
+Mutation testing 41% (elapsed: ~3m, remaining: ~4m) 21/51 tested (7 survived, 0 timed out)
+Mutation testing 49% (elapsed: ~3m, remaining: ~3m) 25/51 tested (10 survived, 0 timed out)
+Mutation testing 49% (elapsed: ~3m, remaining: ~3m) 25/51 tested (10 survived, 0 timed out)
+Mutation testing 49% (elapsed: ~3m, remaining: ~3m) 25/51 tested (10 survived, 0 timed out)
+Mutation testing 50% (elapsed: ~4m, remaining: ~3m) 26/51 tested (10 survived, 0 timed out)
+Mutation testing 58% (elapsed: ~4m, remaining: ~2m) 30/51 tested (10 survived, 0 timed out)
+Mutation testing 58% (elapsed: ~4m, remaining: ~3m) 30/51 tested (10 survived, 0 timed out)
+Mutation testing 58% (elapsed: ~4m, remaining: ~3m) 30/51 tested (10 survived, 0 timed out)
+Mutation testing 60% (elapsed: ~4m, remaining: ~3m) 31/51 tested (10 survived, 0 timed out)
+Mutation testing 64% (elapsed: ~4m, remaining: ~2m) 33/51 tested (10 survived, 0 timed out)
+Mutation testing 68% (elapsed: ~5m, remaining: ~2m) 35/51 tested (10 survived, 0 timed out)
+Mutation testing 68% (elapsed: ~5m, remaining: ~2m) 35/51 tested (10 survived, 0 timed out)
+Mutation testing 70% (elapsed: ~5m, remaining: ~2m) 36/51 tested (10 survived, 0 timed out)
+Mutation testing 74% (elapsed: ~5m, remaining: ~1m) 38/51 tested (10 survived, 0 timed out)
+Mutation testing 78% (elapsed: ~5m, remaining: ~1m) 40/51 tested (10 survived, 0 timed out)
+Mutation testing 78% (elapsed: ~5m, remaining: ~1m) 40/51 tested (10 survived, 0 timed out)
+Mutation testing 80% (elapsed: ~6m, remaining: ~1m) 41/51 tested (10 survived, 0 timed out)
+Mutation testing 86% (elapsed: ~6m, remaining: <1m) 44/51 tested (10 survived, 0 timed out)
+Mutation testing 88% (elapsed: ~6m, remaining: <1m) 45/51 tested (10 survived, 0 timed out)
+Mutation testing 88% (elapsed: ~6m, remaining: <1m) 45/51 tested (10 survived, 0 timed out)
+Mutation testing 92% (elapsed: ~6m, remaining: <1m) 47/51 tested (10 survived, 0 timed out)
+
+All tests
+  ✓ All tests (killed 41)
+
+[Survived] Regex
+scripts/lib/yaml-scalar.mjs:32:21
+-   const IS_NOT_TEXT = /^(?:null|~|true|false|yes|no|on|off)$/i;
++   const IS_NOT_TEXT = /(?:null|~|true|false|yes|no|on|off)$/i;
+
+[Survived] Regex
+scripts/lib/yaml-scalar.mjs:33:21
+-   const IS_A_NUMBER = /^[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?$|^0[xob][0-9a-fA-F_]+$/;
++   const IS_A_NUMBER = /^[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?|^0[xob][0-9a-fA-F_]+$/;
+
+[Survived] Regex
+scripts/lib/yaml-scalar.mjs:33:21
+-   const IS_A_NUMBER = /^[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?$|^0[xob][0-9a-fA-F_]+$/;
++   const IS_A_NUMBER = /^[^-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?$|^0[xob][0-9a-fA-F_]+$/;
+
+[Survived] Regex
+scripts/lib/yaml-scalar.mjs:33:21
+-   const IS_A_NUMBER = /^[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?$|^0[xob][0-9a-fA-F_]+$/;
++   const IS_A_NUMBER = /^[-+]?(?:\d+(?:\.\d)?|\.\d+)(?:[eE][-+]?\d+)?$|^0[xob][0-9a-fA-F_]+$/;
+
+[Survived] Regex
+scripts/lib/yaml-scalar.mjs:33:21
+-   const IS_A_NUMBER = /^[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?$|^0[xob][0-9a-fA-F_]+$/;
++   const IS_A_NUMBER = /^[-+]?(?:\d+(?:\.\d*)?|\.\d)(?:[eE][-+]?\d+)?$|^0[xob][0-9a-fA-F_]+$/;
+
+[Survived] Regex
+scripts/lib/yaml-scalar.mjs:33:21
+-   const IS_A_NUMBER = /^[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?$|^0[xob][0-9a-fA-F_]+$/;
++   const IS_A_NUMBER = /^[-+]?(?:\d+(?:\.\d*)?|\.\D+)(?:[eE][-+]?\d+)?$|^0[xob][0-9a-fA-F_]+$/;
+
+[Survived] Regex
+scripts/lib/yaml-scalar.mjs:33:21
+-   const IS_A_NUMBER = /^[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?$|^0[xob][0-9a-fA-F_]+$/;
++   const IS_A_NUMBER = /^[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][^-+]?\d+)?$|^0[xob][0-9a-fA-F_]+$/;
+
+[Survived] Regex
+scripts/lib/yaml-scalar.mjs:33:21
+-   const IS_A_NUMBER = /^[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?$|^0[xob][0-9a-fA-F_]+$/;
++   const IS_A_NUMBER = /^[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d)?$|^0[xob][0-9a-fA-F_]+$/;
+
+[Survived] Regex
+scripts/lib/yaml-scalar.mjs:33:21
+-   const IS_A_NUMBER = /^[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?$|^0[xob][0-9a-fA-F_]+$/;
++   const IS_A_NUMBER = /^[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?$|0[xob][0-9a-fA-F_]+$/;
+
+[Survived] Regex
+scripts/lib/yaml-scalar.mjs:33:21
+-   const IS_A_NUMBER = /^[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?$|^0[xob][0-9a-fA-F_]+$/;
++   const IS_A_NUMBER = /^[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?$|^0[xob][0-9a-fA-F_]+/;
+
+Ran 1.00 tests per mutant on average.
+-----------------|------------------|----------|-----------|------------|----------|----------|
+                 | % Mutation score |          |           |            |          |          |
+File             |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+-----------------|--------|---------|----------|-----------|------------|----------|----------|
+All files        |  80.39 |   80.39 |       41 |         0 |         10 |        0 |        0 |
+ yaml-scalar.mjs |  80.39 |   80.39 |       41 |         0 |         10 |        0 |        0 |
+-----------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m19:25:27 (91262) INFO MutationTestExecutor[39m Done in 6 minutes and 59 seconds.
+[32m19:25:27 (91262) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-Tn1S4h.
