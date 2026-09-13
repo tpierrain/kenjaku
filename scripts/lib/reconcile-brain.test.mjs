@@ -2153,6 +2153,178 @@ test("reconcileBrain — a CUSTOMIZED staged skill is preserved too (the staging
   assert.equal(readFileSync(join(brainDir, ".claude/skills/lint/SKILL.md.new"), "utf8"), next);
 });
 
+// ── THE CONTAMINATED BRAIN (#115) ────────────────────────────────────────────
+//
+// 🚨 The state the whole deployed fleet is in, and the one no suite here could observe
+// until now: the staging copy has run AHEAD of the installed skill. It happens on the
+// two-pass update out of an old engine — the old parent copies `engine-skills/**` (a
+// `replace` glob) before any refresh exists to advance `.claude/skills/`. From that
+// update on the stand-in base accuses the owner of an edit they never made, and every
+// release hands them a `.new` sidecar for ever.
+//
+// The fix is not a tidier stand-in: it is a proof that cannot drift. The installed bytes
+// are RECOGNISED in the table of every version the engine published, so the verdict is
+// `refresh` — and the table travels with the release, which is what makes the heal reach
+// brains that are already diverged. Those are the entire population this is about.
+const PUBLISHED_V1 = "---\nname: lint\n---\nLint the vault.\n";
+const PUBLISHED_V2 = "---\nname: lint\n---\nLint the vault.\n\nNow reports orphan notes too.\n";
+// Computed OUTSIDE this codebase (`shasum -a 256`): a fixture produced by the code it
+// judges proves only that the code agrees with itself.
+const SHA_PUBLISHED_V1 = "sha256:26f5ac114f3987dab9d3607244620cfbaf4987a21935f4430c6259e1c2454fdf";
+
+const lintTable = () =>
+  JSON.stringify({
+    generatedAt: "v5.5.0",
+    files: { ".claude/skills/lint/SKILL.md": { [SHA_PUBLISHED_V1]: { since: "v5.2.0", locale: "en" } } },
+  });
+
+test("reconcileBrain — a CONTAMINATED staged skill is refreshed, not accused of an edit nobody made (#115)", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const next = PUBLISHED_V2 + "\nAnd names the note it cannot read.\n";
+  writeFile(brainDir, ".claude/skills/lint/SKILL.md", PUBLISHED_V1); // stuck at what they received
+  writeFile(brainDir, "engine-skills/lint/SKILL.md", PUBLISHED_V2); // …while staging ran ahead
+  writeFile(sourceDir, "engine-skills/lint/SKILL.md", next);
+  writeFile(sourceDir, "scripts/lib/engine-fingerprints.json", lintTable());
+  const opts = { extraReplace: ["engine-skills/**"] };
+
+  const { ...s } = seams();
+  const report = await reconcile({
+    brainDir,
+    platform: "posix",
+    sourceDir,
+    target: manifest(opts),
+    local: manifest({ ragVersion: "1.0.0", ...opts }),
+    ...s,
+  });
+
+  assert.equal(readFileSync(join(brainDir, ".claude/skills/lint/SKILL.md"), "utf8"), next);
+  assert.deepEqual(report.skillsRefreshed, ["lint"]);
+  assert.deepEqual(report.skillsPreserved, []);
+  assert.equal(
+    existsSync(join(brainDir, ".claude/skills/lint/SKILL.md.new")),
+    false,
+    "a refreshed skill leaves no homework beside it",
+  );
+});
+
+test("reconcileBrain — a table present does NOT weaken the owner's edit: it is still preserved (#115)", async (t) => {
+  // The companion pole, and the one that protects owners. Same fixture, same table —
+  // only the installed bytes differ, and they match no published version. Recognition
+  // must find nothing, the stand-in must still govern, and the sidecar must still land.
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const mine = PUBLISHED_V1 + "\n## My own rules\nNo orphan meeting notes.\n";
+  const next = PUBLISHED_V2 + "\nAnd names the note it cannot read.\n";
+  writeFile(brainDir, ".claude/skills/lint/SKILL.md", mine);
+  writeFile(brainDir, "engine-skills/lint/SKILL.md", PUBLISHED_V1);
+  writeFile(sourceDir, "engine-skills/lint/SKILL.md", next);
+  writeFile(sourceDir, "scripts/lib/engine-fingerprints.json", lintTable());
+  const opts = { extraReplace: ["engine-skills/**"] };
+
+  const { ...s } = seams();
+  const report = await reconcile({
+    brainDir,
+    platform: "posix",
+    sourceDir,
+    target: manifest(opts),
+    local: manifest({ ragVersion: "1.0.0", ...opts }),
+    ...s,
+  });
+
+  assert.equal(readFileSync(join(brainDir, ".claude/skills/lint/SKILL.md"), "utf8"), mine);
+  assert.deepEqual(report.skillsRefreshed, []);
+  assert.deepEqual(report.skillsPreserved, [
+    { name: "lint", reason: "customized", newVersionPath: ".claude/skills/lint/SKILL.md.new" },
+  ]);
+  assert.equal(readFileSync(join(brainDir, ".claude/skills/lint/SKILL.md.new"), "utf8"), next);
+});
+
+// ── S1.3 — THE SENTENCE ITSELF, where the owner actually reads it (#115) ─────
+//
+// Every assertion above judges a VERDICT. What the issue is about is a SENTENCE: *"your
+// customized lint skill was kept exactly as you wrote it"*, about a file they have never
+// opened. A verdict is bookkeeping the owner never sees; the report is the product, and
+// it is the only place that claim can be caught being made.
+//
+// So this runs the whole chain — contaminated brain → reconcile → rendered report — and
+// asks of the text what a person would: does it accuse me, and does it tell me my skill
+// is up to date? The two halves are asserted together on purpose: "the word is absent"
+// passes just as well on a report that says nothing at all.
+test("reconcileBrain — a contaminated brain's REPORT says 'brought up to date', never 'your customized' (#115)", async (t) => {
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  const next = PUBLISHED_V2 + "\nAnd names the note it cannot read.\n";
+  writeFile(brainDir, ".claude/skills/lint/SKILL.md", PUBLISHED_V1);
+  writeFile(brainDir, "engine-skills/lint/SKILL.md", PUBLISHED_V2);
+  writeFile(sourceDir, "engine-skills/lint/SKILL.md", next);
+  writeFile(sourceDir, "scripts/lib/engine-fingerprints.json", lintTable());
+  const opts = { extraReplace: ["engine-skills/**"] };
+
+  const { ...s } = seams();
+  const report = await reconcile({
+    brainDir,
+    platform: "posix",
+    sourceDir,
+    target: manifest(opts),
+    local: manifest({ ragVersion: "1.0.0", ...opts }),
+    ...s,
+  });
+  const { formatReport } = await import("../update-engine.mjs");
+  const text = formatReport(report);
+
+  assert.match(text, /engine skill brought up to date: lint/);
+  assert.ok(!text.includes("customized"), `the report still accuses the owner:\n${text}`);
+  assert.ok(!text.includes("SKILL.md.new"), `the report still hands out homework:\n${text}`);
+});
+
+test("reconcileBrain — what the staged proof learns is never written into the manifest (#115)", async (t) => {
+  // 🛑 The asymmetry that keeps this from becoming the same bug in mirror image.
+  // `reseedProvenance` advances MERGE files only, so a staged rel persisted into the
+  // manifest would freeze at the version it was proven at and then outrank the stand-in
+  // for ever. Recognition is recomputed at every update instead — cheap, and never stale.
+  const brainDir = buildBrain();
+  const sourceDir = buildSource();
+  t.after(() => {
+    rmSync(brainDir, { recursive: true, force: true });
+    rmSync(sourceDir, { recursive: true, force: true });
+  });
+  writeFile(brainDir, ".claude/skills/lint/SKILL.md", PUBLISHED_V1);
+  writeFile(brainDir, "engine-skills/lint/SKILL.md", PUBLISHED_V2);
+  writeFile(sourceDir, "engine-skills/lint/SKILL.md", PUBLISHED_V2 + "\nmore.\n");
+  writeFile(sourceDir, "scripts/lib/engine-fingerprints.json", lintTable());
+  const opts = { extraReplace: ["engine-skills/**"] };
+
+  const { ...s } = seams();
+  const report = await reconcile({
+    brainDir,
+    platform: "posix",
+    sourceDir,
+    target: manifest(opts),
+    local: manifest({ ragVersion: "1.0.0", ...opts }),
+    ...s,
+  });
+
+  assert.deepEqual(
+    Object.keys(report.healedProvenance).filter((rel) => rel.startsWith(".claude/skills/lint/")),
+    [],
+    "the map the manifest is re-seeded from must carry no staged rel",
+  );
+  assert.deepEqual(report.healed, [], "and the owner is told about merge families, not about this");
+});
+
 test("reconcileBrain — a stale .new is cleared once the owner has adopted the new version", async (t) => {
   const brainDir = buildBrain();
   const sourceDir = buildSource();

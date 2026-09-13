@@ -18,6 +18,8 @@ import { listFilesRelPosix } from "./fs-walk.mjs";
 import { fingerprint } from "./engine-source.mjs";
 import { resolveLocaleSource } from "./engine-copy-select.mjs";
 import { readBrainLocale } from "./brain-locale.mjs";
+import { recogniseInstalled } from "./engine-heal.mjs";
+import { isSelfHeal } from "./update-mode.mjs";
 
 // The staging path a staged skill's SOURCE ships at, and where it gets installed.
 export const STAGING_PREFIX = "engine-skills/";
@@ -42,6 +44,61 @@ export function readStagedProvenance(brainDir) {
     base[SKILLS_PREFIX + rel] = fingerprint(readFileSync(join(stagingDir, rel.split("/").join(sep)), "utf8"));
   }
   return base;
+}
+
+// 🩹 THE PROOF THAT CANNOT DRIFT (#115) — and it is why the base above is a STAND-IN
+// rather than an answer. `readStagedProvenance` holds only while the staging tree and
+// the installed skill move TOGETHER. On the two-pass update out of an old engine they do
+// not: the old parent copies `engine-skills/**` (a `replace` glob) before any refresh
+// exists to advance the installed skill. From that update on the two disagree FOR EVER —
+// `mergeVerdict` reads the installed file as an owner edit, and every later release
+// drops a `.new` sidecar while calling a file the owner never opened "customized".
+//
+// So the installed bytes are proven against what the engine REALLY published, the same
+// way `healProvenance` unfroze the merge families: by RECOGNISING them in
+// `engine-fingerprints.json`. What comes back is layered OVER the stand-in, never under
+// it — recognition is the stronger fact, and a rel nothing recognises is left to the
+// stand-in, which is what keeps a genuinely edited skill preserved.
+//
+// 🛑 MEMBERSHIP, NEVER ARITHMETIC. `recogniseInstalled` hands back the KEY THAT MATCHED,
+// so a digest here always names bytes the engine shipped. Compute one from the disk
+// instead and an owner's edit reads as untouched at the very next update.
+//
+// 🛑 AND NOTHING IS PERSISTED FROM HERE. These rels are deliberately absent from the
+// manifest's `provenance`: `reseedProvenance` advances merge files only, so a staged
+// entry written into the manifest would be frozen at the version it was proven at and
+// would then OUTRANK the stand-in for ever — the very defect above, in mirror image.
+// Recomputing it at each update is both correct and cheap.
+export function proveStagedSkills({ sourceDir, brainDir, table }) {
+  // A self-heal refreshes no skill (the three families stand down on `sourceDir ===
+  // brainDir`), so this would read the whole installed skills tree at every session
+  // start for an answer nobody consumes.
+  if (isSelfHeal({ brainDir, sourceDir })) return {};
+  const stagingDir = join(sourceDir, STAGING_PREFIX);
+  if (!existsSync(stagingDir)) return {};
+
+  // Only DIRECTORIES are skills — the same pole `installStagedSkills` carries below. A
+  // `README.md` at the staging root would otherwise be proven at `.claude/skills/
+  // README.md`, a rel no brain installs at.
+  const installedFileMap = {};
+  for (const entry of readdirSync(stagingDir, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    for (const rel of listFilesRelPosix(join(stagingDir, entry.name))) {
+      const installedRel = `${SKILLS_PREFIX}${entry.name}/${rel}`;
+      try {
+        installedFileMap[installedRel] = readFileSync(join(brainDir, installedRel.split("/").join(sep)), "utf8");
+      } catch {
+        // Absent (install-if-absent will deliver it whole this very pass) or unreadable.
+        // Either way there is nothing to prove, and an update may not die over it.
+      }
+    }
+  }
+
+  return Object.fromEntries(
+    recogniseInstalled({ rels: Object.keys(installedFileMap), installedFileMap, table }).map(
+      ({ rel, digest }) => [rel, digest],
+    ),
+  );
 }
 
 // 🌍 LOCALE-RESOLVED SINCE T10 (third v5.0.0 review pass). The finding named

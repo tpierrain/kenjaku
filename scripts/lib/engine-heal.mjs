@@ -34,6 +34,25 @@ function healOne(rel, content, table) {
   return entry ? { rel, digest, ...entry } : null;
 }
 
+// The proof itself, over rels a CALLER has already decided are candidates — because the
+// merge regime is not the only thing that can name one. A STAGED skill is in no regime
+// at all (ADR 0026), and its only stand-in base is the brain's own `engine-skills/` copy,
+// which an update advances one pass ahead of the installed skill: they then disagree for
+// ever (#115). Membership in the table is the proof that cannot drift, and it is exactly
+// the same proof — so it is shared here rather than re-spelled over there.
+//
+// Reported by path, never in the order the caller's map happened to be built: this is
+// read by a human and said out loud to the owner.
+// No equal case, and `<` vs `<=` is a NAMED EQUIVALENT: the rels come from object keys,
+// so one cannot appear twice and the branch is unreachable by construction — the same
+// shape, and the same reasoning, as `syncBaseTree`'s own comparator.
+export function recogniseInstalled({ rels, installedFileMap = {}, table = {} }) {
+  return rels
+    .map((rel) => healOne(rel, installedFileMap[rel], table))
+    .filter(Boolean)
+    .sort((a, b) => (a.rel < b.rel ? -1 : 1));
+}
+
 export function healProvenance({ manifest, provenance = {}, installedFileMap = {}, table = {} }) {
   // A recorded fact is never re-derived: the merge regime gates candidacy, a
   // prior provenance entry removes it — even when the disk matches a DIFFERENT
@@ -42,15 +61,7 @@ export function healProvenance({ manifest, provenance = {}, installedFileMap = {
     (rel) => !(rel in provenance),
   );
 
-  // Reported by path, never in the order the caller's map happened to be built: this
-  // is read by a human and said out loud to the owner.
-  // No equal case, and `<` vs `<=` is a NAMED EQUIVALENT: the rels come from object
-  // keys, so one cannot appear twice and the branch is unreachable by construction —
-  // the same shape, and the same reasoning, as `syncBaseTree`'s own comparator.
-  const healed = unrecorded
-    .map((rel) => healOne(rel, installedFileMap[rel], table))
-    .filter(Boolean)
-    .sort((a, b) => (a.rel < b.rel ? -1 : 1));
+  const healed = recogniseInstalled({ rels: unrecorded, installedFileMap, table });
 
   return {
     // The input provenance PLUS what got healed — never a fresh map, or a brain

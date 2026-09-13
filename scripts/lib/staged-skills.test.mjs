@@ -4,7 +4,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, rmSync
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 
-import { installStagedSkills } from "./staged-skills.mjs";
+import { installStagedSkills, proveStagedSkills } from "./staged-skills.mjs";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // staged-skills — the engine delivers upgrader-bound skills at a NON-sacred staging
@@ -164,4 +164,167 @@ test("installStagedSkills — a stray FILE at the staging root is not a skill, a
 
   assert.deepEqual(installed, ["local-mirror"], "only directories are skills");
   assert.ok(!existsSync(join(brainDir, ".claude/skills/README.md")), "a stray file must not be installed as a skill");
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// proveStagedSkills — THE PROOF THAT CANNOT DRIFT (#115)
+//
+// 🚨 THE DEFECT. `readStagedProvenance` above answers "is what is installed still what
+// we delivered?" with the brain's OWN `engine-skills/` copy. That holds only while the
+// staging tree and the installed skill move TOGETHER — and on the two-pass update out
+// of an old engine they do not: the old parent copies `engine-skills/**` (a `replace`
+// glob) before any refresh exists to advance the installed skill. From that update on
+// the two disagree FOR EVER, `mergeVerdict` reads the installed file as an owner edit,
+// and every later release drops a `.new` sidecar while calling a file the owner has
+// never opened "customized".
+//
+// 🛑 THE PROOF IS MEMBERSHIP, NEVER ARITHMETIC — the rule `engine-heal.mjs` was built
+// on, and it is what keeps this safe. A digest is recorded only because the installed
+// bytes are RECOGNISED in the table of every version the engine published; it is never
+// computed from those bytes. Slip that once and a genuinely edited skill reads as
+// untouched, and the next update clobbers the edit this whole surface exists to keep.
+//
+// Fixtures: every sha256 below was computed OUTSIDE this codebase (`shasum -a 256`),
+// so "the right bytes are recognised" cannot be true by construction.
+// ═══════════════════════════════════════════════════════════════════════════
+
+const V1 = "---\nname: lint\n---\nLint the vault.\n";
+const V2 = "---\nname: lint\n---\nLint the vault.\n\nNow reports orphan notes too.\n";
+const MINE = "---\nname: lint\n---\nLint the vault.\n\n## My own rules\nNo orphan meeting notes.\n";
+const V1_CRLF = "---\r\nname: lint\r\n---\r\nLint the vault.\r\n";
+
+const SHA_V1 = "sha256:26f5ac114f3987dab9d3607244620cfbaf4987a21935f4430c6259e1c2454fdf";
+const SHA_V2 = "sha256:1e9020eb1870b8ff802711f9747f31fe1c4e2c879cb36dd0306de0dfd03b100e";
+const SHA_MINE = "sha256:481f48c3a862a554e70bd988763f2bc74641b7bec881ce65e421f2262d89afbb";
+const SHA_V1_CRLF = "sha256:d644f789139bae29ad76e9d0c6cef060f7267ce9c5fa14c3cdb974c7df40e464";
+
+const LINT_REL = ".claude/skills/lint/SKILL.md";
+
+const tableWith = (versions) => ({ generatedAt: "v5.5.0", files: { [LINT_REL]: versions } });
+
+const LINT_TABLE = tableWith({
+  [SHA_V1]: { since: "v5.2.0", locale: "en" },
+  [SHA_V2]: { since: "v5.4.0", locale: "en" },
+});
+
+test("proveStagedSkills — a CONTAMINATED brain is recognised: installed bytes the engine really published", (t) => {
+  // The exact shape #115 describes, and the one no suite could observe: the staging
+  // copy has run ahead to v5.4.0 while the installed skill is still the v5.2.0 the owner
+  // received. The stand-in base therefore accuses them of an edit; membership does not.
+  const { sourceDir, brainDir } = freshDirs(t);
+  writeFile(sourceDir, "engine-skills/lint/SKILL.md", V2);
+  writeFile(brainDir, "engine-skills/lint/SKILL.md", V2);
+  writeFile(brainDir, LINT_REL, V1);
+
+  assert.deepEqual(proveStagedSkills({ sourceDir, brainDir, table: LINT_TABLE }), {
+    [LINT_REL]: SHA_V1,
+  });
+});
+
+test("proveStagedSkills — an OWNER'S EDIT is recognised by nothing, so the stand-in still governs", (t) => {
+  // The companion pole, and the one that protects owners. These bytes match no published
+  // version, so no digest may be handed out — an entry here would make an edited file
+  // read as untouched, and the next update would fast-forward straight over it.
+  const { sourceDir, brainDir } = freshDirs(t);
+  writeFile(sourceDir, "engine-skills/lint/SKILL.md", V2);
+  writeFile(brainDir, "engine-skills/lint/SKILL.md", V1);
+  writeFile(brainDir, LINT_REL, MINE);
+
+  assert.deepEqual(proveStagedSkills({ sourceDir, brainDir, table: LINT_TABLE }), {});
+});
+
+test("proveStagedSkills — the digest handed out is the KEY THAT MATCHED, never one computed from the disk", (t) => {
+  // A Windows brain holds CRLF bytes nobody typed. They are recognised through the same
+  // EOL normalisation `verifyBase` forgives — and what is recorded is the table's LF key,
+  // the bytes the engine actually shipped. Record the CRLF digest instead and the proof
+  // has become arithmetic: the very next release would find no row for it.
+  const { sourceDir, brainDir } = freshDirs(t);
+  writeFile(sourceDir, "engine-skills/lint/SKILL.md", V2);
+  writeFile(brainDir, LINT_REL, V1_CRLF);
+
+  const proven = proveStagedSkills({ sourceDir, brainDir, table: LINT_TABLE });
+
+  assert.deepEqual(proven, { [LINT_REL]: SHA_V1 });
+  assert.notEqual(proven[LINT_REL], SHA_V1_CRLF, "the digest may never be computed from the installed bytes");
+});
+
+test("proveStagedSkills — a skill the table cannot place yields nothing, and does not throw", (t) => {
+  const { sourceDir, brainDir } = freshDirs(t);
+  writeFile(sourceDir, "engine-skills/open-note/SKILL.md", V2);
+  writeFile(brainDir, ".claude/skills/open-note/SKILL.md", V1);
+
+  assert.deepEqual(proveStagedSkills({ sourceDir, brainDir, table: LINT_TABLE }), {});
+});
+
+test("proveStagedSkills — NO table at all recognises nothing: a broken release proves less, never more", (t) => {
+  // `readFingerprintTable` answers `null` for both an absent and a corrupt table, and
+  // fail-soft means we recognise nothing today — never that we invent a digest.
+  const { sourceDir, brainDir } = freshDirs(t);
+  writeFile(sourceDir, "engine-skills/lint/SKILL.md", V2);
+  writeFile(brainDir, LINT_REL, V1);
+
+  assert.deepEqual(proveStagedSkills({ sourceDir, brainDir, table: null }), {});
+});
+
+test("proveStagedSkills — a staged skill the brain has NOT installed yields nothing", (t) => {
+  // install-if-absent will deliver it whole this very pass. Reading a missing file must
+  // be silence, not a crash that takes the update down before a single skill is written.
+  const { sourceDir, brainDir } = freshDirs(t);
+  writeFile(sourceDir, "engine-skills/lint/SKILL.md", V2);
+
+  assert.deepEqual(proveStagedSkills({ sourceDir, brainDir, table: LINT_TABLE }), {});
+});
+
+test("proveStagedSkills — every file of the subtree is proven on its own, not just SKILL.md", (t) => {
+  const { sourceDir, brainDir } = freshDirs(t);
+  const refRel = ".claude/skills/lint/references/rules.md";
+  writeFile(sourceDir, "engine-skills/lint/SKILL.md", V2);
+  writeFile(sourceDir, "engine-skills/lint/references/rules.md", V2);
+  writeFile(brainDir, LINT_REL, V1);
+  writeFile(brainDir, refRel, V1);
+
+  assert.deepEqual(
+    proveStagedSkills({
+      sourceDir,
+      brainDir,
+      table: { generatedAt: "v5.5.0", files: { [LINT_REL]: LINT_TABLE.files[LINT_REL], [refRel]: { [SHA_V1]: { since: "v5.2.0", locale: "en" } } } },
+    }),
+    { [LINT_REL]: SHA_V1, [refRel]: SHA_V1 },
+  );
+});
+
+test("proveStagedSkills — a SELF-HEAL proves nothing: no skill is refreshed, so no base is needed", (t) => {
+  // `sourceDir === brainDir` is SessionStart, where all three refresh families stand
+  // down. Reading the whole installed skills tree there would be work paid at every
+  // session for an answer nobody consumes.
+  const { brainDir } = freshDirs(t);
+  writeFile(brainDir, "engine-skills/lint/SKILL.md", V2);
+  writeFile(brainDir, LINT_REL, V1);
+
+  assert.deepEqual(proveStagedSkills({ sourceDir: brainDir, brainDir, table: LINT_TABLE }), {});
+});
+
+test("proveStagedSkills — a source with no staging dir at all proves nothing, and does not throw", (t) => {
+  const { sourceDir, brainDir } = freshDirs(t);
+  writeFile(brainDir, LINT_REL, V1);
+
+  assert.deepEqual(proveStagedSkills({ sourceDir, brainDir, table: LINT_TABLE }), {});
+});
+
+test("proveStagedSkills — a stray FILE at the staging root is not a skill, and is never proven", (t) => {
+  // The same pole `installStagedSkills` carries one door along: `engine-skills/README.md`
+  // would map to `.claude/skills/README.md`, which is not a skill and not a rel any brain
+  // installs at. Proving it would put a phantom in the base map the refresh reads.
+  const { sourceDir, brainDir } = freshDirs(t);
+  writeFile(sourceDir, "engine-skills/README.md", V1);
+  writeFile(brainDir, ".claude/skills/README.md", V1);
+
+  assert.deepEqual(
+    proveStagedSkills({
+      sourceDir,
+      brainDir,
+      table: { generatedAt: "v5.5.0", files: { ".claude/skills/README.md": { [SHA_V1]: { since: "v5.2.0", locale: "en" } } } },
+    }),
+    {},
+  );
 });
