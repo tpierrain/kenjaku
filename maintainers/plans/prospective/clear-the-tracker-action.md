@@ -20,8 +20,8 @@
   [archived](../archived/2026-09-13-v5.4.0-plain-language-delivered.md))_. **What is left is this plan's
   tails**, and one of them left on 2026-09-13: the three 🟢 gestures
   ([#118](https://github.com/tpierrain/kenjaku/issues/118)) now ride the **v5.5** release beside #115
-  and #113 → [`v5.5-quiet-and-up-to-date-action.md`](v5.5-quiet-and-up-to-date-action.md), which owns
-  their state. **Still this plan's own, and unstarted:** applying **ADR 0045** (an important question is
+  and #113, and **shipped in `v5.5.0` on 2026-09-13**
+  ([plan, archived](../archived/2026-09-13-v5.5.0-quiet-and-up-to-date-delivered.md)). **Still this plan's own, and unstarted:** applying **ADR 0045** (an important question is
   a control) to the install conversation → § *Applying ADR 0045*.
 - ⏸️ **No longer the active plan** — the door ([`../ACTIVE.md`](../ACTIVE.md)) says which one is. **And
   the autonomy grant does not carry forward**: v5.4's was given by name and expired with its tag.
@@ -373,9 +373,8 @@ written; applying it is not scheduled**, and the ADR says so itself.
 
 ## 🟢 What v5.4 left to build — three gestures he accepted, and nobody coded
 
-➡️ **Scheduled 2026-09-13: they are built in v5.5**, as S2 of
-[`v5.5-quiet-and-up-to-date-action.md`](v5.5-quiet-and-up-to-date-action.md). That plan owns whether
-they are done; what follows is only how they got here.
+✅ **Built and shipped in `v5.5.0`, 2026-09-13**, as S2 of [its plan, now archived](../archived/2026-09-13-v5.5.0-quiet-and-up-to-date-delivered.md).
+What follows is only how they got here.
 
 📣 **In the tracker since 2026-09-13 as [#118](https://github.com/tpierrain/kenjaku/issues/118)**, and
 it belongs there rather than here by the tracker's own test: what changes is something a person using

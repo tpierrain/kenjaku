@@ -12,10 +12,9 @@ only carries what a user of Kenjaku could read and care about (2026-09-12, tried
 
 ## The active plan
 
-- **Subject:** v5.5 — a skill on a long-lived brain catches up again, three questions stop being asked,
-  and a quality figure Kenjaku published about itself stops being owed.
-- **Plan:** [`prospective/v5.5-quiet-and-up-to-date-action.md`](prospective/v5.5-quiet-and-up-to-date-action.md)
-- **Active since:** 2026-09-13 — the owner's ask, with the tracker plan's remaining tails folded in.
+**None — and the next one is the owner's pick.** `v5.5.0` shipped on 2026-09-13
+([plan, archived](archived/2026-09-13-v5.5.0-quiet-and-up-to-date-delivered.md)), so nothing here is
+mid-flight. Pick one from the list below, name it here, and work resumes from its own `## 📍 STATE`.
 
 ## Open, but NOT active
 

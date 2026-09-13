@@ -243,7 +243,7 @@ note's own content.
 > retyping the name — ADR 0045 freezes that. The gesture that actually *"confirms a full re-index,
 > minutes of compute, no data at risk"* — the row in § 6 this item came from — is **renaming** a
 > universe, and it is what goes 🟡. Reasoning in
-> [`plans/prospective/v5.5-quiet-and-up-to-date-action.md`](../plans/prospective/v5.5-quiet-and-up-to-date-action.md)
+> [`plans/archived/2026-09-13-v5.5.0-quiet-and-up-to-date-delivered.md`](../plans/archived/2026-09-13-v5.5.0-quiet-and-up-to-date-delivered.md)
 > § *What S2.2 turned out to be*.
 
 **If he says no to all three, the release loses nothing**: the thirteen changes above stand on their

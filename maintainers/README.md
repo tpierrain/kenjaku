@@ -259,11 +259,6 @@
   > its run log* → the mode plan; *why a debt exists and when its due date moved* → the debt plan.
   > (Rule and its machine-local net: `CONVENTIONS.md` §3bis.)
   - **🔭 Prospective (`plans/prospective/`):**
-    - [`v5.5-quiet-and-up-to-date-action.md`](plans/prospective/v5.5-quiet-and-up-to-date-action.md) —
-      **🗺️ action plan** for **v5.5**: an engine skill on a long-lived brain catches up again instead of
-      being blamed for an edit its owner never made (#115), three questions stop being asked (#118), and
-      the quality figure the v5.1.0 note said was owed gets paid at the release tail (#113). **The
-      ACTIVE plan** — its own `## 📍 STATE` says where it resumes.
     - [`rag-embedder-plan-action.md`](plans/prospective/rag-embedder-plan-action.md) — **🗺️ action plan**
       that **orchestrates** the embedder effort into **self-contained steps** (port → eval-set →
       OpenAI-compatible adapter → measurement → onboarding → conditional levers), with a **progress
@@ -295,6 +290,14 @@
       Thomas's go/no-go + answers to the open questions** (default freshness window, concurrency lock,
       who commits the background-written notes). No code started.
   - **`plans/archived/`** — shipped/closed plans (kept for the detail of the steps):
+    - [`2026-09-13-v5.5.0-quiet-and-up-to-date-delivered.md`](plans/archived/2026-09-13-v5.5.0-quiet-and-up-to-date-delivered.md)
+      — **v5.5.0 — *The One Where It Stops Blaming You for an Edit You Never Made***: an engine skill on a
+      long-lived brain catches up again instead of being blamed for an edit its owner never made (#115),
+      three questions stop being asked (#118), and the quality figure the v5.1.0 note said was owed is
+      measured and its published paragraph corrected (#113). Carries the gate-1 episode worth re-reading:
+      the mutation gate was closed on **one** of the six production files the branch wrote, from a list
+      read off the last commit instead of off the branch — a shortfall that produced a *green log* rather
+      than an absence. **STATUS: ✅ SHIPPED (2026-09-13, PR #120 → `v5.5.0`).**
     - [`2026-09-12-v5.2.0-done-means-done-delivered.md`](plans/archived/2026-09-12-v5.2.0-done-means-done-delivered.md)
       — **v5.2.0 — *The One Where Done Really Means Done***: the step detail of five issues that were one
       defect wearing different clothes — *the brain reports success it has not achieved* — plus the ADR
