@@ -371,10 +371,21 @@ written; applying it is not scheduled**, and the ADR says so itself.
 
 ## 🟢 What v5.4 left to build — three gestures he accepted, and nobody coded
 
+📣 **In the tracker since 2026-09-13 as [#118](https://github.com/tpierrain/kenjaku/issues/118)**, and
+it belongs there rather than here by the tracker's own test: what changes is something a person using
+Kenjaku lives — three fewer questions, in moments they can picture. **One issue, not three**: same
+decision, same shape, one line in a release note.
+
 **Answered 2026-09-13, as a clickable question** (which is [ADR 0045](../../decisions/0045-an-important-question-is-a-control-not-a-sentence.md)'s
 own doctrine), and **yes to all three** as recommended. They were not built, because he chose in the
 same breath to ship v5.4 without waiting for them. The specification, with what each one risks, is
 [`registers/gestures.md`](../../registers/gestures.md) § *The 🟢 list* — **do not restate it here**.
+
+> ✍️ **The first title drafted for #118 was rejected by the owner, and the reason is worth keeping.**
+> It promised *"the brain stops asking what you never wanted to be asked"* — **which is the headline of
+> the v5.4.0 note itself**, so the issue read as a duplicate of the release that had just shipped. The
+> title now names the two situations that actually remain: rebuilding the search, and straightening a
+> note the engine cannot read. **A leftover is titled by what is left, never by the promise it came from.**
 
 - [ ] **The indented-key repair stops asking** and is announced in the batch instead. It is the one
       finding that costs the owner *answers* rather than tidiness: a note the engine cannot read keeps
