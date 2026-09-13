@@ -16,9 +16,10 @@
 // generator that asks the merge regime about the source path recognises nothing on
 // either of the owner's two real brains (S7-0, Correction 3).
 // ─────────────────────────────────────────────────────────────────────────────
-import { fingerprint, selectMergeFiles } from "./engine-source.mjs";
+import { fingerprint, selectMergeFiles, rejectRetired } from "./engine-source.mjs";
 import { normalizeEol } from "./engine-base.mjs";
 import { deliversAsLf } from "./tracked-files.mjs";
+import { STAGING_PREFIX, SKILLS_PREFIX } from "./staged-skills.mjs";
 
 // `templates/<locale>/<rel>` is the ONLY localized shape (there is no
 // `templates/en/` — EN is the repo root). Three things carry weight here:
@@ -32,26 +33,77 @@ import { deliversAsLf } from "./tracked-files.mjs";
 //     splits on newlines long before this is reached.
 const LOCALIZED = /^templates\/([^/]+)\/(.+)$/;
 
+// 📦 THE SECOND MAPPING, and it is the whole of #115. A STAGED skill ships at
+// `engine-skills/<name>/…` and is install-if-absent'd into `.claude/skills/<name>/…`
+// (ADR 0026, because the sacred scrub forbids the engine from writing under
+// `.claude/skills/`). So the bytes a brain HOLDS sit at a path the release does not
+// even have — exactly the asymmetry `LOCALIZED` exists for, one door along.
+//
+// Built from `STAGING_PREFIX` rather than respelled: the installer, the refresh and this
+// table all name that directory, and a third spelling is a second chance to drift.
+//
+// `([^/]+\/.+)` carries the same weight as the locale regex's `(.+)`: a skill NAME and at
+// least one file under it. `engine-skills/lint` is a directory, and mapping it would
+// inject `.claude/skills/lint` — a key no lookup can match and no brain can present. The
+// `^` is the clobber guard: a demo note under `vault/engine-skills/` must stay its own
+// path, not be filed at somebody else's rel.
+const STAGED = new RegExp(`^${STAGING_PREFIX}([^/]+/.+)$`);
+
+// Where a source path INSTALLS, which locale it speaks for, and whether it reached its
+// rel through the staging door. The two mappings compose in this order — strip the
+// locale, then the staging prefix — because that is the order `installStagedSkills`
+// resolves them in: `templates/fr/engine-skills/lint/SKILL.md` is read for a French
+// brain and written to `.claude/skills/lint/SKILL.md` like any other.
+//
+// `staged` is reported rather than re-derived by the caller: the gate below needs it,
+// and a second parse of the same path is a second place for the anchors above to be
+// forgotten.
 export function installedRelOf(sourcePath) {
-  const match = LOCALIZED.exec(sourcePath);
-  return match ? { rel: match[2], locale: match[1] } : { rel: sourcePath, locale: "en" };
+  const localized = LOCALIZED.exec(sourcePath);
+  const rel = localized ? localized[2] : sourcePath;
+  const locale = localized ? localized[1] : "en";
+
+  const staged = STAGED.exec(rel);
+  return staged
+    ? { rel: SKILLS_PREFIX + staged[1], locale, staged: true }
+    : { rel, locale, staged: false };
 }
 
-// The sources of ONE tree (a published tag, or the working tree) that the table
-// must fingerprint: every locale of every file under HEAD's `merge` regime, minus
-// HEAD's tombstones. `selectMergeFiles` is asked once, on the deduplicated rels,
-// so the regime is read exactly as the engine reads it — not re-implemented here.
+// The sources of ONE tree (a published tag, or the working tree) that the table must
+// fingerprint. TWO DOORS, and they are not the same question:
+//
+//   • the `merge` regime, asked once on the deduplicated rels, so it is read exactly as
+//     the engine reads it — minus HEAD's tombstones, which `selectMergeFiles` subtracts;
+//   • the STAGING path (#115). A staged skill is in NO regime — that is what ADR 0026
+//     buys — so the merge door drops it and the table held no row for one until v5.5.0.
+//     Its only proof was then the brain's own `engine-skills/` copy, which an update
+//     advances one pass ahead of the installed skill: the two disagree for ever, and
+//     every later release calls an untouched file customized.
+//
+// 🛑 The staged door still obeys the tombstones, and it must: a retirement is spelled at
+// the INSTALLED path, which is where the brain holds the file, so both doors ask
+// `rejectRetired` the very same question. A skill the engine no longer ships may not be
+// healed back into recognition through the newer door.
 export function selectFingerprintSources({ manifest, sourceFiles }) {
   const candidates = sourceFiles.map((sourcePath) => ({
     sourcePath,
     ...installedRelOf(sourcePath),
   }));
-  const kept = new Set(selectMergeFiles(manifest, [...new Set(candidates.map((c) => c.rel))]));
+  const relsOf = (staged) => [...new Set(candidates.filter((c) => c.staged === staged).map((c) => c.rel))];
+  const kept = new Set([
+    ...selectMergeFiles(manifest, relsOf(false)),
+    ...rejectRetired(manifest, relsOf(true)),
+  ]);
 
   // Sorted by rel then locale so the generated artefact diffs cleanly from one
   // release to the next, and a reviewer reads a row, not a shuffle.
+  //
+  // `staged` is dropped here on purpose: it answers which door a source came through,
+  // and DOWNSTREAM THERE ARE NO DOORS — `healOne` asks one question of every row, which
+  // is precisely what lets one table serve both families.
   return candidates
     .filter((c) => kept.has(c.rel))
+    .map(({ sourcePath, rel, locale }) => ({ sourcePath, rel, locale }))
     .sort((a, b) => (a.rel === b.rel ? cmp(a.locale, b.locale) : cmp(a.rel, b.rel)));
 }
 

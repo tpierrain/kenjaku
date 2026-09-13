@@ -65,6 +65,7 @@ test("installedRelOf — a root path IS its own installed rel, and its locale is
   assert.deepEqual(installedRelOf("CLAUDE.engine.md"), {
     rel: "CLAUDE.engine.md",
     locale: "en",
+    staged: false,
   });
 });
 
@@ -72,6 +73,7 @@ test("installedRelOf — templates/<locale>/<rel> strips the two leading segment
   assert.deepEqual(installedRelOf("templates/fr/CLAUDE.engine.md"), {
     rel: "CLAUDE.engine.md",
     locale: "fr",
+    staged: false,
   });
 });
 
@@ -79,6 +81,7 @@ test("installedRelOf — a NESTED localized path keeps every segment of its rel"
   assert.deepEqual(installedRelOf("templates/fr/.claude/skills/coach/SKILL.md"), {
     rel: ".claude/skills/coach/SKILL.md",
     locale: "fr",
+    staged: false,
   });
 });
 
@@ -86,6 +89,7 @@ test("installedRelOf — a locale OTHER than fr is reported as itself, never ass
   assert.deepEqual(installedRelOf("templates/es/CLAUDE.engine.md"), {
     rel: "CLAUDE.engine.md",
     locale: "es",
+    staged: false,
   });
 });
 
@@ -96,6 +100,7 @@ test("installedRelOf — a path UNDER templates/ with no rel left is not a local
   assert.deepEqual(installedRelOf("templates/fr/"), {
     rel: "templates/fr/",
     locale: "en",
+    staged: false,
   });
 });
 
@@ -106,6 +111,7 @@ test("installedRelOf — a root path that CONTAINS templates/<locale>/ is not lo
   assert.deepEqual(installedRelOf("vault/templates/fr/note.md"), {
     rel: "vault/templates/fr/note.md",
     locale: "en",
+    staged: false,
   });
 });
 
@@ -113,6 +119,73 @@ test("installedRelOf — a path merely STARTING with the word templates is a roo
   assert.deepEqual(installedRelOf("templates-notes.md"), {
     rel: "templates-notes.md",
     locale: "en",
+    staged: false,
+  });
+});
+
+// ── installedRelOf, the STAGED family (#115) ────────────────────────────────
+//
+// A staged skill ships at `engine-skills/<name>/…` and is install-if-absent'd into
+// `.claude/skills/<name>/…` (ADR 0026). The table is keyed by the INSTALLED rel for
+// the same reason Correction 3 gave for locales: what a brain holds is what must be
+// recognisable. Ship the row under the STAGING path and the heal looks up a key no
+// brain has, which is the freeze this fix exists to end.
+
+test("installedRelOf — a staged skill's source names the path a brain INSTALLS it at", () => {
+  assert.deepEqual(installedRelOf("engine-skills/lint/SKILL.md"), {
+    rel: ".claude/skills/lint/SKILL.md",
+    locale: "en",
+    staged: true,
+  });
+});
+
+test("installedRelOf — a staged skill's nested file keeps every segment below the skill name", () => {
+  assert.deepEqual(installedRelOf("engine-skills/rag/references/queries.md"), {
+    rel: ".claude/skills/rag/references/queries.md",
+    locale: "en",
+    staged: true,
+  });
+});
+
+test("installedRelOf — a staged skill's FR twin installs at the SAME rel, and names its locale", () => {
+  // The two mappings compose, in this order: strip the locale, then the staging
+  // prefix. `installStagedSkills` resolves `templates/<locale>/engine-skills/…` and
+  // writes `.claude/skills/…` either way (ADR 0040 rule 3), so the table must fold
+  // the twin under that one rel or a French brain is recognised by nothing.
+  assert.deepEqual(installedRelOf("templates/fr/engine-skills/lint/SKILL.md"), {
+    rel: ".claude/skills/lint/SKILL.md",
+    locale: "fr",
+    staged: true,
+  });
+});
+
+test("installedRelOf — a staging path with no file under the skill name is not a staged source", () => {
+  // Same reasoning as `templates/fr/` above, and the same `(.+)`: `engine-skills/lint`
+  // names a directory. Mapping it would inject `.claude/skills/lint` — a key no
+  // lookup can match, and one that is not a file.
+  assert.deepEqual(installedRelOf("engine-skills/lint"), {
+    rel: "engine-skills/lint",
+    locale: "en",
+    staged: false,
+  });
+});
+
+test("installedRelOf — a path merely CONTAINING engine-skills/ is not staged", () => {
+  // The `^` anchor, for the same reason the locale regex carries one: a demo note
+  // under `vault/engine-skills/` would otherwise be filed at an installed rel that is
+  // not its own — a WRONG row, i.e. the clobber risk, not merely a missing one.
+  assert.deepEqual(installedRelOf("vault/engine-skills/lint/SKILL.md"), {
+    rel: "vault/engine-skills/lint/SKILL.md",
+    locale: "en",
+    staged: false,
+  });
+});
+
+test("installedRelOf — a path merely STARTING with the word engine-skills is a root path", () => {
+  assert.deepEqual(installedRelOf("engine-skills-notes.md"), {
+    rel: "engine-skills-notes.md",
+    locale: "en",
+    staged: false,
   });
 });
 
@@ -176,6 +249,89 @@ test("selectFingerprintSources — the output is sorted by rel then locale, what
       "CLAUDE.engine.md#en",
       "CLAUDE.engine.md#fr",
     ],
+  );
+});
+
+// ── selectFingerprintSources, the STAGED family (#115) ──────────────────────
+//
+// 🚨 THE DEFECT THIS CLOSES, and it is the whole of #115. A staged skill is in NO
+// merge glob — that is what ADR 0026 buys — so `selectMergeFiles` drops it and the
+// table has never held a single row for one. Its stand-in proof is the brain's OWN
+// `engine-skills/` copy, which an update advances one pass before the installed skill,
+// so from that update on the two disagree FOR EVER: `mergeVerdict` reads the installed
+// file as an owner edit and hands out a `.new` sidecar at every release.
+//
+// Membership in a table of what the engine really published is the proof that cannot
+// drift, and these rows are what make it available for staged skills too.
+
+test("selectFingerprintSources — a staged skill survives, keyed by the path a brain installs it at", () => {
+  // `.claude/skills/lint/**` is in NO regime of MANIFEST, deliberately: if this passed
+  // because the manifest named it, it would prove nothing about the staged family.
+  assert.deepEqual(
+    selectFingerprintSources({
+      manifest: MANIFEST,
+      sourceFiles: ["engine-skills/lint/SKILL.md"],
+    }),
+    [{ sourcePath: "engine-skills/lint/SKILL.md", rel: ".claude/skills/lint/SKILL.md", locale: "en" }],
+  );
+});
+
+test("selectFingerprintSources — a staged skill's FR twin survives too, under that same rel", () => {
+  assert.deepEqual(
+    selectFingerprintSources({
+      manifest: MANIFEST,
+      sourceFiles: ["templates/fr/engine-skills/lint/SKILL.md", "engine-skills/lint/SKILL.md"],
+    }),
+    [
+      { sourcePath: "engine-skills/lint/SKILL.md", rel: ".claude/skills/lint/SKILL.md", locale: "en" },
+      {
+        sourcePath: "templates/fr/engine-skills/lint/SKILL.md",
+        rel: ".claude/skills/lint/SKILL.md",
+        locale: "fr",
+      },
+    ],
+  );
+});
+
+test("selectFingerprintSources — a RETIRED staged skill is dropped, tombstones gate both families", () => {
+  // The tombstone is spelled at the INSTALLED path (`.claude/skills/tdd-discipline/**`),
+  // which is the only place it could be: that is where the brain holds the skill. A
+  // gate applied to the staging path would let a retired skill be healed back into
+  // recognition, and `selectMergeFiles` already refuses exactly that next door.
+  assert.deepEqual(
+    selectFingerprintSources({
+      manifest: MANIFEST,
+      sourceFiles: [
+        "engine-skills/tdd-discipline/SKILL.md",
+        "templates/fr/engine-skills/tdd-discipline/SKILL.md",
+      ],
+    }),
+    [],
+  );
+});
+
+test("selectFingerprintSources — a staging path that names no file under a skill is dropped", () => {
+  // The other half of `installedRelOf`'s `(.+)`: unmapped, it falls back to its own
+  // path, which is in no regime — so it must not reach the table by either door.
+  assert.deepEqual(
+    selectFingerprintSources({ manifest: MANIFEST, sourceFiles: ["engine-skills/lint"] }),
+    [],
+  );
+});
+
+test("selectFingerprintSources — staged and merge sources sort together, by the rel a brain holds", () => {
+  // One table, one ordering. The two families are indistinguishable downstream — which
+  // is the point: `healOne` asks the same question of every row.
+  assert.deepEqual(
+    selectFingerprintSources({
+      manifest: MANIFEST,
+      sourceFiles: [
+        "CLAUDE.engine.md",
+        "engine-skills/lint/SKILL.md",
+        ".claude/skills/coach/SKILL.md",
+      ],
+    }).map((s) => s.rel),
+    [".claude/skills/coach/SKILL.md", ".claude/skills/lint/SKILL.md", "CLAUDE.engine.md"],
   );
 });
 
@@ -308,6 +464,26 @@ test("deliveredSources — called with NO eol map at all, it throws instead of f
         read: () => "doctrine\r\nv1\r\n",
       }),
     TypeError,
+  );
+});
+
+test("deliveredSources — a staged skill is READ at its staging path and RECORDED at its installed one", () => {
+  // The asymmetry that makes the whole family work: `sourcePath` is where the release
+  // keeps the bytes, `rel` is where the brain holds them. Fold it under the staging
+  // path and every row is a key no brain can ever present.
+  assert.deepEqual(
+    sourcesOf({
+      files: { "engine-skills/lint/SKILL.md": "lint\r\nv1\r\n" },
+      eolByPath: { "engine-skills/lint/SKILL.md": EOL_LF },
+    }),
+    [
+      {
+        sourcePath: "engine-skills/lint/SKILL.md",
+        rel: ".claude/skills/lint/SKILL.md",
+        locale: "en",
+        content: "lint\nv1\n",
+      },
+    ],
   );
 });
 
