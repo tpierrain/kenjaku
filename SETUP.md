@@ -791,7 +791,11 @@ and two update instructions at once is how someone does the wrong one first.
    itself).
 4. **Brings the engine skills you never edited up to date.** Your brain records a fingerprint of every
    skill file the engine delivered, so it can *prove* which ones you never touched: those are refreshed
-   to the newer version, and improvements shipped since your install finally reach you. **A skill you
+   to the newer version, and improvements shipped since your install finally reach you. **Since v5.5
+   that proof is checked against what the engine really published**, version by version, and no longer
+   only against your own brain's copy of what it was given: on a brain that has crossed several
+   releases the two could drift apart for good, after which a skill nobody had opened was treated as
+   yours at every release and never updated again. **A skill you
    tailored is never LOST** — and since v5.0.0 that is a stronger promise than "never touched", because
    it now has three possible outcomes instead of one dead end:
    - **Merged.** Your brain keeps the exact bytes it delivered to that file last time, so it can tell

@@ -24,7 +24,7 @@ import { join, dirname, resolve } from "node:path";
 import { isEntrypoint } from "./entrypoint.mjs";
 import { computeApplyPlan } from "./engine-apply-plan.mjs";
 import { matchesAny } from "./glob-match.mjs";
-import { installStagedSkills, readStagedProvenance } from "./staged-skills.mjs";
+import { installStagedSkills, readStagedProvenance, proveStagedSkills } from "./staged-skills.mjs";
 import { refreshUntouchedSkills } from "./engine-skill-refresh.mjs";
 import { retireDeclaredSkills } from "./skill-retirement-fs.mjs";
 import { retireShippedWorkflows, BUILDS_STOPPED } from "./workflow-retreat.mjs";
@@ -174,6 +174,12 @@ export async function reconcileBrain({
     unreadable: unreadableMergeFiles,
   });
   const fingerprintTable = readFingerprintTable({ sourceDir, brainDir });
+  // #115 — the STAGED skills' half of that same proof, and the third reader of this one
+  // table. It is computed HERE, beside its stand-in, because it must be read before the
+  // copy step for the same reason: `.claude/skills/**` is sacred and untouched by the
+  // copy, but the answer belongs beside the base it overrides, not three hundred lines
+  // from it. Empty on a self-heal, where no skill is refreshed at all.
+  const provenStagedSkills = proveStagedSkills({ sourceDir, brainDir, table: fingerprintTable });
   const { provenance: healedProvenance, baseRefs: healedBaseRefs, healed } = healFromDisk({
     manifest: target,
     provenance: local?.provenance ?? {},
@@ -307,15 +313,22 @@ export async function reconcileBrain({
     sourceDir,
     sourceFiles,
     manifest: target,
-    // The two families of base, in one map keyed by the INSTALLED path: the manifest's
-    // recorded sha256 for the `merge` skills, the pre-copy staging tree for the staged
-    // ones. They can never collide — a staged skill is, by construction, not a merge file.
+    // The bases, in one map keyed by the INSTALLED path, and the ORDER IS THE CONTRACT:
+    //   • `healedProvenance` — the manifest's recorded sha256 for the `merge` skills,
+    //     plus what the brain proved about itself this pass (S7-3). A frozen brain's
+    //     untouched skill is provable like anyone's.
+    //   • `stagedProvenance` — the pre-copy staging tree, the staged skills' STAND-IN.
+    //     It can never collide with the above: a staged skill is not a merge file.
+    //   • `provenStagedSkills` — and it goes ON TOP of the stand-in deliberately (#115).
+    //     The stand-in holds only while the staging tree and the installed skill move
+    //     together, which the two-pass update out of an old engine breaks for ever;
+    //     recognition in the published-bytes table is the stronger fact, so it wins where
+    //     it has one. A rel nothing recognises falls back to the stand-in, which is what
+    //     keeps a genuinely edited skill preserved.
     // No `?? {}`: object spread already ignores undefined, so the fallback could not
     // change a byte (mutation lesson — a guard that cannot matter is noise). The `?.`,
     // on the other hand, is load-bearing: a caller may legitimately have no `local`.
-    // S7-3: the HEALED map, not the recorded one — same map plus what the brain can
-    // prove about itself. A frozen brain's untouched skill is now provable like anyone's.
-    provenance: { ...healedProvenance, ...stagedProvenance },
+    provenance: { ...healedProvenance, ...stagedProvenance, ...provenStagedSkills },
   });
 
   // 2.bis-scripts THE ENGINE SCRIPTS, same journey (plan S2b-3). The mirror image of the

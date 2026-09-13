@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { planBatch, batchMessage } from "./batched-announcement.mjs";
+import { planBatch, batchMessage, VETO_CLOSING } from "./batched-announcement.mjs";
 import { directiveTraces, jargonTraces } from "./owner-facing.mjs";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -97,6 +97,22 @@ test("the message is written for the owner, in the owner's words", () => {
 
   assert.deepEqual(directiveTraces(message), []);
   assert.deepEqual(jargonTraces(message), []);
+});
+
+// 🛑 THE CLOSING LINE IS EXPORTED BY NAME, and that is not tidiness. Three skills
+// outside this module carry the same sentence in their prose, and a doc guard can
+// only hold them to it if there is ONE spelling of it to hold them to. Retyped in a
+// test, it would pin the skills to a copy and let the core drift away from them —
+// which is the exact shape of drift this module was built to prevent.
+test("the closing line is a named export, so nothing has to retype the sentence that defines the tier", () => {
+  assert.equal(VETO_CLOSING, "Say stop if you'd rather I didn't — otherwise I'll go ahead.");
+});
+
+test("the composed message ends on that very export, not on a look-alike", () => {
+  assert.ok(
+    batchMessage([REPAIR]).endsWith(VETO_CLOSING),
+    "the sentence the skills are held to must be the sentence the core actually says",
+  );
 });
 
 test("the whole message, word for word, so no part of it can be emptied unnoticed", () => {

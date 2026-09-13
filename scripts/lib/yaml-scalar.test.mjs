@@ -77,6 +77,36 @@ test("a value YAML would read as something other than text is quoted", () => {
   assert.equal(yamlScalar("Nullo"), "Nullo");
 });
 
+// ── Where "this is a value YAML re-reads" ENDS, tested from the other side ────
+// The test above proves the right things get quoted. It cannot prove the wrong
+// things do not, and that is the expensive half: quoting is a rewrite of a header
+// in every note already written, over a problem the value does not have.
+//
+// Every case below was handed over by a mutation run (2026-09-13, the file's first
+// ever: 80.39 %, 10 survivors, ALL of them here). They are not variations for the
+// sake of it — each one is a loosened boundary that no test could see, and the ones
+// that read like real values are real values: `London` ends in a YAML boolean,
+// `.NET` opens on a dot, `12 Monkeys` opens on digits.
+test("a name that merely CONTAINS what YAML re-reads is left exactly as it is", () => {
+  assert.equal(yamlScalar("London"), "London", "it ends in `on`, and only a whole value is a boolean");
+  assert.equal(yamlScalar("Bruno"), "Bruno", "…and this one in `no`");
+  assert.equal(yamlScalar("12 Monkeys"), "12 Monkeys", "digits it merely STARTS with are not a number");
+  assert.equal(yamlScalar("R2"), "R2", "nor a letter in front of one");
+  assert.equal(yamlScalar(".NET"), ".NET", "a dot then letters is a platform, not a fraction");
+  assert.equal(yamlScalar("0xDEADBEEF cafe"), "0xDEADBEEF cafe", "hex that stops being hex is text");
+  assert.equal(yamlScalar("Agent 0x1f"), "Agent 0x1f", "…and hex that only STARTS late is text too");
+});
+
+// And the other side of the same boundary: a number all the way to its last
+// character IS re-read as a number, however it is spelled. `author: 1.25` hands the
+// reader a figure where a name should be — the exact lie the quoting exists against.
+test("a number is quoted through every spelling of one, not just the easy ones", () => {
+  assert.equal(yamlScalar("1.25"), "'1.25'", "more than one decimal");
+  assert.equal(yamlScalar(".25"), "'.25'", "no leading digit at all");
+  assert.equal(yamlScalar("1e10"), "'1e10'", "more than one digit of exponent");
+  assert.equal(yamlScalar("1e+5"), "'1e+5'", "a SIGNED exponent — the sign is part of the number");
+});
+
 // A frontmatter value is ONE line, and git will happily hand over a `user.name`
 // that is not. The alternative to collapsing is a note whose header ends mid-value:
 // a mangled name is a fact that is slightly wrong, an unparseable note is no fact.

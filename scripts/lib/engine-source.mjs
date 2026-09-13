@@ -32,10 +32,21 @@ export function fingerprint(content) {
 // base tree went on seeding an ancestor for a file nobody delivers any more.
 export function selectMergeFiles(manifest, candidates) {
   const matchers = (manifest?.regimes?.merge ?? []).map(globToRegExp);
-  const tombstones = (manifest?.retired ?? []).map(globToRegExp);
-  return candidates.filter(
-    (path) => matchers.some((re) => re.test(path)) && !tombstones.some((re) => re.test(path)),
+  return rejectRetired(
+    manifest,
+    candidates.filter((path) => matchers.some((re) => re.test(path))),
   );
+}
+
+// ⚰️ The tombstone half of the question above, on its own — because the `merge` regime
+// stopped being the only door. A STAGED skill is in no regime at all (ADR 0026), so the
+// fingerprint table selects it by its staging path (#115); it must still obey the same
+// retirement, or a skill the engine no longer ships stays healable into recognition.
+// Extracted rather than respelled there: a second list of tombstone matchers is a second
+// place to forget one, and what a retirement means may not depend on which door asked.
+export function rejectRetired(manifest, candidates) {
+  const tombstones = (manifest?.retired ?? []).map(globToRegExp);
+  return candidates.filter((path) => !tombstones.some((re) => re.test(path)));
 }
 
 // THE FILES THE OWNER IS INVITED TO EDIT (S12), and which rels they are.

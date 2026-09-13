@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 import { fingerprint } from "./engine-source.mjs";
-import { deliveredSources } from "./engine-fingerprint-table.mjs";
+import { deliveredSources, installedRelOf } from "./engine-fingerprint-table.mjs";
 import { isStrayArtifactRel } from "./engine-base.mjs";
 import { parseLsFilesEolZ } from "./tracked-files.mjs";
 import { instrumentationStandDown } from "./instrumented-source.mjs";
@@ -160,6 +160,38 @@ test("the shipped table really does hold rows for an INVITED rel, or the ancesto
     withRows,
     invited,
     `an invited rel the table cannot place needs no carve-out — invited: ${invited.join(", ")}`,
+  );
+});
+
+// 🚨 THE PREMISE GUARD FOR THE STAGED FAMILY (#115), and it lives here for the same
+// reason as the one above: this is the only file that reads the SHIPPED table.
+//
+// A staged skill is in no merge glob (ADR 0026), so until v5.5.0 the table held not one
+// row for one — and the refresh's only proof was the brain's own `engine-skills/` copy,
+// which an update advances one pass ahead of the installed skill. The disagreement is
+// permanent: every later release hands out a `.new` sidecar and calls the file
+// customized.
+//
+// The freshness guard above already fails a table missing any DELIVERED byte-state, so
+// it covers the same ground — but only while `selectFingerprintSources` keeps the staged
+// family. This one is anchored on the tree instead: every staged skill this release
+// ships must be placeable at the rel a brain installs it at. Narrow the selection back
+// and this goes red naming the skills that lost their rows.
+test("the shipped table places every STAGED skill at the rel a brain installs it at", () => {
+  const staged = trackedFiles
+    .map((sourcePath) => ({ sourcePath, ...installedRelOf(sourcePath) }))
+    .filter(({ staged: isStaged }) => isStaged);
+
+  assert.ok(staged.length > 0, "the release must still ship staged skills at all, or this guards nothing");
+
+  const unplaceable = staged
+    .filter(({ rel }) => Object.keys(table.files?.[rel] ?? {}).length === 0)
+    .map(({ sourcePath }) => sourcePath);
+
+  assert.deepEqual(
+    unplaceable,
+    [],
+    `staged skills no row can place — a brain holding them reads as edited (regenerate: ${REGENERATE}): ${unplaceable.join(", ")}`,
   );
 });
 
