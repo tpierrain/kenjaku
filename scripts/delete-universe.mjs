@@ -39,7 +39,7 @@ const REFUSALS = {
   empty: () => "✗ No universe name given.",
   reserved: () =>
     "✗ The default scope cannot be deleted: it is where every note that belongs " +
-    "to no particular sphere lives.",
+    "to no particular universe lives.",
   unknown: (plan) =>
     `✗ No universe named '${plan.name}'. Deletable universes: ${plan.available.join(", ")}.`,
 };

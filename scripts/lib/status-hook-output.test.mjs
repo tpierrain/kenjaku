@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { buildStatusHookOutput } from "./status-hook-output.mjs";
+import { directiveTraces, jargonTraces } from "./owner-facing.mjs";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // The SessionStart status banner's emission, as a pure seam.
@@ -122,4 +123,18 @@ test("called with nothing at all — no banner, no relay, and no crash", () => {
     },
     systemMessage: "⚙️ Kenjaku engine v4.6.0",
   });
+});
+
+// 🛑 THE OWNER'S CHANNEL (ADR 0043, v5.4). This banner is the one surface whose whole
+// job is to be printed, so it is the clearest statement of the rule: facts, in the
+// owner's words, and the directive stays in the channel the model reads.
+test("the banner is written for the person reading it", () => {
+  const out = buildStatusHookOutput({
+    leadLine: null,
+    versionLine: "Engine v5.3.0",
+    statusLines: ["Your notes are all indexed — 414 of 414."],
+  });
+
+  assert.deepEqual(directiveTraces(out.systemMessage), []);
+  assert.match(out.hookSpecificOutput.additionalContext, /state this version once/);
 });

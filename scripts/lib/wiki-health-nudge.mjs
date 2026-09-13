@@ -30,9 +30,13 @@ export function wikiHealthNudge({ lintReport, consolidationReport }) {
   // clean to the owner — so it must read as a fact about THEIR vault, never as the
   // instruction we hand the agent (F5: `(offer /consolidate)` was on their first screen).
   // The two command names live in the wrapper below, which already spells both out.
+  // 🗣️ IN THE OWNER'S WORDS (ADR 0043, v5.4). It used to say "6 consolidation
+  // candidates and 28 dangling links" — the scanner's two nouns, neither of which
+  // names what it costs the person reading. And the count did not agree with its
+  // noun ("1 consolidation candidates"), which `countOf` is here to stop.
   const parts = [];
-  if (candidates > 0) parts.push(`${candidates} consolidation candidates`);
-  if (dangling > 0) parts.push(`${dangling} dangling links`);
+  if (candidates > 0) parts.push(`${countOf(candidates, "recent note")} worth folding into your pages`);
+  if (dangling > 0) parts.push(`${countOf(dangling, "link")} pointing at a note that does not exist`);
   const housekeeping = parts.join(" and ");
   if (unreadable === 0) return housekeeping;
   // First, and phrased by what it COSTS: "invalid frontmatter" means nothing to the

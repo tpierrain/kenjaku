@@ -40,7 +40,7 @@ test("runConsolidateScan — a vault with nothing to consolidate prints the coun
   const code = runConsolidateScan([], deps);
   assert.equal(code, 0);
   assert.deepEqual(seenDirs, ["/brain/vault"]);
-  assert.deepEqual(logs, ["Scanned 0 notes under /brain/vault", "✓ Nothing to consolidate"]);
+  assert.deepEqual(logs, ["Scanned 0 notes under /brain/vault", "✓ Your pages are up to date with your notes"]);
 });
 
 test("runConsolidateScan — a vault with candidates prints the report and exits 1", () => {
@@ -55,9 +55,9 @@ test("runConsolidateScan — a vault with candidates prints the report and exits
   const code = runConsolidateScan([], deps);
   assert.equal(code, 1);
   assert.equal(logs[0], "Scanned 1 notes under /brain/vault");
-  assert.ok(logs.includes("✗ Consolidation candidates found"), "prints the candidates header");
+  assert.ok(logs.includes("✗ Some of what your notes say has not made it into your pages yet"), "prints the candidates header");
   assert.ok(
-    logs.includes("  [[Marie Dupont]] — cited by 1: meetings/2026-07-15-revue.md"),
+    logs.includes("  [[Marie Dupont]] — mentioned in 1: meetings/2026-07-15-revue.md"),
     "lists the new-page candidate",
   );
 });
@@ -83,7 +83,7 @@ test("the CLI, run as a process — an empty vault exits 0 and says so", (t) => 
 
   assert.equal(run.status, 0, `expected a clean exit, got ${run.status} — stderr: ${run.stderr}${run.stdout}`);
   assert.match(run.stdout, /Scanned 0 notes/);
-  assert.match(run.stdout, /✓ Nothing to consolidate/);
+  assert.match(run.stdout, /✓ Your pages are up to date with your notes/);
 });
 
 test("the CLI, IMPORTED rather than run — the body must not fire on import", async () => {

@@ -105,25 +105,34 @@ export function hasCandidates(report) {
 
 // The report as human-readable lines. Honest and binary: one reassuring line
 // when there's nothing to consolidate, one titled section per category otherwise.
+//
+// 🗣️ WORDED BY WHAT THE OWNER HAS, since v5.4, the way the vault health report
+// already is. The headings used to read `Consolidation candidates found` and
+// `Entity pages to refresh` — the scanner's own nouns, shown to someone who asked
+// for their notes to be tidied. "Entity" is the taxonomy's word for a person or a
+// subject; the owner has people and topics and has never had an entity. The
+// staleness heading is deliberately the SAME sentence the health report uses for
+// the same fact: two names for one thing is two things, to whoever reads them.
 export function reportLines(report) {
-  if (!hasCandidates(report)) return ["✓ Nothing to consolidate"];
-  const lines = ["✗ Consolidation candidates found"];
+  if (!hasCandidates(report)) return ["✓ Your pages are up to date with your notes"];
+  const lines = ["✗ Some of what your notes say has not made it into your pages yet"];
   const section = (title, items) => {
     if (items.length === 0) return;
     lines.push("", `${title} (${items.length}):`);
     for (const item of items) lines.push(`  ${item}`);
   };
   section(
-    "New pages to create",
+    "People and subjects your notes talk about but have no page for",
     report.newPages.map(
-      (c) => `[[${c.target}]] — cited by ${c.sources.length}: ${c.sources.map((s) => s.path).join(", ")}`,
+      (c) =>
+        `[[${c.target}]] — mentioned in ${c.sources.length}: ${c.sources.map((s) => s.path).join(", ")}`,
     ),
   );
   section(
-    "Entity pages to refresh",
+    "Pages your newer notes have moved past",
     report.refreshes.map(
       (r) =>
-        `${r.page} (updated ${r.updated}) — ${r.sources.length} fresher: ${r.sources
+        `${r.page} (last updated ${r.updated}) — ${r.sources.length} newer: ${r.sources
           .map((s) => s.path)
           .join(", ")}`,
     ),

@@ -15,12 +15,15 @@
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-08-23
 
-- **Next:** ▶️ **`v5.4` — the LAST of the three approved releases.** Its step-detail plan **now exists
-  and owns everything about it, its own STATE included** —
-  [`v5.4-stop-talking-like-a-dashboard-action.md`](v5.4-stop-talking-like-a-dashboard-action.md)
-  _(2026-09-12)_. **Nothing of the work itself is started.** Read it there; do not restate it here.
-- **🛑 The autonomy grant STOPS HERE.** It was given « jusqu'à la fin de la release » for **v5.3**, by
-  name, and v5.3 is out. **A session may prepare and design v5.4, and must ASK before cutting it.**
+- **Next:** ▶️ **`v5.4` — the LAST of the three approved releases, and it is BUILT.** Its step-detail
+  plan owns everything about it, its own STATE included —
+  [`v5.4-stop-talking-like-a-dashboard-action.md`](v5.4-stop-talking-like-a-dashboard-action.md).
+  Read it there; do not restate it here. **What is left is the tag, and the tag is his.**
+- **🛑 The autonomy grant, as it stands now.** The line that used to sit here said the v5.3 grant
+  stopped at v5.3 and that a session must **ask** before cutting v5.4. **He superseded it on
+  2026-09-12** — « travaille en toute autonomie cette nuit … je m'occuperai de pousser la release
+  demain matin » — for everything **up to** the tag. The tag itself was already his in v5.4's own
+  step 7, so the two agree: a session prepares the release entire and stops there.
 - **Blocked on:** nothing. **THREE things wait on him, none gating anything:** what the nightly quality
   run is FOR → § *Inherited from v5.0.0*; `ci.yml`'s `concurrency` → § *Questions the owner owns*; the
   French wording shipped in v5.2.0, his to re-read at leisure. **They stay HERE, not in the tracker** →
@@ -97,13 +100,20 @@ The series convention holds: English, Friends-style `vX.Y.Z — The One …`, an
 |---|---|
 | **v5.2** | `v5.2 — The One Where Done Really Means Done` |
 | **v5.3** | `v5.3 — The One Where It Says Which Universe It Answered From` |
-| **v5.4** | `v5.4 — The One Where It Stops Talking Like a Dashboard` |
+| **v5.4** | `v5.4 — The One Where It Stops Talking Like a Robot` |
 
 - **v5.3's title is HIS pick from three**, not the one this plan recommended _(« pour la 5.3 je
   préfère "The One Where It Says Which Universe It Answered From" »)_. Recorded so nobody
   re-optimises it: the other two candidates were *"…Stops Answering From the Wrong Universe"* and
   *"…the Universe Stops Drifting Without You"*.
-- **v5.4's title is his own phrase** given back to him: the brain traded the magic for a dashboard.
+- **v5.4's title started as his own phrase** given back to him, *"…Stops Talking Like a Dashboard"*:
+  the brain had traded the magic for a dashboard. **He changed one word on 2026-09-13, and the reason
+  is this release's own thesis** — *« je ne suis pas sûr que le terme Dashboard parle aux gens »*. A
+  dashboard is a word from inside the trade; a **robot** is a word everybody owns. A release about
+  speaking plainly could not be announced in a title only its authors could picture. The shape, the
+  series and the em dash are untouched: **`v5.4 — The One Where It Stops Talking Like a Robot`**.
+  _(The branch and this plan's filename still say `dashboard`; they are addresses, not titles, and
+  renaming them would break links for nothing.)_
 
 #### Why three releases and not one — the reasoning, kept
 
@@ -228,7 +238,7 @@ about the same gap: **the brain scopes one thing and leaves another unscoped, wi
       read first, as this step asked, and **two of the issues' premises did not survive that read**
       (§ *History* of the release plan).
 
-#### Group 3 → `v5.4 — The One Where It Stops Talking Like a Dashboard`
+#### Group 3 → `v5.4 — The One Where It Stops Talking Like a Robot`
 
 > ✂️ **SPLIT, 2026-09-12, and the split is the whole point.** Its **decision half is now step 0 of
 > v5.2** (above). What stays here is the **wide clean-up**: the audit of every existing interaction

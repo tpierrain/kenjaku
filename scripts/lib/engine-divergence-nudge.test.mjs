@@ -7,6 +7,7 @@ import {
   buildEngineDivergenceHookOutput,
   engineDivergenceNudge,
 } from "./engine-divergence-nudge.mjs";
+import { directiveTraces } from "./owner-facing.mjs";
 
 // S4-4a — what the SESSION surface says about the files the engine is holding back.
 //
@@ -201,4 +202,17 @@ test("buildEngineDivergenceHookOutput keeps the echoed payload short — volume 
   // length — exactly as the universe reminder lets their display name float — so the
   // bound has room for a deeper skill path and none for a second sentence.
   assert.ok(payload.length <= 520, `the startup payload grew back to ${payload.length} chars:\n${payload}`);
+});
+
+// 🛑 THE OWNER'S CHANNEL (ADR 0043, v5.4): a fact about their brain, never an
+// instruction to the model. See owner-facing.mjs.
+test("what the owner reads here is a fact about their brain, never an instruction to us", () => {
+  const out = buildEngineDivergenceHookOutput(
+    engineDivergenceNudge({
+      divergence: [{ rel: ".claude/skills/coach/SKILL.md", reason: "customized", since: "2026-01-01" }],
+      ref: "v5.3.0",
+    }),
+  );
+
+  assert.deepEqual(directiveTraces(out.systemMessage), []);
 });

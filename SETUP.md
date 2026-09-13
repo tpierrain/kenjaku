@@ -918,11 +918,15 @@ Everyday capabilities, invoked in plain words (the `/name` is the explicit form)
 | **`/sync`** | Syncs your repo between machines — useful mostly if you have **several laptops**. Rarely needed day to day. |
 
 **Wiki-health skills (keep your knowledge tidy).** Engine-managed skills that watch the vault for decay
-and always **propose** fixes you confirm (never a silent rewrite):
+and then act by **how much the fix is yours to decide** (since v5.4): an unmistakable typo in a link is
+simply repaired, a handful of small reversible tidy-ups are **announced in one message you can stop**,
+and anything that shapes what your notes *mean* — creating the page for a person, settling a
+contradiction — is still **a question you answer**. Nothing is rewritten behind your back: every change
+lands in your own git history, so anything done without asking is one undo away.
 
 | Skill | What it does |
 |---|---|
-| **`/lint`** | **Health-checks the wiki**: reports dangling `[[links]]`, orphan notes nobody links to, stale entity pages, and malformed frontmatter. The diagnosis — you decide what to fix. |
+| **`/lint`** | **Health-checks your notes**: links pointing at a note that does not exist, notes nothing links to, pages your newer notes have moved past, notes missing their filing details, and notes the engine can no longer read (those still answer searches, with what they said months ago — the one finding that costs you *answers* rather than tidiness). |
 | **`/consolidate`** | Promotes **raw captures** (recent meetings, daily notes, transcripts) into durable **entity / topic pages** — creating or enriching the higher-order wiki page. |
 | **`/file-back`** | After a substantive exchange, **proposes distilling the answer** into a durable note (topic / decision / person / meeting), with a suggested target page. |
 | **`/open-note`** | Opens a vault note from an *"open X for me"* intent (semantic + exact match) in Obsidian; if none exists, it synthesizes the topic. |

@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import { wikiHealthNudge, buildWikiHealthHookOutput } from "./wiki-health-nudge.mjs";
+import { directiveTraces, jargonTraces } from "./owner-facing.mjs";
 
 // wikiHealthNudge is the pure Track-F core (ADR 0009 rung 1): given the two
 // STRUCTURED reports (lintVault's + consolidationCandidates'), it builds the
@@ -32,7 +33,7 @@ test("wikiHealthNudge — dangling links only → names the count", () => {
     ],
   };
   const nudge = wikiHealthNudge({ lintReport, consolidationReport: emptyConsolidation });
-  assert.equal(nudge, "2 dangling links");
+  assert.equal(nudge, "2 links pointing at a note that does not exist");
 });
 
 test("wikiHealthNudge — consolidation candidates only → names the count", () => {
@@ -44,7 +45,7 @@ test("wikiHealthNudge — consolidation candidates only → names the count", ()
     ],
   };
   const nudge = wikiHealthNudge({ lintReport: emptyLint, consolidationReport });
-  assert.equal(nudge, "3 consolidation candidates");
+  assert.equal(nudge, "3 recent notes worth folding into your pages");
 });
 
 test("wikiHealthNudge — both signals present → names both, and nothing else (F5)", () => {
@@ -59,7 +60,7 @@ test("wikiHealthNudge — both signals present → names both, and nothing else 
   };
   const nudge = wikiHealthNudge({ lintReport, consolidationReport });
 
-  assert.equal(nudge, "1 consolidation candidates and 1 dangling links");
+  assert.equal(nudge, "1 recent note worth folding into your pages and 1 link pointing at a note that does not exist");
 });
 
 test("wikiHealthNudge — orphans/stale/frontmatter but no dangling & no candidates → null (noise guardrail)", () => {
@@ -141,7 +142,7 @@ test("wikiHealthNudge — unreadable notes lead, ahead of housekeeping", () => {
   const nudge = wikiHealthNudge({ lintReport, consolidationReport });
   assert.equal(
     nudge,
-    "1 note the engine cannot read (it answers from stale content), 1 consolidation candidates and 1 dangling links",
+    "1 note the engine cannot read (it answers from stale content), 1 recent note worth folding into your pages and 1 link pointing at a note that does not exist",
   );
 });
 
@@ -149,4 +150,33 @@ test("buildWikiHealthHookOutput — the directive tells the agent which command 
   const ctx = buildWikiHealthHookOutput("1 note the engine cannot read (it answers from stale content)")
     .hookSpecificOutput.additionalContext;
   assert.match(ctx, /\/lint/, "the command that lists them by path");
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 🛑 THE OWNER'S CHANNEL (ADR 0043, v5.4). `systemMessage` is what the CLI PRINTS
+// to the owner; `additionalContext` is the model's and is never displayed. This
+// emitter already had the split right — it is the pattern the others were fixed
+// to — so these two tests exist to keep it that way.
+// ═══════════════════════════════════════════════════════════════════════════
+
+test("what the owner reads here is a fact about their vault, never an instruction to us", () => {
+  const out = buildWikiHealthHookOutput(
+    wikiHealthNudge({
+      lintReport: { danglingLinks: [1, 2], unreadableNotes: [1] },
+      consolidationReport: { newPages: [1], refreshes: [] },
+    }),
+  );
+
+  assert.deepEqual(directiveTraces(out.systemMessage), []);
+});
+
+test("and it is said in the owner's words, not the scanner's", () => {
+  const out = buildWikiHealthHookOutput(
+    wikiHealthNudge({
+      lintReport: { danglingLinks: [1, 2], unreadableNotes: [] },
+      consolidationReport: { newPages: [], refreshes: [] },
+    }),
+  );
+
+  assert.deepEqual(jargonTraces(out.systemMessage), []);
 });

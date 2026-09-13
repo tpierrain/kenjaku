@@ -54,7 +54,7 @@ test("sessionWikiHealth — a capture citing a page-less entity → emits the co
   assert.equal(calls.emitted.length, 1);
   // A count, not a command: this line is the systemMessage the CLI prints clean to
   // the owner (F5). `/consolidate` is named by the wrapper, which speaks to the agent.
-  assert.equal(calls.emitted[0], "1 consolidation candidates and 1 dangling links");
+  assert.equal(calls.emitted[0], "1 recent note worth folding into your pages and 1 link pointing at a note that does not exist");
 });
 
 test("sessionWikiHealth — reads FROM the given vaultDir", () => {
@@ -128,7 +128,7 @@ test("the hook speaks through a SYMLINKED brain path, exactly as through the rea
   // THE PREMISE FIRST: without this, a hook that is mute everywhere would pass the
   // symlink assertion below for the wrong reason — the FR pole's exact mistake.
   const real = await run(brain);
-  assert.match(real, /consolidation candidates/, "premise: through its real path the hook DOES speak");
+  assert.match(real, /recent note worth folding into your pages/, "premise: through its real path the hook DOES speak");
 
   const aliased = await run(alias);
   assert.equal(aliased, real, "a symlinked brain path must not change one byte of what the hook says");
@@ -165,7 +165,7 @@ test("sessionWikiHealth — an embed of a picture that is NOT there still raises
   });
   sessionWikiHealth(args);
   assert.equal(calls.emitted.length, 1);
-  assert.match(calls.emitted[0], /dangling links/);
+  assert.match(calls.emitted[0], /link pointing at a note that does not exist/);
 });
 
 test("sessionWikiHealth — the attachments reader is read from the SAME vault dir as the notes", () => {

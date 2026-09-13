@@ -29,6 +29,7 @@ import {
   localAuthorName,
   secondAuthorQuestion,
 } from "./brain-author.mjs";
+import { directiveTraces } from "./owner-facing.mjs";
 
 const ME = "Thomas Pierrain";
 const HER = "Claire Dubois";
@@ -284,6 +285,15 @@ test("a confirmed duo is told what changes, once, and that nothing had to be swi
 // is where the owner learns what nothing else tells them: this person can write here
 // because they were added to the repository, and that is where it is taken back. ADR
 // 0042 — the brain files, the git host decides who may. An alert, never a permission.
+// 🛑 This one is PRINTED STRAIGHT AT A HUMAN — `author-identity.mjs` logs it to
+// stdout, which the owner reads — and its sibling branch (the fusion case) is already
+// written for them: "Recorded: "X" is you, on another machine. Your notes stay filed
+// under Y". One `log`, two registers, and this was the half still telling the model
+// what to say.
+test("the confirmation is written for the person reading it, not for the model", () => {
+  assert.deepEqual(directiveTraces(duoConfirmedNotice(HER)), []);
+});
+
 test("the confirmation says where the access came from, and how to take it back", () => {
   const said = duoConfirmedNotice(HER);
 
@@ -298,9 +308,9 @@ test("nothing to say produces no output at all, so a solo brain's session start 
   assert.equal(buildAuthorsHookOutput({}), null);
 });
 
-// The exact block, both halves, both channels: this is what a CLI owner reads verbatim,
-// so its punctuation and its separation are part of the behaviour rather than around it.
-test("what there is to say rides additionalContext, the only channel Claude Desktop shows", () => {
+// The exact block: its punctuation and its separation are part of the behaviour
+// rather than around it. ONE channel since v5.4 — see the block below for why.
+test("what there is to say rides additionalContext, the channel the model reads", () => {
   const out = buildAuthorsHookOutput({ reminder: "R", question: "Q" });
 
   assert.deepEqual(out, {
@@ -308,8 +318,51 @@ test("what there is to say rides additionalContext, the only channel Claude Desk
       hookEventName: "SessionStart",
       additionalContext: "[authors] R\n\n[authors — ask, never guess] Q",
     },
-    systemMessage: "R\nQ",
   });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 🛑 THE OWNER'S CHANNEL CARRIES NOTHING WRITTEN FOR THE MODEL (ADR 0043, v5.4).
+//
+// Re-measured 2026-09-12 on Claude Code v2.1.220: `systemMessage` is the channel
+// the CLI PRINTS (prefixed `SessionStart:<matcher> says:`), and `additionalContext`
+// is the one the model receives and never appears on screen — the opposite of what
+// the July field note concluded. So every directive this module writes was landing
+// in front of the owner, shell commands and all.
+//
+// All three of these messages are relayed BY THE AGENT, in the owner's own language.
+// An English copy printed above that relay is not redundancy, it is the double
+// delivery the field capture named. So there is no `systemMessage` here at all.
+// ═══════════════════════════════════════════════════════════════════════════
+
+test("the owner's channel is left empty — these three are the agent's to say, in the owner's language", () => {
+  const out = buildAuthorsHookOutput({ reminder: "R", question: "Q", fusion: "F" });
+
+  assert.equal(out.systemMessage, undefined);
+});
+
+test("nothing this module emits to the owner reads as an instruction to the model", () => {
+  // The real payloads, not fixtures: this is the assertion that would have caught
+  // `ASK before today's first note … node scripts/author-identity.mjs --same-person`
+  // arriving on a CLI owner's first screen.
+  const out = buildAuthorsHookOutput({
+    reminder: authorsReminder({ authors: [ME, HER], me: ME, identities: [] }),
+    question: secondAuthorQuestion({ authors: [ME, HER], me: ME, identities: [], distinct: [] }),
+    fusion: null,
+  });
+
+  assert.deepEqual(directiveTraces(out.systemMessage), []);
+});
+
+test("the agent still receives all three, unchanged — nothing was muted, it was routed", () => {
+  // F5's own trap, written as a test: the fix must not silence the relay, which is
+  // the good version. Only the channel changes.
+  const out = buildAuthorsHookOutput({ reminder: "R", question: "Q", fusion: "F" });
+
+  assert.equal(
+    out.hookSpecificOutput.additionalContext,
+    "[authors] R\n\n[authors — ask, never guess] Q\n\n[authors — decided elsewhere] F",
+  );
 });
 
 // Each half alone must carry ONLY itself: a block that printed "[authors] null" would
@@ -317,11 +370,11 @@ test("what there is to say rides additionalContext, the only channel Claude Desk
 test("the reminder alone is enough to emit, and so is the question alone", () => {
   const reminderOnly = buildAuthorsHookOutput({ reminder: "R" });
   assert.equal(reminderOnly.hookSpecificOutput.additionalContext, "[authors] R");
-  assert.equal(reminderOnly.systemMessage, "R");
+  assert.equal(reminderOnly.systemMessage, undefined);
 
   const questionOnly = buildAuthorsHookOutput({ question: "Q" });
   assert.equal(questionOnly.hookSpecificOutput.additionalContext, "[authors — ask, never guess] Q");
-  assert.equal(questionOnly.systemMessage, "Q");
+  assert.equal(questionOnly.systemMessage, undefined);
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -542,7 +595,7 @@ test("many unendorsed fusions are named up to three, then counted", () => {
   assert.doesNotMatch(said, /Dara Okoye/);
 });
 
-test("the third thing there is to say rides the same two channels", () => {
+test("the third thing there is to say rides the same channel", () => {
   const out = buildAuthorsHookOutput({ reminder: "R", question: "Q", fusion: "F" });
 
   assert.deepEqual(out, {
@@ -550,7 +603,6 @@ test("the third thing there is to say rides the same two channels", () => {
       hookEventName: "SessionStart",
       additionalContext: "[authors] R\n\n[authors — ask, never guess] Q\n\n[authors — decided elsewhere] F",
     },
-    systemMessage: "R\nQ\nF",
   });
 });
 
@@ -559,7 +611,6 @@ test("a fusion decided elsewhere is worth a session start on its own", () => {
 
   assert.deepEqual(out, {
     hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: "[authors — decided elsewhere] F" },
-    systemMessage: "F",
   });
 });
 
@@ -632,10 +683,11 @@ test("a fusion filed under MY name still names THEM in the command", () => {
 test("what a confirmed duo is owed is said in these words, and no others", () => {
   assert.equal(
     duoConfirmedNotice(HER),
-    "Recorded: Claire Dubois is a second person. Say ONCE, in their language: from here on each " +
-      "person's day gets its own note instead of the two being merged, and a source you both meet " +
-      "is not stored twice. Nothing to switch on, and nothing else changes. Then, in one sentence: " +
-      "they can write here because they were added to this brain's repository, and removing them " +
-      "there is what ends it — this brain grants no access of its own.",
+    "Recorded: Claire Dubois is a second person, not you on another machine. From now on each of " +
+      "you gets your own note for the day instead of the two being merged into one, and a source " +
+      "you both meet is kept once rather than twice. There is nothing to switch on and nothing " +
+      "else changes. Claire Dubois can write here because they were added to this brain's " +
+      "repository — removing them there is what ends it, since this brain grants no access of " +
+      "its own.",
   );
 });

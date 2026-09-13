@@ -73,10 +73,12 @@ export function buildActionsLogHookOutput(seeded) {
     hookSpecificOutput: {
       hookEventName: "SessionStart",
       additionalContext:
-        `[activity-log] Just created their append-only activity ledger at ${ACTIONS_LOG_REL}: ` +
-        `one grep-able line per action taken through the brain, hand-written entries welcome. ` +
+        `[activity-log] Just created a running list of what this brain does, at ${ACTIONS_LOG_REL}: ` +
+        `one line per action taken through the brain, and they can write in it themselves. ` +
         `Mention it once, in their language, then let it be.`,
     },
-    systemMessage: `Created the append-only activity ledger (${ACTIONS_LOG_REL}).`,
+    // 🗣️ IN THE OWNER'S WORDS (ADR 0043, v5.4): "the append-only activity ledger" is
+    // three pieces of vocabulary for a thing that is a list of what happened.
+    systemMessage: `Created a running list of what this brain does for you (${ACTIONS_LOG_REL}).`,
   };
 }

@@ -271,8 +271,8 @@ export function lintVault(notes, options = {}) {
 // binary: one reassuring line when clean, one titled section per bleeding
 // category otherwise.
 export function reportLines(report) {
-  if (!hasFindings(report)) return ["✓ Wiki health: clean"];
-  const lines = ["✗ Wiki health: issues found"];
+  if (!hasFindings(report)) return ["✓ Your notes are in good shape"];
+  const lines = ["✗ A few of your notes could use a hand"];
   const section = (title, items, { counted = false } = {}) => {
     if (items.length === 0) return;
     lines.push("", counted ? `${title}:` : `${title} (${items.length}):`);
@@ -286,16 +286,23 @@ export function reportLines(report) {
     report.unreadableNotes,
     { counted: true },
   );
-  section("Dangling links", report.danglingLinks.map((d) => `${d.from} → [[${d.target}]]`));
-  section("Orphans", report.orphans);
+  // 🗣️ AND SO ARE THE OTHER FOUR, SINCE v5.4. They used to read `Dangling links`,
+  // `Orphans`, `Stale entity pages`, `Frontmatter issues` — the scanner's own nouns,
+  // shown to someone who asked for their notes to be tidied. Each heading now names
+  // what the owner has, the way the section above already did.
   section(
-    "Stale entity pages",
+    "Links pointing at a note that does not exist",
+    report.danglingLinks.map((d) => `${d.from} → [[${d.target}]]`),
+  );
+  section("Notes nothing links to", report.orphans);
+  section(
+    "Pages your newer notes have moved past",
     report.staleEntityPages.map(
       (s) => `${s.path} (updated ${s.updated}, cited as fresh as ${s.freshestReference})`,
     ),
   );
   section(
-    "Frontmatter issues",
+    "Notes missing their filing details",
     report.frontmatterViolations.map((v) => `${v.path} (missing: ${v.missing.join(", ")})`),
   );
   return lines;

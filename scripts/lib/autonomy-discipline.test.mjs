@@ -230,3 +230,101 @@ for (const { locale, layers } of CONSTITUTIONS) {
     assert.match(section, /ADR 0043/, "the tiers must point at the decision, not re-argue it");
   });
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// v5.4 — the doctrine, held where the owner actually meets it: the two skills
+// that produced the complaint.
+//
+// The constitution guards above pin that the tiers EXIST. These pin that the
+// two skills #79 was opened about apply them — because a doctrine every skill
+// is free to ignore is a doctrine nobody reads twice.
+//
+// 🛑 ANCHORED ON THE STEP NUMBER, NEVER ON ITS TITLE. The first version of the
+// sibling guard in `identity-discipline.test.mjs` located its section by the
+// heading "3. Propose fixes"; v5.4 retitled that step, so the guard read an
+// EMPTY section and its two assertions judged nothing, silently, while still
+// passing green. A guard that goes quiet on a rename has stopped guarding. The
+// step number is the stable part of a procedure; the wording is what this
+// release moves.
+//
+// ⚠️ WHAT THESE CAN AND CANNOT DO. Like every doc guard here, they assert that
+// a rule is PRESENT, never that a sentence is well written — nothing can read a
+// sentence before a human does. They are a floor under the prose, not a judge
+// of it.
+// ═══════════════════════════════════════════════════════════════════════════
+
+const LINT_SKILL = "engine-skills/lint/SKILL.md";
+const CONSOLIDATE_SKILL = "engine-skills/consolidate/SKILL.md";
+
+// `/lint` shipped first, so its rows below are REGRESSION PINS on behaviour that
+// is already in the repo, not test-first steps. `/consolidate`'s were written
+// against a skill that did not yet carry them, and went red for the right reason.
+const TIERED_SKILLS = [
+  {
+    name: "lint",
+    path: LINT_SKILL,
+    // Its procedure's acting step, whatever it comes to be called.
+    step: /^#+ 3\. /m,
+  },
+  {
+    name: "consolidate",
+    path: CONSOLIDATE_SKILL,
+    step: /^#+ 4\. /m,
+  },
+];
+
+for (const { name, path, step } of TIERED_SKILLS) {
+  test(`${name} points at the decision rather than restating the tiers`, () => {
+    assert.match(
+      read(path),
+      /ADR 0043/,
+      "two paraphrases of one doctrine are two disciplines that will drift apart",
+    );
+  });
+
+  test(`${name} names the tiers it uses, so a reader can tell which gesture is which`, () => {
+    const text = read(path);
+    for (const tier of ["🟡", "🔴"]) {
+      assert.ok(text.includes(tier), `the ${tier} tier must be named in ${name}`);
+    }
+  });
+
+  test(`${name} asks ONCE for the whole batch, never once per finding`, () => {
+    const section = docSection(read(path), step);
+    assert.notEqual(section, "", "the acting step must still exist — check the step number");
+    assert.match(
+      section,
+      /one message/i,
+      "the cure ADR 0043 §4 calls 'the whole cure' is the single message",
+    );
+    assert.match(
+      section,
+      /not one per|never one per/i,
+      "five prompts in a row is the measured complaint, and it is what this must forbid",
+    );
+  });
+
+  test(`${name} says why a question matters before it lists the options`, () => {
+    const section = docSection(read(path), step);
+    assert.match(
+      section,
+      /before the options/i,
+      "ADR 0043 §5: an option list with no stake stated is the jargon wall in another shape",
+    );
+  });
+}
+
+// ── And what must NOT have been lost while the words moved ────────────────
+// The tiers are about HOW the brain asks, never about whether a page may be
+// written behind the owner's back. `/consolidate` creates pages and adjudicates
+// nothing: a batch that ran without a yes would be this release trading one
+// defect for a far worse one.
+test("consolidate still writes nothing without a yes, batched or not", () => {
+  const text = read(CONSOLIDATE_SKILL);
+  assert.match(text, /write on yes|only on yes|never write yet/i);
+  assert.match(
+    text,
+    /never adjudicate|never decides|flag contradictions/i,
+    "a contradiction stays the human's to resolve",
+  );
+});

@@ -234,6 +234,59 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## v5.4 — the checker whose FALSE POSITIVES were untested — 2026-09-13
+
+**Run at the very end of the branch, at the owner's explicit instruction** _(2026-09-12: « fais
+tourner le mutation testing … profite de la nuit pour ça, mais fais-le à la fin, pour ne pas perdre de
+temps »)_, over everything v5.4 wrote: the **two new modules whole**, and the **changed ranges** of the
+six files it altered.
+
+| Target | First pass | After | Survivors left |
+|---|---|---|---|
+| `lib/owner-facing.mjs` (new, whole) | **83.62 %** | **98.11 %** | 1, an equivalent, named in the source |
+| `lib/batched-announcement.mjs` (new, whole) | **100 %** | — | 0 |
+| `lib/actions-log-seed.mjs:76-82` | **75 %** | **100 %** | 0 |
+| `lib/brain-author.mjs:272-300` | **100 %** | — | 0 |
+| `lib/universe-reminder.mjs:77-121` | **100 %** | — | 0 |
+| `lib/wiki-health-nudge.mjs:33-39` | **100 %** | — | 0 |
+| `lib/wiki-lint.mjs:274-305` | **100 %** | — | 0 |
+| `lib/consolidation-candidates.mjs:108-135` | **100 %** | — | 0 |
+
+### 🔴 The finding: a checker was tested only on what it CATCHES
+
+Nineteen mutants survived the first pass on `owner-facing.mjs`, and **nine of them were one shape**:
+delete any entry from the allow-list of acronyms an owner legitimately reads — `RAG`, `MCP`, `CLI`,
+`API`, `YAML`, `URL`, `OK`, `ID`, `AI`, `PR`, `UTC` — and no test moved. Two more said the same about
+the two carve-outs the release had already earned the hard way (a path keeps its exemption past its
+`#anchor`; a command line is still one when the spacing is a tab).
+
+That is **CONVENTIONS §5quater measured rather than quoted**: a checker is judged on its false
+positives, and every assertion this module had was about a string it should reject. A guard that is
+wrong about a legitimate sentence is a guard someone switches off, and nothing here would have said so.
+The fix is one sentence per acronym, plus the mirror test that a word nobody allowed still trips — the
+pair cannot both pass with the rule deleted.
+
+### And six mutants were answered by DELETING production, not by testing it
+
+`if (typeof text !== "string" || text === "")` — the empty-string half could not change an answer,
+because every check below it already says "no" for an empty string. Six mutants were saying exactly
+that, in six ways. Gone, and the non-string half is now asserted on **both** exported functions,
+including the case that proves it is the guard doing the work rather than luck: a **list** of lines
+coerces to a sentence, and would have been judged as one.
+
+The seventh, on `actions-log-seed.mjs`, was an assertion hole with a real cost: the one-time note's
+third sentence — *"Mention it once, in their language, then let it be"* — could be emptied with the
+suite still green, which turns a note that fires once in a brain's life into a standing instruction
+repeated at every session start. The volume defect this release exists against, in the payload least
+able to afford it.
+
+### The one survivor left, and why it is equivalent
+
+`text.replace(PATH_LIKE, " ")` → `""`. The space looks like a separator that matters, and it cannot:
+`PATH_LIKE` is greedy on both sides, so whatever surrounds a path was already separated by whitespace
+in the original — replacing with `""` can never fuse two neighbours into one shouted word. Written
+into the source beside the line, so the next pass does not re-derive it.
+
 ## #78 — the run that found a defect in the CODE, not a hole in the tests — 2026-09-12
 
 **`scripts/lib/delivered-links.mjs`, the day it was written** (§5quinquies), in three passes:

@@ -137,7 +137,60 @@ the board. The CHIBI mascot is DRAWN, never written as a label.*
 
 ## `board-reliability.png` — "The reliability stack" (why it keeps working)
 
-> Hand-drawn / sketch explainer board in the spirit of ByteByteGo & Alex Xu — warm off-white paper background (#F4F1EA), marker-outline shapes with subtle pencil shadows, soft pastel icon tiles, bold condensed black titles, warm-grey secondary text. 16:9, presentation-grade, crisp perfectly-spelled labels, no photorealism, no clutter, no watermark. **Header:** top-LEFT, a bracket mark + a solid-orange pill whose only text is **"UNDER THE HOOD · RELIABILITY"** in bold white uppercase + a dashed line; top-RIGHT, the Kenjaku identity — a brain glyph + the wordmark **"KENJAKU"** in a chunky rounded comic/pop-art font with a thick black outline, ALL-CAPS, filled solid parme / soft mauve-violet (~#B884D8), with **"your second brain"** beneath. A layered stack of labelled bands, each with a small icon, from foundation to top: **"Grounded in truth"** — *"semantic search answers FROM your vault · a synthetic canary proves it (Mollecuisse / Flemmr) · fail-loud verify-rag"*; **"Determinism over guesswork"** — *"pure functions · binary exit-code tools · real event triggers, not timers · locks · debounced reindex · commits on a quiet window, pushes once per turn"*; **"Self-healing, desired-state"** — *"idempotent reconciler (à la Kubernetes / GitOps / Terraform) · never overwrites your notes · self-upgradable engine · /lint + /consolidate keep your wiki healthy (propose, you confirm)"*; **"Hexagonal architecture"** — *"stable local MCP port · swappable adapters · open format, open license, zero lock-in"*; **"Proven engineering"** — *"TDD baby-steps, green-only commits · temporal-coupling-proof (edge cases covered) · eval-set 90% · embedders benchmarked (local ≥ cloud, FR) · 34 ADRs · mutation 90–97%"*. A side note reads **"fail loudly rather than pretend"**. A cute CHIBI Kenjaku mascot (big head, small body — silver wavy hair, full grey beard, olive-green rectangular glasses, a horizontal forehead stitch, serene closed eyes) sits relaxed in the lower-right corner, DRAWN only and never labelled, faithfully matching the attached kenjaku.png reference (same face, same glasses, same stitch). **Bottom ribbon — a full-width bar in the same saturated brand orange (#E8590C), its one line set in bold white text (never black):** **"Effortless to use — because every load-bearing step is deterministic, tested and fail-loud."** Attach kenjaku.png as reference for the mascot.
+> Hand-drawn / sketch explainer board in the spirit of ByteByteGo & Alex Xu — warm off-white paper background (#F4F1EA), marker-outline shapes with subtle pencil shadows, soft pastel icon tiles, bold condensed black titles, warm-grey secondary text. 16:9, presentation-grade, crisp perfectly-spelled labels, no photorealism, no clutter, no watermark. **Header:** top-LEFT, a bracket mark + a solid-orange pill whose only text is **"UNDER THE HOOD · RELIABILITY"** in bold white uppercase + a dashed line; top-RIGHT, the Kenjaku identity — a brain glyph + the wordmark **"KENJAKU"** in a chunky rounded comic/pop-art font with a thick black outline, ALL-CAPS, filled solid parme / soft mauve-violet (~#B884D8), with **"your second brain"** beneath. A layered stack of labelled bands, each with a small icon, from foundation to top: **"Grounded in truth"** — *"semantic search answers FROM your vault · a synthetic canary proves it (Mollecuisse / Flemmr) · fail-loud verify-rag"*; **"Determinism over guesswork"** — *"pure functions · binary exit-code tools · real event triggers, not timers · locks · debounced reindex · commits on a quiet window, pushes once per turn"*; **"Self-healing, desired-state"** — *"idempotent reconciler (à la Kubernetes / GitOps / Terraform) · never overwrites your notes · self-upgradable engine · /lint + /consolidate keep your wiki healthy (it fixes the obvious, asks about the rest)"*; **"Hexagonal architecture"** — *"stable local MCP port · swappable adapters · open format, open license, zero lock-in"*; **"Proven engineering"** — *"TDD baby-steps, green-only commits · temporal-coupling-proof (edge cases covered) · eval-set 90% · embedders benchmarked (local ≥ cloud, FR) · 34 ADRs · mutation 90–97%"*. A side note reads **"fail loudly rather than pretend"**. A cute CHIBI Kenjaku mascot (big head, small body — silver wavy hair, full grey beard, olive-green rectangular glasses, a horizontal forehead stitch, serene closed eyes) sits relaxed in the lower-right corner, DRAWN only and never labelled, faithfully matching the attached kenjaku.png reference (same face, same glasses, same stitch). **Bottom ribbon — a full-width bar in the same saturated brand orange (#E8590C), its one line set in bold white text (never black):** **"Effortless to use — because every load-bearing step is deterministic, tested and fail-loud."** Attach kenjaku.png as reference for the mascot.
+
+### ✏️ Touch-up rather than regenerate — when ONE line of a finished board goes stale
+
+**Measured on this very board, 2026-09-13.** One line had to change (v5.4 made *"propose, you confirm"*
+a half-truth) and two full regenerations from the prompt above came back **worse than the original**:
+the first garbled the *Proven engineering* band mid-sentence, the second **dropped the `Grounded in
+truth` band entirely, repeated another, and painted the brief's own quotation marks onto the paper.**
+A board this dense is a lottery ticket every time it is rolled again — and the copy that is already
+right has no reason to be re-rolled.
+
+**So: attach the finished PNG and ask for an edit.** This is the instruction that fixed this board on
+2026-09-13 — **already applied**, kept as the worked example to copy the shape of, not to re-run:
+
+> Edit the attached image. **Change one thing and nothing else.** In the **"Self-healing,
+> desired-state"** band, the last line currently reads: `/lint + /consolidate keep your wiki healthy
+> (propose, you confirm)`. Replace **only the text inside the parentheses** so the line reads:
+> `/lint + /consolidate keep your wiki healthy (it fixes the obvious, asks about the rest)`. Keep the
+> same hand-drawn lettering, size, weight and grey tone as the parentheses it replaces, and keep the
+> line on a single line inside its band. **Every other pixel stays exactly as it is**: same five bands
+> in the same order, same icons, same chibi mascot, same header pill and wordmark, same orange bottom
+> ribbon, same paper texture, same side note. Do not re-draw, re-letter or re-flow anything else.
+
+*If the replacement does not fit on one line, the shorter wording is `(fixes the obvious, asks the
+rest)` — the claim that matters is that some fixes happen without being asked about.*
+
+**Three things this edit cost, so the next one costs none of them** *(2026-09-13, four passes)*:
+
+- **Quote the WHOLE line, never just the fragment that changes.** Asked to swap a parenthesis for a
+  longer one, the tool made room by **deleting words either side of it** (`keep your wiki healthy`
+  vanished) and by truncating a nearby one (`/consolidate` → `/consoidat`). Give it the finished line
+  in full, and add *"do not drop any word to make room; set this line slightly smaller if it is tight."*
+- **A word can come back mangled, and only re-lettering THAT word fixes it** (`the obvious` →
+  `·bvious`). Re-state the whole line again, naming the word to spell out.
+- **Nothing else drifted across four passes.** The five bands, the icons, the mascot, the ribbon and
+  every other line came back pixel-faithful, which is the whole reason to edit rather than re-roll.
+
+### 📦 Post-production — every board, before it is committed
+
+**The repo's boards are all `1760 × 982` and ~600–800 KB**, and that is not cosmetic: the raw renders
+are ~5 MB each, they ship **into every generated brain**, and git keeps each version for ever. The
+recipe (settled 2026-07-25, when 18 boards went from **87 MB to 12 MB**):
+
+```bash
+sips --resampleWidth 1760 board.png                                  # 16:9 → 1760 × 982
+pngquant --quality=70-90 --speed 1 --force --output out.png board.png
+```
+
+Keep the `.png` extension and the exact `board-*.png` filename: the README and the brain's own copy
+reference those slots, so nothing else has to change.
+
+> 📌 **The prompt above stays the source of truth** for a full regeneration, and it already carries the
+> corrected copy. Two figures in it age on their own and are worth refreshing **the next time the board
+> is rebuilt from scratch**: the ADR count (`34 ADRs`) and the mutation range.
 
 ---
 

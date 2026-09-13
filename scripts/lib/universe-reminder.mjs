@@ -74,9 +74,23 @@ export function profileCaptureOffer({ hasProfile, declined, multiverse = false }
 
 /**
  * Wraps the nudge into the SessionStart hook output, or null when there is nothing
- * to emit. Mirrors buildWikiHealthHookOutput: the nudge rides `additionalContext`
- * (the only Desktop-visible channel), phrased as a DIRECTIVE the agent relays to
- * the user; `systemMessage` carries the raw fact (dropped on Desktop, shown on CLI).
+ * to emit. The nudge rides `additionalContext`, phrased as a DIRECTIVE the agent
+ * relays to the owner in their own language.
+ *
+ * 🛑 ONE PAYLOAD, ONE READER (ADR 0043, v5.4). `systemMessage` is what the CLI PRINTS
+ * to the owner; `additionalContext` is what the model receives, and it is never
+ * displayed (re-measured on Claude Code v2.1.220, 2026-09-12 — the July field note
+ * had the two the other way round, which is how directives kept landing here).
+ * So `systemMessage` carries the one thing written for a human — which universe is
+ * active — and nothing else:
+ *
+ *   • the OFFER is an instruction to make an offer, and the agent makes the real one,
+ *     in their language. Printing both put the instruction on screen and the offer
+ *     under it, twice over.
+ *   • the SYNTHESIS is the owner's own context page. Its own directive says "use it
+ *     silently, do not recite it", and the constitution adds the second reason:
+ *     anything routed to a session-start channel lands on a screen they may be
+ *     sharing. Reciting it verbatim was both.
  */
 export function buildUniverseHookOutput({ nudge = null, synthesis = null, offer = null } = {}) {
   if (!nudge && !synthesis && !offer) return null;
@@ -100,8 +114,9 @@ export function buildUniverseHookOutput({ nudge = null, synthesis = null, offer 
     );
   }
   if (offer) parts.push(`[onboarding] ${offer}`);
-  return {
+  const output = {
     hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: parts.join("\n\n") },
-    systemMessage: [nudge, synthesis, offer].filter(Boolean).join("\n"),
   };
+  if (nudge) output.systemMessage = nudge;
+  return output;
 }

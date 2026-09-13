@@ -271,7 +271,7 @@ test("runSetUniverseProfile --check-slack survives a universe with no profile pa
   assert.deepEqual(calls.errored, []);
   assert.deepEqual(calls.logged, [
     "? This universe has no profile page yet, so it declares no accounts to check against. " +
-      "Slack is on 'globex'. `/switch` can describe this sphere, accounts included.",
+      "Slack is on 'globex'. `/switch` can describe this universe, accounts included.",
   ]);
 });
 

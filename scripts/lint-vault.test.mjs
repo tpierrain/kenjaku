@@ -41,7 +41,7 @@ test("runLint — a clean vault prints the scan count + clean line and exits 0",
   const code = runLint([], deps);
   assert.equal(code, 0);
   assert.deepEqual(seenDirs, ["/brain/vault"]);
-  assert.deepEqual(logs, ["Scanned 0 notes under /brain/vault", "✓ Wiki health: clean"]);
+  assert.deepEqual(logs, ["Scanned 0 notes under /brain/vault", "✓ Your notes are in good shape"]);
 });
 
 test("runLint — a bleeding vault prints the report and exits 1", () => {
@@ -50,7 +50,7 @@ test("runLint — a bleeding vault prints the report and exits 1", () => {
   const code = runLint([], deps);
   assert.equal(code, 1);
   assert.equal(logs[0], "Scanned 1 notes under /brain/vault");
-  assert.ok(logs.includes("✗ Wiki health: issues found"), "prints the bleeding header");
+  assert.ok(logs.includes("✗ A few of your notes could use a hand"), "prints the bleeding header");
   assert.ok(logs.includes("  a.md → [[Missing]]"), "lists the dangling link");
 });
 
@@ -82,7 +82,7 @@ test("the CLI, run as a process — a clean vault exits 0 and says so", (t) => {
 
   assert.equal(run.status, 0, `expected a clean exit, got ${run.status} — stderr: ${run.stderr}${run.stdout}`);
   assert.match(run.stdout, /Scanned 2 notes/);
-  assert.match(run.stdout, /✓ Wiki health: clean/);
+  assert.match(run.stdout, /✓ Your notes are in good shape/);
 });
 
 test("the CLI, run as a process — a dangling link exits 1 and names the note", (t) => {
@@ -132,7 +132,7 @@ test("runLint — an embed of an attachment that exists is not a finding, and th
   ];
   const { deps, logs } = fakeDeps({ readNotes: () => notes, readAttachments: () => ["people/screenshot.png"] });
   assert.equal(runLint([], deps), 0);
-  assert.deepEqual(logs, ["Scanned 2 notes under /brain/vault", "✓ Wiki health: clean"]);
+  assert.deepEqual(logs, ["Scanned 2 notes under /brain/vault", "✓ Your notes are in good shape"]);
 });
 
 test("the CLI, run as a process — a real pasted screenshot next to a note is not a dangling link", (t) => {
@@ -148,7 +148,7 @@ test("the CLI, run as a process — a real pasted screenshot next to a note is n
   const run = spawnSync(process.execPath, [CLI, join(dir, "vault")], { encoding: "utf8" });
 
   assert.equal(run.status, 0, `the embed resolves, so the vault is clean — got ${run.status}: ${run.stdout}${run.stderr}`);
-  assert.match(run.stdout, /✓ Wiki health: clean/);
+  assert.match(run.stdout, /✓ Your notes are in good shape/);
   assert.doesNotMatch(run.stdout, /screenshot/, "the picture must not appear in the report at all");
 });
 
