@@ -100,13 +100,20 @@ The series convention holds: English, Friends-style `vX.Y.Z — The One …`, an
 |---|---|
 | **v5.2** | `v5.2 — The One Where Done Really Means Done` |
 | **v5.3** | `v5.3 — The One Where It Says Which Universe It Answered From` |
-| **v5.4** | `v5.4 — The One Where It Stops Talking Like a Dashboard` |
+| **v5.4** | `v5.4 — The One Where It Stops Talking Like a Robot` |
 
 - **v5.3's title is HIS pick from three**, not the one this plan recommended _(« pour la 5.3 je
   préfère "The One Where It Says Which Universe It Answered From" »)_. Recorded so nobody
   re-optimises it: the other two candidates were *"…Stops Answering From the Wrong Universe"* and
   *"…the Universe Stops Drifting Without You"*.
-- **v5.4's title is his own phrase** given back to him: the brain traded the magic for a dashboard.
+- **v5.4's title started as his own phrase** given back to him, *"…Stops Talking Like a Dashboard"*:
+  the brain had traded the magic for a dashboard. **He changed one word on 2026-09-13, and the reason
+  is this release's own thesis** — *« je ne suis pas sûr que le terme Dashboard parle aux gens »*. A
+  dashboard is a word from inside the trade; a **robot** is a word everybody owns. A release about
+  speaking plainly could not be announced in a title only its authors could picture. The shape, the
+  series and the em dash are untouched: **`v5.4 — The One Where It Stops Talking Like a Robot`**.
+  _(The branch and this plan's filename still say `dashboard`; they are addresses, not titles, and
+  renaming them would break links for nothing.)_
 
 #### Why three releases and not one — the reasoning, kept
 
@@ -231,7 +238,7 @@ about the same gap: **the brain scopes one thing and leaves another unscoped, wi
       read first, as this step asked, and **two of the issues' premises did not survive that read**
       (§ *History* of the release plan).
 
-#### Group 3 → `v5.4 — The One Where It Stops Talking Like a Dashboard`
+#### Group 3 → `v5.4 — The One Where It Stops Talking Like a Robot`
 
 > ✂️ **SPLIT, 2026-09-12, and the split is the whole point.** Its **decision half is now step 0 of
 > v5.2** (above). What stays here is the **wide clean-up**: the audit of every existing interaction
