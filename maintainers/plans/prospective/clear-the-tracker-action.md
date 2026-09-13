@@ -15,15 +15,14 @@
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-08-23
 
-- **Next:** ▶️ **`v5.4` — the LAST of the three approved releases, and it is BUILT.** Its step-detail
-  plan owns everything about it, its own STATE included —
-  [`v5.4-stop-talking-like-a-dashboard-action.md`](v5.4-stop-talking-like-a-dashboard-action.md).
-  Read it there; do not restate it here. **What is left is the tag, and the tag is his.**
-- **🛑 The autonomy grant, as it stands now.** The line that used to sit here said the v5.3 grant
-  stopped at v5.3 and that a session must **ask** before cutting v5.4. **He superseded it on
-  2026-09-12** — « travaille en toute autonomie cette nuit … je m'occuperai de pousser la release
-  demain matin » — for everything **up to** the tag. The tag itself was already his in v5.4's own
-  step 7, so the two agree: a session prepares the release entire and stops there.
+- **Next:** ▶️ **the three approved releases are ALL SHIPPED** — v5.4.0 tagged and published
+  2026-09-13 ([release](https://github.com/tpierrain/kenjaku/releases/tag/v5.4.0), plan archived:
+  [`2026-09-13-v5.4.0-plain-language-delivered.md`](../archived/2026-09-13-v5.4.0-plain-language-delivered.md)).
+  **What is left of this plan is its tails**, and the first real piece of work among them is the
+  **three 🟢 gestures he accepted and that were not coded** → § *What v5.4 left to build*.
+- **🛑 The autonomy grant.** It ran *up to the tag* until 2026-09-13, when he granted the tag itself by
+  name — « je t'autorise à cut/merge/push » — for **that release**. **It does not carry forward**: the
+  next release needs its own grant, and the standing rule below is the default again.
 - **Blocked on:** nothing. **THREE things wait on him, none gating anything:** what the nightly quality
   run is FOR → § *Inherited from v5.0.0*; `ci.yml`'s `concurrency` → § *Questions the owner owns*; the
   French wording shipped in v5.2.0, his to re-read at leisure. **They stay HERE, not in the tracker** →
@@ -31,8 +30,8 @@
 - **A session may, alone:** work test-first end to end on a branch, **label** issues, commit, push,
   read what CI returns. **Not:** cut a release without a grant by name, write into `templates/fr/**`
   (one carve-out, § *History*) or into either of his two personal brains.
-- **Already delivered:** v5.1.3, v5.2.0 and **[v5.3.0](https://github.com/tpierrain/kenjaku/releases/tag/v5.3.0)**,
-  all three archived — § *Group 1*, § *v5.1*, § *Group 2*. Lessons: § *History*.
+- **Already delivered:** v5.1.3, v5.2.0, v5.3.0 and **[v5.4.0](https://github.com/tpierrain/kenjaku/releases/tag/v5.4.0)**,
+  all four archived — § *Group 1*, § *v5.1*, § *Group 2*, § *Group 3*. Lessons: § *History*.
 
 ## Tracking
 
@@ -245,9 +244,9 @@ about the same gap: **the brain scopes one thing and leaves another unscoped, wi
 > point and every string, in two locales. That half is weeks with no announceable end, which is why
 > it may not stand in front of a defect that silently loses a note.
 >
-> 📋 **AND IT HAS A STEP-DETAIL PLAN OF ITS OWN SINCE 2026-09-12** —
-> [`v5.4-stop-talking-like-a-dashboard-action.md`](v5.4-stop-talking-like-a-dashboard-action.md),
-> which **owns the whole of v5.4** and is the only place its state lives. The reservation above is
+> 📋 **DELIVERED 2026-09-13, and its step detail is ARCHIVED** —
+> [`2026-09-13-v5.4.0-plain-language-delivered.md`](../archived/2026-09-13-v5.4.0-plain-language-delivered.md),
+> which **owns the whole of v5.4** and is the only place its detail lives. The reservation above is
 > answered there rather than here: *"no announceable end"* is true of *rewrite every string* and
 > false of the plan's own unit, **the gesture** — a finite, listable set, counted in its step 1.
 
@@ -349,6 +348,26 @@ tracker pretends to be a decision he has taken.
 - **One type label was corrected rather than added**: #83 was filed as an `enhancement`, and its own
   title and body describe a **bug** — a true, sourced statement deleted from a message to an executive
   on the strength of a claim broader than its search.
+
+## 🟢 What v5.4 left to build — three gestures he accepted, and nobody coded
+
+**Answered 2026-09-13, as a clickable question** (which is [ADR 0045](../../decisions/0045-an-important-question-is-a-control-not-a-sentence.md)'s
+own doctrine), and **yes to all three** as recommended. They were not built, because he chose in the
+same breath to ship v5.4 without waiting for them. The specification, with what each one risks, is
+[`registers/gestures.md`](../../registers/gestures.md) § *The 🟢 list* — **do not restate it here**.
+
+- [ ] **The indented-key repair stops asking** and is announced in the batch instead. It is the one
+      finding that costs the owner *answers* rather than tidiness: a note the engine cannot read keeps
+      answering searches with what it said weeks ago.
+- [ ] **Re-indexing after a universe is created or deleted** is announced, then runs unless stopped.
+      It costs minutes of compute and risks no data at all, so authorising a wait is the wrong shape.
+- [ ] **Re-indexing when the live watcher is not running** — same shape, same tier.
+
+> ⚠️ **The half that is easy to skip.** The 🟢 and 🟡 tiers are bought by auto-commit
+> ([ADR 0043](../../decisions/0043-graduated-autonomy-and-plain-language.md) §3), so each of these
+> needs its write proven to land in the owner's history — and the batched announcement must say that
+> silence proceeds, without a question mark. Both properties already have tests in the engine; the
+> work is to route these three through them, not to re-invent either.
 
 ## 🎙️ ✅ SETTLED — the trade-off pattern for *"should this one ride along?"*
 

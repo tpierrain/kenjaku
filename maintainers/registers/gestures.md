@@ -5,7 +5,7 @@
 <!--                                                                         -->
 <!-- plan-carrier-guard: delegates-only — this file holds no plan state. The  -->
 <!-- release's state lives in                                                 -->
-<!-- plans/prospective/v5.4-stop-talking-like-a-dashboard-action.md.          -->
+<!-- plans/archived/2026-09-13-v5.4.0-plain-language-delivered.md.          -->
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 
 # Register — every gesture the brain makes, and its tier
