@@ -255,3 +255,144 @@ test("readFirstScreen — a line is a bullet, part of one, or a stray, and never
   const accounted = bullets.length + strays.length;
   assert.equal(accounted, 4, "every non-blank line is accounted for exactly once, wraps aside");
 });
+
+// ── What a mutation run found unasserted (2026-09-14, 71.84 % first pass) ───
+// Every pole below killed a mutant that the suite above let live. They are kept
+// together because they share one lesson: the rules were asserted, the READING of
+// the note was not — what counts as a fence, as a heading, as the end of a bullet.
+// A guard that refuses writes cannot afford to be approximately right about that.
+
+test("a fence marker only opens a fence at the START of a line", () => {
+  // Otherwise a bullet that merely MENTIONS ``` swallows the rest of the page: the
+  // fold stops being detected, and the cap silently stops counting.
+  const content = [TITLE, "", "- say that ``` opens a code block", ...bullets(9), "", "## Ammunition"].join("\n");
+  assert.match(reasons(briefShapeVerdict({ content, type: "prep-1-1" })), /holds 10 bullets/);
+});
+
+test("a `#` INSIDE a bullet is not a heading — headings anchor at column 0", () => {
+  // `- fixes #128` must stay one thing you will say. Read as a heading it would be
+  // taken for the title and reset the whole first screen, losing what came before.
+  const content = [TITLE, "", "- ship the fix for #128", "- and #129 with it", "", "## Ammunition"].join("\n");
+  assert.deepEqual(briefShapeVerdict({ content, type: "prep-1-1" }), { ok: true, violations: [] });
+  assert.deepEqual(briefBullets(firstScreenLines(content)).map((b) => b.text), ["ship the fix for #128", "and #129 with it"]);
+});
+
+test("a second `#` line, below content, is prose — the anchor is the FIRST one", () => {
+  // The title resets the screen only while nothing has been collected. Reset it later
+  // and everything said above vanishes from the count, unmeasured and unmentioned.
+  const content = [TITLE, "", ...bullets(2), "", "# A second title", "", "## Ammunition"].join("\n");
+  const verdict = briefShapeVerdict({ content, type: "prep-1-1" });
+  assert.deepEqual(rules(verdict), ["not-a-bullet"], "the stray is reported…");
+  assert.deepEqual(briefBullets(firstScreenLines(content)).length, 2, "…and the bullets above it are still counted");
+});
+
+test("a whitespace-only line before the title does not stop the title being the anchor", () => {
+  const content = ["   ", TITLE, "", "- one thing to say", "", "## Ammunition"].join("\n");
+  assert.deepEqual(briefShapeVerdict({ content, type: "prep-1-1" }), { ok: true, violations: [] });
+});
+
+test("a blank line ends a bullet, so what follows it is prose and is told so", () => {
+  // Without this, everything after the last bullet is swallowed as its continuation:
+  // a page of context reads as one very long bullet, or as nothing at all.
+  for (const separator of ["", "   "]) {
+    const content = [TITLE, "", "- one thing to say", separator, "Then a paragraph of context.", "", "## Ammunition"].join("\n");
+    assert.deepEqual(rules(briefShapeVerdict({ content, type: "prep-1-1" })), ["not-a-bullet"], JSON.stringify(separator));
+  }
+});
+
+test("an INDENTED marker is nesting, not a second bullet — it counts against its parent", () => {
+  // The shape forbids nesting. Folding it into the parent is what makes that cost
+  // something: the nested text pushes the parent against its own ceiling.
+  const content = note(["- the parent bullet", "  - a nested one", "  - and another"]);
+  assert.deepEqual(briefBullets(firstScreenLines(content)).map((b) => b.text), [
+    "the parent bullet - a nested one - and another",
+  ]);
+});
+
+test("a two-digit numbered item is a bullet, and prose that merely contains a full stop is not", () => {
+  // Both halves of the same boundary: `10.` opens a list item, `Some context. And more`
+  // does not. Read the second as a bullet and a preamble walks through the guard.
+  assert.deepEqual(briefBullets(firstScreenLines(note(["10. the tenth thing"]))).map((b) => b.text), ["the tenth thing"]);
+  assert.deepEqual(rules(briefShapeVerdict({ content: note(["Some context. Nobody asked for it.", "", ...bullets(2)]), type: "prep-1-1" })), [
+    "not-a-bullet",
+  ]);
+});
+
+test("a bullet's marker, its indentation and its trailing spaces are not part of its length", () => {
+  // 220 is a ceiling on what is SAID. Counting the marker would make the real limit
+  // 218 and nobody could tell why; counting trailing spaces makes it unknowable.
+  const verdict = briefShapeVerdict({ content: note([`- ${"x".repeat(220)}   `]), type: "prep-1-1" });
+  assert.deepEqual(verdict, { ok: true, violations: [] });
+  assert.equal(briefBullets(firstScreenLines(note([`-  ${"x".repeat(3)}  `])))[0].text, "xxx");
+});
+
+test("a bullet that starts empty and continues on the next line is that one line", () => {
+  assert.deepEqual(briefBullets(firstScreenLines(note(["- ", "  the whole thing"]))).map((b) => b.text), ["the whole thing"]);
+});
+
+test("the lines of a fenced block above the fold are strays, each at its own line number", () => {
+  const content = [TITLE, "", "```", "code", "```", "", "- one thing to say", "", "## Ammunition"].join("\n");
+  const { strays } = readFirstScreen(firstScreenLines(content));
+  assert.deepEqual(strays, [
+    { text: "```", line: 3 },
+    { text: "code", line: 4 },
+    { text: "```", line: 5 },
+  ]);
+});
+
+test("content that is not a string at all is read as empty, not as a crash", () => {
+  // This runs inside a hook in front of every write the brain makes.
+  for (const content of [undefined, null]) {
+    assert.deepEqual(rules(briefShapeVerdict({ content, type: "prep-1-1" })), ["no-first-screen"], String(content));
+    assert.deepEqual(briefShapeVerdict({ content, type: "daily" }), { ok: true, violations: [] });
+  }
+  // Anything else is read as the text it stringifies to, rather than thrown back at
+  // the owner: a note whose body is `42` has no brief, and it also has a stray line.
+  assert.deepEqual(rules(briefShapeVerdict({ content: 42, type: "prep-1-1" })), ["not-a-bullet", "no-first-screen"]);
+});
+
+// ── The messages, verbatim — they are the product here ─────────────────────
+// The reader of these sentences is the model that has to fix the note in one pass,
+// without seeing this file. A message asserted by a regex on its number is a message
+// whose advice half can be emptied with the suite still green — measured: six string
+// mutants survived the first pass, every one of them inside a sentence.
+
+test("the four refusals say exactly what they say", () => {
+  const messageFor = (content) => briefShapeVerdict({ content, type: "prep-1-1" }).violations[0].message;
+
+  assert.equal(
+    messageFor(note(["A preamble.", "", ...bullets(2)])),
+    'line 3 above the first `##` is not a bullet: "A preamble.". The first screen carries bullets and ' +
+      "nothing else — no preamble, no sub-heading, no table, no link to go and open. Make it one of the " +
+      "things you will say, or move it below the first `##`.",
+  );
+
+  assert.equal(
+    messageFor([TITLE, "", "## What I want to raise"].join("\n")),
+    "this note opens straight onto a `##` heading: there is no brief. The first screen is everything " +
+      "between the title and that heading, and it carries at least one bullet — even when the vault is " +
+      "thin, and then it is the one naming what is not documented.",
+  );
+
+  assert.equal(
+    messageFor(note(bullets(8))),
+    "the first screen holds 8 bullets, 1 over the cap of 7. Say 1 thing less, or move it below the " +
+      "first `##` as ammunition, where nothing is counted.",
+  );
+  assert.equal(
+    messageFor(note(bullets(12))),
+    "the first screen holds 12 bullets, 5 over the cap of 7. Say 5 things less, or move them below the " +
+      "first `##` as ammunition, where nothing is counted.",
+  );
+
+  assert.equal(
+    messageFor(note([`- ${"x".repeat(221)}`])),
+    `bullet 1 runs 221 characters, 1 character over the ceiling of 220: "${"x".repeat(60)}…". ` +
+      "One bullet is one sentence said aloud; the detail behind it belongs below the first `##`.",
+  );
+  assert.equal(
+    messageFor(note([`- ${"y".repeat(240)}`])),
+    `bullet 1 runs 240 characters, 20 characters over the ceiling of 220: "${"y".repeat(60)}…". ` +
+      "One bullet is one sentence said aloud; the detail behind it belongs below the first `##`.",
+  );
+});
