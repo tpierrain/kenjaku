@@ -12,11 +12,13 @@ only carries what a user of Kenjaku could read and care about (2026-09-12, tried
 
 ## The active plan
 
-🔴 [**`one-page-briefs-action.md`**](one-page-briefs-action.md) — part A of
-[#119](https://github.com/tpierrain/kenjaku/issues/119): a prep's first screen is the whole brief, and
+🔴 [**`one-page-briefs-action.md`**](one-page-briefs-action.md) —
+[#128](https://github.com/tpierrain/kenjaku/issues/128): a prep's first screen is the whole brief, and
 a check says so. Opened 2026-09-14 at the owner's ask. **Resume there and nowhere else.**
 
-Parts B and C of the same issue (ambient ingestion, the twice-daily digest) are **not** in it: they
+Parts B and C ([#126](https://github.com/tpierrain/kenjaku/issues/126),
+[#127](https://github.com/tpierrain/kenjaku/issues/127), under the
+[#119](https://github.com/tpierrain/kenjaku/issues/119) umbrella) are **not** in it: they
 wait on the open measurements in
 [`../studies/ambient-ingestion-feasibility-study.md`](../studies/ambient-ingestion-feasibility-study.md).
 

@@ -8,8 +8,10 @@
 # Study — ambient ingestion: what is actually reachable without a human
 
 - **STATUS:** 🔬 Study. Nothing implemented.
-- **Scope:** how the brain stays fresh when nobody drives it. Issue
-  [#119](https://github.com/tpierrain/kenjaku/issues/119), parts B and C.
+- **Scope:** how the brain stays fresh when nobody drives it. Parts B and C of the
+  [#119](https://github.com/tpierrain/kenjaku/issues/119) umbrella, split out on 2026-09-14 into
+  [#126](https://github.com/tpierrain/kenjaku/issues/126) (ambient ingestion) and
+  [#127](https://github.com/tpierrain/kenjaku/issues/127) (the twice-daily digest).
 - **Origin:** the owner, 2026-09-14, challenging this repo's own recorded assumption.
 - **Supersedes one paragraph of** [`background-consolidation-mode-study.md`](background-consolidation-mode-study.md)
   (§ Open questions, *"Source adapters are the real cost of the project"*). That paragraph is **wrong**
@@ -22,10 +24,9 @@
       commit logic of its own, and the design stands unchanged
 - [x] **S2 — This study reaches `main`** _(2026-09-14 · `1f6dc49`, PR #122)_, so a second machine
       resuming work finds it in the clone.
-- [ ] **S3 — Split issue #119 into three.** Part A (one-page briefs) depends on none of this and ships
-      first; B and C wait on the gates below. **Owned elsewhere now**: this is S1 of
-      [`../plans/one-page-briefs-action.md`](../plans/one-page-briefs-action.md), which carries part A.
-      Read the status there, not here.
+- [x] **S3 — Split issue #119 into three** _(2026-09-14)_ — part A is **#128** (owned by
+      [`../plans/one-page-briefs-action.md`](../plans/one-page-briefs-action.md)), part B is **#126**
+      and part C is **#127**, both of which this study still gates. #119 is now the umbrella only.
 - [ ] **S4 — Close gates 2 and 3** (locked screen, connector-token expiry)
 - [ ] **S5 — Write the ADR** that supersedes [`rag/docs/adr/0003`](../../rag/docs/adr/0003-no-daemon-session-trigger.md),
       arguing with August's three reasons one by one rather than around them
@@ -235,13 +236,13 @@ touches that. So these are not options:
 - **4 · Own adapters, own credentials.** Four OAuth apps, four token stores, four refresh paths, over a
   confidential vault. Rejected, and now for a second reason: the measured fact makes it unnecessary.
 
-## What this changes for issue #119
+## What this changes for the #119 umbrella
 
-- **Part A (one-page briefs) is independent** of all of this and ships first, on its own. It left this
-  study on 2026-09-14 and is now [`../plans/one-page-briefs-action.md`](../plans/one-page-briefs-action.md).
-- **Part B is feasible without new secrets**, which was not known when the issue was written. Its
+- **Part A (one-page briefs, #128) is independent** of all of this and ships first, on its own. It left
+  this study on 2026-09-14 and is now [`../plans/one-page-briefs-action.md`](../plans/one-page-briefs-action.md).
+- **Part B (#126) is feasible without new secrets**, which was not known when the issue was written. Its
   *"Decided: launchd"* line becomes *"strategy 1, pending the gates"*.
-- **Part C's outbound DM is a deliberate hole in a read-only product.** The measured fact shows the
+- **Part C (#127)'s outbound DM is a deliberate hole in a read-only product.** The measured fact shows the
   write tool is already within reach of an unattended run, so the allowlist is what keeps the hole the
   size of one message, and part C must open it explicitly or not at all.
 

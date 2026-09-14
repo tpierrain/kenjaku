@@ -41,7 +41,7 @@ in the field for weeks** while its plan still tracked it as *not started*.
   sources with **no human present**? Measured: yes — an unattended `claude -p` run sees the claude.ai
   connectors and calls them, and the brain's own hooks fire in that run. Supersedes the "source
   adapters will dominate the schedule" paragraph of the study below. Carries the retained strategy for
-  issue #119 parts B/C and the gates still open.
+  issues #126 and #127 (parts B and C of the #119 umbrella) and the gates still open.
 - **`background-consolidation-mode-study.md`** — 🔬 study. Should consolidation run in the background,
   and what would that even mean? Nothing implemented, nothing branched. **One paragraph of it is now
   superseded** — see the study above.

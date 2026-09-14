@@ -10,10 +10,12 @@
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-14
 
-- **Next:** S1 — split [#119](https://github.com/tpierrain/kenjaku/issues/119) into three issues so
-  this part has one of its own. Already decided (study S3); nothing to re-open, just do it.
-- **Then:** S2, the design call that unblocks everything else — **where the shape lives, and in what
-  unit the cap is counted.** Write it into this file before any code.
+- **Next:** S2 — the design call that unblocks everything else: **where the shape lives, and in what
+  unit the cap is counted.** Write the answer into this file (§ *The shape, decided*) before any code.
+- **This part now has its own issue:** [#128](https://github.com/tpierrain/kenjaku/issues/128).
+  [#119](https://github.com/tpierrain/kenjaku/issues/119) is the umbrella;
+  [#126](https://github.com/tpierrain/kenjaku/issues/126) and
+  [#127](https://github.com/tpierrain/kenjaku/issues/127) are parts B and C, untouched by this plan.
 - **Blocked on:** nothing. **Owner's call pending:** three product questions listed under
   *Questions for the owner* below. **None of them blocks S1 or S2** — each is raised when its step is
   reached, one at a time, never as a list.
@@ -25,9 +27,10 @@
 
 ## Tracking
 
-- [ ] **S1 — Part A has its own issue**, so it can close on its own. Split #119 into three (part A,
-      part B, part C), keep #119 as the umbrella that links them, and carry each part's text across
-      verbatim rather than re-writing it. _(This is the study's S3, unstarted.)_
+- [x] **S1 — Part A has its own issue**, so it can close on its own _(2026-09-14)_. #119 split into
+      three: **#128** (part A, this plan), **#126** (part B), **#127** (part C); each part's text
+      carried across verbatim. #119 kept as the umbrella, its body reduced to the shared problem
+      statement plus the three links, so no status is stated twice. _(This was the study's S3.)_
 - [ ] **S2 — The shape is written down ONCE, and the cap has a decidable unit**
   - [ ] S2.0 Decide where the shared shape lives. It must be imported, not restated: `prepare-1-1`
         already does exactly this for claim discipline (*"the full rules live in one place and this
