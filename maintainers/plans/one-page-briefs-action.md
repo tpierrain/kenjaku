@@ -12,8 +12,12 @@
 
 - **Next:** S3 — write the `brief-shape` skill (both locales) and make `prepare-1-1` defer to it.
   The design it implements is settled in § *The shape, decided*; do not re-open it.
-- **Blocked on:** nothing. Q2 and Q3 are both answered (prefix rule on `type:`; the cap is an upper
-  bound and a thin brief says so) — see *Questions for the owner* below. Q1 waits until S4.
+- **Blocked on:** nothing, and no question is left. **All three owner's calls are answered**
+  (2026-09-14): Q1 the cap BLOCKS the write, Q2 the scope is a `type:` prefix, Q3 the cap is an upper
+  bound and a thin brief says so. Read them below before re-raising any of them.
+- **Working autonomously overnight** from 2026-09-14, at the owner's explicit go-ahead, on branch
+  `feat/one-page-brief-shape`. Stop at a green PR; anything needing a decision is written here and
+  left, never decided in his place.
 - **This part's issue:** [#128](https://github.com/tpierrain/kenjaku/issues/128).
   [#119](https://github.com/tpierrain/kenjaku/issues/119) is the umbrella;
   [#126](https://github.com/tpierrain/kenjaku/issues/126) / [#127](https://github.com/tpierrain/kenjaku/issues/127)
@@ -111,10 +115,14 @@ note's `#` title and its first `##` heading.** Nothing else.
 
 ## Questions for the owner — raised one at a time, when its step is reached
 
-- [ ] **Q1 (at S4) — does going over the cap BLOCK the write, or warn?** The issue's wording is
-      *"a deterministic check fails"*, which reads as blocking. Blocking is also the only version that
-      cannot be ignored. Against it: a prep is written mid-conversation, and a refused write costs a
-      retry at the worst moment.
+- [x] **Q1 (at S4) — does going over the cap BLOCK the write, or warn?** **Answered by the owner,
+      2026-09-14: it BLOCKS.** The over-long note never exists; the cost of the refusal is paid by the
+      brain, which is told why and rewrites shorter, not by the owner, who only ever sees the correct
+      result. Chosen over warning (a warning is read once and then ignored, and in six months the preps
+      are long again — today's situation) and over a per-note escape hatch (an escape becomes the
+      habit, and it would have to be written and tested).
+      **What this binds for S4/S5**: the guard exits non-zero and its message must say **which** rule
+      failed and **by how much**, because its reader is the model that has to fix it in one pass.
 - [x] **Q2 (at S3) — which notes count as prep-shaped?** **Answered by the owner, 2026-09-14: a
       PREFIX rule on frontmatter `type:` — every `prep-*` and every `briefing-*`.** So `prep-1-1`
       (the one that exists in the field today) is covered, and a prep type invented later is covered
