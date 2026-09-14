@@ -156,6 +156,30 @@ test("run as the harness runs it, the hook reads stdin and denies on stdout", ne
   assert.match(payload.hookSpecificOutput.permissionDecisionReason, /vault[\\/]briefings[\\/]2026-08-02\.md/);
 });
 
+// …and the SECOND question it now asks (#128), through the same real process. The
+// unit tests prove the verdict; only this proves the refusal reaches the harness at
+// all — which is the whole of what an owner experiences. A guard whose answer stops
+// at a function boundary stops nothing.
+test("run as the harness runs it, a prep whose first screen is not the brief is denied too", needsEngine, () => {
+  const tooMany = Array.from({ length: 9 }, (_, i) => `- Thing number ${i + 1} to say out loud.`).join("\n");
+  const run = spawnSync(process.execPath, [join(SCRIPTS_DIR, "vault-write-guard.mjs")], {
+    input: JSON.stringify({
+      tool_name: "Write",
+      tool_input: {
+        file_path: join(BRAIN_ROOT, "vault", "prep-1-1", "2026-09-15-prep-1-1-alex.md"),
+        content: `---\ntype: prep-1-1\n---\n\n# Prep 1-1 — Alex\n\n${tooMany}\n\n## Ammunition\n`,
+      },
+    }),
+    encoding: "utf8",
+  });
+
+  assert.equal(run.status, 0, run.stderr);
+  const { hookSpecificOutput: out } = JSON.parse(run.stdout);
+  assert.equal(out.permissionDecision, "deny");
+  assert.match(out.permissionDecisionReason, /the first screen of this prep is not the brief yet/);
+  assert.match(out.permissionDecisionReason, /holds 9 bullets, 2 over the cap of 7/, "with the distance to fix it");
+});
+
 // ─────────────────────────────────────────────────────────────────────────────
 // The entry-point seam — asserted by RUNNING the hook as a process, which is the
 // only thing that proves the tail actually fires only on real invocation. Same
