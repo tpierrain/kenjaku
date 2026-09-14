@@ -96,6 +96,19 @@ shape itself is made countable:
 - **What is NOT counted**: everything below the brief section. Ammunition is unbounded by design — the
   cap exists to protect the first screen, not to shorten the evidence underneath it.
 
+### Where the brief section starts and stops — decided 2026-09-14, while writing S3
+
+The check needs an anchor, and the plan had not named one. **The brief is everything between the
+note's `#` title and its first `##` heading.** Nothing else.
+
+- **It needs no canonical heading name**, so it is the same rule in English and in French. A magic
+  heading would have to be spelled twice and would drift, which is the failure this whole issue is
+  about.
+- **It matches what the owner actually experiences**: the first screen is what you see before the
+  first section break, which is exactly where the eye stops.
+- **It makes the ammunition's home automatic**: every `##` section below is ammunition, unbounded,
+  and the check never looks at it.
+
 ## Questions for the owner — raised one at a time, when its step is reached
 
 - [ ] **Q1 (at S4) — does going over the cap BLOCK the write, or warn?** The issue's wording is
