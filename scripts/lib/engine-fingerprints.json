@@ -2,11 +2,11 @@
   "generatedAt": "v5.6.0",
   "files": {
     ".claude/skills/brief-shape/SKILL.md": {
-      "sha256:68c904442a3c7cf89cf873a95fdd369c8cba65d7535994da8b044c012a1b5f82": {
+      "sha256:8cd3589e64dc00b4fd3c8c4ef1d5cb56b19eda526bc6665ae610ce0cc0fac8b9": {
         "since": "v5.6.0",
         "locale": "en"
       },
-      "sha256:4eb60322ff7de6a98873a0a83aeb729f33fa4585385959c703e9585beab59160": {
+      "sha256:3f76c330029aa388ea5fb81fb67a8f550b1d7cef37b4abbff8115ca5054a672f": {
         "since": "v5.6.0",
         "locale": "fr"
       }

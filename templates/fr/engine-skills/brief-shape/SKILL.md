@@ -55,6 +55,17 @@ affirmation négative ne soit jamais prononcée sans que la personne qui la pron
 pas étayée. C'est [`sync-sources` § Discipline d'affirmation](../sync-sources/SKILL.md) appliquée au
 moment où ça coûte le plus cher : ici, la phrase est dite à la personne qu'elle concerne, devant elle.
 
+## La forme est vérifiée, pas seulement écrite
+
+**Une note de type prépa dont la première page enfreint les règles ci-dessus est REFUSÉE au moment
+où on l'écrit** : le garde d'écriture du moteur dit quelle règle a sauté et de combien, et la note
+n'existe pas tant que ce n'est pas corrigé. Une règle qu'il faut se rappeler a déjà échoué ; celle-ci
+ne dépend pas de la mémoire de qui que ce soit.
+
+Ce qu'il compte, et rien d'autre : les puces au-dessus du premier `##`, leur nombre et leur
+longueur, et le fait qu'il y ait une première page. Il ne juge jamais ce qu'une puce *dit*, et il ne
+regarde jamais sous la pliure.
+
 ## Pourquoi la règle vit ici et nulle part ailleurs
 
 Une forme réécrite dans chaque skill qui produit une prépa, ce sont plusieurs formes : elles dérivent,

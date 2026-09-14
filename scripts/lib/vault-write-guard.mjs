@@ -17,6 +17,7 @@
 import { createRequire } from "node:module";
 import { join } from "node:path";
 
+import { briefShapeVerdict } from "./brief-shape.mjs";
 import { vaultNotePath } from "./vault-paths.mjs";
 
 /**
@@ -154,14 +155,54 @@ export function guardDecision({ toolName, toolInput, brainDir, parse, readFile }
   if (typeof raw !== "string") return { allow: true };
 
   const verdict = frontmatterVerdict({ raw, parse });
-  if (verdict.ok) return { allow: true };
+  if (!verdict.ok) {
+    return {
+      allow: false,
+      reason:
+        `${relPath} — the engine's own YAML parser refuses this note's frontmatter: ` +
+        `${verdict.reason} Written as is, the note would be committed like any other and ` +
+        `never be indexed: invisible to every search, with nothing to recover it. ` +
+        `Fix the frontmatter (quote any value containing ": ") and write again.`,
+    };
+  }
+
+  const shape = briefShapeDecision({ relPath, raw, parse });
+  return shape ?? { allow: true };
+}
+
+/**
+ * The SECOND question this guard asks, and only of a prep (#128): is its first screen
+ * the brief? Returns a refusal, or `null` when there is nothing to say — which covers
+ * every note that is not prep-shaped, i.e. almost all of them.
+ *
+ * It runs after the frontmatter verdict and never before: the selector IS the
+ * frontmatter (`type:`), so on a note the parser refuses there is nothing to select on
+ * — and an unindexable note is the graver of the two failures anyway.
+ *
+ * 🛑 The refusal BLOCKS, on the owner's call (Q1, 2026-09-14). Chosen over a warning,
+ * which is read once and ignored, and in six months the preps are long again — which is
+ * exactly the situation that produced this issue. The cost lands on the model that has
+ * to rewrite, which is why every message names its rule AND the distance.
+ *
+ * Fail-open like everything else here: a parse that does not hand back what we expect
+ * is a note we cannot judge, and unknown is never broken.
+ */
+export function briefShapeDecision({ relPath, raw, parse }) {
+  let parsed;
+  try {
+    parsed = parse(raw);
+  } catch {
+    return null;
+  }
+  const verdict = briefShapeVerdict({ content: parsed?.content ?? "", type: parsed?.data?.type });
+  if (verdict.ok) return null;
 
   return {
     allow: false,
     reason:
-      `${relPath} — the engine's own YAML parser refuses this note's frontmatter: ` +
-      `${verdict.reason} Written as is, the note would be committed like any other and ` +
-      `never be indexed: invisible to every search, with nothing to recover it. ` +
-      `Fix the frontmatter (quote any value containing ": ") and write again.`,
+      `${relPath} — the first screen of this prep is not the brief yet. ` +
+      `${verdict.violations.map((v) => v.message).join(" ")} ` +
+      `The note is NOT written: a first screen that does not work alone gets triaged in the room, ` +
+      `with the person waiting. Rewrite it to the shape the \`brief-shape\` skill holds, and write again.`,
   };
 }

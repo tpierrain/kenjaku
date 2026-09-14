@@ -12,8 +12,8 @@
 
 - **⚠️ THE WORK IS ON A BRANCH, NOT ON `main`:** `feat/one-page-brief-shape`. Check it out before
   reading anything else — `main`'s copy of this plan is behind on purpose.
-- **Next:** S4 — the deterministic check, test-first, as a pure core in `scripts/lib/`. Then S5, S6.
-  The design is settled in § *The shape, decided*; do not re-open it.
+- **Next:** S6 — the PR. S3, S4 and S5 are done and the whole suite is green locally; what remains
+  is opening the PR against `main` and reading what CI says on the full matrix.
 - **Blocked on:** nothing, and no question is left. **All three owner's calls are answered**
   (2026-09-14): Q1 the cap BLOCKS the write, Q2 the scope is a `type:` prefix, Q3 the cap is an upper
   bound and a thin brief says so. Read them below before re-raising any of them.
@@ -57,11 +57,18 @@
         its last section conflicted with the QA brain that appends its own KPIs at the end of the
         file, so the owner got a `.new` sidecar instead of the update. The sentence moved into the
         body and the last section is byte-identical again. See § *Constraints carried over*.
-- [ ] **S4 — A deterministic check fails when the first screen is over the cap**, test-first: the
-      pure core in `scripts/lib/` (ADR 0009 rung 1, no I/O), red before green.
-- [ ] **S5 — The check fires at the moment a prep is WRITTEN**, not at a lint somebody remembers to
-      run. The seam already exists: `scripts/vault-write-guard.mjs`, wired as a hook in
-      `.claude/settings.json.template`, is where a note the engine would refuse is already stopped.
+- [x] **S4 — A deterministic check fails when the first screen is over the cap** _(2026-09-14)_ —
+      `scripts/lib/brief-shape.mjs`, pure, no I/O, 24 tests red before green. It counts four things
+      and judges no prose: the bullets above the first `##`, their length once wrapping is folded
+      back, that there IS a first screen (H5), and that nothing but bullets sits above the fold
+      (H6). Every message names its rule **and the distance**, because its reader is the model that
+      has to fix the note in one pass.
+- [x] **S5 — The check fires at the moment a prep is WRITTEN** _(2026-09-14)_ — asked by
+      `guardDecision` in `scripts/lib/vault-write-guard.mjs`, right after the frontmatter verdict
+      and never before (the selector reads the frontmatter, so on a note the parser refuses there is
+      nothing to select on). The hook wiring needed no change: it already runs on every `Write` and
+      `Edit`. An Edit is judged on the note it **would** produce, so "one more thing worth saying"
+      is refused like a long note written in one go.
 - [ ] **S6 — A green PR**, full matrix (it touches `scripts/`, so nothing is path-ignored).
 
 ## The shape, decided (S2) — S3, S4 and S5 implement this and re-open none of it
@@ -142,6 +149,9 @@ list, not the diff.
 | H1 | The brief section is anchored between the `#` title and the first `##` — no named heading | A canonical heading (`## Brief`), which would have to be spelled once per locale and would drift | **Cheap.** One constant in the check plus one line in each skill; no note already written becomes invalid |
 | H2 | `prepare-1-1`'s two output templates are re-cut so the bullets sit above the first `##`, and the KPI table, weak signals and focus areas move below the fold as ammunition | Leaving the templates as they are and letting the shape apply only to new prep types | **Medium.** It is prose in two skills, so reverting is a revert; but a prep already written in the old shape keeps working, nothing breaks in the field |
 | H3 | The templates emit `type: prep-1-1` frontmatter, so a prep the engine writes is a prep the check can see | Selecting preps by their folder or their filename, which Q2 already rejected | **Cheap.** Four lines of template prose; a prep already written without it is simply out of scope, exactly as it is today |
+| H5 | A prep must carry **at least one** bullet above the fold. Not a floor on length (Q3 stands): a floor on the first screen EXISTING | Counting only the upper bounds — under which the old output shape (a title, then straight into `## What I want to raise`) passes every rule, and the check is blind to the exact defect it exists for | **Cheap.** One rule and its two tests. Nothing a correct prep can trip on: the thin brief still has its "not documented" bullet |
+| H6 | Above the fold, **bullets and nothing else** — a preamble, a sub-heading or a table is refused | Capping bullets only, which "seven bullets under a page of context" honours to the letter | **Cheap to delete** (one rule, two tests), and it is the rule most likely to refuse something reasonable — so: markdown's lazy continuation is a wrap, not a violation, and the refusal quotes the line it means |
+| H7 | The fold is a `##` heading **exactly**, so a `###` above it is prose and is told so | Treating any heading deeper than the title as the fold, which would silently end the brief at a sub-heading and hide the page underneath from the cap | **Cheap.** One comparison in the check; no note already written changes meaning, since a prep with a `###` first screen is refused either way, only the message differs |
 | H4 | The fingerprint table is cut for **`v5.6.0`** — a new skill and a new capability read as a minor release | Guessing `v5.5.2`, or leaving the table stale until the release | **Cheap, and it is the documented release step anyway.** Wrong number → re-run `node maintainers/fingerprints/generate-fingerprints.mjs --version <the real tag>` before cutting. Leaving it stale was NOT an option: it is what made this branch's CI red |
 
 ## Questions for the owner — raised one at a time, when its step is reached

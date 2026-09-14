@@ -51,6 +51,17 @@ claim is never spoken out loud without its speaker knowing it is unsupported. Th
 [`sync-sources` § Claim discipline](../sync-sources/SKILL.md) applied at the moment it costs the most:
 here, the sentence is said to the person it is about, in front of them.
 
+## The shape is checked, not merely written down
+
+**A prep-shaped note whose first screen breaks the rules above is REFUSED at the moment it is
+written** — the engine's write guard says which rule failed and by how much, and the note does not
+exist until it is fixed. A rule that has to be remembered has already failed; this one does not
+depend on being remembered.
+
+What it counts, and nothing else: the bullets above the first `##`, their number and their length,
+and that there is a first screen at all. It never judges what a bullet *says*, and it never looks
+below the fold.
+
 ## Why the rule lives here and nowhere else
 
 A shape restated in each skill that produces a prep is several shapes: they drift, and the one you get
