@@ -20,10 +20,16 @@
 - [x] **S0 — The study exists and records the measured fact** _(2026-09-14)_
 - [x] **S1 — Gate 1 closed: the brain's hooks DO fire unattended** _(2026-09-14)_ — the pass needs no
       commit logic of its own, and the design stands unchanged
-- [ ] **S2 — Close gates 2 and 3** (locked screen, connector-token expiry)
-- [ ] **S3 — Write the ADR** that supersedes [`rag/docs/adr/0003`](../../rag/docs/adr/0003-no-daemon-session-trigger.md),
+- [ ] **S2 — This study reaches `main`.** It lives on `study/ambient-ingestion-feasibility`, green on
+      the Windows tripwire (the only job a branch push runs; the full matrix needs a PR or `main`).
+      **Until it is merged, the door on `main` does not name it**, so a second machine resuming work
+      will not find it.
+- [ ] **S3 — Split issue #119 into three.** Part A (one-page briefs) depends on none of this and ships
+      first; B and C wait on the gates below.
+- [ ] **S4 — Close gates 2 and 3** (locked screen, connector-token expiry)
+- [ ] **S5 — Write the ADR** that supersedes [`rag/docs/adr/0003`](../../rag/docs/adr/0003-no-daemon-session-trigger.md),
       arguing with August's three reasons one by one rather than around them
-- [ ] **S4 — Write the action plan** (only once the gates have answers)
+- [ ] **S6 — Write the action plan** (only once the gates have answers)
 
 ---
 
