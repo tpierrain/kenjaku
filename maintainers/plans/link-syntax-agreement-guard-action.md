@@ -8,9 +8,8 @@
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-14
 
-- **Next:** S1.1 — write the failing test in `scripts/lib/declared-spellings.test.mjs` (or its own
-  file, see S1.0), see it red **with the `[[…]]` entry removed from `PROTECTED`**, then green with it
-  back. No production change is expected: if one turns out to be needed, that is a finding, not a slip.
+- **Next:** S3 — open the PR on a branch and read the full matrix back (it touches `scripts/`, so
+  nothing is path-ignored). S1 and S2 are done, green, and needed **no production change**.
 - **Blocked on:** nothing. **Owner's call pending:** nothing.
 - **A session may, alone:** everything up to and including a green PR. **Not:** tag or publish — this
   ships with the next release, it is not a hotfix.
@@ -19,18 +18,29 @@
 
 ## Tracking
 
-- [ ] **S1 — A test that fails when the two definitions of "a link" drift apart**
-  - [ ] S1.0 Decide where it lives: beside the guard (`declared-spellings.test.mjs`) or in a file of
+- [x] **S1 — A test that fails when the two definitions of "a link" drift apart** _(2026-09-14)_
+  - [x] S1.0 Decide where it lives: beside the guard (`declared-spellings.test.mjs`) or in a file of
         its own named for the agreement. It asserts across two modules, so its own file is likely.
-  - [ ] S1.1 The test, red first: take a body holding **one of each form `extractWikiLinks`
+        → **its own file**, `scripts/lib/link-syntax-agreement.test.mjs`: it imports from both
+        modules, and the per-form cases the guard alone owns stay where they are.
+  - [x] S1.1 The test, red first: take a body holding **one of each form `extractWikiLinks`
         recognises** — bare, `|alias`, `#heading`, the escaped `\|` of a table cell, and one inside
         code — run `applyDeclaredSpellings` over it with entries that match those targets, and assert
         `extractWikiLinks(before)` equals `extractWikiLinks(after)`. Red is proved by removing the
         `[[…]]` entry from `PROTECTED`, not by inventing a mutant.
-  - [ ] S1.2 Green, with no production change.
-- [ ] **S2 — Say in the code WHY the test exists**, one short comment at each end (the guard's
+        → **red for the right reason**: with the entry commented out, all four link forms came back
+        as `aXiom-migration`, an address no note has.
+  - [x] S1.2 Green, with no production change. → confirmed: the only edits outside the new test file
+        are the two comments of S2.
+  - [x] S1.3 **The in-code form carries its own assertion, and that was a finding of the writing.**
+        `extractWikiLinks` drops links inside code, so for that one form the agreement is silent by
+        construction: both sides see nothing, and a rewrite there would pass. It is asserted
+        literally instead (the bytes survive), and the case is the one that stayed green under the
+        red proof — as it should, since the code spans protect it, not the `[[…]]` entry.
+- [x] **S2 — Say in the code WHY the test exists**, one short comment at each end (the guard's
       `PROTECTED`, and `extractWikiLinks`), naming the other side. The defect was two files holding
       two partial models of the same thing; the comment is what makes the pair visible from either.
+      _(2026-09-14)_
 - [ ] **S3 — A green PR**, full matrix (it touches `scripts/`, so nothing is path-ignored).
 
 ## Why this test, and what it pays for — do NOT re-derive it after a `/clear`
