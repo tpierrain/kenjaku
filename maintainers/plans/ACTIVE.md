@@ -16,6 +16,10 @@ only carries what a user of Kenjaku could read and care about (2026-09-12, tried
 [#128](https://github.com/tpierrain/kenjaku/issues/128): a prep's first screen is the whole brief, and
 a check says so. Opened 2026-09-14 at the owner's ask. **Resume there and nowhere else.**
 
+⚠️ **Since 2026-09-14 that plan lives on the branch `feat/one-page-brief-shape`, not on `main`.**
+Check the branch out first: `main`'s copy of the plan is deliberately behind, and its `## 📍 STATE`
+would send you to the wrong step.
+
 Parts B and C ([#126](https://github.com/tpierrain/kenjaku/issues/126),
 [#127](https://github.com/tpierrain/kenjaku/issues/127), under the
 [#119](https://github.com/tpierrain/kenjaku/issues/119) umbrella) are **not** in it: they
