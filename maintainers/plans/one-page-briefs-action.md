@@ -81,9 +81,10 @@
       green on the full matrix (it touches `scripts/`, so nothing was path-ignored).
   - [x] S6.1 **The mutation gate, on what the BRANCH wrote** — both production files, from
         `git diff --name-only origin/main...HEAD` rather than from the last commit, which is the way
-        that gate was mis-paid on v5.5. **98.86 %** over four passes (`brief-shape.mjs` 98.73 %, the
-        write guard's changed range 100 %), two named equivalents left. The full read, and what the
-        first pass's 71.84 % was actually about, is in `maintainers/mutation/RESULTS.md`.
+        that gate was mis-paid on v5.5. Five passes, ending at **`brief-shape.mjs` 98.73 %** and the
+        **write guard's changed range 100 %**, two named equivalents left. The full read is in
+        `maintainers/mutation/RESULTS.md`: what the first pass's 71.84 % was actually about, and why
+        one of the two "equivalents" was nothing of the sort until the Windows fix landed.
 
 ## The shape, decided (S2) — S3, S4 and S5 implement this and re-open none of it
 
