@@ -10,14 +10,18 @@
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-14
 
-- **Next:** S3 — write the `brief-shape` skill (both locales) and make `prepare-1-1` defer to it.
-  The design it implements is settled in § *The shape, decided*; do not re-open it.
+- **⚠️ THE WORK IS ON A BRANCH, NOT ON `main`:** `feat/one-page-brief-shape`. Check it out before
+  reading anything else — `main`'s copy of this plan is behind on purpose.
+- **Next:** finish S3. The `brief-shape` skill is written in both locales; what remains is making
+  `prepare-1-1` (EN **and** FR) defer to it and re-cutting its two output templates so the brief sits
+  between the `#` title and the first `##`. Then S4, S5, S6. The design is settled in § *The shape,
+  decided*; do not re-open it.
 - **Blocked on:** nothing, and no question is left. **All three owner's calls are answered**
   (2026-09-14): Q1 the cap BLOCKS the write, Q2 the scope is a `type:` prefix, Q3 the cap is an upper
   bound and a thin brief says so. Read them below before re-raising any of them.
-- **Working autonomously overnight** from 2026-09-14, at the owner's explicit go-ahead, on branch
-  `feat/one-page-brief-shape`. Stop at a green PR; anything needing a decision is written here and
-  left, never decided in his place.
+- **Working autonomously** from 2026-09-14 evening, at the owner's explicit go-ahead. Stop at a green
+  PR: **never merge, tag or publish.** On any judgment call, **decide and record — do not stop**; see
+  § *To validate at the owner's return*.
 - **This part's issue:** [#128](https://github.com/tpierrain/kenjaku/issues/128).
   [#119](https://github.com/tpierrain/kenjaku/issues/119) is the umbrella;
   [#126](https://github.com/tpierrain/kenjaku/issues/126) / [#127](https://github.com/tpierrain/kenjaku/issues/127)
@@ -112,6 +116,23 @@ note's `#` title and its first `##` heading.** Nothing else.
   first section break, which is exactly where the eye stops.
 - **It makes the ammunition's home automatic**: every `##` section below is ammunition, unbounded,
   and the check never looks at it.
+
+## To validate at the owner's return — hypotheses taken alone, never blocked on
+
+**The rule, his call, 2026-09-14** _(« je préfère que tu choisisses une hypothèse de travail et que tu
+me la fasses valider à mon retour … si je ne suis pas d'accord, tu reviendras sur ce point en
+particulier »)_. While he is away, a judgment call is **not** a stopping point. Pick, keep going,
+record here. Stopping spends the whole stretch waiting for an answer that arrives in the morning
+anyway; deciding spends it building, and a wrong guess re-opens **one line**, not a night.
+
+**Every entry carries what reversing it COSTS.** That field is what makes the heuristic safe: a cheap
+call needs no hesitation, and an expensive one is the one to shape until it is cheap. He reads this
+list, not the diff.
+
+| # | Hypothesis taken | What was rejected | Cost to reverse |
+| --- | --- | --- | --- |
+| H1 | The brief section is anchored between the `#` title and the first `##` — no named heading | A canonical heading (`## Brief`), which would have to be spelled once per locale and would drift | **Cheap.** One constant in the check plus one line in each skill; no note already written becomes invalid |
+| H2 | `prepare-1-1`'s two output templates are re-cut so the bullets sit above the first `##`, and the KPI table, weak signals and focus areas move below the fold as ammunition | Leaving the templates as they are and letting the shape apply only to new prep types | **Medium.** It is prose in two skills, so reverting is a revert; but a prep already written in the old shape keeps working, nothing breaks in the field |
 
 ## Questions for the owner — raised one at a time, when its step is reached
 
