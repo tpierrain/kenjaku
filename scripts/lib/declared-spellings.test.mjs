@@ -56,6 +56,14 @@ test("the colon really is optional, which is the way most people write the line"
   ]);
 });
 
+test("a space BEFORE the colon is the owner's too — it is how French is typed", () => {
+  // `never : Axion` is ordinary French typography, and the wrong-spelling list must come
+  // back clean rather than carrying the colon into the matcher as part of the spelling.
+  assert.deepEqual(declaredSpellings("## Always true here\n\n- aXiom — never : Axion\n"), [
+    { canonical: "aXiom", wrong: ["Axion"] },
+  ]);
+});
+
 test("the spacing around the dash is the owner's, not a format to get right", () => {
   // Hand-written in Obsidian: extra spaces on either side of the dash are the norm,
   // and each side is a separate `\s+` in the pattern. Both are exercised here, and the
