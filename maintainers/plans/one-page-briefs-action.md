@@ -12,9 +12,8 @@
 
 - **Next:** S3 — write the `brief-shape` skill (both locales) and make `prepare-1-1` defer to it.
   The design it implements is settled in § *The shape, decided*; do not re-open it.
-- **Blocked on:** **Q3**, the owner's call, due at this same step — what the first screen does when
-  the vault is too thin to fill it. Q2 is answered (prefix rule on `type:`, see below); Q1 waits
-  until S4.
+- **Blocked on:** nothing. Q2 and Q3 are both answered (prefix rule on `type:`; the cap is an upper
+  bound and a thin brief says so) — see *Questions for the owner* below. Q1 waits until S4.
 - **This part's issue:** [#128](https://github.com/tpierrain/kenjaku/issues/128).
   [#119](https://github.com/tpierrain/kenjaku/issues/119) is the umbrella;
   [#126](https://github.com/tpierrain/kenjaku/issues/126) / [#127](https://github.com/tpierrain/kenjaku/issues/127)
@@ -34,9 +33,10 @@
         which `prepare-1-1` defers to by link the way it already defers to `sync-sources § Claim
         discipline`. The reason it cannot be a section of `prepare-1-1` is measured, not stylistic:
         see *Why a new skill and not a section* below.
-  - [x] S2.1 The unit of the cap — **top-level bullets in the brief section, 5 to 7, each at most
+  - [x] S2.1 The unit of the cap — **top-level bullets in the brief section, at most 7, each at most
         220 characters**. Two counts a script makes without judgment, standing in for "5 to 7
-        sentences, one screen". Rationale below.
+        sentences, one screen". **Upper bound only** — the floor of 5 was dropped by Q3, because a
+        check that fails a short brief is padding pressure wired in. Rationale below.
 - [ ] **S3 — The brief is produced in that shape**, by `prepare-1-1` and by every prep-shaped
       artifact: first screen usable alone, ammunition folded underneath and labelled *only if they
       dig*, every ammunition item carrying its verbatim quote, its date and its source path, and a
@@ -79,8 +79,10 @@ The issue asks for **5 to 7 sentences**. A sentence is not decidable (abbreviati
 speech, ellipses), and a check that disagrees with the rule it enforces is worse than no check. So the
 shape itself is made countable:
 
-> **The brief section is a flat list of 5 to 7 top-level bullets, one spoken sentence each, no
-> nesting, no sub-headings. No bullet exceeds 220 characters.**
+> **The brief section is a flat list of at most 7 top-level bullets, one spoken sentence each, no
+> nesting, no sub-headings. No bullet exceeds 220 characters. Fewer than 5 is allowed and carries
+> one line naming what the vault does not document** (Q3) **— the shape never pads to reach a
+> number.**
 
 - **Why bullets stand in for sentences**: the rule is not "prose of a certain length", it is *the
   handful of things you are going to say*. One bullet = one thing said. A script counts `^- ` at the
@@ -108,9 +110,14 @@ shape itself is made countable:
       list of four types (three of which have never been produced).
       **What this binds for S3/S4**: the check's selector is the `type:` prefix, nothing else — never
       the folder, never the filename, never a heading. A note with no `type:` is out of scope.
-- [ ] **Q3 (at S3) — what does the first screen do when the vault is thin?** Five sentences of
-      substance may not exist. Padding to reach the shape is the one failure that would make this
-      feature lie, so the empty case needs its own answer.
+- [x] **Q3 (at S3) — what does the first screen do when the vault is thin?** **Answered by the owner,
+      2026-09-14: fewer lines, and the page SAYS so.** The cap of 7 stands; the floor of 5 is
+      dropped. Two solid things to say means two bullets, plus one line naming what is not
+      documented. Chosen over filling the page with open questions (the line between a useful
+      question and polite padding is invisible, and it would drift unseen) and over refusing to
+      produce a brief below a threshold (two true lines beat nothing, minutes before a meeting).
+      **What this binds for S2.1/S4**: the cap is an **upper bound only** — a check that fails a
+      short brief would be the padding pressure itself, wired in.
 
 ## Why this part first, and why it is cheap
 
