@@ -211,11 +211,14 @@ becomes decorative.
       per-machine (`.cache/` is gitignored), a multi-machine owner re-walks each path. Harmless **if
       and only if** ingestion is idempotent, deduplicated by source message id. **Decide this now,
       not after.**
-- [ ] **Source adapters are the real cost of the project.** Claude's own connectors (Slack, Drive,
-      Calendar via claude.ai) live on Claude's side and are **not reachable from the MCP server**. The
-      collector needs its own adapters with their own credentials. The pattern exists — `local-mirror`
-      already does exactly this for Notion — but it is **work per connector**, and it is what will
-      dominate the schedule. Do not underestimate it.
+- [x] **⛔️ SUPERSEDED 2026-09-14 — "source adapters are the real cost of the project".** The premise
+      still holds: Claude's connectors live on Claude's side and are **not reachable from the MCP
+      server**. The **conclusion drawn from it was wrong**: it assumed the collector had to be
+      something other than Claude. It does not. An unattended `claude -p` run sees those connectors
+      and calls them, measured — so the collector needs **no adapters and no credentials of its own**.
+      This paragraph blocked issue #119 for six weeks; read
+      [`ambient-ingestion-feasibility-study.md`](ambient-ingestion-feasibility-study.md) instead, and
+      do not re-derive the cost from here.
 - [ ] **`busy_timeout`** must be set consciously before anything writes concurrently (see § verified
       facts).
 
