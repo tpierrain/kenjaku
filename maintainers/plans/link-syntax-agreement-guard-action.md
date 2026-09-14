@@ -8,9 +8,12 @@
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-14
 
-- **Next:** S3 — open the PR on a branch and read the full matrix back (it touches `scripts/`, so
-  nothing is path-ignored). S1 and S2 are done, green, and needed **no production change**.
-- **Blocked on:** nothing. **Owner's call pending:** nothing.
+- **Next:** read the matrix on [PR #125](https://github.com/tpierrain/kenjaku/pull/125) (branch
+  `test/link-syntax-agreement`), then merge. S1 and S2 are done, green, and needed **no production
+  change**; the suite is 3929 pass / 0 fail locally.
+- **Blocked on:** nothing — the checks were still running at the last hand-back, so a returning
+  session reads them first (`gh run list --branch test/link-syntax-agreement`) before anything else.
+  **Owner's call pending:** nothing.
 - **A session may, alone:** everything up to and including a green PR. **Not:** tag or publish — this
   ships with the next release, it is not a hotfix.
 - **Decided in conversation (2026-09-14):** do it now rather than file it, "tant que le sujet est
