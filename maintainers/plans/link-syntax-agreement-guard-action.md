@@ -1,0 +1,58 @@
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- STATUS: 🔴 ACTIVE — THE plan. Opened 2026-09-14, straight after v5.5.1, at   -->
+<!-- the owner's ask: build the net that would have caught #121 on its first day. -->
+<!-- The way in is plans/ACTIVE.md; this file owns the state.                     -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+
+# Action plan — the two files that both decide what a link is must agree, and a test says so
+
+## 📍 STATE — the only perishable block in this file · opened 2026-09-14
+
+- **Next:** S1.1 — write the failing test in `scripts/lib/declared-spellings.test.mjs` (or its own
+  file, see S1.0), see it red **with the `[[…]]` entry removed from `PROTECTED`**, then green with it
+  back. No production change is expected: if one turns out to be needed, that is a finding, not a slip.
+- **Blocked on:** nothing. **Owner's call pending:** nothing.
+- **A session may, alone:** everything up to and including a green PR. **Not:** tag or publish — this
+  ships with the next release, it is not a hotfix.
+- **Decided in conversation (2026-09-14):** do it now rather than file it, "tant que le sujet est
+  chaud". It is a test-only change, so it carries no release of its own.
+
+## Tracking
+
+- [ ] **S1 — A test that fails when the two definitions of "a link" drift apart**
+  - [ ] S1.0 Decide where it lives: beside the guard (`declared-spellings.test.mjs`) or in a file of
+        its own named for the agreement. It asserts across two modules, so its own file is likely.
+  - [ ] S1.1 The test, red first: take a body holding **one of each form `extractWikiLinks`
+        recognises** — bare, `|alias`, `#heading`, the escaped `\|` of a table cell, and one inside
+        code — run `applyDeclaredSpellings` over it with entries that match those targets, and assert
+        `extractWikiLinks(before)` equals `extractWikiLinks(after)`. Red is proved by removing the
+        `[[…]]` entry from `PROTECTED`, not by inventing a mutant.
+  - [ ] S1.2 Green, with no production change.
+- [ ] **S2 — Say in the code WHY the test exists**, one short comment at each end (the guard's
+      `PROTECTED`, and `extractWikiLinks`), naming the other side. The defect was two files holding
+      two partial models of the same thing; the comment is what makes the pair visible from either.
+- [ ] **S3 — A green PR**, full matrix (it touches `scripts/`, so nothing is path-ignored).
+
+## Why this test, and what it pays for — do NOT re-derive it after a `/clear`
+
+Established on 2026-09-14 while shipping `v5.5.1`, by reading the history rather than recalling it:
+
+- **The list of never-rewrite spans has not changed since the commit that created it** (`71bbbcf`,
+  2026-09-12, issue #66). The hole was there from the first line: not a regression, an omission at
+  birth.
+- **It was written from Markdown's syntax, not from this product's own note format.** It protects
+  `](target)` and `<autolink>`; it missed `[[…]]` — the one link syntax `CLAUDE.engine.md` **tells**
+  notes to use (§ *Reference other notes with `[[relative/path/without-extension]]`*).
+- **The tell is a copy.** `scripts/lib/wiki-lint.mjs` already held `extractWikiLinks`, a production
+  function that knows `[[…]]` is a link, aliases, anchors and the escaped `\|` included — and whose
+  `stripCode` carries the **same two regexes** (fenced and inline code) that `PROTECTED` respells.
+  Two components, two partial models of "what is not prose", only one of them right.
+- **Every net we own is blind to this class, by construction.** Tests assert the entries that exist;
+  a mutation pass mutates the code that exists and can never demand a missing line; CI runs both.
+  There is also **no design record** — no ADR, no plan — so the question *"is this list complete?"*
+  had no place to be asked. The only surviving rationale is a code comment that reads like a complete
+  answer.
+- **So the net has to be an agreement between the two files, not another enumeration.** A test per
+  protected span can only ever prove what someone already thought of. A test that says *the guard
+  never changes what a note points at* fails the day either file learns a link form the other has
+  not — which is the actual failure that shipped.

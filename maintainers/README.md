@@ -237,7 +237,8 @@
     status**: `ACTIVE.md` names which one is live, and each plan owns its own `## 📍 STATE`. A status
     copied here is a status that goes stale unread — it did, for the `local-mirror` plan, which sat
     here as *"🚧 ACTIVE — not started"* while its own link already pointed into `archived/`.
-    - _(none at the moment — the `v5.5.1` hotfix shipped on 2026-09-14 and was archived with it.)_
+    - [`link-syntax-agreement-guard-action.md`](plans/link-syntax-agreement-guard-action.md)
+      — the write guard and the link checker must agree on what a `[[link]]` is, and a test says so.
   - [**`plans/prospective/`**](plans/prospective/) **= future** — not closed, forward-looking: living
     studies/watch, backlogs, and **conditional/parked** tails of otherwise-shipped plans.
   - [**`plans/archived/`**](plans/archived/) **= past** — shipped or closed plans (kept for the step detail).
