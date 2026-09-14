@@ -119,6 +119,12 @@ const PROTECTED = [
   /```[\s\S]*?```/g, //              fenced code
   /`[^`\n]*`/g, //                   inline code
   /\]\([^)]*\)/g, //                 a link's target is an address, not prose
+  /\[\[[^\]\n]*\]\]/g, //            …and so is a wikilink, which names a FILE (#121):
+  //                                 correcting inside it points the note at something
+  //                                 that does not exist. `[[target|alias]]` is spared
+  //                                 whole, alias included — a lost spelling costs a
+  //                                 word, a rewritten target costs a link. Bounded to
+  //                                 one line so a half-typed `[[` exempts nothing below.
   /<[^>\s]+>/g, //                   …and so is an autolink
   /^>.*$/gm, //                      a blockquote is someone else's words
   /"[^"\n]*"/g, //                   quoted material: a wrong spelling inside

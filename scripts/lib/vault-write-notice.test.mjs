@@ -139,6 +139,18 @@ test("a wrong spelling inside quoted material is reported and left alone", () =>
   assert.match(notice.context, /Axion/);
 });
 
+test("🔒 the wikilink that reaches DISK still points at its file, and is not claimed as a fix (#121)", () => {
+  // The reported failure, end to end: this hook rewrites the tool's own input, so a
+  // corrected target is what gets written, committed and pushed — while the notice
+  // announced a success. Silent breakage announced as a success is the one failure
+  // class this product treats as the worst.
+  const notice = write("vault/globex/meeting.md", "See [[meetings/2026-05-02-axion-migration]].\n");
+  assert.equal(notice.updatedInput, null);
+  assert.match(notice.context, /left 'Axion' as written/);
+  assert.doesNotMatch(notice.context, /I corrected the spelling/);
+  assert.deepEqual(notice.said.corrections, []);
+});
+
 // ── which profile is read, and what happens when there is none ───────────────
 
 test("the spellings come from the sphere the NOTE is filed in, not the pointer's", () => {

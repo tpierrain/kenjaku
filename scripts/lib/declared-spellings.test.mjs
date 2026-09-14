@@ -56,6 +56,14 @@ test("the colon really is optional, which is the way most people write the line"
   ]);
 });
 
+test("a space BEFORE the colon is the owner's too — it is how French is typed", () => {
+  // `never : Axion` is ordinary French typography, and the wrong-spelling list must come
+  // back clean rather than carrying the colon into the matcher as part of the spelling.
+  assert.deepEqual(declaredSpellings("## Always true here\n\n- aXiom — never : Axion\n"), [
+    { canonical: "aXiom", wrong: ["Axion"] },
+  ]);
+});
+
 test("the spacing around the dash is the owner's, not a format to get right", () => {
   // Hand-written in Obsidian: extra spaces on either side of the dash are the norm,
   // and each side is a separate `\s+` in the pattern. Both are exercised here, and the
@@ -215,6 +223,46 @@ test("a link target is an address, not prose", () => {
 test("the link's TEXT is prose, and it is corrected", () => {
   const { text } = applyDeclaredSpellings("See [the Axion deck](https://example.com/d) here.", ENTRIES);
   assert.equal(text, "See [the aXiom deck](https://example.com/d) here.");
+});
+
+test("🔒 a wikilink is an address, and rewriting it breaks the link (#121)", () => {
+  // The field failure: `[[meetings/2026-05-02-axion-migration]]` names a FILE. Correct
+  // the spelling inside it and the note now points at a file that does not exist, while
+  // the write notice claims a correction — silent breakage announced as a success.
+  const raw = "See [[meetings/2026-05-02-axion-migration]].";
+  const { text, corrections, protectedHits } = applyDeclaredSpellings(raw, ENTRIES);
+  assert.equal(text, raw);
+  assert.deepEqual(corrections, []);
+  assert.deepEqual(protectedHits, [{ from: "Axion", to: "aXiom" }]);
+});
+
+test("a wikilink's ALIAS is protected too, and that cost is deliberate", () => {
+  // `[[target|alias]]` has an address in its first half and prose in its second, so this
+  // spares one word that could have been corrected. Accepted, and it is the reporter's
+  // own framing: a lost spelling costs a word, a rewritten target costs a link. Parsing
+  // the pipe would add a parser to a guard whose whole value is being dumb and total.
+  const raw = "See [[axion-migration|the Axion migration]].";
+  const { text, protectedHits } = applyDeclaredSpellings(raw, ENTRIES);
+  assert.equal(text, raw);
+  assert.deepEqual(protectedHits, [{ from: "Axion", to: "aXiom" }]);
+});
+
+test("prose around a wikilink is still corrected, on both sides", () => {
+  // Protection is a span, not a licence to stop working for the rest of the line: an
+  // off-by-one at either edge would silently spare the sentence the note is made of.
+  const { text, corrections } = applyDeclaredSpellings(
+    "Axion met us: [[axion-migration]] covers it, and Axion signed.",
+    ENTRIES,
+  );
+  assert.equal(text, "aXiom met us: [[axion-migration]] covers it, and aXiom signed.");
+  assert.deepEqual(corrections, [{ from: "Axion", to: "aXiom" }]);
+});
+
+test("an unclosed `[[` does not swallow the rest of the note", () => {
+  // A half-typed wikilink is what hand-editing produces, and a span running to the end
+  // of the file would exempt every paragraph below it without anyone noticing.
+  const { text } = applyDeclaredSpellings("A stray [[ here.\n\nAxion signed.\n", ENTRIES);
+  assert.equal(text, "A stray [[ here.\n\naXiom signed.\n");
 });
 
 test("an autolink is an address too", () => {

@@ -1,0 +1,60 @@
+[32m13:32:06 (47401) INFO ProjectReader[39m Found 1 of 1107 file(s) to be mutated.
+[32m13:32:06 (47401) INFO Instrumenter[39m Instrumented 1 source file(s) with 132 mutant(s)
+[32m13:32:06 (47401) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m13:32:07 (47401) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-YoB0eY
+[32m13:32:07 (47401) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m13:32:07 (47401) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m13:32:07 (47401) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 0 seconds (net 470 ms, overhead 0 ms).
+Mutation testing 47% (elapsed: <1m, remaining: <1m) 63/132 tested (3 survived, 0 timed out)
+Mutation testing 75% (elapsed: <1m, remaining: <1m) 99/132 tested (5 survived, 0 timed out)
+Mutation testing 97% (elapsed: <1m, remaining: n/a) 129/132 tested (7 survived, 0 timed out)
+Mutation testing 98% (elapsed: <1m, remaining: n/a) 130/132 tested (7 survived, 1 timed out)
+
+All tests
+  ✓ All tests (killed 122)
+
+[Survived] Regex
+scripts/lib/declared-spellings.mjs:36:15
+-   const ENTRY = /^(.+?)\s+[—–-]\s+(?:never|not)\s*:?\s+(.+)$/i;
++   const ENTRY = /^(.+?)\s+[—–-]\s+(?:never|not)\s*:?\s+(.+)/i;
+
+[Survived] Regex
+scripts/lib/declared-spellings.mjs:36:15
+-   const ENTRY = /^(.+?)\s+[—–-]\s+(?:never|not)\s*:?\s+(.+)$/i;
++   const ENTRY = /(.+?)\s+[—–-]\s+(?:never|not)\s*:?\s+(.+)$/i;
+
+[Survived] Regex
+scripts/lib/declared-spellings.mjs:36:15
+-   const ENTRY = /^(.+?)\s+[—–-]\s+(?:never|not)\s*:?\s+(.+)$/i;
++   const ENTRY = /^(.+?)\s+[—–-]\s+(?:never|not)\s*:?\s(.+)$/i;
+
+[Survived] ArrayDeclaration
+scripts/lib/declared-spellings.mjs:104:46
+-     return (Array.isArray(entries) ? entries : [])
++     return (Array.isArray(entries) ? entries : ["Stryker was here"])
+
+[Survived] ArrayDeclaration
+scripts/lib/declared-spellings.mjs:105:50
+-       .flatMap(({ canonical, wrong }) => (wrong ?? []).map((from) => ({ from, to: canonical })))
++       .flatMap(({ canonical, wrong }) => (wrong ?? ["Stryker was here"]).map((from) => ({ from, to: canonical })))
+
+[Survived] Regex
+scripts/lib/declared-spellings.mjs:129:3
+-     /^>.*$/gm, //                      a blockquote is someone else's words
++     /^>.*/gm, //                      a blockquote is someone else's words
+
+[Survived] ArrayDeclaration
+scripts/lib/declared-spellings.mjs:136:17
+-     const spans = [];
++     const spans = ["Stryker was here"];
+
+Ran 0.98 tests per mutant on average.
+------------------------|------------------|----------|-----------|------------|----------|----------|
+                        | % Mutation score |          |           |            |          |          |
+File                    |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files               |  94.70 |   94.70 |      122 |         3 |          7 |        0 |        0 |
+ declared-spellings.mjs |  94.70 |   94.70 |      122 |         3 |          7 |        0 |        0 |
+------------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m13:32:48 (47401) INFO MutationTestExecutor[39m Done in 41 seconds.
+[32m13:32:48 (47401) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-YoB0eY.
