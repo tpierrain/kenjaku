@@ -12,9 +12,9 @@
 
 - **Next:** S3 — write the `brief-shape` skill (both locales) and make `prepare-1-1` defer to it.
   The design it implements is settled in § *The shape, decided*; do not re-open it.
-- **Blocked on:** **Q2**, the owner's call, and it is the one thing S3 cannot start without — which
-  notes count as prep-shaped, i.e. which `type:` values the shape and the check apply to. Q3 is due at
-  the same step; Q1 waits until S4.
+- **Blocked on:** **Q3**, the owner's call, due at this same step — what the first screen does when
+  the vault is too thin to fill it. Q2 is answered (prefix rule on `type:`, see below); Q1 waits
+  until S4.
 - **This part's issue:** [#128](https://github.com/tpierrain/kenjaku/issues/128).
   [#119](https://github.com/tpierrain/kenjaku/issues/119) is the umbrella;
   [#126](https://github.com/tpierrain/kenjaku/issues/126) / [#127](https://github.com/tpierrain/kenjaku/issues/127)
@@ -100,9 +100,14 @@ shape itself is made countable:
       *"a deterministic check fails"*, which reads as blocking. Blocking is also the only version that
       cannot be ignored. Against it: a prep is written mid-conversation, and a refused write costs a
       retry at the worst moment.
-- [ ] **Q2 (at S3) — which notes count as prep-shaped?** Frontmatter `type:` is the decidable answer
-      (`prep-1-1` already exists in the field). The issue's scope is wider: meeting preps,
-      difficult-conversation preps, day briefings. Each needs a type before the check can find it.
+- [x] **Q2 (at S3) — which notes count as prep-shaped?** **Answered by the owner, 2026-09-14: a
+      PREFIX rule on frontmatter `type:` — every `prep-*` and every `briefing-*`.** So `prep-1-1`
+      (the one that exists in the field today) is covered, and a prep type invented later is covered
+      the day it is written, with no edit to the check. Chosen over "1-1 preps only" (each new kind
+      would have to be remembered, which is the very defect this issue is about) and over a closed
+      list of four types (three of which have never been produced).
+      **What this binds for S3/S4**: the check's selector is the `type:` prefix, nothing else — never
+      the folder, never the filename, never a heading. A note with no `type:` is out of scope.
 - [ ] **Q3 (at S3) — what does the first screen do when the vault is thin?** Five sentences of
       substance may not exist. Padding to reach the shape is the one failure that would make this
       feature lie, so the empty case needs its own answer.
