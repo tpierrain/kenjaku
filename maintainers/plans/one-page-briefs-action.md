@@ -12,10 +12,8 @@
 
 - **⚠️ THE WORK IS ON A BRANCH, NOT ON `main`:** `feat/one-page-brief-shape`. Check it out before
   reading anything else — `main`'s copy of this plan is behind on purpose.
-- **Next:** finish S3. The `brief-shape` skill is written in both locales; what remains is making
-  `prepare-1-1` (EN **and** FR) defer to it and re-cutting its two output templates so the brief sits
-  between the `#` title and the first `##`. Then S4, S5, S6. The design is settled in § *The shape,
-  decided*; do not re-open it.
+- **Next:** S4 — the deterministic check, test-first, as a pure core in `scripts/lib/`. Then S5, S6.
+  The design is settled in § *The shape, decided*; do not re-open it.
 - **Blocked on:** nothing, and no question is left. **All three owner's calls are answered**
   (2026-09-14): Q1 the cap BLOCKS the write, Q2 the scope is a `type:` prefix, Q3 the cap is an upper
   bound and a thin brief says so. Read them below before re-raising any of them.
@@ -45,10 +43,20 @@
         220 characters**. Two counts a script makes without judgment, standing in for "5 to 7
         sentences, one screen". **Upper bound only** — the floor of 5 was dropped by Q3, because a
         check that fails a short brief is padding pressure wired in. Rationale below.
-- [ ] **S3 — The brief is produced in that shape**, by `prepare-1-1` and by every prep-shaped
-      artifact: first screen usable alone, ammunition folded underneath and labelled *only if they
-      dig*, every ammunition item carrying its verbatim quote, its date and its source path, and a
-      closing block naming what the vault supports and what it does not.
+- [x] **S3 — The brief is produced in that shape** _(2026-09-14)_, by `prepare-1-1` in **both**
+      locales: it names `brief-shape` and obeys it instead of restating it (no number is spelled
+      twice), and its two output templates are re-cut — the spoken bullets between the `#` title and
+      the first `##`, everything else under one `## Ammunition — only if they dig, contest or ask`
+      with its verbatim quotes, dates and source paths, closing on what the vault does **not**
+      support. The templates now emit `type: prep-1-1` frontmatter, without which S4's check would
+      select nothing (H3).
+  - [x] S3.1 The engine's fingerprint table is regenerated, which is what the branch's red CI was
+        about: a staged skill no row can place makes every brain holding it read as edited. Cut for
+        `v5.6.0` (H4).
+  - [x] S3.2 **The tail of a merge-regime skill is left alone** — measured, not guessed. Rewriting
+        its last section conflicted with the QA brain that appends its own KPIs at the end of the
+        file, so the owner got a `.new` sidecar instead of the update. The sentence moved into the
+        body and the last section is byte-identical again. See § *Constraints carried over*.
 - [ ] **S4 — A deterministic check fails when the first screen is over the cap**, test-first: the
       pure core in `scripts/lib/` (ADR 0009 rung 1, no I/O), red before green.
 - [ ] **S5 — The check fires at the moment a prep is WRITTEN**, not at a lint somebody remembers to
@@ -133,6 +141,8 @@ list, not the diff.
 | --- | --- | --- | --- |
 | H1 | The brief section is anchored between the `#` title and the first `##` — no named heading | A canonical heading (`## Brief`), which would have to be spelled once per locale and would drift | **Cheap.** One constant in the check plus one line in each skill; no note already written becomes invalid |
 | H2 | `prepare-1-1`'s two output templates are re-cut so the bullets sit above the first `##`, and the KPI table, weak signals and focus areas move below the fold as ammunition | Leaving the templates as they are and letting the shape apply only to new prep types | **Medium.** It is prose in two skills, so reverting is a revert; but a prep already written in the old shape keeps working, nothing breaks in the field |
+| H3 | The templates emit `type: prep-1-1` frontmatter, so a prep the engine writes is a prep the check can see | Selecting preps by their folder or their filename, which Q2 already rejected | **Cheap.** Four lines of template prose; a prep already written without it is simply out of scope, exactly as it is today |
+| H4 | The fingerprint table is cut for **`v5.6.0`** — a new skill and a new capability read as a minor release | Guessing `v5.5.2`, or leaving the table stale until the release | **Cheap, and it is the documented release step anyway.** Wrong number → re-run `node maintainers/fingerprints/generate-fingerprints.mjs --version <the real tag>` before cutting. Leaving it stale was NOT an option: it is what made this branch's CI red |
 
 ## Questions for the owner — raised one at a time, when its step is reached
 
@@ -181,6 +191,12 @@ list, not the diff.
   it costs the most, and the prep skill already defers to it rather than restating it.
 - **A rule that has to be remembered has already failed** — hence S4/S5. The shape without the check
   is exactly today's situation.
+- **The LAST section of a skill an owner may customize is not free to rewrite** _(measured at S3,
+  2026-09-14)_. Owners append at the end of a file; an engine change to those same last lines has no
+  trailing context to merge against, so the three-way merge conflicts and the update arrives as a
+  `.new` sidecar the owner has to arbitrate. The QA brain built from the real v3.6.0 tag says so out
+  loud, and it is the promise the release makes: *your edits survive AND the update lands*. So a
+  change belongs in the body, and the tail stays byte-identical.
 
 ## 📜 History
 

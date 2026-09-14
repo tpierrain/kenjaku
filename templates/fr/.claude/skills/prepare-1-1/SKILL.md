@@ -6,7 +6,8 @@ version: 1.0.0
 
 # /prepare-1-1 — Préparer un 1-1 (version méta)
 
-Produit un **briefing** scannable en 2 minutes avant ton prochain 1-1. C'est une **skill méta** :
+Produit un **briefing dont la première page est la prépa entière** : la page depuis laquelle tu
+parles à ton prochain 1-1, avec les preuves pliées en dessous. C'est une **skill méta** :
 elle pose une **structure** qui te donne des idées ; tu l'**affines** ensuite à tes propres axes,
 à tes KPI et à ta façon de mener tes 1-1 (édite ce fichier, ou demande à `/improve` de t'aider).
 
@@ -83,46 +84,106 @@ Une prep de 1-1 est l'endroit où se tromper coûte le plus cher : chaque person
 **l'une des deux personnes présentes dans la pièce**. Se tromper de nom de famille, de titre ou de
 lien hiérarchique, ce n'est pas un backlink cassé ici : c'est dit en face, ou dit à son manager.
 
+## La forme de la sortie
+
+**La forme vit à un seul endroit, [`brief-shape`](../brief-shape/SKILL.md), et cette skill lui obéit
+au lieu d'écrire la sienne.** Charge-la avant d'écrire une ligne. Même dispositif que la discipline
+d'affirmation ci-dessus, même raison : une forme paraphrasée ici, ce serait une deuxième forme, et
+deux formes divergent.
+
+Ce que ça impose pour une prep de 1-1, c'est-à-dire là où ça compte le plus :
+
+- **La première page EST la prépa** : la poignée de choses que tu vas vraiment dire, en puces à plat,
+  entre le titre `#` de la note et son premier titre `##`. C'est la page depuis laquelle tu parles
+  avec la personne en face de toi, et elle doit tenir toute seule.
+- **Tout ce qui est sous le premier `##`, ce sont des munitions**, à n'ouvrir que si on te challenge,
+  si on te conteste ou si on te le demande, chaque élément portant sa citation mot pour mot, sa date
+  et le chemin de sa source. Dans cette pièce, une affirmation que tu ne peux pas citer est une
+  affirmation que tu ne fais pas.
+- **Un vault peu documenté produit une prépa courte, qui le dit.** Le plafond est un maximum, sans
+  aucun minimum en dessous, et on ne remplit jamais pour occuper la page. Les chiffres sont dans
+  `brief-shape`, pas ici.
+- **Les deux modèles ci-dessous sont déjà taillés à cette forme.** Ce qui trônait en haut (le Top 3,
+  le tableau de KPI, les signaux faibles, les axes récurrents) est une munition, et c'est passé sous
+  la pliure : non pas parce que ça compte moins, mais parce que ça se lit une fois la réunion
+  commencée, pas avant d'entrer.
+
+**À quoi on voit que c'est bon** : si on te tend cette page trente secondes avant d'entrer, tu peux
+mener la réunion avec la première page seule, sans scroller une seule fois.
+
 ## Étape 2 — Écriture du briefing
 
 Écrire dans `vault/prep-1-1/YYYY-MM-DD-prep-1-1-<nom>.md` (date du prochain 1-1 ; créer le dossier
 au besoin), selon le cas détecté à l'étape 0.
 
+**Le frontmatter porte `type: prep-1-1`**, et ce n'est pas de la décoration : la forme s'applique à
+toute note dont le `type:` commence par `prep-`, donc une prépa qui l'oublie est une prépa que rien
+ne vérifie.
+
 ### Cas A — 1-1 avec ton manager (tu portes les sujets)
 
 ```markdown
+---
+type: prep-1-1
+created: YYYY-MM-DD
+author: <le nom que `git config --get user.name` donne sur CETTE machine>
+tags: [prep, 1-1]
+---
+
 # Prep 1-1 — [Prénom] (mon manager) — [date]
 
-## Ce que je veux porter (Top 3)
-Les sujets à ne pas rater, par impact. Pour chacun : où on en est, ce que j'attends de lui/elle
-(décision, soutien, info, déblocage).
-1. **[Titre]** — [contexte 1 ligne] → J'attends : [décision / soutien / arbitrage]
+- **[Sujet à porter]** : [où on en est, en une proposition] → J'attends : [décision / soutien / arbitrage]
+- **[Sujet à porter]** : [où on en est] → J'attends : […]
+- **[Ce qui a bougé depuis la dernière fois]** : la chose qui mérite d'être remontée, pas la liste.
+- **[Ce que je veux clarifier ou obtenir]** : priorité, ressource, feedback sur moi.
+- **[Mon engagement en cours]** : tenu / en cours / à risque.
+- 🔴 **Pas documenté :** [ce que le vault ne porte pas sur ces sujets]. *(Cette puce uniquement
+  quand c'est vrai : elle remplace le remplissage, elle ne s'y ajoute pas.)*
 
-## Depuis la dernière fois
-Ce qui a bougé et mérite d'être remonté ou partagé (avancées, risques, signaux). De quoi avoir
-« des choses à se mettre sous la dent » au lieu d'arriver les mains vides.
+## Munitions : à n'ouvrir que si on te challenge, si on te conteste ou si on te le demande
 
-## Questions / demandes
-Ce que je veux clarifier ou obtenir (priorités, ressources, feedback sur moi).
+### [Sujet] : les preuves
+- ✅ « [les mots exacts] » : [YYYY-MM-DD] : `[vault/…md, ou le lien vers la source]`
 
-## Mes engagements en cours
-Ce que je m'étais engagé à faire — statut tenu / en cours / à risque.
+### Mes engagements, en détail
+Le statut de chacun, avec ce qui l'établit.
+
+### Contexte complet
+Résumé du dernier 1-1, décisions, actions à suivre `| # | Action | Qui | Quand | Statut |`,
+verbatims, activité messagerie/mail/réunions avec liens, qualité des sources.
+
+### Ce que le vault ne soutient PAS
+Ce qui n'a pas pu être vérifié, et où on a cherché (notes, outil de chat, mail…), pour qu'un négatif
+ne soit jamais prononcé sans qu'on sache qu'il n'est pas étayé.
 ```
 
 ### Cas B — 1-1 avec quelqu'un que tu manages (suivi + opérationnel + KPI)
 
 ```markdown
+---
+type: prep-1-1
+created: YYYY-MM-DD
+author: <le nom que `git config --get user.name` donne sur CETTE machine>
+tags: [prep, 1-1]
+---
+
 # Prep 1-1 — [Prénom] — [date]
 
-## Suivi des engagements
-- **Ce que l'autre s'est engagé à faire** (depuis le dernier 1-1) : statut tenu / en cours / non fait.
-- **Ce que je veux lui confier** (nouvelles délégations, responsabilités).
+- **[Engagement à suivre]** : [où ça en est] → demander : [la question d'ouverture]
+- **[Ce que je veux lui confier]** : [la responsabilité] → demander : [comment il·elle le voit]
+- **[Sujet opérationnel chaud]** : [en une proposition] → demander : [la question concrète]
+- **[KPI qui a bougé]** : [valeur, tendance] → demander : [ce que je veux comprendre]
+- **[Signal faible]** : [tension, surcharge, sujet esquivé], à aborder avec tact.
+- 🔴 **Pas documenté :** [ce que le vault ne porte pas]. *(Uniquement quand c'est vrai.)*
+
+## Munitions : à n'ouvrir que si on te challenge, si on te conteste ou si on te le demande
+
+### Suivi des engagements
+- **[Action]** : tenu / en cours / 🔴 aucune trace trouvée *(dire où on a cherché)* : ✅ « [les mots
+  exacts de l'engagement] » : [YYYY-MM-DD] : `[source]`
 (S'appuie sur le backlog `vault/backlog/<nom>.md`, trié par ancienneté.)
 
-## Sujets opérationnels importants
-Les 2-3 sujets chauds du périmètre à aborder, avec la question concrète à poser.
-
-## Revue de KPI            # 🔧 À AFFINER : définis TES indicateurs ici
+### Revue de KPI            # 🔧 À AFFINER : définis TES indicateurs ici
 Collecte + revue des métriques qui comptent pour vous. Exemples possibles (à remplacer par les
 tiens) : DORA (lead time, fréquence de déploiement, MTTR, change-fail rate), qualité, delivery,
 satisfaction, capacity… Pour chaque KPI : valeur / tendance / question à creuser.
@@ -130,21 +191,23 @@ satisfaction, capacity… Pour chaque KPI : valeur / tendance / question à creu
 |---|---|---|
 | [ton KPI] | [↑/↓/→] | [ce que tu veux comprendre] |
 
-## Signaux faibles
-Tensions, frustrations, surcharge, sujets esquivés — avec tact, sans langue de bois. (Omettre si rien.)
+### Signaux faibles
+Tensions, frustrations, surcharge, sujets esquivés : avec tact, sans langue de bois, chacun avec
+l'observation qui l'a produit.
 
-## Axes récurrents          # 🔧 À AFFINER : les 3-5 thèmes que tu suis avec chaque report
+### Axes récurrents          # 🔧 À AFFINER : les 3-5 thèmes que tu suis avec chaque report
 | Axe | Signal détecté | Question par défaut |
 |---|---|---|
 | [ton axe] | [signal ou « aucun »] | [question] |
 
-## Checklist (avant/pendant le 1-1)
-- [ ] …
-```
+### Contexte complet
+Résumé du dernier 1-1, décisions, actions à suivre `| # | Action | Qui | Quand | Statut |`,
+verbatims, activité messagerie/mail/réunions avec liens, qualité des sources.
 
-Dans les deux cas, terminer par un bloc dépliable **« Contexte complet »** (résumé du dernier 1-1,
-décisions, actions à suivre `| # | Action | Qui | Quand | Statut |`, verbatims, activité
-messagerie/mail/réunions avec liens, qualité des sources).
+### Ce que le vault ne soutient PAS
+Ce qui n'a pas pu être vérifié, et où on a cherché (notes, outil de chat, mail…), pour qu'un négatif
+ne soit jamais prononcé sans qu'on sache qu'il n'est pas étayé.
+```
 
 ## Étape 3 — Mettre à jour le backlog
 Dans `vault/backlog/<nom>.md` : **ajouter** les nouvelles actions, **cocher** celles dont on a la
@@ -153,8 +216,13 @@ preuve de réalisation, **mettre à jour** la date `updated:`. Append-only sur l
 ## Règles de rédaction
 - Français, ton direct et ultra-concis ; listes à puces plutôt que paragraphes.
 - Ne pas inventer ; signaler une source partielle ou de mauvaise qualité.
+- **Au-dessus du premier `##` : des puces et rien d'autre**, pas de sous-titre, pas de tableau, pas
+  de lien à aller ouvrir. Un tableau sur la première page, c'est un tableau que tu lis au lieu de
+  regarder la personne.
 - Pas de section vide — l'omettre (sauf « Revue de KPI » et « Axes récurrents » en cas B, à garder
-  comme rappel même vides, puisque ce sont les sections que tu dois t'approprier).
+  comme rappel même vides, puisque ce sont les sections que tu dois t'approprier). Une section de
+  munitions omise ne coûte rien ; une puce de première page en moins, c'est une chose de moins à
+  dire, et c'est correct quand le vault ne la soutient pas.
 - Jamais d'URL nue : `[texte](url)`. Backlinks `[[people/prenom-nom]]` — pas de nom complet, pas de lien : le nom reste en texte simple.
 
 ## Affiner cette skill (c'est le but d'une skill méta)

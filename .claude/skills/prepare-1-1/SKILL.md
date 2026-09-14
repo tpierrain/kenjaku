@@ -6,7 +6,8 @@ version: 1.0.0
 
 # /prepare-1-1 — Prepare a 1-1 (meta version)
 
-Produces a **briefing** scannable in 2 minutes before your next 1-1. This is a **meta skill**:
+Produces a **briefing whose first screen is the whole brief** — the page you speak from at your next
+1-1, with the evidence folded underneath. This is a **meta skill**:
 it lays out a **structure** that gives you ideas; you then **refine** it to your own focus areas,
 your KPIs and the way you run your 1-1s (edit this file, or ask `/improve` to help you).
 
@@ -78,46 +79,102 @@ A 1-1 prep is where getting this wrong costs the most: every person in the file 
 people in the room**. Getting their surname, their title or their reporting line wrong is not a
 broken backlink here — it is said to their face, or to their manager's.
 
+## The shape of the output
+
+**The shape lives in one place — [`brief-shape`](../brief-shape/SKILL.md) — and this skill obeys it
+rather than restating its own.** Load it before writing a line. Same arrangement as claim discipline
+above, same reason: a shape paraphrased here is a second shape, and two shapes drift apart.
+
+What it binds for a 1-1 prep, which is where it matters most:
+
+- **The first screen IS the brief** — the handful of things you are actually going to say, as flat
+  bullets, between the note's `#` title and its first `##` heading. It is the page you speak from
+  with the person sitting in front of you, and it has to work alone.
+- **Everything below the first `##` is ammunition**, opened only if they dig, contest or ask, every
+  item carrying its verbatim quote, its date and its source path. In this room, a claim you cannot
+  quote is a claim you do not make.
+- **A thin vault produces a short brief that says so.** The cap is an upper bound with no floor
+  under it; nothing is ever padded to fill the page. The numbers live in `brief-shape`, not here.
+- **The two templates below are already cut to that shape.** What used to sit at the top (the Top 3
+  section, the KPI table, the weak signals, the focus areas) is ammunition, and it moved below the
+  fold — not because it stopped mattering, but because it is read after the meeting starts, not
+  before you walk in.
+
+**What "done" looks like**: handed the page thirty seconds before you walk in, you could hold the
+meeting from the first screen alone, without scrolling once.
+
 ## Step 2 — Writing the briefing
 
 Write to `vault/prep-1-1/YYYY-MM-DD-prep-1-1-<name>.md` (date of the next 1-1; create the folder
 if needed), according to the case detected in step 0.
 
+**The frontmatter carries `type: prep-1-1`**, and that is not decoration: the shape applies to every
+note whose `type:` starts with `prep-`, so a prep that omits it is a prep nothing checks.
+
 ### Case A — 1-1 with your manager (you carry the topics)
 
 ```markdown
+---
+type: prep-1-1
+created: YYYY-MM-DD
+author: <the name `git config --get user.name` gives on THIS machine>
+tags: [prep, 1-1]
+---
+
 # Prep 1-1 — [First name] (my manager) — [date]
 
-## What I want to raise (Top 3)
-The topics not to miss, by impact. For each: where we stand, what I expect from them
-(decision, support, info, unblocking).
-1. **[Title]** — [1-line context] → I expect: [decision / support / arbitration]
+- **[Topic to raise]** — [where it stands, one clause] → I expect: [decision / support / arbitration]
+- **[Topic to raise]** — [where it stands] → I expect: […]
+- **[What has moved since last time]** — the one thing worth reporting, not the list of everything.
+- **[What I want to clarify or obtain]** — priority, resource, feedback on me.
+- **[My commitment in progress]** — kept / in progress / at risk.
+- 🔴 **Not documented:** [what the vault does not carry on these topics]. *(This bullet only when
+  it is true — it replaces padding, it never adds to it.)*
 
-## Since last time
-What has moved and is worth reporting or sharing (progress, risks, signals). Enough to have
-"something to chew on" instead of arriving empty-handed.
+## Ammunition — only if they dig, contest or ask
 
-## Questions / requests
-What I want to clarify or obtain (priorities, resources, feedback on me).
+### [Topic] — the evidence
+- ✅ "[the exact words]" — [YYYY-MM-DD] — `[vault/…md, or the link to the source]`
 
-## My commitments in progress
-What I had committed to do — status kept / in progress / at risk.
+### My commitments, in detail
+Status per commitment, each with what establishes it.
+
+### Full context
+Summary of the last 1-1, decisions, follow-up actions `| # | Action | Who | When | Status |`,
+verbatims, messaging/email/meeting activity with links, source quality.
+
+### What the vault does NOT support
+What could not be verified, and where it was looked for (notes, chat tool, mail…), so a negative is
+never spoken out loud without knowing it is unsupported.
 ```
 
 ### Case B — 1-1 with someone you manage (follow-up + operational + KPI)
 
 ```markdown
+---
+type: prep-1-1
+created: YYYY-MM-DD
+author: <the name `git config --get user.name` gives on THIS machine>
+tags: [prep, 1-1]
+---
+
 # Prep 1-1 — [First name] — [date]
 
-## Commitment follow-up
-- **What the other person committed to do** (since the last 1-1): status kept / in progress / not done.
-- **What I want to delegate to them** (new delegations, responsibilities).
+- **[Commitment to follow up]** — [where it stands] → ask: [the opening question]
+- **[What I want to delegate]** — [the responsibility] → ask: [how they see it]
+- **[Hot operational topic]** — [one clause] → ask: [the concrete question]
+- **[KPI that moved]** — [value, trend] → ask: [what I want to understand]
+- **[Weak signal]** — [tension, overload, dodged topic], to raise with tact.
+- 🔴 **Not documented:** [what the vault does not carry]. *(Only when it is true.)*
+
+## Ammunition — only if they dig, contest or ask
+
+### Commitment follow-up
+- **[Action]** — kept / in progress / 🔴 no trace found *(say where you looked)* — ✅ "[the exact
+  words of the commitment]" — [YYYY-MM-DD] — `[source]`
 (Draws on the backlog `vault/backlog/<name>.md`, sorted by age.)
 
-## Important operational topics
-The 2-3 hot topics in the scope to address, with the concrete question to ask.
-
-## KPI review            # 🔧 TO REFINE: define YOUR metrics here
+### KPI review            # 🔧 TO REFINE: define YOUR metrics here
 Collection + review of the metrics that matter for you. Possible examples (replace with your
 own): DORA (lead time, deployment frequency, MTTR, change-fail rate), quality, delivery,
 satisfaction, capacity… For each KPI: value / trend / question to dig into.
@@ -125,21 +182,23 @@ satisfaction, capacity… For each KPI: value / trend / question to dig into.
 |---|---|---|
 | [your KPI] | [↑/↓/→] | [what you want to understand] |
 
-## Weak signals
-Tensions, frustrations, overload, dodged topics — with tact, no beating around the bush. (Omit if nothing.)
+### Weak signals
+Tensions, frustrations, overload, dodged topics — with tact, no beating around the bush, each with
+the observation that produced it.
 
-## Recurring focus areas          # 🔧 TO REFINE: the 3-5 themes you track with each report
+### Recurring focus areas          # 🔧 TO REFINE: the 3-5 themes you track with each report
 | Focus area | Detected signal | Default question |
 |---|---|---|
 | [your focus area] | [signal or "none"] | [question] |
 
-## Checklist (before/during the 1-1)
-- [ ] …
-```
+### Full context
+Summary of the last 1-1, decisions, follow-up actions `| # | Action | Who | When | Status |`,
+verbatims, messaging/email/meeting activity with links, source quality.
 
-In both cases, end with a collapsible **"Full context"** block (summary of the last 1-1,
-decisions, follow-up actions `| # | Action | Who | When | Status |`, verbatims, messaging/email/meeting
-activity with links, source quality).
+### What the vault does NOT support
+What could not be verified, and where it was looked for (notes, chat tool, mail…), so a negative is
+never spoken out loud without knowing it is unsupported.
+```
 
 ## Step 3 — Update the backlog
 In `vault/backlog/<name>.md`: **add** the new actions, **check off** those with proof
@@ -148,8 +207,12 @@ of completion, **update** the `updated:` date. Append-only on facts already reco
 ## Writing rules
 - English, direct and ultra-concise tone; bullet lists rather than paragraphs.
 - Do not make things up; flag a partial or low-quality source.
+- **Above the first `##`: bullets and nothing else** — no sub-heading, no table, no link to go and
+  open. A table on the first screen is a table you read instead of looking at the person.
 - No empty section — omit it (except "KPI review" and "Recurring focus areas" in case B, to keep
-  as a reminder even when empty, since these are the sections you must make your own).
+  as a reminder even when empty, since these are the sections you must make your own). An omitted
+  ammunition section costs nothing; an omitted first-screen bullet is one thing less to say, and
+  that is correct when the vault does not support it.
 - Never a bare URL: `[text](url)`. Backlinks `[[people/firstname-lastname]]` — no full name, no link: the name stays plain text.
 
 ## Refining this skill (that's the point of a meta skill)

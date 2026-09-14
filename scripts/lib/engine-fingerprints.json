@@ -1,6 +1,16 @@
 {
-  "generatedAt": "v5.5.1",
+  "generatedAt": "v5.6.0",
   "files": {
+    ".claude/skills/brief-shape/SKILL.md": {
+      "sha256:68c904442a3c7cf89cf873a95fdd369c8cba65d7535994da8b044c012a1b5f82": {
+        "since": "v5.6.0",
+        "locale": "en"
+      },
+      "sha256:4eb60322ff7de6a98873a0a83aeb729f33fa4585385959c703e9585beab59160": {
+        "since": "v5.6.0",
+        "locale": "fr"
+      }
+    },
     ".claude/skills/coach/SKILL.md": {
       "sha256:3a1df7202920eb0cf1879bf8cecaf1eba91944a7efcbef339c0d0e6a3cd9aa74": {
         "since": "v3.0.0",
@@ -174,6 +184,14 @@
       },
       "sha256:ef77116f1d0ed2f0c8cf2080393148cac6e2182bcbfeb34cf0dc1279e2b2d8a7": {
         "since": "v5.2.0",
+        "locale": "fr"
+      },
+      "sha256:1387b523860fa630739928990a07c89f82b232a9de72a7e92a86a8dbcb1edd58": {
+        "since": "v5.6.0",
+        "locale": "en"
+      },
+      "sha256:66c128602dea70d4cc13a1df7ce177ffdef30684a38c08a8ab9c3a9d943e1752": {
+        "since": "v5.6.0",
         "locale": "fr"
       }
     },
