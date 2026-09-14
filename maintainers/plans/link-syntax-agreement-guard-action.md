@@ -8,30 +8,47 @@
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-14
 
-- **Next:** S1.1 — write the failing test in `scripts/lib/declared-spellings.test.mjs` (or its own
-  file, see S1.0), see it red **with the `[[…]]` entry removed from `PROTECTED`**, then green with it
-  back. No production change is expected: if one turns out to be needed, that is a finding, not a slip.
-- **Blocked on:** nothing. **Owner's call pending:** nothing.
-- **A session may, alone:** everything up to and including a green PR. **Not:** tag or publish — this
-  ships with the next release, it is not a hotfix.
+- **Next:** merge [PR #125](https://github.com/tpierrain/kenjaku/pull/125) (branch
+  `test/link-syntax-agreement`). Every step is done and the **whole matrix passed** (macOS and
+  Windows × Node 22/24/26, plus the Windows installer end-to-end); 3929 pass / 0 fail locally. The
+  work needed **no production change**.
+- **Blocked on:** nothing. **Owner's call pending: the merge itself** — a session's ceiling here is a
+  green PR, and it is green, so the merge waits for Thomas's go-ahead (asked 2026-09-14).
+- **A session may, alone:** everything up to and including a green PR. **Not:** merge, tag or publish
+  — this ships with the next release, it is not a hotfix.
 - **Decided in conversation (2026-09-14):** do it now rather than file it, "tant que le sujet est
   chaud". It is a test-only change, so it carries no release of its own.
 
 ## Tracking
 
-- [ ] **S1 — A test that fails when the two definitions of "a link" drift apart**
-  - [ ] S1.0 Decide where it lives: beside the guard (`declared-spellings.test.mjs`) or in a file of
+- [x] **S1 — A test that fails when the two definitions of "a link" drift apart** _(2026-09-14)_
+  - [x] S1.0 Decide where it lives: beside the guard (`declared-spellings.test.mjs`) or in a file of
         its own named for the agreement. It asserts across two modules, so its own file is likely.
-  - [ ] S1.1 The test, red first: take a body holding **one of each form `extractWikiLinks`
+        → **its own file**, `scripts/lib/link-syntax-agreement.test.mjs`: it imports from both
+        modules, and the per-form cases the guard alone owns stay where they are.
+  - [x] S1.1 The test, red first: take a body holding **one of each form `extractWikiLinks`
         recognises** — bare, `|alias`, `#heading`, the escaped `\|` of a table cell, and one inside
         code — run `applyDeclaredSpellings` over it with entries that match those targets, and assert
         `extractWikiLinks(before)` equals `extractWikiLinks(after)`. Red is proved by removing the
         `[[…]]` entry from `PROTECTED`, not by inventing a mutant.
-  - [ ] S1.2 Green, with no production change.
-- [ ] **S2 — Say in the code WHY the test exists**, one short comment at each end (the guard's
+        → **red for the right reason**: with the entry commented out, all four link forms came back
+        as `aXiom-migration`, an address no note has.
+  - [x] S1.2 Green, with no production change. → confirmed: the only edits outside the new test file
+        are the two comments of S2.
+  - [x] S1.3 **The in-code form carries its own assertion, and that was a finding of the writing.**
+        `extractWikiLinks` drops links inside code, so for that one form the agreement is silent by
+        construction: both sides see nothing, and a rewrite there would pass. It is asserted
+        literally instead (the bytes survive), and the case is the one that stayed green under the
+        red proof — as it should, since the code spans protect it, not the `[[…]]` entry.
+- [x] **S2 — Say in the code WHY the test exists**, one short comment at each end (the guard's
       `PROTECTED`, and `extractWikiLinks`), naming the other side. The defect was two files holding
       two partial models of the same thing; the comment is what makes the pair visible from either.
-- [ ] **S3 — A green PR**, full matrix (it touches `scripts/`, so nothing is path-ignored).
+      _(2026-09-14)_
+- [x] **S3 — A green PR**, full matrix (it touches `scripts/`, so nothing is path-ignored).
+      _(2026-09-14 · `c7293d5`)_ → [PR #125](https://github.com/tpierrain/kenjaku/pull/125), all
+      checks pass on macOS and Windows across Node 22/24/26, installer end-to-end included. The
+      Windows tripwire skipped, which is its normal answer when the harness files are untouched.
+- [ ] **S4 — Merge**, then archive this plan and clear the door. Owner's call, not a session's.
 
 ## Why this test, and what it pays for — do NOT re-derive it after a `/clear`
 
