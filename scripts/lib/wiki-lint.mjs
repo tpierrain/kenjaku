@@ -30,6 +30,13 @@ function stripCode(body) {
 // yielded `note\`, a filename no note can have, so the checker flagged precisely the
 // spelling the author had no alternative to — and the miss cascaded, costing a false
 // orphan on the target and silently dropping a real staleness reference.
+//
+// 🔗 THIS FUNCTION IS ONE HALF OF A PAIR. `declared-spellings.mjs`'s `PROTECTED` is
+// the other: whatever this reads as a link target, the write-time spelling guard
+// must never rewrite. They drifted apart once — that guard did not know `[[…]]`
+// existed and corrected a link into a file that does not (#121). Any form added
+// here is a form that list owes protection to; `link-syntax-agreement.test.mjs`
+// goes red when the two disagree.
 export function extractWikiLinks(body) {
   return [...stripCode(body).matchAll(/\[\[([^\]]+)\]\]/g)]
     .map((m) => unescapeDelimiters(m[1]).split(/[|#]/)[0].trim())

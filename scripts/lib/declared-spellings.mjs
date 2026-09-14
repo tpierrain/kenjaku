@@ -112,6 +112,13 @@ const escapeRegExp = (raw) => raw.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 // ── What is never rewritten, because falsifying a record is a worse defect ────
 // than the one being repaired. Each of these is a span where the bytes mean
 // something other than "the note's own prose".
+//
+// 🔗 THIS LIST IS ONE HALF OF A PAIR. `wiki-lint.mjs`'s `extractWikiLinks` is the
+// other: it decides what a note POINTS AT, and this list decides what is never
+// rewritten. They were written from different sources and drifted apart — the
+// linter knew `[[…]]`, this list did not, and a declared spelling rewrote a link
+// target (#121). `link-syntax-agreement.test.mjs` now fails the day either side
+// learns a link form the other has not. Teach one, read the other.
 const PROTECTED = [
   /^---\n[\s\S]*?\n---/, //          frontmatter: machine-read (a universe slug, tags,
   //                                 a path) — correcting one changes what the ENGINE
