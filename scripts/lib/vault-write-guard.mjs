@@ -184,17 +184,17 @@ export function guardDecision({ toolName, toolInput, brainDir, parse, readFile }
  * exactly the situation that produced this issue. The cost lands on the model that has
  * to rewrite, which is why every message names its rule AND the distance.
  *
- * Fail-open like everything else here: a parse that does not hand back what we expect
- * is a note we cannot judge, and unknown is never broken.
+ * 🧹 NO FAIL-OPEN OF ITS OWN, deliberately. Its PRECONDITION is that the parser has
+ * already accepted these bytes — `frontmatterVerdict` ran two lines up — so a second
+ * parse of them cannot throw, and gray-matter always hands back `{ data, content }`.
+ * A `try`/`catch` and a chain of `?.` here would be a fail-open written twice: five
+ * branches no test can reach, measured as five surviving mutants. The one that catches
+ * the genuinely unexpected is the hook's own shell (`runGuard`), which is fail-open by
+ * construction and covers every question this guard asks.
  */
 export function briefShapeDecision({ relPath, raw, parse }) {
-  let parsed;
-  try {
-    parsed = parse(raw);
-  } catch {
-    return null;
-  }
-  const verdict = briefShapeVerdict({ content: parsed?.content ?? "", type: parsed?.data?.type });
+  const { data, content } = parse(raw);
+  const verdict = briefShapeVerdict({ content, type: data.type });
   if (verdict.ok) return null;
 
   return {

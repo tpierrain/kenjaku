@@ -274,7 +274,9 @@ test("a fence marker only opens a fence at the START of a line", () => {
 test("an INDENTED fence is a fence too, so the `##` inside it is not the fold", () => {
   // A fence under a list item is indented by definition. Miss it and the first screen
   // ends at a heading that is a code sample, with everything below it unmeasured.
-  const content = [TITLE, "", "  ```markdown", "  ## not a heading", "  ```", "", ...bullets(9), "", "## Ammunition"].join("\n");
+  // The heading inside it sits at column 0, which is the only arrangement where the
+  // indentation of the FENCE decides anything: miss it and this sample ends the brief.
+  const content = [TITLE, "", "  ```markdown", "## a heading in a sample", "  ```", "", ...bullets(9), "", "## Ammunition"].join("\n");
   assert.match(reasons(briefShapeVerdict({ content, type: "prep-1-1" })), /holds 9 bullets/);
 });
 

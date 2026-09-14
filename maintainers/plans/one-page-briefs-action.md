@@ -12,8 +12,10 @@
 
 - **⚠️ THE WORK IS ON A BRANCH, NOT ON `main`:** `feat/one-page-brief-shape`. Check it out before
   reading anything else — `main`'s copy of this plan is behind on purpose.
-- **Next:** S6 — the PR. S3, S4 and S5 are done and the whole suite is green locally; what remains
-  is opening the PR against `main` and reading what CI says on the full matrix.
+- **Next: nothing but the owner's reading.** S1 to S6 are done: **PR
+  [#129](https://github.com/tpierrain/kenjaku/pull/129) is open and green on the full matrix**, and
+  the mutation gate is paid on both files the branch writes. Start at § *To validate at the owner's
+  return* — seven calls taken alone, each with what reversing it costs.
 - **Blocked on:** nothing, and no question is left. **All three owner's calls are answered**
   (2026-09-14): Q1 the cap BLOCKS the write, Q2 the scope is a `type:` prefix, Q3 the cap is an upper
   bound and a thin brief says so. Read them below before re-raising any of them.
@@ -69,7 +71,12 @@
       nothing to select on). The hook wiring needed no change: it already runs on every `Write` and
       `Edit`. An Edit is judged on the note it **would** produce, so "one more thing worth saying"
       is refused like a long note written in one go.
-- [ ] **S6 — A green PR**, full matrix (it touches `scripts/`, so nothing is path-ignored).
+- [x] **S6 — A green PR** _(2026-09-14)_ — [#129](https://github.com/tpierrain/kenjaku/pull/129),
+      green on the full matrix (it touches `scripts/`, so nothing was path-ignored).
+  - [x] S6.1 **The mutation gate, on what the BRANCH wrote** — both production files, from
+        `git diff --name-only origin/main...HEAD` rather than from the last commit, which is the way
+        that gate was mis-paid on v5.5. The figures and the survivors are in
+        `maintainers/mutation/RESULTS.md`, newest-first.
 
 ## The shape, decided (S2) — S3, S4 and S5 implement this and re-open none of it
 

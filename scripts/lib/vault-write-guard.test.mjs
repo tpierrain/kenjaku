@@ -438,6 +438,9 @@ test("guardDecision — every broken rule is named in ONE refusal, not one per a
   assert.match(decision.reason, /is not a bullet/);
   assert.match(decision.reason, /9 bullets, 2 over the cap of 7/);
   assert.match(decision.reason, /over the ceiling of 220/);
+  // …and they are SEPARATED. Run together, two sentences read as one, and the reader
+  // of this text is a model parsing it in one pass to decide what to change.
+  assert.ok(decision.reason.includes("move it below the first `##`. the first screen holds 9 bullets"), decision.reason);
 });
 
 test("guardDecision — damaged frontmatter is still answered by the parser, not by the shape", NEEDS_ENGINE_PARSER, () => {
