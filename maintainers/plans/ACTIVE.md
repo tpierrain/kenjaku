@@ -12,9 +12,13 @@ only carries what a user of Kenjaku could read and care about (2026-09-12, tried
 
 ## The active plan
 
-**None.** The last one was delivered on 2026-09-14
-([archived](archived/2026-09-14-link-syntax-agreement-guard-action.md)). Next work starts by opening
-one of the plans below, or by writing a new one and naming it here.
+🔴 [**`one-page-briefs-action.md`**](one-page-briefs-action.md) — part A of
+[#119](https://github.com/tpierrain/kenjaku/issues/119): a prep's first screen is the whole brief, and
+a check says so. Opened 2026-09-14 at the owner's ask. **Resume there and nowhere else.**
+
+Parts B and C of the same issue (ambient ingestion, the twice-daily digest) are **not** in it: they
+wait on the open measurements in
+[`../studies/ambient-ingestion-feasibility-study.md`](../studies/ambient-ingestion-feasibility-study.md).
 
 ## Open, but NOT active
 

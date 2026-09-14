@@ -237,7 +237,8 @@
     status**: `ACTIVE.md` names which one is live, and each plan owns its own `## 📍 STATE`. A status
     copied here is a status that goes stale unread — it did, for the `local-mirror` plan, which sat
     here as *"🚧 ACTIVE — not started"* while its own link already pointed into `archived/`.
-    - *(empty right now — the last one shipped on 2026-09-14 and was archived the same day.)*
+    - [`one-page-briefs-action.md`](plans/one-page-briefs-action.md) — part A of #119: a prep's
+      first screen is the whole brief, and a deterministic check says so.
   - [**`plans/prospective/`**](plans/prospective/) **= future** — not closed, forward-looking: living
     studies/watch, backlogs, and **conditional/parked** tails of otherwise-shipped plans.
   - [**`plans/archived/`**](plans/archived/) **= past** — shipped or closed plans (kept for the step detail).
