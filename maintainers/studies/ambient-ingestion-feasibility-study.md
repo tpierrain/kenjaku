@@ -190,6 +190,24 @@ touches that. So these are not options:
   would say so. Session start must notice *"no ingestion pass since &lt;date&gt;"* from the watermark
   file — a deterministic check, not a report the missing job was supposed to write.
 
+## The way back — a synchronisation mode, default automatic, fallback to today's behaviour
+
+**Owner's call, 2026-09-14**, while part A was being implemented: the automatic pull becomes the
+**default**, and a setting lets a user return to the **historical** behaviour — the brain fetches when
+a question is asked. It exists as a way out if the new mode misbehaves, and it is **not promoted**:
+documented for whoever goes looking, never a question asked at install.
+
+- **The fallback is not a second code path to build.** It is what the brain does today, through
+  `sync-sources`, driven by a question. That stays true only if ambient ingestion is built **on top of**
+  that fan-out rather than replacing it — which is how strategy 1 is already shaped, and this makes it
+  a requirement rather than a coincidence.
+- **A silent fallback would be worse than the failure it protects against.** In historical mode nothing
+  arrives on its own, so "nothing new" must never be readable as "nothing happened": the mode is stated
+  wherever freshness is stated, under the same rule as a down source (§ *a dead job must be loud*).
+- **Not offered at install.** A choice presented to someone who has used neither mode is a decision
+  taken blind. It belongs in the settings documentation, beside the other things you change once you
+  have a reason to.
+
 ## Open questions — the gates, each with what closes it
 
 - [x] **Gate 1 — do the brain's hooks fire in an unattended run? ✅ YES, all three families.**
