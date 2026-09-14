@@ -8,14 +8,14 @@
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-14
 
-- **Next:** read the matrix on [PR #125](https://github.com/tpierrain/kenjaku/pull/125) (branch
-  `test/link-syntax-agreement`), then merge. S1 and S2 are done, green, and needed **no production
-  change**; the suite is 3929 pass / 0 fail locally.
-- **Blocked on:** nothing — the checks were still running at the last hand-back, so a returning
-  session reads them first (`gh run list --branch test/link-syntax-agreement`) before anything else.
-  **Owner's call pending:** nothing.
-- **A session may, alone:** everything up to and including a green PR. **Not:** tag or publish — this
-  ships with the next release, it is not a hotfix.
+- **Next:** merge [PR #125](https://github.com/tpierrain/kenjaku/pull/125) (branch
+  `test/link-syntax-agreement`). Every step is done and the **whole matrix passed** (macOS and
+  Windows × Node 22/24/26, plus the Windows installer end-to-end); 3929 pass / 0 fail locally. The
+  work needed **no production change**.
+- **Blocked on:** nothing. **Owner's call pending: the merge itself** — a session's ceiling here is a
+  green PR, and it is green, so the merge waits for Thomas's go-ahead (asked 2026-09-14).
+- **A session may, alone:** everything up to and including a green PR. **Not:** merge, tag or publish
+  — this ships with the next release, it is not a hotfix.
 - **Decided in conversation (2026-09-14):** do it now rather than file it, "tant que le sujet est
   chaud". It is a test-only change, so it carries no release of its own.
 
@@ -44,7 +44,11 @@
       `PROTECTED`, and `extractWikiLinks`), naming the other side. The defect was two files holding
       two partial models of the same thing; the comment is what makes the pair visible from either.
       _(2026-09-14)_
-- [ ] **S3 — A green PR**, full matrix (it touches `scripts/`, so nothing is path-ignored).
+- [x] **S3 — A green PR**, full matrix (it touches `scripts/`, so nothing is path-ignored).
+      _(2026-09-14 · `c7293d5`)_ → [PR #125](https://github.com/tpierrain/kenjaku/pull/125), all
+      checks pass on macOS and Windows across Node 22/24/26, installer end-to-end included. The
+      Windows tripwire skipped, which is its normal answer when the harness files are untouched.
+- [ ] **S4 — Merge**, then archive this plan and clear the door. Owner's call, not a session's.
 
 ## Why this test, and what it pays for — do NOT re-derive it after a `/clear`
 
