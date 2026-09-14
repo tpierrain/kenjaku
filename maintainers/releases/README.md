@@ -23,3 +23,4 @@ reaches a generated brain.
 | [`v5.3.0.md`](v5.3.0.md) | `v5.3.0 — The One Where It Says Which Universe It Answered From` |
 | [`v5.4.0.md`](v5.4.0.md) | `v5.4.0 — The One Where It Stops Talking Like a Robot` |
 | [`v5.5.0.md`](v5.5.0.md) | `v5.5 — The One Where It Stops Blaming You for an Edit You Never Made` |
+| [`v5.5.1.md`](v5.5.1.md) | `v5.5.1 — The One Where a Correction Stops Breaking Your Links` |

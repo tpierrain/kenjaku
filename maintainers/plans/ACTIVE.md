@@ -12,11 +12,11 @@ only carries what a user of Kenjaku could read and care about (2026-09-12, tried
 
 ## The active plan
 
-🔴 [**`v5.5.1-hotfix-declared-spellings-wikilinks-action.md`**](v5.5.1-hotfix-declared-spellings-wikilinks-action.md)
-— hotfix for [#121](https://github.com/tpierrain/kenjaku/issues/121), opened 2026-09-14. **Resume
-there and nowhere else.** Everything below is parked behind it, by the owner's explicit instruction.
+**None.** The `v5.5.1` hotfix shipped on 2026-09-14 and its plan is
+[archived](archived/2026-09-14-v5.5.1-hotfix-declared-spellings-wikilinks-action.md). The next one is
+the owner's pick from the list below.
 
-## Open, but NOT active — parked until the hotfix ships
+## Open, none of them active — the owner picks
 
 - [`prospective/clear-the-tracker-action.md`](prospective/clear-the-tracker-action.md)
 - [`prospective/shipped-ci-workflows-action.md`](prospective/shipped-ci-workflows-action.md)
