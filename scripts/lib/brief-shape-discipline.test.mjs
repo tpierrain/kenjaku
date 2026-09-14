@@ -4,6 +4,7 @@ import { readFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { docSection } from "./doc-section.mjs";
+import { briefShapeVerdict } from "./brief-shape.mjs";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // #128 — a prep's FIRST SCREEN is the whole brief, and the rule that says so
@@ -151,5 +152,46 @@ for (const { locale, name, path } of CONSUMERS) {
       `${path} restates the cap. A number written twice is a number that will disagree with itself; ` +
         `the consumer links to brief-shape instead`,
     );
+  });
+}
+
+// ── The TEMPLATE a consumer ships must survive the CHECK it defers to ───────
+// The nastiest shape this feature could take: a skill that hands the model an
+// output template the engine then refuses to write. Nothing would say so — the
+// skill is prose, the guard is code, and they only meet in a brain, minutes
+// before a meeting, on a note that does not get created.
+//
+// So the two are made to meet here instead: every ```markdown block a consumer
+// ships is run through the real verdict, at the real type. This is also the only
+// pole that would catch a template edited later by someone who never read
+// `brief-shape` — which, on a meta skill the owner is invited to make their own,
+// is not a hypothetical.
+for (const { locale, name, path } of CONSUMERS) {
+  test(`${locale} ${name}'s own output templates pass the check the engine applies`, () => {
+    const templates = [...read(path).matchAll(/```markdown\n([\s\S]*?)```/g)].map(([, block]) => block);
+    assert.equal(templates.length, 2, `${path} must still ship its two output templates (case A and case B)`);
+
+    for (const [index, template] of templates.entries()) {
+      // The frontmatter is stripped the way the guard strips it: what the shape
+      // measures is the note's body, and `type:` is the selector, not content.
+      const content = template.replace(/^---\n[\s\S]*?\n---\n/, "");
+      const verdict = briefShapeVerdict({ content, type: "prep-1-1" });
+      assert.deepEqual(
+        verdict.violations,
+        [],
+        `${path} — template ${index + 1} would be REFUSED by the engine that ships it:\n` +
+          verdict.violations.map((v) => `  · ${v.message}`).join("\n"),
+      );
+    }
+  });
+
+  test(`${locale} ${name}'s templates carry the frontmatter \`type:\` the check selects on`, () => {
+    // Without it the shape applies to nothing: a prep with no `type:` is out of
+    // scope by design (Q2), so a template that forgets it disables the guard for
+    // every note it produces — silently, and only for the notes that matter.
+    const templates = [...read(path).matchAll(/```markdown\n([\s\S]*?)```/g)].map(([, block]) => block);
+    for (const [index, template] of templates.entries()) {
+      assert.match(template, /^---\ntype: prep-1-1\n/, `${path} — template ${index + 1} must declare its type`);
+    }
   });
 }

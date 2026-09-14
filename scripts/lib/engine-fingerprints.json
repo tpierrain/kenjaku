@@ -186,11 +186,11 @@
         "since": "v5.2.0",
         "locale": "fr"
       },
-      "sha256:1387b523860fa630739928990a07c89f82b232a9de72a7e92a86a8dbcb1edd58": {
+      "sha256:038e30471796b97d6832e3b6be2e029926e4167904687fdbbf4dba31acec2ec5": {
         "since": "v5.6.0",
         "locale": "en"
       },
-      "sha256:66c128602dea70d4cc13a1df7ce177ffdef30684a38c08a8ab9c3a9d943e1752": {
+      "sha256:d517df17487a193c83251274270e10b47527d2a9db6932cde792198fb2f375f4": {
         "since": "v5.6.0",
         "locale": "fr"
       }

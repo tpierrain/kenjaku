@@ -120,6 +120,10 @@ au besoin), selon le cas détecté à l'étape 0.
 toute note dont le `type:` commence par `prep-`, donc une prépa qui l'oublie est une prépa que rien
 ne vérifie.
 
+⚠️ **Les puces ci-dessous sont un menu, pas une checklist.** Garde celles que le vault soutient
+vraiment et **supprime les autres** : une prépa avec trois lignes vraies vaut mieux qu'une prépa de
+six dont deux que tu ne dirais pas à voix haute. Le plafond est un maximum, rien ici n'est un quota.
+
 ### Cas A — 1-1 avec ton manager (tu portes les sujets)
 
 ```markdown

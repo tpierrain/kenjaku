@@ -111,6 +111,10 @@ if needed), according to the case detected in step 0.
 **The frontmatter carries `type: prep-1-1`**, and that is not decoration: the shape applies to every
 note whose `type:` starts with `prep-`, so a prep that omits it is a prep nothing checks.
 
+⚠️ **The bullets below are a menu, not a checklist.** Keep the ones the vault actually supports and
+**delete the rest** — a prep with three true lines beats one with six, two of which you would not
+say out loud. The cap is a maximum; nothing here is a quota.
+
 ### Case A — 1-1 with your manager (you carry the topics)
 
 ```markdown
