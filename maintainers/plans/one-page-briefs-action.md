@@ -19,9 +19,9 @@
 - **Blocked on:** nothing, and no question is left. **All three owner's calls are answered**
   (2026-09-14): Q1 the cap BLOCKS the write, Q2 the scope is a `type:` prefix, Q3 the cap is an upper
   bound and a thin brief says so. Read them below before re-raising any of them.
-- **Working autonomously** from 2026-09-14 evening, at the owner's explicit go-ahead. Stop at a green
-  PR: **never merge, tag or publish.** On any judgment call, **decide and record — do not stop**; see
-  § *To validate at the owner's return*.
+- **The autonomous stretch is OVER** _(2026-09-14 evening → night)_: it was bounded by *stop at a
+  green PR*, and the PR is green. Everything it was allowed to do is done. **Merging, tagging and
+  publishing were never in it** and still are not.
 - **This part's issue:** [#128](https://github.com/tpierrain/kenjaku/issues/128).
   [#119](https://github.com/tpierrain/kenjaku/issues/119) is the umbrella;
   [#126](https://github.com/tpierrain/kenjaku/issues/126) / [#127](https://github.com/tpierrain/kenjaku/issues/127)
