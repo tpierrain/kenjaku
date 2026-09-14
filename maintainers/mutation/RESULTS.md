@@ -250,6 +250,7 @@ changed range **100.00 %**. Four passes, and the three corrections are the inter
 | 2 | 96.82 % | 5 | thirteen poles on the reading + the four refusals asserted verbatim |
 | 3 | 95.29 % | 9 | the write guard's range joins the run, and its new code scores 82.35 % |
 | 4 | **98.86 %** | **2** | five of its six survivors DELETED rather than tested |
+| 5 | **98.73 %** | **2** | re-run after the Windows fix moved production, on `brief-shape.mjs` alone |
 
 **Pass 1 — a guard that refuses writes cannot be approximately right about reading.** The cap and
 the ceiling were pinned on both sides of their boundary from the first commit, and that is not what
@@ -283,7 +284,24 @@ Same lesson as the v5.1.0 duo run, on a file written a month later.
 difference is whitespace the following `.trim()` removes. Killing either would mean asserting on a
 regex rather than on behaviour.
 
-Logs: `reports/brief-shape-mutation.log` (pass 1), `-2` (pass 2), `-3` (pass 3), `-4` (pass 4).
+> 🛑 **AND ONE OF THOSE TWO WAS NOT AN EQUIVALENT WHEN IT WAS FIRST CALLED ONE.** Between pass 2 and
+> pass 5, the `$` mutant was recorded as equivalent — and for the code as it then stood it was the
+> **mechanism of a live defect**. The note was split on `"\n"` alone, so on a Windows brain every
+> line kept a trailing `\r`; JavaScript counts `\r` as a line terminator, `.` never matches one, and
+> `(.*)$` therefore could not reach the end of any line. **No bullet matched its own marker**, and a
+> correctly shaped prep was refused on that platform with every one of its bullets named as prose.
+> The mutant that drops the `$` would have been **killed** by a CRLF note, had one existed to judge
+> it. It is equivalent now, after the split was fixed — under an invariant that did not hold when the
+> word was first written.
+>
+> **The durable half**: *equivalent* is a claim about the code **around** the mutant, not about the
+> mutant. A survivor called equivalent under a premise nobody stated outlives the premise. And the
+> thing that actually found this was not a re-read of the survivor list — it was the **Windows
+> tripwire**, red on a doc guard next door, which prompted asking the check itself whether the two
+> line endings give the same verdict. They did not.
+
+Logs: `reports/brief-shape-mutation.log` (pass 1), `-2` (pass 2), `-3` (pass 3), `-4` (pass 4),
+`-5` (pass 5, after the Windows fix).
 
 ## v5.5.1 — the wikilink the protected list did not know about (#121) — 2026-09-14
 
