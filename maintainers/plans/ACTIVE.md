@@ -12,9 +12,9 @@ only carries what a user of Kenjaku could read and care about (2026-09-12, tried
 
 ## The active plan
 
-🔴 [**`link-syntax-agreement-guard-action.md`**](link-syntax-agreement-guard-action.md) — the net that
-would have caught [#121](https://github.com/tpierrain/kenjaku/issues/121) on its first day, opened
-2026-09-14 at the owner's ask. **Resume there and nowhere else.**
+**None.** The last one was delivered on 2026-09-14
+([archived](archived/2026-09-14-link-syntax-agreement-guard-action.md)). Next work starts by opening
+one of the plans below, or by writing a new one and naming it here.
 
 ## Open, but NOT active
 

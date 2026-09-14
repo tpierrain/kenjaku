@@ -1,23 +1,20 @@
 <!-- ════════════════════════════════════════════════════════════════════════ -->
-<!-- STATUS: 🔴 ACTIVE — THE plan. Opened 2026-09-14, straight after v5.5.1, at   -->
-<!-- the owner's ask: build the net that would have caught #121 on its first day. -->
-<!-- The way in is plans/ACTIVE.md; this file owns the state.                     -->
+<!-- STATUS: ✅ DONE — merged into main on 2026-09-14 as `516de5b` (PR #125).        -->
+<!-- Archived history: nothing here is live, and no session resumes from this file.  -->
+<!-- The way in stays plans/ACTIVE.md. Opened 2026-09-14 straight after v5.5.1, at   -->
+<!-- the owner's ask: build the net that would have caught #121 on its first day.    -->
 <!-- ════════════════════════════════════════════════════════════════════════ -->
 
 # Action plan — the two files that both decide what a link is must agree, and a test says so
 
-## 📍 STATE — the only perishable block in this file · opened 2026-09-14
+## 📍 STATE — closed 2026-09-14 · nothing here is perishable any more
 
-- **Next:** merge [PR #125](https://github.com/tpierrain/kenjaku/pull/125) (branch
-  `test/link-syntax-agreement`). Every step is done and the **whole matrix passed** (macOS and
-  Windows × Node 22/24/26, plus the Windows installer end-to-end); 3929 pass / 0 fail locally. The
-  work needed **no production change**.
-- **Blocked on:** nothing. **Owner's call pending: the merge itself** — a session's ceiling here is a
-  green PR, and it is green, so the merge waits for Thomas's go-ahead (asked 2026-09-14).
-- **A session may, alone:** everything up to and including a green PR. **Not:** merge, tag or publish
-  — this ships with the next release, it is not a hotfix.
+- **Delivered**, merged as [PR #125](https://github.com/tpierrain/kenjaku/pull/125) / `516de5b`,
+  green on the whole matrix (macOS and Windows × Node 22/24/26, Windows installer end-to-end).
+- It **needed no production change**: the only non-test edits are the two comments of S2. It carries
+  no release of its own and ships with the next one.
 - **Decided in conversation (2026-09-14):** do it now rather than file it, "tant que le sujet est
-  chaud". It is a test-only change, so it carries no release of its own.
+  chaud". The merge itself was the owner's call, given the same day.
 
 ## Tracking
 
@@ -48,7 +45,8 @@
       _(2026-09-14 · `c7293d5`)_ → [PR #125](https://github.com/tpierrain/kenjaku/pull/125), all
       checks pass on macOS and Windows across Node 22/24/26, installer end-to-end included. The
       Windows tripwire skipped, which is its normal answer when the harness files are untouched.
-- [ ] **S4 — Merge**, then archive this plan and clear the door. Owner's call, not a session's.
+- [x] **S4 — Merge**, then archive this plan and clear the door. Owner's call, not a session's.
+      _(2026-09-14 · `516de5b`, squashed onto `main`, branch deleted)_
 
 ## Why this test, and what it pays for — do NOT re-derive it after a `/clear`
 
