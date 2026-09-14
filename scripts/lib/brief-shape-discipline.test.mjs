@@ -166,9 +166,17 @@ for (const { locale, name, path } of CONSUMERS) {
 // pole that would catch a template edited later by someone who never read
 // `brief-shape` — which, on a meta skill the owner is invited to make their own,
 // is not a hypothetical.
+// 🪟 The line endings are normalised FIRST, and that is not tidiness: git hands a
+// Windows checkout CRLF, so a pattern anchored on "\n" finds nothing there and the
+// pole reports "this skill ships no template" on the one platform it was never run
+// on. Met on the Windows tripwire, minutes after this guard was written — the same
+// class as the `/` vs `\\` fixture this repo already keeps a tripwire for.
+const shippedTemplates = (path) =>
+  [...read(path).replace(/\r\n/g, "\n").matchAll(/```markdown\n([\s\S]*?)```/g)].map(([, block]) => block);
+
 for (const { locale, name, path } of CONSUMERS) {
   test(`${locale} ${name}'s own output templates pass the check the engine applies`, () => {
-    const templates = [...read(path).matchAll(/```markdown\n([\s\S]*?)```/g)].map(([, block]) => block);
+    const templates = shippedTemplates(path);
     assert.equal(templates.length, 2, `${path} must still ship its two output templates (case A and case B)`);
 
     for (const [index, template] of templates.entries()) {
@@ -189,8 +197,7 @@ for (const { locale, name, path } of CONSUMERS) {
     // Without it the shape applies to nothing: a prep with no `type:` is out of
     // scope by design (Q2), so a template that forgets it disables the guard for
     // every note it produces — silently, and only for the notes that matter.
-    const templates = [...read(path).matchAll(/```markdown\n([\s\S]*?)```/g)].map(([, block]) => block);
-    for (const [index, template] of templates.entries()) {
+    for (const [index, template] of shippedTemplates(path).entries()) {
       assert.match(template, /^---\ntype: prep-1-1\n/, `${path} — template ${index + 1} must declare its type`);
     }
   });

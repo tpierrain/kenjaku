@@ -65,6 +65,12 @@
       back, that there IS a first screen (H5), and that nothing but bullets sits above the fold
       (H6). Every message names its rule **and the distance**, because its reader is the model that
       has to fix the note in one pass.
+  - [x] S4.1 🪟 **It reads a note written on Windows the same way** — and that was a real defect,
+        not a precaution. JavaScript counts `\r` as a line terminator, so splitting on `"\n"` alone
+        left every line ending in one, `/(.*)$/` could not reach past it, and **no bullet matched its
+        own marker**: a perfectly shaped prep refused on one platform, its every bullet named as
+        prose. Found by asserting the two endings give the **same verdict**, never by reasoning; the
+        Windows tripwire is what pointed at the class, on the doc guard next door.
 - [x] **S5 — The check fires at the moment a prep is WRITTEN** _(2026-09-14)_ — asked by
       `guardDecision` in `scripts/lib/vault-write-guard.mjs`, right after the frontmatter verdict
       and never before (the selector reads the frontmatter, so on a note the parser refuses there is

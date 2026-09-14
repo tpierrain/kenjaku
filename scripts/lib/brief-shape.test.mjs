@@ -410,3 +410,25 @@ test("the four refusals say exactly what they say", () => {
       "One bullet is one sentence said aloud; the detail behind it belongs below the first `##`.",
   );
 });
+
+test("🪟 a note written on Windows is judged exactly like the same note written here", () => {
+  // A brain on Windows writes CRLF, and every line of a first screen would then end
+  // in a stray \r: a bullet's length would be one over the truth, a blank line would
+  // not read as blank, and a `##` would still close the screen — three different
+  // wrongs, all of them silent, on one platform. The verdicts must be identical.
+  const cases = [
+    note(bullets(7)), //                       correct, and must stay correct
+    note(bullets(9)), //                       over the cap
+    note([`- ${"x".repeat(221)}`]), //         over the ceiling
+    note(["A preamble.", "", ...bullets(2)]), // a stray
+    [TITLE, "", "## Ammunition"].join("\n"), //  no first screen at all
+  ];
+
+  for (const content of cases) {
+    assert.deepEqual(
+      briefShapeVerdict({ content: content.replace(/\n/g, "\r\n"), type: "prep-1-1" }),
+      briefShapeVerdict({ content, type: "prep-1-1" }),
+      content.slice(0, 60),
+    );
+  }
+});

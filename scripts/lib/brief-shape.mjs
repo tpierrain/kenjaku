@@ -61,7 +61,13 @@ export function isBriefShaped(type) {
  * the first screen there would hide everything after it from the cap.
  */
 export function firstScreenLines(content) {
-  const lines = String(content ?? "").split("\n");
+  // 🪟 SPLIT ON EITHER ENDING, and it is not politeness: a brain on Windows writes
+  // CRLF, and JavaScript counts `\r` as a line terminator, so `.` never matches it.
+  // Split on "\n" alone and every line keeps a trailing `\r` that `/(.*)$/` cannot
+  // reach — so NO bullet matches its own marker, and a perfectly shaped prep is
+  // refused, on one platform, with a message naming each of its bullets as prose.
+  // Found by asserting the two endings give the same verdict, not by reasoning.
+  const lines = String(content ?? "").split(/\r?\n/);
   const screen = [];
   let inFence = false;
 
