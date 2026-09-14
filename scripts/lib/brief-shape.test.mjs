@@ -8,6 +8,7 @@ import {
   briefShapeVerdict,
   firstScreenLines,
   isBriefShaped,
+  readFirstScreen,
 } from "./brief-shape.mjs";
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -235,4 +236,22 @@ test("every violation carries both a rule name and a message, and the rule names
     assert.match(violation.rule, /^[a-z-]+$/);
     assert.ok(violation.message.length > 30, `a message that says nothing: ${violation.message}`);
   }
+});
+
+test("readFirstScreen — a line is a bullet, part of one, or a stray, and never two of those", () => {
+  // The reason bullets and strays come out of ONE walk: asked separately they are two
+  // spellings of "what is a bullet", and the day they disagree a line is both a
+  // violation and something you will say — or is silently neither.
+  const lines = firstScreenLines(
+    note(["A preamble.", "", "- a bullet", "  that wraps", "", "### a sub-heading", "", "1. numbered"]),
+  );
+  const { bullets, strays } = readFirstScreen(lines);
+
+  assert.deepEqual(bullets.map((b) => b.text), ["a bullet that wraps", "numbered"]);
+  assert.deepEqual(strays, [
+    { text: "A preamble.", line: 3 },
+    { text: "### a sub-heading", line: 8 },
+  ]);
+  const accounted = bullets.length + strays.length;
+  assert.equal(accounted, 4, "every non-blank line is accounted for exactly once, wraps aside");
 });

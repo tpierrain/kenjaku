@@ -103,7 +103,18 @@ export function firstScreenLines(content) {
  * formatting habit it merely dislikes.
  */
 export function briefBullets(lines) {
+  return readFirstScreen(lines).bullets;
+}
+
+/**
+ * The first screen, read ONCE: its bullets, and the lines that are not part of any of
+ * them. The two answers come out of the same walk deliberately — asked separately they
+ * are two spellings of "what is a bullet", and the day they disagree a line is both a
+ * violation and a bullet, or neither.
+ */
+export function readFirstScreen(lines) {
   const bullets = [];
+  const strays = [];
   let current = null;
 
   for (const { text, line } of lines) {
@@ -120,10 +131,13 @@ export function briefBullets(lines) {
       bullets.push(current);
       continue;
     }
+    // Markdown's lazy continuation: a wrapped line need not be indented, and refusing
+    // one would block a correct note over a formatting habit.
     if (current) current.text = `${current.text} ${text.trim()}`.trim();
+    else strays.push({ text: text.trim(), line });
   }
 
-  return bullets;
+  return { bullets, strays };
 }
 
 /** `3` → `3 characters`, `1` → `1 character`. A message that says "1 characters" reads as a bug. */
@@ -137,28 +151,17 @@ const characters = (n) => `${n} character${n === 1 ? "" : "s"}`;
 export function briefShapeVerdict({ content, type }) {
   if (!isBriefShaped(type)) return { ok: true, violations: [] };
 
-  const lines = firstScreenLines(content);
-  const bullets = briefBullets(lines);
+  const { bullets, strays } = readFirstScreen(firstScreenLines(content));
   const violations = [];
 
   // 1. Nothing but bullets above the fold. Without this rule the cap is honoured by
   //    seven bullets sitting under a page of context — which IS the arrangement this
   //    whole issue is about, and it would pass every count.
-  let openBullet = false;
-  for (const { text, line } of lines) {
-    if (text.trim() === "") {
-      openBullet = false;
-      continue;
-    }
-    if (/^([-*+]|\d+[.)])\s+/.test(text)) {
-      openBullet = true;
-      continue;
-    }
-    if (openBullet) continue; // a wrapped line, indented or lazy: still that bullet
+  for (const { text, line } of strays) {
     violations.push({
       rule: "not-a-bullet",
       message:
-        `line ${line} above the first \`##\` is not a bullet: "${text.trim()}". The first screen ` +
+        `line ${line} above the first \`##\` is not a bullet: "${text}". The first screen ` +
         `carries bullets and nothing else — no preamble, no sub-heading, no table, no link to go ` +
         `and open. Make it one of the things you will say, or move it below the first \`##\`.`,
     });
