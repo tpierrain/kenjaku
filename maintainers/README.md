@@ -233,13 +233,12 @@
   plan opens with a `## 📍 STATE` block (four keys, ≤ 20 lines) and no hand-written resume header;
   the invariant and its two companion rules are `CONVENTIONS.md` §3ter. Three buckets along a
   **past · present · future** axis:
-  - **root of `plans/` = present** — action plans **mid-flight**:
-    - [`golden-source-sync-action.md`](plans/archived/golden-source-sync-action.md) — **🗺️ action plan** for
-      the **`local-mirror`** MCP (named `golden-source-sync` when this plan was written — a new local MCP
-      that synchronizes declared **local mirrors** into the vault; ADR 0022,
-      PRD [`prd-golden-source-sync.md`](plans/archived/prd-golden-source-sync.md)). Self-contained
-      steps with a Tracking table to drive it session by session (a `/clear` between each). **STATUS:
-      🚧 ACTIVE — not started.**
+  - **root of `plans/` = present** — action plans **mid-flight**. **This list does not carry their
+    status**: `ACTIVE.md` names which one is live, and each plan owns its own `## 📍 STATE`. A status
+    copied here is a status that goes stale unread — it did, for the `local-mirror` plan, which sat
+    here as *"🚧 ACTIVE — not started"* while its own link already pointed into `archived/`.
+    - [`v5.5.1-hotfix-declared-spellings-wikilinks-action.md`](plans/v5.5.1-hotfix-declared-spellings-wikilinks-action.md)
+      — a declared spelling must never rewrite a `[[wikilink]]` target (issue #121).
   - [**`plans/prospective/`**](plans/prospective/) **= future** — not closed, forward-looking: living
     studies/watch, backlogs, and **conditional/parked** tails of otherwise-shipped plans.
   - [**`plans/archived/`**](plans/archived/) **= past** — shipped or closed plans (kept for the step detail).

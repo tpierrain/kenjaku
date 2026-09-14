@@ -12,20 +12,17 @@ only carries what a user of Kenjaku could read and care about (2026-09-12, tried
 
 ## The active plan
 
-**None — and the next one is the owner's pick.** `v5.5.0` shipped on 2026-09-13
-([plan, archived](archived/2026-09-13-v5.5.0-quiet-and-up-to-date-delivered.md)), so nothing here is
-mid-flight. Pick one from the list below, name it here, and work resumes from its own `## 📍 STATE`.
+🔴 [**`v5.5.1-hotfix-declared-spellings-wikilinks-action.md`**](v5.5.1-hotfix-declared-spellings-wikilinks-action.md)
+— hotfix for [#121](https://github.com/tpierrain/kenjaku/issues/121), opened 2026-09-14. **Resume
+there and nowhere else.** Everything below is parked behind it, by the owner's explicit instruction.
 
-## Open, but NOT active
-
-Links only — each one's own `## 📍 STATE` block says whose it is and where it stands.
+## Open, but NOT active — parked until the hotfix ships
 
 - [`prospective/clear-the-tracker-action.md`](prospective/clear-the-tracker-action.md)
 - [`prospective/shipped-ci-workflows-action.md`](prospective/shipped-ci-workflows-action.md)
 - [`prospective/harness-speed-and-test-quality-action.md`](prospective/harness-speed-and-test-quality-action.md)
 - [`../studies/plan-state-single-source-study.md`](../studies/plan-state-single-source-study.md)
-- [`../studies/ambient-ingestion-feasibility-study.md`](../studies/ambient-ingestion-feasibility-study.md)
-  — issue #119 parts B/C, opened 2026-09-14
+- [`../studies/ambient-ingestion-feasibility-study.md`](../studies/ambient-ingestion-feasibility-study.md) — #119 B/C
 
 > **Why this file exists** (Thomas, 2026-08-22): *"un plan, on est censé avoir qu'un seul plan actif à
 > l'instant T… et ça c'est pour que le 'on reprend' fonctionne."* Answering one *"on reprends"* that
