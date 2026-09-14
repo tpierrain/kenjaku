@@ -265,8 +265,17 @@ test("readFirstScreen — a line is a bullet, part of one, or a stray, and never
 test("a fence marker only opens a fence at the START of a line", () => {
   // Otherwise a bullet that merely MENTIONS ``` swallows the rest of the page: the
   // fold stops being detected, and the cap silently stops counting.
-  const content = [TITLE, "", "- say that ``` opens a code block", ...bullets(9), "", "## Ammunition"].join("\n");
+  // The ammunition below is the half that proves it: read as still inside the fence,
+  // its thirty bullets join the count and the note is refused for a page nobody sees.
+  const content = [TITLE, "", "- say that ``` opens a code block", ...bullets(9), "", "## Ammunition", "", ...bullets(30)].join("\n");
   assert.match(reasons(briefShapeVerdict({ content, type: "prep-1-1" })), /holds 10 bullets/);
+});
+
+test("an INDENTED fence is a fence too, so the `##` inside it is not the fold", () => {
+  // A fence under a list item is indented by definition. Miss it and the first screen
+  // ends at a heading that is a code sample, with everything below it unmeasured.
+  const content = [TITLE, "", "  ```markdown", "  ## not a heading", "  ```", "", ...bullets(9), "", "## Ammunition"].join("\n");
+  assert.match(reasons(briefShapeVerdict({ content, type: "prep-1-1" })), /holds 9 bullets/);
 });
 
 test("a `#` INSIDE a bullet is not a heading — headings anchor at column 0", () => {
@@ -331,7 +340,10 @@ test("a bullet that starts empty and continues on the next line is that one line
 });
 
 test("the lines of a fenced block above the fold are strays, each at its own line number", () => {
-  const content = [TITLE, "", "```", "code", "```", "", "- one thing to say", "", "## Ammunition"].join("\n");
+  // And a stray is quoted as it READS, not as it is indented: the message puts the
+  // line between quotation marks, where leading whitespace is noise the reader has to
+  // decide about.
+  const content = [TITLE, "", "```", "   code   ", "```", "", "- one thing to say", "", "## Ammunition"].join("\n");
   const { strays } = readFirstScreen(firstScreenLines(content));
   assert.deepEqual(strays, [
     { text: "```", line: 3 },
