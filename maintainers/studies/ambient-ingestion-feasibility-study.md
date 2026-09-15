@@ -489,6 +489,24 @@ what makes that acceptable.
 3. 💸 **Shipping on means every installer pays the running cost by default** (gate 8, and PM4 below).
    That is no longer an experiment the owner runs on his own quota.
 
+#### C6.a · Two consents, asked in order, and what each *no* leaves running
+
+The owner chose **two questions over one** (O2). They are not the same gesture and must not be bought
+together: one reads his professional life, the other interrupts him.
+
+| | Asked | On *no* |
+|---|---|---|
+| **1 · May I read?** | at first start, before anything is polled | **no ambient ingestion at all.** The brain works exactly as it does today: it answers from the vault, and fetches a source when *asked*. This is a supported way to live, not a crippled mode, and it is said that way |
+| **2 · May I write to you?** | only if 1 was yes | **no Slack DM, ever.** Ingestion still runs, and everything found still reaches him — at his **next conversation**, per the C4.b invariant |
+
+🎯 **The line between the two is INTERRUPTION, not information.** *"Read me but stay quiet"* is a real
+and probably common posture, and it is exactly what two questions buy. A line inside a conversation he
+opened is not an interruption; a Slack DM at 15:00 is. So a *no* to question 2 silences the DM and
+changes nothing about what he learns when he shows up.
+
+**Both answers are revisitable, from one named place**, and the consent text says where. *"You can
+switch it off whenever you want"* is only true if the person can find the switch a month later.
+
 ⚠️ **An upgrade is a different consent moment from a fresh install.** A brain already in the field
 would have this switched on *by an update it did not ask for*. The engine update flow already collects
 consent; this must be part of it, and must not arrive silently.
@@ -567,10 +585,11 @@ Six questions were put; they are answered here **in the order they were asked**,
 - [x] **PM3 — is this the owner's tool, or a feature every brain gets?** ✅ Answered by C6: **every
       brain, shipped ON, gated by a consent question.** Which promotes the wording of that question,
       the product's headline promise, and who pays, to first-order problems.
-  - [ ] **O2 — consent to READ or consent to NOTIFY?** The owner's consent question, as he phrased it,
-        asks about the Slack message: *« je peux te notifier de temps en temps, en t'envoyant un
-        message Slack ? »*. **Reading the sources every 30 minutes is the bigger gesture and is not in
-        it.** One question or two, and what a *no* leaves running. Open.
+  - [x] **O2 — consent to READ or consent to NOTIFY? ✅ TWO questions, in that order** (owner,
+        2026-09-15). His original wording asked only about the Slack message; **reading the sources
+        every 30 minutes is the bigger gesture and was not in it**, and shipping ON would have meant
+        reading without ever having asked. So: *may I read?*, then, only on yes, *may I write to you?*
+        See C6.a for what each answer leaves running.
 - [ ] **PM4 — who pays, and does the person see it?** Not yet put. Overlaps gate 8.
 - [ ] **PM5 — unreviewed pages pile up: then what?** Not yet put.
 - [ ] **PM6 — in two weeks, what single observable says this was worth it?** Not yet put.
