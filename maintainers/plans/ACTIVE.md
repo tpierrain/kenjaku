@@ -18,11 +18,11 @@ a check says so. Opened 2026-09-14 at the owner's ask. **Resume there and nowher
 2026-09-14 "there" is on the branch **`feat/one-page-brief-shape`**: check it out first, `main`'s copy
 of that plan is deliberately behind.
 
-Parts B and C ([#126](https://github.com/tpierrain/kenjaku/issues/126),
-[#127](https://github.com/tpierrain/kenjaku/issues/127), under the
-[#119](https://github.com/tpierrain/kenjaku/issues/119) umbrella) are **not** in it: they
-wait on the open measurements in
-[`../studies/ambient-ingestion-feasibility-study.md`](../studies/ambient-ingestion-feasibility-study.md).
+⚠️ It **does not release on its own** (owner, 2026-09-15): it lands with part B,
+[#126](https://github.com/tpierrain/kenjaku/issues/126) — the background ingestion, which is the bulk
+of the release. Part B has no plan yet; its gates are in
+[`../studies/ambient-ingestion-feasibility-study.md`](../studies/ambient-ingestion-feasibility-study.md),
+which also still gates part C ([#127](https://github.com/tpierrain/kenjaku/issues/127)).
 
 ## Open, but NOT active
 

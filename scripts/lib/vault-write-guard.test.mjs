@@ -353,3 +353,103 @@ test("guardDecision — a call with no path, or no tool input at all, is let thr
     "no toolInput at all",
   );
 });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// #128 S5 — THE SHAPE IS CHECKED AT THE MOMENT A PREP IS WRITTEN, not at a lint
+// somebody remembers to run. A rule that has to be remembered has already failed,
+// and this guard is the seam where a note the engine would refuse is already
+// stopped — so it is the seam where a prep that would have to be triaged in the
+// room is stopped too.
+//
+// The refusal BLOCKS (the owner's call, Q1): the over-long note never exists. The
+// cost is paid by the model, which is told which rule failed and by how much and
+// rewrites shorter in one pass — never by the person minutes away from a meeting.
+// The arithmetic itself is `brief-shape.mjs`, tested next door; what is pinned
+// here is that the guard ASKS it, on the note the call would really produce, and
+// that it still has no opinion on anything else.
+// ═══════════════════════════════════════════════════════════════════════════
+
+const PREP = `${BRAIN}/vault/prep-1-1/2026-09-15-prep-1-1-alex.md`;
+const prepNote = (body, type = "prep-1-1") =>
+  ["---", `type: ${type}`, "created: 2026-09-15", "---", "", "# Prep 1-1 — Alex — 2026-09-15", "", ...body].join("\n");
+const sayable = (n) => Array.from({ length: n }, (_, i) => `- Thing number ${i + 1} to say out loud.`);
+
+test("guardDecision — a prep whose first screen is over the cap is refused, and told by how much", NEEDS_ENGINE_PARSER, () => {
+  const decision = decide("Write", { file_path: PREP, content: prepNote(sayable(9)) });
+
+  assert.equal(decision.allow, false);
+  assert.ok(
+    decision.reason.startsWith("vault/prep-1-1/2026-09-15-prep-1-1-alex.md — the first screen of this prep is not the brief yet."),
+    decision.reason,
+  );
+  assert.match(decision.reason, /holds 9 bullets, 2 over the cap of 7/, "which rule, and the distance to fix it");
+  assert.ok(
+    decision.reason.endsWith(
+      "The note is NOT written: a first screen that does not work alone gets triaged in the room, " +
+        "with the person waiting. Rewrite it to the shape the `brief-shape` skill holds, and write again.",
+    ),
+    decision.reason,
+  );
+});
+
+test("guardDecision — a prep written in the shape goes through, including a deliberately thin one", NEEDS_ENGINE_PARSER, () => {
+  // The second one is Q3's whole answer: two solid things and a line naming what is
+  // missing. A guard that asked for more would be the padding pressure, wired in.
+  const inShape = [prepNote([...sayable(7), "", "## Ammunition — only if they dig", "", ...sayable(30)]),
+    prepNote(["- The one thing the vault supports.", "- 🔴 Not documented: anything about the reorg.", "", "## Ammunition"])];
+
+  for (const content of inShape) {
+    assert.deepEqual(decide("Write", { file_path: PREP, content }), { allow: true }, content);
+  }
+});
+
+test("guardDecision — the shape is asked of preps only, and a prefix decides which (Q2)", NEEDS_ENGINE_PARSER, () => {
+  // A daily with 30 bullets is a daily. Widening this to every note would turn a guard
+  // on one kind of note into a style rule over the whole vault — and get it disabled.
+  for (const type of ["daily", "person", "meeting"]) {
+    const call = { file_path: `${BRAIN}/vault/daily/2026-09-15.md`, content: prepNote(sayable(30), type) };
+    assert.deepEqual(decide("Write", call), { allow: true }, type);
+  }
+  // …and a prep type nobody has invented yet is in scope the day it is first written.
+  assert.equal(decide("Write", { file_path: PREP, content: prepNote(sayable(9), "briefing-day") }).allow, false);
+});
+
+test("guardDecision — an EDIT that pushes the first screen over the cap is refused too", NEEDS_ENGINE_PARSER, () => {
+  // The gesture that actually makes a brief grow: not writing a long one, but adding
+  // "one more thing worth saying" to a note that was correct yesterday.
+  const before = prepNote([...sayable(7), "", "## Ammunition"]);
+  const decision = decide(
+    "Edit",
+    { file_path: PREP, old_string: "## Ammunition", new_string: "- One more thing to say.\n\n## Ammunition" },
+    { [PREP]: before },
+  );
+
+  assert.equal(decision.allow, false);
+  assert.match(decision.reason, /holds 8 bullets, 1 over the cap of 7/);
+});
+
+test("guardDecision — every broken rule is named in ONE refusal, not one per attempt", NEEDS_ENGINE_PARSER, () => {
+  const decision = decide("Write", {
+    file_path: PREP,
+    content: prepNote(["Some context nobody asked for.", "", ...sayable(8), `- ${"x".repeat(240)}`]),
+  });
+
+  assert.equal(decision.allow, false);
+  assert.match(decision.reason, /is not a bullet/);
+  assert.match(decision.reason, /9 bullets, 2 over the cap of 7/);
+  assert.match(decision.reason, /over the ceiling of 220/);
+  // …and they are SEPARATED. Run together, two sentences read as one, and the reader
+  // of this text is a model parsing it in one pass to decide what to change.
+  assert.ok(decision.reason.includes("move it below the first `##`. the first screen holds 9 bullets"), decision.reason);
+});
+
+test("guardDecision — damaged frontmatter is still answered by the parser, not by the shape", NEEDS_ENGINE_PARSER, () => {
+  // Order matters: a note the indexer refuses is invisible for ever, a note in the wrong
+  // shape is merely awkward. And the shape's own selector READS the frontmatter, so it
+  // has nothing to say until the parser can.
+  const decision = decide("Write", { file_path: PREP, content: BROKEN });
+
+  assert.equal(decision.allow, false);
+  assert.match(decision.reason, /the engine's own YAML parser refuses this note's frontmatter/);
+  assert.doesNotMatch(decision.reason, /first screen/);
+});

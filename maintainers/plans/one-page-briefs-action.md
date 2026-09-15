@@ -10,16 +10,23 @@
 
 ## 📍 STATE — the only perishable block in this file · opened 2026-09-14
 
-- **Next:** S3 — write the `brief-shape` skill (both locales) and make `prepare-1-1` defer to it.
-  The design it implements is settled in § *The shape, decided*; do not re-open it.
-- **Blocked on:** nothing. Q2 and Q3 are both answered (prefix rule on `type:`; the cap is an upper
-  bound and a thin brief says so) — see *Questions for the owner* below. Q1 waits until S4.
-- **This part's issue:** [#128](https://github.com/tpierrain/kenjaku/issues/128).
-  [#119](https://github.com/tpierrain/kenjaku/issues/119) is the umbrella;
-  [#126](https://github.com/tpierrain/kenjaku/issues/126) / [#127](https://github.com/tpierrain/kenjaku/issues/127)
-  are parts B and C, untouched by this plan.
-- **A session may, alone:** everything up to and including a green PR. **Not:** merge, tag, publish,
-  or touch parts B/C.
+- **⚠️ THE WORK IS ON A BRANCH, NOT ON `main`:** `feat/one-page-brief-shape`. Check it out before
+  reading anything else — `main`'s copy of this plan is behind on purpose.
+- **⛔ DOES NOT SHIP ALONE — the owner's call, 2026-09-15** _(« le gros de la release … c'est de
+  pouvoir aller fetcher de manière proactive en tâche de fond »)_. This branch **waits for part B**
+  ([#126](https://github.com/tpierrain/kenjaku/issues/126), background ingestion) **and lands with
+  it**. Do not merge it on its own; green ≠ ready to release.
+- **Next: nothing here — the work is part B**, which has **no plan yet** (the study's S6). S1–S6 are
+  done: PR [#129](https://github.com/tpierrain/kenjaku/pull/129) is green on the full matrix and the
+  mutation gate is paid on both files the branch writes. All that is left on THIS plan is the owner
+  reading § *To validate at the owner's return* — eight calls taken alone, each with its reversal cost.
+- **Blocked on:** part B, for the release only. On this plan's own scope, nothing. **All three owner's
+  calls are answered** (2026-09-14): Q1 the cap BLOCKS the write, Q2 the scope is a `type:` prefix,
+  Q3 the cap is an upper bound and a thin brief says so. Read them below before re-raising any.
+- **Issues:** [#128](https://github.com/tpierrain/kenjaku/issues/128) here, under the
+  [#119](https://github.com/tpierrain/kenjaku/issues/119) umbrella; part C is
+  [#127](https://github.com/tpierrain/kenjaku/issues/127).
+- **A session may, alone:** nothing further here. **Not:** merge, tag, publish.
 
 ## Tracking
 
@@ -37,16 +44,46 @@
         220 characters**. Two counts a script makes without judgment, standing in for "5 to 7
         sentences, one screen". **Upper bound only** — the floor of 5 was dropped by Q3, because a
         check that fails a short brief is padding pressure wired in. Rationale below.
-- [ ] **S3 — The brief is produced in that shape**, by `prepare-1-1` and by every prep-shaped
-      artifact: first screen usable alone, ammunition folded underneath and labelled *only if they
-      dig*, every ammunition item carrying its verbatim quote, its date and its source path, and a
-      closing block naming what the vault supports and what it does not.
-- [ ] **S4 — A deterministic check fails when the first screen is over the cap**, test-first: the
-      pure core in `scripts/lib/` (ADR 0009 rung 1, no I/O), red before green.
-- [ ] **S5 — The check fires at the moment a prep is WRITTEN**, not at a lint somebody remembers to
-      run. The seam already exists: `scripts/vault-write-guard.mjs`, wired as a hook in
-      `.claude/settings.json.template`, is where a note the engine would refuse is already stopped.
-- [ ] **S6 — A green PR**, full matrix (it touches `scripts/`, so nothing is path-ignored).
+- [x] **S3 — The brief is produced in that shape** _(2026-09-14)_, by `prepare-1-1` in **both**
+      locales: it names `brief-shape` and obeys it instead of restating it (no number is spelled
+      twice), and its two output templates are re-cut — the spoken bullets between the `#` title and
+      the first `##`, everything else under one `## Ammunition — only if they dig, contest or ask`
+      with its verbatim quotes, dates and source paths, closing on what the vault does **not**
+      support. The templates now emit `type: prep-1-1` frontmatter, without which S4's check would
+      select nothing (H3).
+  - [x] S3.1 The engine's fingerprint table is regenerated, which is what the branch's red CI was
+        about: a staged skill no row can place makes every brain holding it read as edited. Cut for
+        `v5.6.0` (H4).
+  - [x] S3.2 **The tail of a merge-regime skill is left alone** — measured, not guessed. Rewriting
+        its last section conflicted with the QA brain that appends its own KPIs at the end of the
+        file, so the owner got a `.new` sidecar instead of the update. The sentence moved into the
+        body and the last section is byte-identical again. See § *Constraints carried over*.
+- [x] **S4 — A deterministic check fails when the first screen is over the cap** _(2026-09-14)_ —
+      `scripts/lib/brief-shape.mjs`, pure, no I/O, 24 tests red before green. It counts four things
+      and judges no prose: the bullets above the first `##`, their length once wrapping is folded
+      back, that there IS a first screen (H5), and that nothing but bullets sits above the fold
+      (H6). Every message names its rule **and the distance**, because its reader is the model that
+      has to fix the note in one pass.
+  - [x] S4.1 🪟 **It reads a note written on Windows the same way** — and that was a real defect,
+        not a precaution. JavaScript counts `\r` as a line terminator, so splitting on `"\n"` alone
+        left every line ending in one, `/(.*)$/` could not reach past it, and **no bullet matched its
+        own marker**: a perfectly shaped prep refused on one platform, its every bullet named as
+        prose. Found by asserting the two endings give the **same verdict**, never by reasoning; the
+        Windows tripwire is what pointed at the class, on the doc guard next door.
+- [x] **S5 — The check fires at the moment a prep is WRITTEN** _(2026-09-14)_ — asked by
+      `guardDecision` in `scripts/lib/vault-write-guard.mjs`, right after the frontmatter verdict
+      and never before (the selector reads the frontmatter, so on a note the parser refuses there is
+      nothing to select on). The hook wiring needed no change: it already runs on every `Write` and
+      `Edit`. An Edit is judged on the note it **would** produce, so "one more thing worth saying"
+      is refused like a long note written in one go.
+- [x] **S6 — A green PR** _(2026-09-14)_ — [#129](https://github.com/tpierrain/kenjaku/pull/129),
+      green on the full matrix (it touches `scripts/`, so nothing was path-ignored).
+  - [x] S6.1 **The mutation gate, on what the BRANCH wrote** — both production files, from
+        `git diff --name-only origin/main...HEAD` rather than from the last commit, which is the way
+        that gate was mis-paid on v5.5. Five passes, ending at **`brief-shape.mjs` 98.73 %** and the
+        **write guard's changed range 100 %**, two named equivalents left. The full read is in
+        `maintainers/mutation/RESULTS.md`: what the first pass's 71.84 % was actually about, and why
+        one of the two "equivalents" was nothing of the sort until the Windows fix landed.
 
 ## The shape, decided (S2) — S3, S4 and S5 implement this and re-open none of it
 
@@ -96,12 +133,52 @@ shape itself is made countable:
 - **What is NOT counted**: everything below the brief section. Ammunition is unbounded by design — the
   cap exists to protect the first screen, not to shorten the evidence underneath it.
 
+### Where the brief section starts and stops — decided 2026-09-14, while writing S3
+
+The check needs an anchor, and the plan had not named one. **The brief is everything between the
+note's `#` title and its first `##` heading.** Nothing else.
+
+- **It needs no canonical heading name**, so it is the same rule in English and in French. A magic
+  heading would have to be spelled twice and would drift, which is the failure this whole issue is
+  about.
+- **It matches what the owner actually experiences**: the first screen is what you see before the
+  first section break, which is exactly where the eye stops.
+- **It makes the ammunition's home automatic**: every `##` section below is ammunition, unbounded,
+  and the check never looks at it.
+
+## To validate at the owner's return — hypotheses taken alone, never blocked on
+
+**The rule, his call, 2026-09-14** _(« je préfère que tu choisisses une hypothèse de travail et que tu
+me la fasses valider à mon retour … si je ne suis pas d'accord, tu reviendras sur ce point en
+particulier »)_. While he is away, a judgment call is **not** a stopping point. Pick, keep going,
+record here. Stopping spends the whole stretch waiting for an answer that arrives in the morning
+anyway; deciding spends it building, and a wrong guess re-opens **one line**, not a night.
+
+**Every entry carries what reversing it COSTS.** That field is what makes the heuristic safe: a cheap
+call needs no hesitation, and an expensive one is the one to shape until it is cheap. He reads this
+list, not the diff.
+
+| # | Hypothesis taken | What was rejected | Cost to reverse |
+| --- | --- | --- | --- |
+| H1 | The brief section is anchored between the `#` title and the first `##` — no named heading | A canonical heading (`## Brief`), which would have to be spelled once per locale and would drift | **Cheap.** One constant in the check plus one line in each skill; no note already written becomes invalid |
+| H2 | `prepare-1-1`'s two output templates are re-cut so the bullets sit above the first `##`, and the KPI table, weak signals and focus areas move below the fold as ammunition | Leaving the templates as they are and letting the shape apply only to new prep types | **Medium.** It is prose in two skills, so reverting is a revert; but a prep already written in the old shape keeps working, nothing breaks in the field |
+| H3 | The templates emit `type: prep-1-1` frontmatter, so a prep the engine writes is a prep the check can see | Selecting preps by their folder or their filename, which Q2 already rejected | **Cheap.** Four lines of template prose; a prep already written without it is simply out of scope, exactly as it is today |
+| H4 | The fingerprint table is cut for **`v5.6.0`** — a new skill and a new capability read as a minor release | Guessing `v5.5.2`, or leaving the table stale until the release | **Cheap, and it is the documented release step anyway.** Wrong number → re-run `node maintainers/fingerprints/generate-fingerprints.mjs --version <the real tag>` before cutting. Leaving it stale was NOT an option: it is what made this branch's CI red |
+| H5 | A prep must carry **at least one** bullet above the fold. Not a floor on length (Q3 stands): a floor on the first screen EXISTING | Counting only the upper bounds — under which the old output shape (a title, then straight into `## What I want to raise`) passes every rule, and the check is blind to the exact defect it exists for | **Cheap.** One rule and its two tests. Nothing a correct prep can trip on: the thin brief still has its "not documented" bullet |
+| H6 | Above the fold, **bullets and nothing else** — a preamble, a sub-heading or a table is refused | Capping bullets only, which "seven bullets under a page of context" honours to the letter | **Cheap to delete** (one rule, two tests), and it is the rule most likely to refuse something reasonable — so: markdown's lazy continuation is a wrap, not a violation, and the refusal quotes the line it means |
+| H7 | The fold is a `##` heading **exactly**, so a `###` above it is prose and is told so | Treating any heading deeper than the title as the fold, which would silently end the brief at a sub-heading and hide the page underneath from the cap | **Cheap.** One comparison in the check; no note already written changes meaning, since a prep with a `###` first screen is refused either way, only the message differs |
+| H8 | `SETUP.md`'s row for `/prepare-1-1` says what the skill now does: the first screen is the whole brief, and a prep that does not fit is refused | Leaving the row as it was — not wrong, merely silent about the change | **Cheap, and it is YOUR call, not mine.** One sentence in a user-facing doc, i.e. something the product ANNOUNCES. Revert it in one edit if the wording, or the announcing at all, is not what you want |
+
 ## Questions for the owner — raised one at a time, when its step is reached
 
-- [ ] **Q1 (at S4) — does going over the cap BLOCK the write, or warn?** The issue's wording is
-      *"a deterministic check fails"*, which reads as blocking. Blocking is also the only version that
-      cannot be ignored. Against it: a prep is written mid-conversation, and a refused write costs a
-      retry at the worst moment.
+- [x] **Q1 (at S4) — does going over the cap BLOCK the write, or warn?** **Answered by the owner,
+      2026-09-14: it BLOCKS.** The over-long note never exists; the cost of the refusal is paid by the
+      brain, which is told why and rewrites shorter, not by the owner, who only ever sees the correct
+      result. Chosen over warning (a warning is read once and then ignored, and in six months the preps
+      are long again — today's situation) and over a per-note escape hatch (an escape becomes the
+      habit, and it would have to be written and tested).
+      **What this binds for S4/S5**: the guard exits non-zero and its message must say **which** rule
+      failed and **by how much**, because its reader is the model that has to fix it in one pass.
 - [x] **Q2 (at S3) — which notes count as prep-shaped?** **Answered by the owner, 2026-09-14: a
       PREFIX rule on frontmatter `type:` — every `prep-*` and every `briefing-*`.** So `prep-1-1`
       (the one that exists in the field today) is covered, and a prep type invented later is covered
@@ -139,9 +216,22 @@ shape itself is made countable:
   it costs the most, and the prep skill already defers to it rather than restating it.
 - **A rule that has to be remembered has already failed** — hence S4/S5. The shape without the check
   is exactly today's situation.
+- **The LAST section of a skill an owner may customize is not free to rewrite** _(measured at S3,
+  2026-09-14)_. Owners append at the end of a file; an engine change to those same last lines has no
+  trailing context to merge against, so the three-way merge conflicts and the update arrives as a
+  `.new` sidecar the owner has to arbitrate. The QA brain built from the real v3.6.0 tag says so out
+  loud, and it is the promise the release makes: *your edits survive AND the update lands*. So a
+  change belongs in the body, and the tail stays byte-identical.
 
 ## 📜 History
 
+- **2026-09-15** — *Ships first* no longer means *ships alone*. The owner, reading the green PR:
+  *« le gros de la release, c'est pas ça … c'est de pouvoir aller fetcher de manière proactive en
+  tâche de fond »*. Part A's independence was a **build** order, never a **release** order, and this
+  plan had let the two blur — its STATE read *next: nothing but the owner's reading*, which invites a
+  merge. So the branch waits for part B and lands with it, and the STATE says so first.
+- **2026-09-14** — The autonomous stretch (evening → night) was bounded by *stop at a green PR*, and
+  it stopped there. Merging, tagging and publishing were never in it.
 - **2026-09-14** — Part A ships first and alone, because it depends on none of the ambient-ingestion
   gates. Already the study's conclusion, re-confirmed in conversation when the owner asked to restart
   on #119.
