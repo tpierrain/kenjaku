@@ -322,6 +322,61 @@ contracts, 2026-09-15)_:
   read the label back: it must still be `UNREAD`. Cheap, and it is the kind of claim that must not be
   believed on documentation alone.
 
+### C4 · What comes OUT — the half the study had never designed _(2026-09-15)_
+
+Everything above designs the intake. **Nothing designed the output**, and the owner's answer is what
+turns this from a pipe into a product. Two channels, one invariant, and a style rule that outranks
+both.
+
+#### C4.a · The push channel — a Slack DM, consented, batched, and visibly switchable off
+
+- **Consent is asked up front**, in the brain's own words: *« je peux te notifier de temps en temps,
+  en t'envoyant un message Slack ? »*. Not a setting buried in a file: a question, once, that the
+  person answers.
+- **Slack DM is the channel.** ⚠️ It is the deliberate hole in a read-only product, already named
+  under part C ([#127](https://github.com/tpierrain/kenjaku/issues/127)): the allowlist is what keeps
+  it the size of **one message to oneself**, and it must be opened explicitly or not at all.
+- **Batched, not streamed.** Everything worth knowing is merged and delivered at **regular slots**,
+  the owner's example being twice a day, mid-morning and mid-afternoon. A pass that finds something at
+  09:12 does not send at 09:13; it waits for the slot. **This is what makes a 30-minute clock
+  compatible with a person's attention**: the intake cadence and the interruption cadence are two
+  different numbers, and conflating them is how ambient systems become spam.
+- **Switchable off, and the person is TOLD so at the moment of consent** — *« pour que l'utilisateur
+  comprenne bien que si ça le dérange ou ça le gêne, ce mécanisme est débrayable »*. The off switch
+  existing is not enough; its existence is part of the offer.
+
+#### C4.b · The interactive channel — the invariant, and the one open question
+
+**The invariant, and it is not negotiable** _(owner, 2026-09-15)_: *« au moment où j'ai la prochaine
+interaction, s'il a découvert quelque chose, il faut que je puisse en prendre connaissance »*. Whatever
+the brain found, the **next** conversation surfaces it. Nothing waits for the person to think of
+asking.
+
+**What is still open, and the owner asked to iterate on it rather than settle it**: *where* in the
+exchange it lands — before answering the question, or after it, in the same breath. Recorded as
+[open question O1](#o1--where-the-surfacing-lands-in-an-exchange) below rather than decided here.
+
+#### C4.c · The style rule — telegraphic, and it outranks completeness
+
+Stated harder than anything else in the conversation (*« il faut absolument, absolument, absolument
+éviter… »*), so it is recorded as a **constraint, not a preference**:
+
+- **Write as if briefing an exec who has four seconds.** Ultra-synthetic. The mental model the owner
+  gave: *« un assistant ou une assistante qui essaie de me préserver, préserver ma charge mentale et
+  cognitive »*.
+- **Every item declares two things: `ACTION` or `INFO`, and why it is structuring.** A notification
+  that says what happened without saying what it changes is a line of noise.
+- **Walls of text are the failure mode, explicitly.** *« il faut absolument éviter que mes interactions
+  avec le second cerveau consistent à lire beaucoup de textes. Ça, c'est ce qui devient pénible. »*
+  Volume is not thoroughness here; it is the thing that makes the product unusable.
+
+> 🔗 **This is the same doctrine as part A, arriving from the other end.** #128 made a prep's first
+> screen the whole brief and wired a check that **refuses** an over-long one. C4.c asks for exactly
+> that of every ambient message. **The two are one product principle**: what the brain hands a human
+> is capped, and the cap is enforced rather than recommended. It is worth its own ADR (and it
+> sharpens [ADR 0043](../decisions/0043-graduated-autonomy-and-plain-language.md)'s plain-language
+> half, which governs *register* but says nothing about *length*).
+
 ### What these calls do NOT answer
 
 **Mail scope is still open** (gate 6). C3 settles *how* mail is read; it says nothing about **which**
@@ -379,6 +434,43 @@ mail is in, and what must never be filed. That remains the owner's call and the 
 - [ ] **Gate 9 — prove, by running it, that reading a mail leaves it UNREAD.** _(new, from C3.)_ Read
       one unread message through the connector, then read its labels back. The contracts say it cannot
       mark it read and the allowlist says it cannot be asked to; neither is a measurement.
+
+## Open product questions — the PM pass of 2026-09-15
+
+The owner asked for a product interrogation before any implementation: *« c'est quand même
+suffisamment structurant pour qu'on fasse une pause quelques minutes avant de partir sur l'implem »*.
+Six questions were put; they are answered here **in the order they were asked**, one at a time.
+
+- [x] **PM1 — when it finds something and nobody is in front, what does it do?** ✅ Answered by C4:
+      both channels, with a threshold. The push is a consented, batched, switchable Slack DM; the
+      interactive surfacing is an invariant.
+- [ ] **PM2 — who decides what deserves to interrupt, and which way should it be wrong?** Not yet put.
+- [ ] **PM3 — is this the owner's tool, or a feature every brain gets?** Not yet put. Flagged as the
+      most structuring of the six: half the others change answer depending on it.
+- [ ] **PM4 — who pays, and does the person see it?** Not yet put. Overlaps gate 8.
+- [ ] **PM5 — unreviewed pages pile up: then what?** Not yet put.
+- [ ] **PM6 — in two weeks, what single observable says this was worth it?** Not yet put.
+
+### O1 — where the surfacing lands in an exchange
+
+**Deliberately left open by the owner**, who asked to iterate on it: *« j'avoue que je veux bien qu'on
+itère un peu en mode sparring partner sur qu'est-ce qu'il y a de mieux à faire »*. The invariant
+(C4.b) is settled; only the placement is not.
+
+The two shapes he named: **before** the answer (*"je me dois de te dire que…"*, then answer), or
+**answer first, then** *"il s'est aussi passé ci et ça"*.
+
+**The proposal on the table, awaiting his call** — placement decided by **relevance first, urgency
+second**, because a notification that changes the answer is not a notification at all:
+
+1. **It changes the answer to the question just asked** → it goes **inside** the answer, neither
+   before nor after. It is context, and answering without it would be answering wrong.
+2. **It needs action from him and it is time-sensitive** → **one line before** the answer. Answering
+   first means he reasons on a stale picture for the length of the reply.
+3. **Everything else** → **one line after**, or nothing at all if it can wait for the next batched
+   slot. The batch exists precisely so the interactive channel does not have to carry everything.
+
+Plus a hard ceiling in every case, per C4.c: a fixed maximum of lines, **enforced**, not advised.
 
 ## The rejected strategies, recorded so they are not re-proposed
 
