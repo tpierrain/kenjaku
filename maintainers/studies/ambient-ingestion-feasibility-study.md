@@ -468,6 +468,31 @@ your role in it, the people who matter, the recurring topics"* (the `switch` ski
 - ⚠️ **A brain whose profile is empty must not fall back to guessing.** It says it has no VIP list and
   that ⚡ is therefore quiet, which is the honest form of C5.a.
 
+### C6 · It ships ON, gated by a consent question _(2026-09-15, PM3)_
+
+*« On le livre allumé, avec la question de consentement au démarrage. »* Not the owner's private tool,
+not an off-by-default option nobody would find. **Every brain gets it**, and the consent question is
+what makes that acceptable.
+
+**Three things follow, and none of them is optional:**
+
+1. 🗣️ **The consent question IS the product decision now.** Shipping on means the only thing standing
+   between a fresh install and a brain reading its owner's mail is one question, so that question's
+   wording carries the whole weight. It must say **what is read**, **how often**, **what it costs**,
+   and **that it is switchable off** — in the plain register of
+   [ADR 0043](../decisions/0043-graduated-autonomy-and-plain-language.md), not in the machinery's words.
+2. 📣 **The product's headline promise gains a sentence, and that is a conversation with the owner, not
+   a silent edit.** *"Everything on your machine, nothing leaves"* stays true of the **vault**; it was
+   never a claim about the brain reaching **out** to read. But a reader hears it as one. README,
+   SETUP and the installer's own framing must say what the brain now does on its own — the
+   marketing-surface re-read the repo's conventions already require at every release.
+3. 💸 **Shipping on means every installer pays the running cost by default** (gate 8, and PM4 below).
+   That is no longer an experiment the owner runs on his own quota.
+
+⚠️ **An upgrade is a different consent moment from a fresh install.** A brain already in the field
+would have this switched on *by an update it did not ask for*. The engine update flow already collects
+consent; this must be part of it, and must not arrive silently.
+
 ### What these calls do NOT answer
 
 **Mail scope is still open** (gate 6). C3 settles *how* mail is read; it says nothing about **which**
@@ -539,8 +564,13 @@ Six questions were put; they are answered here **in the order they were asked**,
       by C5: precision over recall, without discarding (doubt demotes a level). The ⚡ rules are
       relational and deterministic, tone only re-ranks, and the VIP list is **declared** in the
       universe profile that already exists.
-- [ ] **PM3 — is this the owner's tool, or a feature every brain gets?** Not yet put. Flagged as the
-      most structuring of the six: half the others change answer depending on it.
+- [x] **PM3 — is this the owner's tool, or a feature every brain gets?** ✅ Answered by C6: **every
+      brain, shipped ON, gated by a consent question.** Which promotes the wording of that question,
+      the product's headline promise, and who pays, to first-order problems.
+  - [ ] **O2 — consent to READ or consent to NOTIFY?** The owner's consent question, as he phrased it,
+        asks about the Slack message: *« je peux te notifier de temps en temps, en t'envoyant un
+        message Slack ? »*. **Reading the sources every 30 minutes is the bigger gesture and is not in
+        it.** One question or two, and what a *no* leaves running. Open.
 - [ ] **PM4 — who pays, and does the person see it?** Not yet put. Overlaps gate 8.
 - [ ] **PM5 — unreviewed pages pile up: then what?** Not yet put.
 - [ ] **PM6 — in two weeks, what single observable says this was worth it?** Not yet put.
