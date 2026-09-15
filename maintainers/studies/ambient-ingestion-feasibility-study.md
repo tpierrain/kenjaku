@@ -211,31 +211,59 @@ touches that. So these are not options:
 
 Read on the green part-A PR, and they change the shape of part B rather than its strategy.
 
-### C1 · The cadence is **5 minutes by default, and configurable** — not twice a day
+### C1 · The cadence is **30 minutes by default, and configurable** — not twice a day
 
 *« deux fois par jour … je pense que c'est pas assez. Je pense que toutes les cinq minutes. »*
+Then, an hour later, on hearing what the clock costs: *« les 5 minutes, t'as raison, ça va peut-être
+être trop gourmand, on peut partir sur 30 minutes par défaut »*. **The default is 30 minutes** (48
+probes a day). Five stays a legitimate setting for someone who wants it and has measured it.
 
 Twice a day was never measured, it was inherited from August's digest framing. The owner wants
-**freshness**, not a bulletin: something said in a mail at 09:12 should be known by 09:17.
+**freshness**, not a bulletin: something said in a mail at 09:12 should be known within the half hour,
+not at the evening bulletin.
 
-**What this forces, and it is a design change, not a number change.** Every look at a source costs a
-`claude -p` run, because the connectors are reachable **only** through Claude (that is the measured
-fact this whole study rests on). At 5 minutes that is **288 runs a day**, against 2. A single-speed
-clock therefore does not survive its own cadence. **The shape becomes two-speed:**
+#### ⚠️ The correction that produced the 30 — two different costs were conflated, and this study is why
+
+The owner, same message: *« j'avais aussi compris que l'aspiration ne coûtait pas trop cher en
+token »*. **He understood that correctly, from this file.** § *The measured fact* says the August cost
+driver *"dissolves"* — and it meant the **BUILD** cost: no OAuth app, no secret, no token store, no
+refresh path. It said, and measured, **nothing at all about the RUNNING cost**, and nothing here
+flagged that the sentence had a boundary. So the reassurance travelled from one cost to the other
+without anyone deciding it should.
+
+**Recorded as a lesson, not a footnote**: *the cost driver dissolves* is only ever true of the cost it
+was measured against. Gate 8 exists because of this paragraph.
+
+**What the cadence forces, and it is a design change rather than a number change.** Every look at a
+source costs a `claude -p` run, because the connectors are reachable **only** through Claude (the
+measured fact this whole study rests on). At 30 minutes that is **48 runs a day**, against 2 — and at
+the 5 minutes first asked for, 288. A single-speed clock does not survive either figure. **The shape
+becomes two-speed:**
 
 | | Cadence | What it does | What it costs |
 |---|---|---|---|
-| **The probe** | every 5 min (configurable) | asks each source *"anything new since the watermark?"* and returns **counts, never content** — `is:unread` / unread counts / a `historyId` | one tiny run, a handful of tool calls, no sub-agents, no drafting |
+| **The probe** | every 30 min (configurable) | asks each source *"anything new since the watermark?"* and returns **counts, never content** — `is:unread` / unread counts / a `historyId` | one tiny run, a handful of tool calls, no sub-agents, no drafting |
 | **The pass** | only when the probe says yes | the full fan-out already designed: sub-agents per source, capture, dedup, file, consolidate | proportional to what actually happened, not to the clock |
 
 - **The probe holds no judgment either** — it compares a count to a watermark. The *decision* to spawn
   stays in the deterministic gatekeeper ([ADR 0009](../decisions/0009-prefer-deterministic-mechanisms.md)).
 - **Configurable means a setting with a default, in the brain's config**, not a constant to edit. A
   quiet mailbox should be pollable at 5 minutes; a noisy one may want 15.
-- **The cost is a GATE, not an assumption** (new gate 8 below). A quiet day is 288 probes and near-zero
-  passes; a busy one is 288 probes plus dozens of passes. That has to be measured on the owner's real
-  sources before the default is defended, and it is the one thing that could push the default off 5
-  minutes.
+- **The cost is a GATE, not an assumption** (gate 8 below). A quiet day is 48 probes and near-zero
+  passes; a busy one is 48 probes plus dozens of passes. It must be measured on the owner's real
+  sources before any default is defended.
+- 🎯 **Three levers matter MORE than the interval, and they are what gate 8 must measure against.** A
+  probe's dominant cost is not what it writes, it is what it **loads**: the system prompt plus the
+  **tool schemas**, paid in full on every run. So —
+  1. **A closed, minimal allowlist is a cost lever, not only a safety one.** Loading the whole
+     connector surface on every probe pays for tools it will never call. The design already demands
+     a closed list for safety ([§ The shape](#the-shape), point 3); it turns out to be the same
+     decision twice.
+  2. **The probe may run on a small model.** It holds no judgment by construction — it compares a
+     count to a watermark. Reserving the capable model for the **pass** is a large saving on the leg
+     that runs 48 times a day and decides nothing.
+  3. **Prompt caching.** A probe's prompt and tool set are byte-identical run to run, which is the
+     exact case caching was built for.
 - ⚠️ **It also promotes two gates from "nice to measure" to BLOCKING**: `busy_timeout` (gate 4) and the
   indexing-latency question (gate 5). Writing twice a day never contends; writing every few minutes,
   while the owner is typing a question, is the exact case both were written for.
@@ -341,10 +369,13 @@ mail is in, and what must never be filed. That remains the owner's call and the 
       the page is written**, carrying a not-yet-reviewed status, and the question of which page types
       may be written unattended is settled **on observed use**, not on paper. The token cost of work
       that may never be read is folded into gate 8.
-- [ ] **Gate 8 — what does the 5-minute cadence actually cost?** _(new, from C1.)_ 288 probes a day
-      plus one pass per real delta, on the owner's real sources. Measure a quiet day and a busy one
-      before the default is defended. It is the one finding that could move the default off 5 minutes,
-      and the owner has hit quota ceilings before.
+- [ ] **Gate 8 — what does a probe actually cost, and therefore what cadence is affordable?** _(new,
+      from C1.)_ **Measure ONE probe first** — its input tokens are the whole question, since the
+      schemas and system prompt are paid on every run — then multiply by the cadence rather than
+      arguing about the cadence. Measure it **with the three levers applied** (minimal allowlist,
+      small model, caching), because measuring a fat probe would condemn a design nobody proposed.
+      Then a quiet day and a busy one on the owner's real sources. ⚠️ The owner has hit quota ceilings
+      before, and **this cost is paid by whoever installs the brain**, not by the project.
 - [ ] **Gate 9 — prove, by running it, that reading a mail leaves it UNREAD.** _(new, from C3.)_ Read
       one unread message through the connector, then read its labels back. The contracts say it cannot
       mark it read and the allowlist says it cannot be asked to; neither is a measurement.
