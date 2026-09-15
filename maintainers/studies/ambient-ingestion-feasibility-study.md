@@ -412,6 +412,62 @@ mean the mark is absent from the one place it is read most.
 > sharpens [ADR 0043](../decisions/0043-graduated-autonomy-and-plain-language.md)'s plain-language
 > half, which governs *register* but says nothing about *length*).
 
+### C5 · What earns an interruption — and the error it is allowed to make _(2026-09-15, PM2)_
+
+#### C5.a · Silence in doubt, and doubt DEMOTES rather than discards
+
+*« Il n'y a rien de pire que les faux positifs. Là, les gens, ils vont jeter leur second cerveau à la
+poubelle s'il y a ça. »* The asymmetry is settled and it is not close: **precision over recall on the
+interrupting channel.**
+
+**But "silence" must not mean "dropped", or the fear of noise costs the feature its whole recall.**
+Three output levels, and uncertainty moves an item **down one**, never off the list:
+
+| | Level | Where it lands | What it takes |
+|---|---|---|---|
+| 1 | 📡 ⚡ **ACTION** | interrupts: before the answer, or the batched DM | a rule below **fires cleanly** |
+| 2 | 📡 ℹ️ **INFO** | one line after the answer, or the batch | worth knowing, not worth interrupting — **and this is where every doubt lands** |
+| 3 | silent | filed in the vault, findable, said nothing | everything else |
+
+Nothing is lost at level 3 either: it is in the vault and answers a question the day it is asked.
+
+#### C5.b · What actually earns a ⚡ — and the shape hiding in the owner's four examples
+
+His examples, verbatim: a **production problem** (an outage); **important people** (comex, his boss)
+*« qui semble s'agacer sur un sujet ou qui relance »*; **complaints or tension from the most important
+client**; and people *« qui nous relancent personnellement sur un sujet sur lequel on a un peu de
+retard pour leur répondre »*.
+
+🎯 **Three of the four are defined by WHO and by REPETITION, not by what the text says.** That is the
+design finding, and it is what buys the precision C5.a demands:
+
+- **The strongest signals are relational and DETERMINISTIC.** *"This person wrote a second time on the
+  same thread"* and *"they asked you something four days ago and you have not replied"* are **facts**,
+  computable from his own mailbox, needing no judgment about tone. The fourth example is the purest
+  form: what makes it urgent is not the message, it is **the pair — someone asked, and he went
+  silent.** The brain can see both halves.
+- **Tone is a booster, never a trigger.** *"Seems annoyed"* is exactly where false positives are
+  manufactured. It may raise an item that a deterministic rule already flagged; it may never raise one
+  on its own.
+- **So the rule set, in precision order**: (1) a declared VIP writes; (2) a thread is re-raised, or a
+  question to him has gone N days unanswered; (3) a declared key account expresses a complaint; (4) a
+  system alert on a declared production channel. Tone only re-ranks within those.
+
+#### C5.c · Who counts as important is DECLARED — and the product already has the drawer
+
+A VIP list cannot be inferred without guessing, and guessing here is the false-positive engine. It has
+to be stated. **And it already has a home**: a universe's **profile** records *"what this sphere is,
+your role in it, the people who matter, the recurring topics"* (the `switch` skill,
+[ADR 0034](../decisions/0034-progressive-disclosure-of-universes.md)).
+
+- **No new configuration surface is invented.** The boss, the comex, the key account and the
+  production channel are *people and places that matter in this sphere*, which is what that profile is
+  for.
+- **It is per universe, and that is correct rather than incidental**: a VIP at one employer is nobody
+  at the next, and the profile already switches with the sphere.
+- ⚠️ **A brain whose profile is empty must not fall back to guessing.** It says it has no VIP list and
+  that ⚡ is therefore quiet, which is the honest form of C5.a.
+
 ### What these calls do NOT answer
 
 **Mail scope is still open** (gate 6). C3 settles *how* mail is read; it says nothing about **which**
@@ -479,7 +535,10 @@ Six questions were put; they are answered here **in the order they were asked**,
 - [x] **PM1 — when it finds something and nobody is in front, what does it do?** ✅ Answered by C4:
       both channels, with a threshold. The push is a consented, batched, switchable Slack DM; the
       interactive surfacing is an invariant.
-- [ ] **PM2 — who decides what deserves to interrupt, and which way should it be wrong?** Not yet put.
+- [x] **PM2 — who decides what deserves to interrupt, and which way should it be wrong?** ✅ Answered
+      by C5: precision over recall, without discarding (doubt demotes a level). The ⚡ rules are
+      relational and deterministic, tone only re-ranks, and the VIP list is **declared** in the
+      universe profile that already exists.
 - [ ] **PM3 — is this the owner's tool, or a feature every brain gets?** Not yet put. Flagged as the
       most structuring of the six: half the others change answer depending on it.
 - [ ] **PM4 — who pays, and does the person see it?** Not yet put. Overlaps gate 8.
