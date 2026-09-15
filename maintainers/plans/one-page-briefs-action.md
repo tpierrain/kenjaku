@@ -12,25 +12,21 @@
 
 - **⚠️ THE WORK IS ON A BRANCH, NOT ON `main`:** `feat/one-page-brief-shape`. Check it out before
   reading anything else — `main`'s copy of this plan is behind on purpose.
-- **⛔ PART A DOES NOT SHIP ALONE — the owner's call, 2026-09-15.** *« le gros de la release, c'est
-  de pouvoir aller fetcher de manière proactive en tâche de fond »*. So this branch **waits for part B
-  ([#126](https://github.com/tpierrain/kenjaku/issues/126), background ingestion) and lands with it**.
-  The PR stays open and green; **do not merge it on its own**, and do not read "green" as "ready to
-  release". What is left here is the owner's reading of the eight calls, nothing more.
-- **Next: the work moved to part B.** S1 to S6 are done: **PR
-  [#129](https://github.com/tpierrain/kenjaku/pull/129) is open and green on the full matrix**, and
-  the mutation gate is paid on both files the branch writes. Start at § *To validate at the owner's
-  return* — **eight** calls taken alone, each with what reversing it costs.
-- **Blocked on:** part B's delivery, for the release only. On this plan's own scope, nothing, and no
-  question is left. **All three owner's calls are answered**
-  (2026-09-14): Q1 the cap BLOCKS the write, Q2 the scope is a `type:` prefix, Q3 the cap is an upper
-  bound and a thin brief says so. Read them below before re-raising any of them.
-- **Issues:** this part is [#128](https://github.com/tpierrain/kenjaku/issues/128), under the
-  [#119](https://github.com/tpierrain/kenjaku/issues/119) umbrella. Part B is
-  [#126](https://github.com/tpierrain/kenjaku/issues/126), part C
-  [#127](https://github.com/tpierrain/kenjaku/issues/127); **B has no plan yet** (it is the study's S6).
-- **A session may, alone:** nothing further on this plan — it is done bar the reading. **Not:** merge,
-  tag, publish.
+- **⛔ DOES NOT SHIP ALONE — the owner's call, 2026-09-15** _(« le gros de la release … c'est de
+  pouvoir aller fetcher de manière proactive en tâche de fond »)_. This branch **waits for part B**
+  ([#126](https://github.com/tpierrain/kenjaku/issues/126), background ingestion) **and lands with
+  it**. Do not merge it on its own; green ≠ ready to release.
+- **Next: nothing here — the work is part B**, which has **no plan yet** (the study's S6). S1–S6 are
+  done: PR [#129](https://github.com/tpierrain/kenjaku/pull/129) is green on the full matrix and the
+  mutation gate is paid on both files the branch writes. All that is left on THIS plan is the owner
+  reading § *To validate at the owner's return* — eight calls taken alone, each with its reversal cost.
+- **Blocked on:** part B, for the release only. On this plan's own scope, nothing. **All three owner's
+  calls are answered** (2026-09-14): Q1 the cap BLOCKS the write, Q2 the scope is a `type:` prefix,
+  Q3 the cap is an upper bound and a thin brief says so. Read them below before re-raising any.
+- **Issues:** [#128](https://github.com/tpierrain/kenjaku/issues/128) here, under the
+  [#119](https://github.com/tpierrain/kenjaku/issues/119) umbrella; part C is
+  [#127](https://github.com/tpierrain/kenjaku/issues/127).
+- **A session may, alone:** nothing further here. **Not:** merge, tag, publish.
 
 ## Tracking
 
