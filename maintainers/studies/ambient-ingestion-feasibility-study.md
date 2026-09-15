@@ -370,6 +370,41 @@ Stated harder than anything else in the conversation (*« il faut absolument, ab
   avec le second cerveau consistent à lire beaucoup de textes. Ça, c'est ce qui devient pénible. »*
   Volume is not thoroughness here; it is the thing that makes the product unusable.
 
+#### C4.d · The marker — two slots, and it must be an EMOJI before it is ever an SVG
+
+The owner, 2026-09-15: a recognisable *breaking news* mark on every ambient message so the eye learns
+to spot them, **then a second mark qualifying it** action or info. *« créer un SVG spécial … pour
+qu'on puisse prendre l'habitude de détecter, distinguer ces informations-là. »*
+
+**Two slots, always in this order**: `<the brain caught something> <what it is> · <the line>`.
+
+| Slot | Meaning | Retained |
+|---|---|---|
+| 1 | *this did not come from your question — the brain went and found it* | **📡** |
+| 2 | what it asks of you | **⚡ ACTION** / **ℹ️ INFO** |
+
+- **Chosen against what the product already uses**, measured rather than guessed (`engine-skills/`,
+  `templates/`, `CLAUDE.engine.md`): 📡 and ⚡ appear **zero** times, ℹ️ once. **🚨 was rejected
+  despite fitting the words**: it already appears **20 times** in the shipped surface, so it marks
+  something else, and a marker that collides marks nothing. It is also alarmist, which the product's
+  tone rule forbids.
+- 📡 over 🔔 or 📣: a bell is every notification ever shipped, and a megaphone shouts. An antenna says
+  *picked up*, which is exactly what happened and carries no alarm.
+
+⚠️ **On the SVG, and this is the part that has to be said plainly: an SVG cannot render where he will
+mostly read these.** The primary surface is a **chat** (Claude Code in a terminal, or Claude Desktop):
+it is text, so an emoji is the only mark that exists there at all. Of the three surfaces —
+
+| Surface | Emoji | A custom SVG |
+|---|---|---|
+| The conversation (terminal / Desktop) | ✅ works today | ❌ impossible, it is text |
+| The batched Slack DM | ✅ works today | ⚠️ possible **only** as a workspace custom emoji: an upload, often admin-gated, and per workspace |
+| A note in the vault (Obsidian, Typora) | ✅ works today | ✅ embeddable |
+
+**So the emoji pair IS the marker, and it ships as such.** A custom SVG stays a legitimate later
+nicety for Slack and for any future visual surface — never a prerequisite, because gating on it would
+mean the mark is absent from the one place it is read most.
+
 > 🔗 **This is the same doctrine as part A, arriving from the other end.** #128 made a prep's first
 > screen the whole brief and wired a check that **refuses** an over-long one. C4.c asks for exactly
 > that of every ambient message. **The two are one product principle**: what the brain hands a human
@@ -451,17 +486,12 @@ Six questions were put; they are answered here **in the order they were asked**,
 - [ ] **PM5 — unreviewed pages pile up: then what?** Not yet put.
 - [ ] **PM6 — in two weeks, what single observable says this was worth it?** Not yet put.
 
-### O1 — where the surfacing lands in an exchange
+### O1 — where the surfacing lands in an exchange · ✅ CLOSED 2026-09-15
 
-**Deliberately left open by the owner**, who asked to iterate on it: *« j'avoue que je veux bien qu'on
-itère un peu en mode sparring partner sur qu'est-ce qu'il y a de mieux à faire »*. The invariant
-(C4.b) is settled; only the placement is not.
-
-The two shapes he named: **before** the answer (*"je me dois de te dire que…"*, then answer), or
-**answer first, then** *"il s'est aussi passé ci et ça"*.
-
-**The proposal on the table, awaiting his call** — placement decided by **relevance first, urgency
-second**, because a notification that changes the answer is not a notification at all:
+The owner asked to iterate on this rather than settle it (*« en mode sparring partner »*), framing it
+as **before** the answer or **after** it. The counter-proposal was that the frequent case is neither:
+what was found often **changes the answer**, and is then context rather than notification.
+**Accepted by the owner, 2026-09-15** — placement is decided by **relevance first, urgency second**:
 
 1. **It changes the answer to the question just asked** → it goes **inside** the answer, neither
    before nor after. It is context, and answering without it would be answering wrong.
@@ -470,7 +500,11 @@ second**, because a notification that changes the answer is not a notification a
 3. **Everything else** → **one line after**, or nothing at all if it can wait for the next batched
    slot. The batch exists precisely so the interactive channel does not have to carry everything.
 
-Plus a hard ceiling in every case, per C4.c: a fixed maximum of lines, **enforced**, not advised.
+Plus a hard ceiling in every case, per C4.c: **at most 3 lines before the answer and 3 after**, one
+item per line. Beyond that it does not grow, it **spills**: *"and 4 more, say « quoi de neuf »"*.
+Announced as an intent and not vetoed. **The ceiling is counted by a check, never recommended in
+prose** — the same reason #128's brief cap is a script and not a sentence: a written *"be concise"*
+holds for a while and then stops, silently.
 
 ## The rejected strategies, recorded so they are not re-proposed
 
