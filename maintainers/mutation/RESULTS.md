@@ -1,5 +1,12 @@
 # Mutation testing — audit results (StrykerJS)
 
+> 📒 `plan-carrier-guard: delegates-only` — **this file owns MEASUREMENTS, never status.** Each
+> section is a score taken on a date and is frozen the moment it is written; no row here says where
+> work resumes, what is next, or whether a branch may merge. That state lives in the plan the section
+> names. So a session that changes a plan's status and not this file is correct, and the guard is told
+> so here rather than blocking every hand-back of a branch it has already measured.
+> ⚠️ **Delete this line the day a section starts carrying live state of its own.**
+
 > **Dev-only.** This whole folder lives under `maintainers/` and is **excluded from the
 > brain copy** (`scripts/lib/tracked-files.mjs` → `DEV_ONLY_PREFIXES` has `maintainers/`),
 > so neither the tooling nor these results are ever deployed into a generated brain.
