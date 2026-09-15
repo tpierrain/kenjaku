@@ -16,11 +16,11 @@ only carries what a user of Kenjaku could read and care about (2026-09-12, tried
 [#128](https://github.com/tpierrain/kenjaku/issues/128): a prep's first screen is the whole brief, and
 a check says so. Opened 2026-09-14 at the owner's ask. **Resume there and nowhere else.**
 
-Parts B and C ([#126](https://github.com/tpierrain/kenjaku/issues/126),
-[#127](https://github.com/tpierrain/kenjaku/issues/127), under the
-[#119](https://github.com/tpierrain/kenjaku/issues/119) umbrella) are **not** in it: they
-wait on the open measurements in
-[`../studies/ambient-ingestion-feasibility-study.md`](../studies/ambient-ingestion-feasibility-study.md).
+⚠️ It **does not release on its own** (owner, 2026-09-15): it lands with part B,
+[#126](https://github.com/tpierrain/kenjaku/issues/126) — the background ingestion, which is the bulk
+of the release. Part B has no plan yet; its gates are in
+[`../studies/ambient-ingestion-feasibility-study.md`](../studies/ambient-ingestion-feasibility-study.md),
+which also still gates part C ([#127](https://github.com/tpierrain/kenjaku/issues/127)).
 
 ## Open, but NOT active
 

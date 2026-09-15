@@ -238,8 +238,11 @@ touches that. So these are not options:
 
 ## What this changes for the #119 umbrella
 
-- **Part A (one-page briefs, #128) is independent** of all of this and ships first, on its own. It left
+- **Part A (one-page briefs, #128) is independent** of all of this and was **built** first. It left
   this study on 2026-09-14 and is now [`../plans/one-page-briefs-action.md`](../plans/one-page-briefs-action.md).
+  **It does not RELEASE on its own** (owner, 2026-09-15): part B is the bulk of the release, and A's
+  green PR waits for it. *Independent to build* and *shippable alone* are not the same sentence, and
+  this study said only the first.
 - **Part B (#126) is feasible without new secrets**, which was not known when the issue was written. Its
   *"Decided: launchd"* line becomes *"strategy 1, pending the gates"*.
 - **Part C (#127)'s outbound DM is a deliberate hole in a read-only product.** The measured fact shows the
