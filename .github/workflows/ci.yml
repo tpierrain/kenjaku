@@ -91,6 +91,29 @@ jobs:
       - name: Harness tests
         run: node --test --test-timeout=240000 "scripts/*.test.mjs" "scripts/lib/*.test.mjs" "rag/*.test.mjs"
 
+  # A release may not ship a known vulnerability it could fix (#132): v5.5.1 shipped 12,
+  # all fixable by `npm audit fix`, because nothing here ever ran `npm audit`. No `if:`
+  # on purpose — every push and every PR is judged, and a test pins that it stays so.
+  # `npm audit` reads the lockfile only, so there is nothing to install. 5 minutes
+  # against a green run of well under one.
+  dependency-audit:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Audit gate tests
+        run: node --test --test-timeout=60000 "maintainers/dependency-audit/*.test.mjs"
+
+      - name: No fixable finding at moderate or above
+        run: node maintainers/dependency-audit/audit-gate.mjs rag local-mirror
+
   test:
     name: Node ${{ matrix.node }} · ${{ matrix.os }}
     if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'

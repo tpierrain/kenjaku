@@ -241,6 +241,24 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## #132 — the gate that would have stopped v5.5.1's 12 findings — 2026-09-26
+
+`maintainers/dependency-audit/audit-gate.mjs`, a new file, measured the day it was written (whole
+file, Stryker `command` runner over `maintainers/dependency-audit/*.test.mjs`, disposable sandbox).
+
+| Pass | Score | Survived | What changed |
+|---|---|---|---|
+| 1 | 70.93 % | 25 | — |
+| 2 | 89.02 % | 9 | the npm call reached by a real, dependency-free package dir; null findings; a finding with no fix info; the Windows-only spawn branch **deleted** rather than tested (the gate never runs there) |
+| 3 | ≥ 90 % (one real survivor killed by hand, below) | 8 | "unreadable wins over blocking" in both orders; the MAJOR-bump warning pinned |
+
+- **The one real hole** pass 2 found: an unreadable report *before* a blocking one let the exit code
+  fall to 1. `if (exit === 0) exit = 1` → `if (true) exit = 1` was applied by hand and the new test
+  went red, then back.
+- **Left alive, on purpose**: `encoding: "utf8"` → `""` twice (equivalent: `JSON.parse` coerces the
+  Buffer), `process.argv[1] ?? …` (argv[1] is always set), and five log lines of prose — asserted on
+  by policy only where their absence is the defect (the package name and the major-bump warning).
+
 ## #128 — the first screen of a prep, and the guard that refuses one — 2026-09-14
 
 Gate 1 of the `feat/one-page-brief-shape` branch, on **what the branch wrote**, taken from
