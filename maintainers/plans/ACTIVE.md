@@ -12,11 +12,9 @@ only carries what a user of Kenjaku could read and care about (2026-09-12, tried
 
 ## The active plan
 
-🔴 [**`v5.5.2-bugfix-release-action.md`**](v5.5.2-bugfix-release-action.md) — the bugfix release.
-Opened 2026-09-26 at the owner's ask, worked on branch `fix/v5.5.2-bugfixes` (read the plan **there**). **Resume there and nowhere else.** Order fixed by him:
-[#132](https://github.com/tpierrain/kenjaku/issues/132) (the shipped vulnerabilities), then
-[#131](https://github.com/tpierrain/kenjaku/issues/131) (`/sync` reports a fiction), then the nightly
-mutation run, last.
+**None** _(2026-09-26)_. The last one shipped as v5.5.2, archived at
+[`archived/2026-09-26-v5.5.2-bugfix-release-action.md`](archived/2026-09-26-v5.5.2-bugfix-release-action.md).
+What resumes next is the owner's call: the paused work below.
 
 ## ⏸️ Paused behind it — do not resume without the owner _(2026-09-26)_
 

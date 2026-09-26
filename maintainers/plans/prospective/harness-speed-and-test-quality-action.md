@@ -365,7 +365,7 @@ pain got loud enough** into a **standing hygiene with a trigger**.
 
 ### S4 — the `scripts` nightly, back as a rotation _(filed 2026-09-26, owner's call: "note B comme chantier futur")_
 
-Out of the nightly since v5.5.2 (plan `../v5.5.2-bugfix-release-action.md` § S3.2, option A): 13 306
+Out of the nightly since v5.5.2 (plan `../archived/2026-09-26-v5.5.2-bugfix-release-action.md` § S3.2, option A): 13 306
 mutants, each judged by the whole ~30 s harness suite, is ~90 h against GitHub's 6 h ceiling, and it had
 not finished since at least 2026-08-18. What would bring it back, building on S1's narrowed judges:
 
