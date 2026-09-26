@@ -12,20 +12,21 @@ only carries what a user of Kenjaku could read and care about (2026-09-12, tried
 
 ## The active plan
 
-⏸️ **PAUSED 2026-09-26 at the owner's ask** — a bugfix release comes first
-([#131](https://github.com/tpierrain/kenjaku/issues/131),
-[#132](https://github.com/tpierrain/kenjaku/issues/132)). Nothing below is abandoned; nothing below is
-being worked either.
+🔴 [**`v5.5.2-bugfix-release-action.md`**](v5.5.2-bugfix-release-action.md) — the bugfix release.
+Opened 2026-09-26 at the owner's ask. **Resume there and nowhere else.** Order fixed by him:
+[#132](https://github.com/tpierrain/kenjaku/issues/132) (the shipped vulnerabilities), then
+[#131](https://github.com/tpierrain/kenjaku/issues/131) (`/sync` reports a fiction), then the nightly
+mutation run, last.
 
-🔴 [**`one-page-briefs-action.md`**](one-page-briefs-action.md) —
-[#128](https://github.com/tpierrain/kenjaku/issues/128): a prep's first screen is the whole brief, and
-a check says so. Opened 2026-09-14 at the owner's ask. **Resume there and nowhere else.**
+## ⏸️ Paused behind it — do not resume without the owner _(2026-09-26)_
 
-⚠️ It **does not release on its own** (owner, 2026-09-15): it lands with part B,
-[#126](https://github.com/tpierrain/kenjaku/issues/126) — the background ingestion, which is the bulk
-of the release. Part B has no plan yet; its gates are in
-[`../studies/ambient-ingestion-feasibility-study.md`](../studies/ambient-ingestion-feasibility-study.md),
-which also still gates part C ([#127](https://github.com/tpierrain/kenjaku/issues/127)).
+- [`../studies/ambient-ingestion-feasibility-study.md`](../studies/ambient-ingestion-feasibility-study.md)
+  — #119 parts B/C ([#126](https://github.com/tpierrain/kenjaku/issues/126) /
+  [#127](https://github.com/tpierrain/kenjaku/issues/127)). Product pass finished, no code written.
+- [`one-page-briefs-action.md`](one-page-briefs-action.md)
+  ([#128](https://github.com/tpierrain/kenjaku/issues/128)) — green on
+  [PR #129](https://github.com/tpierrain/kenjaku/pull/129), but it **does not release on its own**
+  (owner, 2026-09-15): it lands with the ambient ingestion.
 
 ## Open, but NOT active
 
@@ -33,7 +34,6 @@ which also still gates part C ([#127](https://github.com/tpierrain/kenjaku/issue
 - [`prospective/shipped-ci-workflows-action.md`](prospective/shipped-ci-workflows-action.md)
 - [`prospective/harness-speed-and-test-quality-action.md`](prospective/harness-speed-and-test-quality-action.md)
 - [`../studies/plan-state-single-source-study.md`](../studies/plan-state-single-source-study.md)
-- [`../studies/ambient-ingestion-feasibility-study.md`](../studies/ambient-ingestion-feasibility-study.md) — #119 B/C
 
 > **Why this file exists** (Thomas, 2026-08-22): *"un plan, on est censé avoir qu'un seul plan actif à
 > l'instant T… et ça c'est pour que le 'on reprend' fonctionne."* Answering one *"on reprends"* that
