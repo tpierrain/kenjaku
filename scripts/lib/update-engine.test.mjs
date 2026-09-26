@@ -3476,3 +3476,26 @@ test("formatReport — several unreadable files are counted and listed, plural a
     /could not read 2 engine files to tell you where they stand \(\.claude\/settings\.json, CLAUDE\.md\)/,
   );
 });
+
+// #130: one engine script can be wired on TWO events (conversation-reads runs on
+// SessionStart and PostToolUse). reconcileHooks names it once, but in the field the
+// reconcile is run by the OLD engine already in the brain — whose reconcile names it
+// once per event — while this report is formatted by the new one. Seen on the
+// rehearsal of 2026-09-26: "new runtime hooks wired: conversation-reads,
+// conversation-reads". So the report dedupes too, whatever produced the list.
+test("formatReport + countNewCapabilities — a hook listed twice by an older reconcile is ONE capability", () => {
+  const report = {
+    ref: "v9.9.9",
+    engineVersion: { rag: "1.0.0" },
+    copied: 1,
+    regenerated: 0,
+    hooksAdded: ["scripts/conversation-reads.mjs", "scripts/session-health.mjs", "scripts/conversation-reads.mjs"],
+  };
+  assert.equal(countNewCapabilities(report), 2);
+  const lines = formatReport(report).split("\n");
+  assert.deepEqual(
+    lines.filter((l) => l.includes("runtime hook")),
+    ["   • new runtime hooks wired: conversation-reads, session-health"],
+  );
+  assert.ok(lines.some((l) => l.includes("ACTION NEEDED — 2 new capabilities")));
+});
