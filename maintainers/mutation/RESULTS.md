@@ -250,7 +250,24 @@ dedupe hunk of `update-engine.mjs` (pass 2), via `mutate-one.mjs` (write guard 2
 | Pass | Total | `lib/conversation-reads.mjs` | `conversation-reads.mjs` | hunks | Survived |
 |---|---|---|---|---|---|
 | 1 | 93.17 % | 93.85 % | 81.08 % | 100 % | 11 |
-| 2 | **95.33 %** | **100 %** | 84.85 % | **100 %** | 5 |
+| 2 | 95.33 % | 100 % | 84.85 % | 100 % | 5 |
+| 3 | 86.99 % | 89.15 % | 78.67 % | 50–100 % | 35 |
+| 4 | **95.26 %** | **98.39 %** | 86.57 % | **98.18–100 %** | 12 |
+
+Passes 3–4 measure the **redesign after the code review** (`9d74246`, then `04d4d5a`): the record
+became one append-only file per conversation holding the universes of the notes actually returned,
+and the hunk list grew (`hooks-reconcile.mjs` dedupe, `rename-universe.mjs` wiring). Passes 1–2 are
+superseded by it. Pass 3's 35 survivors: real holes (a citation only at a line start, the frontmatter
+must open the note, `universe:acme` is not a YAML key — a behaviour fix —, non-text response parts,
+an unknown conversation once another created the record dir, append-only-when-new, the rename's
+real wiring) pinned by tests; redundant guards (`?? ""` before `String()`, a null filter before
+`universeOfNote`, an `existsSync` inside a `try`, two defaults repeating `runSwitchCli`'s) **deleted**.
+Pass 4's 12 left alive, all equivalent: `"utf8"` → `""` on six reads (a Buffer every consumer
+stringifies alike), `{ force: true }` on a prune of files just listed, a `catch` returning
+`undefined` to `universeOfNote(String(…))`, `() => undefined` as the reads default (the reminder's
+own `= null` absorbs it), `[ \t]+` → `[ \t]` (the value is trimmed), and the `[]` fallback of
+`responseTexts` (a fake text matches no citation). Log: `reports/mutate-one-conversation-reads+10.log`
+(pass 4).
 
 Pass 1's survivors: a `null` entry in the record that no test fed (three `?.`, killed by one test),
 and two id-guards already guaranteed downstream, **deleted** rather than tested. Left alive, all
