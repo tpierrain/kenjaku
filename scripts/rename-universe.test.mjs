@@ -18,7 +18,7 @@ const CLI = join(dirname(fileURLToPath(import.meta.url)), "rename-universe.mjs")
 // every path changed.
 
 function deps(overrides = {}) {
-  const calls = { logged: [], errored: [], moved: [], written: [], spawned: [] };
+  const calls = { logged: [], errored: [], moved: [], written: [], spawned: [], readsRenamed: [] };
   const files = new Map(Object.entries(overrides.files ?? {}));
   const base = {
     cwd: () => "/brain",
@@ -30,6 +30,7 @@ function deps(overrides = {}) {
     },
     listNotes: (dir) => files.get(`__notes__${dir}`) ?? [],
     renameSync: (from, to) => calls.moved.push({ from, to }),
+    renameConversationReads: (root, from, to) => calls.readsRenamed.push({ root, from, to }),
     spawnSync: (...args) => (calls.spawned.push(args), { status: 0 }),
     platform: "darwin",
     log: (m) => calls.logged.push(m),
@@ -117,6 +118,25 @@ test("runRenameUniverse moves the folder and renames the registry entry", () => 
   assert.deepEqual(JSON.parse(files.get("/brain/.vault-rag/universes.json")), {
     universes: ["acme-corp", "blue"],
   });
+});
+
+test("runRenameUniverse renames the universe in what open conversations have read (#130)", () => {
+  // Otherwise the next /switch names a universe that no longer exists, and reports the
+  // renamed one as out of scope when it is the very destination.
+  const { args, calls } = deps({
+    files: { "/brain/.vault-rag/universes.json": '{"universes":["acme","blue"]}' },
+  });
+  assert.equal(runRenameUniverse(["acme", "Acme Corp"], args), 0);
+  assert.deepEqual(calls.readsRenamed, [{ root: "/brain", from: "acme", to: "acme-corp" }]);
+});
+
+test("runRenameUniverse leaves the conversations' reads alone when it refuses, or only describes", () => {
+  const { args, calls } = deps({
+    files: { "/brain/.vault-rag/universes.json": '{"universes":["acme","blue"]}' },
+  });
+  runRenameUniverse(["acme", "blue"], args);
+  runRenameUniverse(["--preflight", "acme", "zeta"], args);
+  assert.deepEqual(calls.readsRenamed, []);
 });
 
 test("runRenameUniverse re-stamps every note under the moved folder", () => {

@@ -27,6 +27,7 @@ import { restampUniverse } from "./lib/stamp-universe.mjs";
 import { needsShell } from "./lib/spawn-shell.mjs";
 import { runAsEntrypoint } from "./lib/entrypoint.mjs";
 import { listFilesRelPosix } from "./lib/fs-walk.mjs";
+import { renameConversationReads } from "./conversation-reads.mjs";
 
 // What each refusal from the pure core says out loud, in one place, so no session
 // has to invent it.
@@ -101,6 +102,9 @@ export function runRenameUniverse(argv, deps) {
 
   writeRegistry(deps.io, dir, plan.registry);
   if (plan.movePointer) writeActiveUniverse(deps.io, dir, plan.to);
+  // What open conversations have read (#130) follows the name too, or the next
+  // /switch names a universe that no longer exists.
+  deps.renameConversationReads(root, plan.from, plan.to);
 
   // Every path under the universe changed, so the index treats each note as new:
   // this re-embeds the whole universe. That is the cost D4 accepted knowingly.
@@ -140,6 +144,15 @@ export function realRenameDeps() {
     listNotes: (dir) =>
       existsSync(dir) ? listFilesRelPosix(dir).filter((f) => f.endsWith(".md")) : [],
     renameSync,
+    // A per-machine convenience record: failing to rewrite it must never fail a
+    // rename that already happened on disk.
+    renameConversationReads: (root, from, to) => {
+      try {
+        renameConversationReads(root, from, to);
+      } catch {
+        // The worst it costs is one /switch naming the old slug.
+      }
+    },
     spawnSync,
     platform: process.platform,
     log: (...a) => console.log(...a),

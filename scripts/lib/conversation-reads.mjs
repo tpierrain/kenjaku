@@ -1,88 +1,116 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// conversation-reads.mjs — what THIS conversation read, per session id (issue #130).
+// conversation-reads.mjs — which universes THIS conversation read notes from, per
+// session id (issue #130).
 //
 // `/switch` used to tell a brand-new conversation "I still have everything I read in
 // 'acme'" because the core knew only which universe was active before — often left
 // there by an EARLIER session — and nothing about the conversation. This module is
-// the missing record: the `conversation-reads.mjs` PostToolUse hook adds the universe
-// a vault read ran in, and the switch CLI reads it back to say only what is true.
+// the missing record: the `conversation-reads.mjs` hook adds the universe of every
+// note a vault tool RETURNED, and the switch CLI reads it back to say only what is true.
 //
-// Pure: the hook and the CLI own every byte of I/O. The record is keyed by the
-// session id the harness hands every hook (and exports to Bash as
-// CLAUDE_CODE_SESSION_ID), which is also what makes it reset on `/clear`.
+// Why the notes and not the pointer: the pointer says where the server meant to look;
+// the notes say what reached the window. An answer with no citation (no results, a
+// stale-index gate) read nothing, an all-universes search read exactly the universes
+// it returned, and a get_document read the universe of the note it opened.
+//
+// The record is one append-only file per conversation (one universe per line), so
+// two hooks running at once can never erase each other: the worst they do is write
+// the same line twice, which parseReads collapses.
+//
+// Pure: the hook and the CLI own every byte of I/O. The key is the session id the
+// harness hands every hook (and exports to Bash as CLAUDE_CODE_SESSION_ID), which is
+// also what makes the record reset on `/clear`.
 // ─────────────────────────────────────────────────────────────────────────────
-import { ALL_UNIVERSES_READ } from "./universes.mjs";
+import { DEFAULT_UNIVERSE } from "./universes.mjs";
 
-/** How many conversations the file remembers. A switch only ever asks about its own. */
+/** How many conversations are remembered. A switch only ever asks about its own. */
 export const MAX_SESSIONS = 50;
 
 // The SessionStart sources that open an EMPTY window. `resume` and `compact` carry a
 // window whose earlier reads this record may never have seen.
 const FRESH_WINDOW_SOURCES = new Set(["startup", "clear"]);
 
-/**
- * The universe a vault read landed in: the one active when it ran (the server scopes
- * every search to it, ADR 0034), or every universe for an explicit all-universes search.
- */
-export function universeOfRead({ toolInput, active }) {
-  return toolInput?.allUniverses === true ? ALL_UNIVERSES_READ : active;
+// A session id is used as a file name: only the shape the harness actually hands out
+// (a UUID) and nothing that could climb out of the record's directory.
+const SAFE_SESSION_ID = /^[A-Za-z0-9_-]{1,128}$/;
+
+// One citation line of formatSearchCitations (rag/src/lib/citation-renderer.ts), at
+// the start of a line: "**Path:** `vault/<path>` | **Type:** …".
+const CITATION_PATH = /^\*\*Path:\*\* `vault\/([^`]+)` \|/gm;
+
+// A leading YAML frontmatter block, CRLF-tolerant (cf. stamp-universe.mjs).
+const FRONTMATTER = /^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/;
+const UNIVERSE_KEY = /^universe:[ \t]*(.*?)[ \t]*\r?$/m;
+
+/** The file name for a session's record, or null when the id is unusable as one. */
+export function sessionFileName(sessionId) {
+  return typeof sessionId === "string" && SAFE_SESSION_ID.test(sessionId) ? sessionId : null;
 }
 
-function sessionsOf(state) {
-  const sessions = state?.sessions;
-  return sessions && typeof sessions === "object" && !Array.isArray(sessions) ? sessions : null;
+/** Whether a SessionStart source begins with an empty window (startup, /clear). */
+export function opensFreshWindow(source) {
+  return FRESH_WINDOW_SOURCES.has(source);
 }
 
-function universesOf(entry) {
-  return Array.isArray(entry?.universes) ? entry.universes : [];
-}
-
-function withSession(sessions, sessionId, entry) {
-  const kept = Object.entries({ ...sessions, [sessionId]: entry })
-    .sort(([, a], [, b]) => (b?.at ?? 0) - (a?.at ?? 0))
-    .slice(0, MAX_SESSIONS);
-  return { sessions: Object.fromEntries(kept) };
-}
-
-/**
- * The record with an EMPTY entry for a conversation that has just begun with an empty
- * window (startup, /clear). This entry is what makes the conversation KNOWN: the record
- * can only vouch for a silence it saw from the first instant. Any other source, or no
- * session id, returns the state as it was (the caller writes nothing). A corrupt record
- * is started afresh. Keeps the MAX_SESSIONS most recent. Does not mutate its input.
- */
-export function startSession(state, { sessionId, source, now }) {
-  if (!sessionId || !FRESH_WINDOW_SOURCES.has(source)) return state;
-  return withSession(sessionsOf(state) ?? {}, sessionId, { universes: [], at: now });
+// The text of a tool response, whichever shape it arrives in: the MCP content array
+// (what PostToolUse hands over), that array wrapped in `{ content }`, or a string.
+function responseText(toolResponse) {
+  if (typeof toolResponse === "string") return toolResponse;
+  const content = Array.isArray(toolResponse) ? toolResponse : toolResponse?.content;
+  if (!Array.isArray(content)) return "";
+  return content.map((c) => (typeof c?.text === "string" ? c.text : "")).join("\n");
 }
 
 /**
- * The record with `universe` added to this conversation's reads — only if the record
- * saw it begin. A conversation it never saw (started before the recorder was wired, or
- * resumed after its entry was pruned) stays unknown: a partial list would name some
- * spheres and hide others. Does not mutate its input.
+ * The vault-relative paths of the notes a vault tool put in the window: every
+ * citation of a search_vault answer, or the one note a get_document opened. Anything
+ * else — another tool, an answer without a citation — read no note.
  */
-export function recordRead(state, { sessionId, universe, now }) {
-  const sessions = sessionsOf(state);
-  if (!sessionId || !sessions || !(sessionId in sessions)) return state;
-  const known = universesOf(sessions[sessionId]);
-  return withSession(sessions, sessionId, { universes: [...new Set([...known, universe])], at: now });
+export function citedNotePaths({ toolName, toolInput, toolResponse }) {
+  const name = String(toolName ?? "");
+  if (name.endsWith("get_document")) {
+    const path = toolInput?.path;
+    return typeof path === "string" && path ? [path] : [];
+  }
+  if (name.endsWith("search_vault")) {
+    return [...responseText(toolResponse).matchAll(CITATION_PATH)].map((m) => m[1]);
+  }
+  return [];
 }
 
-/** This conversation's universes, or null when the record never saw it begin. */
-export function readsFor(state, sessionId) {
-  const sessions = sessionsOf(state);
-  if (!sessions || !(sessionId in sessions)) return null;
-  return universesOf(sessions[sessionId]);
+/** A note's universe: its frontmatter `universe:`, or the cross-cutting default. */
+export function universeOfNote(raw) {
+  const block = String(raw ?? "").match(FRONTMATTER);
+  const declared = block?.[1].match(UNIVERSE_KEY)?.[1].replace(/^(["'])(.*)\1$/, "$2").trim();
+  return declared || DEFAULT_UNIVERSE;
 }
 
-/**
- * What the switch may rely on: this conversation's reads when they are KNOWN, otherwise
- * null — which makes the residue reminder fall back to a conditional sentence rather
- * than guess.
- */
-export function conversationReads({ sessionId, state }) {
-  // No id-guard of its own: startSession never opens an entry without an id, so an
-  // absent or empty one is simply never found — and that is null.
-  return readsFor(state, sessionId);
+/** The named universes (never the default, which no switch puts out of scope), once each. */
+export function namedUniverses(universes) {
+  return [...new Set(universes)].filter((u) => u !== DEFAULT_UNIVERSE);
+}
+
+/** The universes in a record file's text: one per line, blanks and repeats collapsed. */
+export function parseReads(text) {
+  return [...new Set(String(text).split(/\r?\n/).map((l) => l.trim()).filter(Boolean))];
+}
+
+/** What to append to a record so it holds `universes`: only the missing ones, a line each. */
+export function linesToAppend(knownText, universes) {
+  const known = new Set(parseReads(knownText));
+  return [...new Set(universes)].filter((u) => !known.has(u)).map((u) => `${u}\n`).join("");
+}
+
+/** A record's text with universe `from` renamed `to` (rename-universe.mjs). */
+export function renameInReads(text, from, to) {
+  const renamed = parseReads(text).map((u) => (u === from ? to : u));
+  return [...new Set(renamed)].map((u) => `${u}\n`).join("");
+}
+
+/** The record files to delete so only the `keep` most recent conversations remain. */
+export function sessionsToPrune(entries, keep = MAX_SESSIONS) {
+  return [...entries]
+    .sort((a, b) => b.mtimeMs - a.mtimeMs)
+    .slice(keep)
+    .map((e) => e.name);
 }

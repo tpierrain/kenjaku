@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 // ─────────────────────────────────────────────────────────────────────────────
 // conversation-reads.mjs — the hook that RECORDS which universes a conversation read
-// in (issue #130). Two events, one record:
-//   • SessionStart (startup, /clear) — opens an EMPTY entry for the conversation. That
-//     entry is what makes it known: the record only vouches for a window it saw begin.
-//   • PostToolUse(search_vault|get_document) — adds the universe the read ran in.
+// notes from (issue #130). Two events, one record per conversation:
+//   • SessionStart (startup, /clear) — creates an EMPTY record for the conversation.
+//     That record is what makes it known: it only vouches for a window it saw begin.
+//   • PostToolUse(mcp__vault-rag__search_vault|get_document) — appends the universe of
+//     every note the tool returned (its own frontmatter), once each.
 //
 // `/switch` reads it back (set-active-universe.mjs) so its residue disclosure says
 // only what is true: nothing to a conversation that read nothing, and every universe
@@ -12,68 +13,113 @@
 // lib/conversation-reads.mjs (pure); this file is only the contract with the harness.
 //
 // It NEVER speaks and never blocks: no stdout, always exit 0. It runs after every
-// vault read, so anything unexpected (unreadable stdin, no session id, a corrupt
-// record, a read-only disk) leaves the read exactly as it was, in silence — and the
+// vault read, so anything unexpected (unreadable stdin, no session id, a missing
+// note, a read-only disk) leaves the read exactly as it was, in silence — and the
 // worst a lost record costs is that one switch says nothing it should have said
 // about a read the hook missed.
 // ─────────────────────────────────────────────────────────────────────────────
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { appendFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { dirname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { runAsEntrypoint } from "./lib/entrypoint.mjs";
-import { recordRead, startSession, universeOfRead } from "./lib/conversation-reads.mjs";
-import { readActiveUniverse, vaultRagDir } from "./lib/universes.mjs";
+import {
+  citedNotePaths,
+  linesToAppend,
+  namedUniverses,
+  opensFreshWindow,
+  parseReads,
+  renameInReads,
+  sessionFileName,
+  sessionsToPrune,
+  universeOfNote,
+} from "./lib/conversation-reads.mjs";
+import { isMultiverse, readRegistry, vaultRagDir } from "./lib/universes.mjs";
 
 // Per-machine, gitignored, throwaway: what a conversation read is a property of that
 // conversation, never of the brain, so it must not travel with it.
-export const CONVERSATION_READS_REL = join(".cache", "conversation-reads.json");
+export const CONVERSATION_READS_DIR_REL = join(".cache", "conversation-reads");
 
-const fsIo = { existsSync, readFileSync: (path) => readFileSync(path, "utf8") };
+const readsDir = (brainDir) => join(brainDir, CONVERSATION_READS_DIR_REL);
 
-/** Reads the record, or null when it is absent or corrupt (started afresh then). */
-export function readConversationReads(brainDir) {
+function recordPath(brainDir, sessionId) {
+  const name = sessionFileName(sessionId);
+  return name ? join(readsDir(brainDir), name) : null;
+}
+
+/** This conversation's universes, or null when the record never saw it begin. */
+export function readConversationReads(brainDir, sessionId) {
   try {
-    const path = join(brainDir, CONVERSATION_READS_REL);
-    return existsSync(path) ? JSON.parse(readFileSync(path, "utf8")) : null;
+    const path = recordPath(brainDir, sessionId);
+    return path && existsSync(path) ? parseReads(readFileSync(path, "utf8")) : null;
   } catch {
     return null;
   }
 }
 
+/** Renames a universe in every local record (rename-universe.mjs). */
+export function renameConversationReads(brainDir, from, to) {
+  const dir = readsDir(brainDir);
+  if (!existsSync(dir)) return;
+  for (const name of readdirSync(dir)) {
+    const path = join(dir, name);
+    writeFileSync(path, renameInReads(readFileSync(path, "utf8"), from, to));
+  }
+}
+
+const fsIo = { existsSync, readFileSync: (path) => readFileSync(path, "utf8") };
+
 export const realReadsDeps = {
   readInput: () => readFileSync(0, "utf8"),
   // From THIS module's location (one level up from scripts/), never the hook's cwd.
   brainDir: () => resolve(dirname(fileURLToPath(import.meta.url)), ".."),
-  // Through the VALIDATED reader: a ghost pointer resolves to where the server really
-  // searched.
-  active: (brainDir) => readActiveUniverse(fsIo, vaultRagDir(brainDir)),
-  readState: readConversationReads,
-  writeState: (brainDir, state) => {
-    const path = join(brainDir, CONVERSATION_READS_REL);
-    mkdirSync(dirname(path), { recursive: true });
-    writeFileSync(path, JSON.stringify(state, null, 2) + "\n");
+  isMultiverse: (brainDir) => isMultiverse(readRegistry(fsIo, vaultRagDir(brainDir))),
+  // A note by its vault-relative path, or null — never a file outside vault/, the
+  // same fence get_document keeps.
+  readNote: (brainDir, rel) => {
+    const vault = resolve(brainDir, "vault");
+    const path = resolve(vault, rel);
+    if (!path.startsWith(vault + sep)) return null;
+    try {
+      return readFileSync(path, "utf8");
+    } catch {
+      return null;
+    }
   },
-  now: () => Date.now(),
+  startRecord: (brainDir, path) => {
+    const dir = readsDir(brainDir);
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(path, "");
+    const entries = readdirSync(dir).map((name) => ({ name, mtimeMs: statSync(join(dir, name)).mtimeMs }));
+    for (const name of sessionsToPrune(entries)) rmSync(join(dir, name), { force: true });
+  },
+  readRecord: (path) => (existsSync(path) ? readFileSync(path, "utf8") : null),
+  // O_APPEND: two hooks appending at once cannot tear or erase each other's lines.
+  appendRecord: (path, text) => appendFileSync(path, text),
 };
 
 export function runRecorder(deps = realReadsDeps) {
   try {
-    // No id-guard here: startSession and recordRead both return the state unchanged
-    // without one, and an unchanged state is never written.
     const input = JSON.parse(deps.readInput());
     const brainDir = deps.brainDir();
-    const state = deps.readState(brainDir);
-    const next =
-      input.hook_event_name === "SessionStart"
-        ? startSession(state, { sessionId: input.session_id, source: input.source, now: deps.now() })
-        : recordRead(state, {
-            sessionId: input.session_id,
-            universe: universeOfRead({ toolInput: input.tool_input, active: deps.active(brainDir) }),
-            now: deps.now(),
-          });
-    // Unchanged means there is nothing this conversation may be vouched for: no write.
-    if (next !== state) deps.writeState(brainDir, next);
+    const path = recordPath(brainDir, input.session_id);
+    if (!path) return 0;
+    if (input.hook_event_name === "SessionStart") {
+      if (opensFreshWindow(input.source)) deps.startRecord(brainDir, path);
+      return 0;
+    }
+    // A conversation the record never saw begin stays unknown: a partial list would
+    // name some spheres and hide others.
+    const known = deps.readRecord(path);
+    if (known === null || !deps.isMultiverse(brainDir)) return 0;
+    const universes = namedUniverses(
+      citedNotePaths({ toolName: input.tool_name, toolInput: input.tool_input, toolResponse: input.tool_response })
+        .map((rel) => deps.readNote(brainDir, rel))
+        .filter((raw) => raw !== null)
+        .map(universeOfNote),
+    );
+    const text = linesToAppend(known, universes);
+    if (text) deps.appendRecord(path, text);
   } catch {
     // Fail-open, deliberately silent: see the header.
   }

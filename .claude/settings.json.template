@@ -111,7 +111,7 @@
         ]
       },
       {
-        "matcher": "search_vault|get_document",
+        "matcher": "mcp__vault-rag__(search_vault|get_document)",
         "hooks": [
           {
             "type": "command",

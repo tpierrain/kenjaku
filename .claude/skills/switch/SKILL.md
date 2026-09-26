@@ -72,7 +72,7 @@ node scripts/set-active-universe.mjs "<name>"
 - 🧠 **The core appends a SECOND disclosure, and it is about you** — when this conversation read
   notes in a universe the switch leaves out of scope, one line saying that **your conversation still
   holds what you read there**, because a switch re-points searches and cannot re-scope your own
-  memory. The core knows which universes this conversation actually searched in; when it cannot know,
+  memory. The core knows which universes this conversation actually read notes from; when it cannot know,
   it says so conditionally (*"if I read anything in…"*). **Relay it like the other one**: same rule,
   the core decides when, you never judge it — and **when it prints no such line, add none yourself**:
   a conversation that read nothing has nothing to disclose. And take it literally — after relaying it, do

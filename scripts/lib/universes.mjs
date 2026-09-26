@@ -128,9 +128,11 @@ export function parseSwitchArgs(argv) {
  * Deterministic dispatcher for the `/switch` CLI: parses the intent, performs the
  * read/write via the injected fs, and returns an exit code + a one-line message.
  * The skill is a thin driver over this — no branching logic of its own.
- * `reads` = the universes this conversation read in (#130), or null when unknown.
+ * `reads` = asks what this conversation read in (#130): the universes, or null when
+ * unknown. A function, called only by the actions that change the scope — the
+ * read-only ones (list, current, gate, menu) never pay for the record's I/O.
  */
-export function runSwitchCli(io, dir, argv, { reads = null } = {}) {
+export function runSwitchCli(io, dir, argv, { reads = () => null } = {}) {
   const intent = parseSwitchArgs(argv);
   const current = readActiveUniverse(io, dir);
 
@@ -179,7 +181,7 @@ export function runSwitchCli(io, dir, argv, { reads = null } = {}) {
     // unscoped conversation behind. Empty on the first create, which is default →
     // named: nothing goes out of scope there, and that is also the one moment a
     // brand-new owner of a second universe must not meet an extra warning.
-    const residue = conversationResidueReminder({ from: current, to: res.name, reads });
+    const residue = conversationResidueReminder({ from: current, to: res.name, reads: reads() });
     // `wrote` carries the written slug so the caller can persist the pointer
     // (commit + push — issue #69: a Bash-side write is invisible to the hooks).
     return { code: 0, message: head + onboarding + residue, wrote: res.name };
@@ -193,7 +195,7 @@ export function runSwitchCli(io, dir, argv, { reads = null } = {}) {
     // asymmetry): the single-account native connectors, and the conversation window.
     const reminder =
       nativeConnectorsReminder({ from: current, to: res.name }) +
-      conversationResidueReminder({ from: current, to: res.name, reads });
+      conversationResidueReminder({ from: current, to: res.name, reads: reads() });
     return { code: 0, message: `switched to '${res.name}'` + reminder, wrote: res.name };
   }
   if (res.reason === "unknown") {
@@ -222,9 +224,6 @@ export function nativeConnectorsReminder({ from, to }) {
   );
 }
 
-/** The mark a conversation-reads record uses for a search that spanned every universe. */
-export const ALL_UNIVERSES_READ = "*";
-
 /**
  * The one-line disclosure of the scope a switch CANNOT re-point: the conversation
  * window (issue #68). Retrieval is re-scoped server-side from the next search, and
@@ -249,9 +248,9 @@ export const ALL_UNIVERSES_READ = "*";
  * 🔎 WHAT IT MAY CLAIM depends on `reads` (issue #130). The core cannot see the
  * conversation, and the pre-#130 sentence asserted a residue anyway — to a brand-new
  * conversation that had read nothing, about a universe an EARLIER session left active.
- *   • `reads` given — the universes this conversation searched in, recorded by the
- *     conversation-reads hook (`*` = an all-universes search). The sentence names the
- *     ones now out of scope, and is silent when there are none. This also names a
+ *   • `reads` given — the universes of the notes this conversation's vault tools
+ *     returned, recorded by the conversation-reads hook. The sentence names the ones
+ *     now out of scope, and is silent when there are none. This also names a
  *     universe read two switches ago, which knowing only `from` never could.
  *   • `reads` absent/null — no record (no session id, or a brain whose hook is not
  *     wired yet). Then only a CONDITIONAL sentence is true, and the asymmetry above
@@ -269,12 +268,6 @@ export function conversationResidueReminder({ from, to, reads = null }) {
     return (
       `\n🧠 Heads-up: if I read anything in '${from}' earlier in this conversation, ` +
       `it is still in my memory.` + tail
-    );
-  }
-  if (reads.includes(ALL_UNIVERSES_READ)) {
-    return (
-      `\n🧠 Heads-up: earlier in this conversation I searched across all your universes, ` +
-      `and what I read is still in my memory.` + tail
     );
   }
   const outOfScope = [...new Set(reads)]

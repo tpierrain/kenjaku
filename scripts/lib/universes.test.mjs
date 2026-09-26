@@ -785,14 +785,6 @@ test("#130 — a universe read two switches ago is still named (the second lie t
   );
 });
 
-test("#130 — a search across all universes discloses all of them, without guessing names", () => {
-  assert.equal(
-    conversationResidueReminder({ from: "acme", to: "blue", reads: ["*"] }),
-    "\n🧠 Heads-up: earlier in this conversation I searched across all your universes, and " +
-      "what I read is still in my memory." + RESIDUE_TAIL("blue")
-  );
-});
-
 test("#130 — having read only in the destination and the cross-cutting scope leaves nothing to say", () => {
   assert.equal(
     conversationResidueReminder({ from: "acme", to: "blue", reads: ["blue", "default"] }),
@@ -816,7 +808,7 @@ test("#130 — runSwitchCli threads the conversation's reads into its message", 
   });
   // Whole message: the connectors reminder still rides (it is about accounts, not
   // the window), and the residue sentence is gone because nothing was read.
-  assert.deepEqual(runSwitchCli(io, ".vault-rag", ["blue"], { reads: [] }), {
+  assert.deepEqual(runSwitchCli(io, ".vault-rag", ["blue"], { reads: () => [] }), {
     code: 0,
     message: "switched to 'blue'" + nativeConnectorsReminder({ from: "acme", to: "blue" }),
     wrote: "blue",
@@ -828,7 +820,7 @@ test("#130 — create-and-switch threads the reads too", () => {
     ".vault-rag/universes.json": JSON.stringify({ universes: ["acme"] }),
     ".vault-rag/active-universe": "acme",
   });
-  assert.deepEqual(runSwitchCli(io, ".vault-rag", ["create", "blue"], { reads: ["acme"] }), {
+  assert.deepEqual(runSwitchCli(io, ".vault-rag", ["create", "blue"], { reads: () => ["acme"] }), {
     code: 0,
     message:
       "created and switched to 'blue'" +
@@ -836,6 +828,25 @@ test("#130 — create-and-switch threads the reads too", () => {
       "in my memory." + RESIDUE_TAIL("blue"),
     wrote: "blue",
   });
+});
+
+test("#130 — only a create or a switch asks what the conversation read; read-only actions never do", () => {
+  // The record is I/O the other actions have no use for: `list`, `current`, the gate
+  // and the menu run at the start of many flows, and must not pay for it.
+  const io = fakeFs({
+    ".vault-rag/universes.json": JSON.stringify({ universes: ["acme", "blue"] }),
+    ".vault-rag/active-universe": "acme",
+  });
+  const asked = [];
+  const reads = () => {
+    asked.push("asked");
+    return [];
+  };
+  for (const argv of [["list"], ["current"], ["gate"], []]) runSwitchCli(io, ".vault-rag", argv, { reads });
+  assert.deepEqual(asked, []);
+  runSwitchCli(io, ".vault-rag", ["blue"], { reads });
+  runSwitchCli(io, ".vault-rag", ["create", "zeta"], { reads });
+  assert.deepEqual(asked, ["asked", "asked"]);
 });
 
 test("runSwitchCli carries the residue reminder, so the skill only relays it", () => {

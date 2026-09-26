@@ -20,7 +20,6 @@ import {
   mkdirSync,
 } from "node:fs";
 import { vaultRagDir } from "./lib/universes.mjs";
-import { conversationReads } from "./lib/conversation-reads.mjs";
 import { readConversationReads } from "./conversation-reads.mjs";
 import { runSwitchCliPersisted } from "./lib/universe-persist.mjs";
 import { runAsEntrypoint } from "./lib/entrypoint.mjs";
@@ -45,11 +44,7 @@ export const realSwitchDeps = () => ({
   // is true. The session id is the one the harness exports to Bash (and hands every
   // hook); null — no id, or a conversation the recorder never saw begin — makes the
   // core fall back to a conditional sentence rather than guess.
-  reads: () =>
-    conversationReads({
-      sessionId: process.env.CLAUDE_CODE_SESSION_ID,
-      state: readConversationReads(repoRoot(import.meta.url)),
-    }),
+  reads: () => readConversationReads(repoRoot(import.meta.url), process.env.CLAUDE_CODE_SESSION_ID),
   sleep: realSleep,
   log: (m) => console.log(m),
 });
@@ -62,7 +57,7 @@ export function runSetActiveUniverse(argv, deps = realSwitchDeps()) {
   const { code, message } = runSwitchCliPersisted(deps.io, deps.vaultRagDir, argv, {
     git: deps.git,
     sleep: deps.sleep,
-    reads: deps.reads?.() ?? null,
+    reads: deps.reads ?? (() => null),
   });
   deps.log(message);
   return code;

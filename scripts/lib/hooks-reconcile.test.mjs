@@ -174,7 +174,7 @@ test("reconcileHooks — a brain that already HAS PostToolUse (auto-commit) gain
       // #130: the conversation-reads recorder rides the same additive path to an
       // existing brain — which is what lets the switch stop guessing there too.
       {
-        matcher: "search_vault|get_document",
+        matcher: "mcp__vault-rag__(search_vault|get_document)",
         hooks: [{ type: "command", command: '/usr/local/bin/node "/brains/foo/scripts/conversation-reads.mjs"', timeout: 10000 }],
       },
     ],
@@ -407,4 +407,19 @@ test("reconcileHooks — a brain with no UserPromptSubmit at all is given the re
     "the event must be CREATED, matcher and timeout intact, with the brain's own node + dir substituted",
   );
   assert.ok(hooksAdded.includes("scripts/prompt-restart-nudge.mjs"), "the newly-wired nudge must be named in hooksAdded");
+});
+
+// #130: one engine script can be wired on TWO events (conversation-reads runs on
+// SessionStart and PostToolUse). Every consumer of hooksAdded speaks to the owner —
+// the update report, the second-machine self-heal banner, the hook-gap detector — so
+// the script is named ONCE, at the source, rather than deduped by each of them.
+test("reconcileHooks — a script wired on two events is added on both, and named once", () => {
+  const { hooks, hooksAdded } = reconcileHooks({ brainHooks: {}, templateHooks: realTemplateHooks(), projectRoot: "/brains/foo" });
+  const wiredOn = Object.entries(hooks)
+    .filter(([, groups]) => groups.some((g) => g.hooks.some((h) => h.command.includes("conversation-reads.mjs"))))
+    .map(([event]) => event)
+    .sort();
+  assert.deepEqual(wiredOn, ["PostToolUse", "SessionStart"]);
+  assert.equal(hooksAdded.filter((s) => s === "scripts/conversation-reads.mjs").length, 1);
+  assert.equal(new Set(hooksAdded).size, hooksAdded.length, "no script is named twice");
 });

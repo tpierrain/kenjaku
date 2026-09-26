@@ -64,7 +64,9 @@ export function reconcileHooks({ brainHooks, templateHooks, projectRoot, nodePre
       const script = (group.hooks ?? []).map((h) => hookScript(h.command)).find(Boolean);
       if (!script || present.has(script)) continue; // not an engine script, or already wired → preserve
       toAppend.push(substituteGroup(group, { node, projectRoot }));
-      hooksAdded.push(script);
+      // One script wired on two events (#130: conversation-reads) is ONE capability
+      // to the owner: every consumer of hooksAdded names it, so it is named once.
+      if (!hooksAdded.includes(script)) hooksAdded.push(script);
       present.add(script); // guard against a duplicated template entry
     }
     if (toAppend.length > 0) result[event] = [...existingGroups, ...toAppend];

@@ -282,9 +282,11 @@ function switchInBrain({ record, sessionId }) {
     mkdirSync(join(repo, ".vault-rag"), { recursive: true });
     writeFileSync(join(repo, ".vault-rag", "universes.json"), JSON.stringify({ universes: ["acme", "blue"] }));
     writeFileSync(join(repo, ".vault-rag", "active-universe"), "acme\n");
-    if (record) {
-      mkdirSync(join(repo, ".cache"), { recursive: true });
-      writeFileSync(join(repo, ".cache", "conversation-reads.json"), JSON.stringify(record));
+    // One file per conversation, one universe per line — written by hand, the shape
+    // the conversation-reads hook leaves.
+    for (const [id, universes] of Object.entries(record ?? {})) {
+      mkdirSync(join(repo, ".cache", "conversation-reads"), { recursive: true });
+      writeFileSync(join(repo, ".cache", "conversation-reads", id), universes.map((u) => `${u}\n`).join(""));
     }
     const env = { ...process.env };
     delete env.CLAUDE_CODE_SESSION_ID;
@@ -301,7 +303,7 @@ function switchInBrain({ record, sessionId }) {
 
 test("#130 reproduction, end to end — a fresh conversation switching is told nothing about residue", () => {
   // The recorder saw this conversation begin, and it read nothing.
-  const out = switchInBrain({ sessionId: "s-fresh", record: { sessions: { "s-fresh": { universes: [], at: 1 } } } });
+  const out = switchInBrain({ sessionId: "s-fresh", record: { "s-fresh": [] } });
   assert.match(out, /switched to 'blue'/);
   assert.doesNotMatch(out, /🧠/u);
 });
@@ -310,19 +312,19 @@ test("#130 end to end — a conversation that searched in 'acme' is told it stil
   const out = switchInBrain({
     sessionId: "s-live",
     // Another conversation's reads are a decoy: only THIS session's count.
-    record: { sessions: { "s-live": { universes: ["acme"], at: 2 }, other: { universes: ["zeta"], at: 3 } } },
+    record: { "s-live": ["acme"], other: ["zeta"] },
   });
   assert.match(out, /🧠 Heads-up: earlier in this conversation I read notes in 'acme', and they are still in my memory\./u);
   assert.doesNotMatch(out, /zeta/);
 });
 
 test("#130 end to end — with no session id, the sentence is the conditional one", () => {
-  const out = switchInBrain({ record: { sessions: { "s-fresh": { universes: [], at: 1 } } } });
+  const out = switchInBrain({ record: { "s-fresh": [] } });
   assert.match(out, /🧠 Heads-up: if I read anything in 'acme' earlier in this conversation/u);
 });
 
 test("#130 end to end — a conversation the recorder never saw begin gets the conditional sentence", () => {
   // The gap between an update and the restart: no entry proves nothing.
-  const out = switchInBrain({ sessionId: "s-before-restart", record: { sessions: { other: { universes: [], at: 1 } } } });
+  const out = switchInBrain({ sessionId: "s-before-restart", record: { other: [] } });
   assert.match(out, /🧠 Heads-up: if I read anything in 'acme' earlier in this conversation/u);
 });
