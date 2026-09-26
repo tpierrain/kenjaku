@@ -31,8 +31,14 @@ const npmSpawnOpts = (platform, extra = {}) => ({
   ...extra,
 });
 
-const realNpmInstall = ({ cwd, platform }) =>
-  execFileSync(npmExe(platform), ["install"], npmSpawnOpts(platform, { cwd, stdio: "inherit" }));
+export function buildNpmInstallInvocation({ cwd, platform }) {
+  return { command: npmExe(platform), args: ["install"], options: npmSpawnOpts(platform, { cwd, stdio: "inherit" }) };
+}
+
+function realNpmInstall(where) {
+  const { command, args, options } = buildNpmInstallInvocation(where);
+  execFileSync(command, args, options);
+}
 
 export async function defaultRunInstall({
   ragDir,

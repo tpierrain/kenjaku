@@ -41,8 +41,12 @@ export function healNeverBuiltBinding({ probe, remove, reinstall }) {
 
 // Open (and close) an in-memory database in a child Node, from rag/. The binding
 // loads lazily in the constructor (ADR 0021), so a bare `require` would call a
-// never-built binary healthy.
-const PROBE = "const D = require('better-sqlite3'); new D(':memory:').close();";
+// never-built binary healthy. On failure the child writes the error's OWN message
+// and nothing else: Node's default dump starts with a file path, and that first
+// line is what the owner would have been shown.
+const PROBE =
+  "try { const D = require('better-sqlite3'); new D(':memory:').close(); }" +
+  " catch (e) { process.stderr.write(String(e.message)); process.exit(1); }";
 
 export function buildProbeInvocation({ ragDir }) {
   return { command: process.execPath, args: ["-e", PROBE], options: { cwd: ragDir, stdio: "pipe" } };
@@ -54,7 +58,7 @@ export function probeSqlite({ ragDir }) {
     execFileSync(command, args, options);
     return { ok: true };
   } catch (err) {
-    return { ok: false, message: String(err.stderr ?? err.message) };
+    return { ok: false, message: String(err.stderr) };
   }
 }
 

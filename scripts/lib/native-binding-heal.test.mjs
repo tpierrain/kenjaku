@@ -9,7 +9,7 @@ import {
   probeSqlite,
   removeSqliteModule,
 } from "./native-binding-heal.mjs";
-import { defaultRunInstall } from "./engine-seams.mjs";
+import { defaultRunInstall, buildNpmInstallInvocation } from "./engine-seams.mjs";
 
 // npm 12 blocks a dependency's install scripts unless package.json allows them
 // (plan v5.5.2 § S4.3, issue #132). A brain installed or updated with npm 12
@@ -128,9 +128,9 @@ test("probeSqlite: a module that opens a database answers ok", () => {
 test("probeSqlite: a binary that fails only when the database is OPENED is caught, with npm's message", () => {
   const ragDir = ragWith(NEVER_BUILT_ON_OPEN);
   try {
-    const r = probeSqlite({ ragDir });
-    assert.equal(r.ok, false);
-    assert.match(r.message, /Could not locate the bindings file/);
+    // The error's own message, exactly — not Node's stderr dump, whose first
+    // line is a file path the owner could do nothing with.
+    assert.deepEqual(probeSqlite({ ragDir }), { ok: false, message: NEVER_BUILT });
   } finally {
     rmSync(ragDir, { recursive: true, force: true });
   }
@@ -150,7 +150,7 @@ test("probeSqlite: an absent module is a failure, not a pass", () => {
   try {
     const r = probeSqlite({ ragDir });
     assert.equal(r.ok, false);
-    assert.match(r.message, /Cannot find module 'better-sqlite3'/);
+    assert.match(r.message, /^Cannot find module 'better-sqlite3'/);
   } finally {
     rmSync(ragDir, { recursive: true, force: true });
   }
@@ -169,6 +169,15 @@ test("removeSqliteModule removes better-sqlite3 and only it", () => {
   }
 });
 
+test("removeSqliteModule on a rag/ that has no better-sqlite3 is not an error", () => {
+  const ragDir = ragWith(null);
+  try {
+    assert.doesNotThrow(() => removeSqliteModule({ ragDir }));
+  } finally {
+    rmSync(ragDir, { recursive: true, force: true });
+  }
+});
+
 // ── The wiring: the update's install step heals a brain npm 12 broke ────────
 
 function brainWithRag(moduleSource) {
@@ -182,18 +191,18 @@ test("defaultRunInstall: a never-built binary gets one reinstall of rag/, and th
   const { brainDir, ragDir } = brainWithRag(NEVER_BUILT_ON_OPEN);
   const installs = [];
   const logs = [];
-  // The fake npm: the first install leaves the broken module as npm 12 did; the
-  // reinstall (after removal) lays down a module that opens — as a real one does.
+  // The fake npm behaves like the real one: a module already present is left as
+  // it is (which is how npm 12's broken binary survives an install), an absent
+  // one is laid down fresh — and fresh, it opens.
   const npmInstall = ({ cwd }) => {
     installs.push(cwd);
-    if (installs.length === 2) writeSqliteModule(cwd, OPENS);
+    if (!existsSync(join(cwd, "node_modules", "better-sqlite3"))) writeSqliteModule(cwd, OPENS);
   };
   try {
     await defaultRunInstall({ ragDir, brainDir, platform: process.platform, npmInstall, log: (l) => logs.push(l) });
     assert.deepEqual(installs, [ragDir, ragDir]);
     assert.deepEqual(probeSqlite({ ragDir }), { ok: true });
-    assert.equal(logs.length, 1);
-    assert.match(logs[0], /repaired/i);
+    assert.deepEqual(logs, ["✓ Search database repaired (npm had skipped building it)."]);
   } finally {
     rmSync(brainDir, { recursive: true, force: true });
   }
@@ -224,8 +233,11 @@ test("defaultRunInstall: still broken after the reinstall → prints the manual 
   const npmInstall = ({ cwd }) => writeSqliteModule(cwd, NEVER_BUILT_ON_OPEN);
   try {
     await defaultRunInstall({ ragDir, brainDir, platform: process.platform, npmInstall, log: (l) => logs.push(l) });
-    assert.equal(logs.length, 1);
-    assert.match(logs[0], /rm -rf node_modules\/better-sqlite3 && npm install/);
+    assert.deepEqual(logs, [
+      "⚠️ The search database could not be repaired automatically. Run, from the brain folder:\n" +
+        "   cd rag && rm -rf node_modules/better-sqlite3 && npm install\n" +
+        "   (Could not locate the bindings file. Tried:)",
+    ]);
   } finally {
     rmSync(brainDir, { recursive: true, force: true });
   }
@@ -270,4 +282,60 @@ test("defaultRunInstall: local-mirror is installed too when the brain carries it
   } finally {
     rmSync(brainDir, { recursive: true, force: true });
   }
+});
+
+test("defaultRunInstall: a local-mirror/ folder with no package.json is not installed", async () => {
+  const { brainDir, ragDir } = brainWithRag(OPENS);
+  mkdirSync(join(brainDir, "local-mirror"));
+  const installs = [];
+  try {
+    await defaultRunInstall({
+      ragDir,
+      brainDir,
+      platform: process.platform,
+      npmInstall: ({ cwd }) => installs.push(cwd),
+      log: () => {},
+    });
+    assert.deepEqual(installs, [ragDir]);
+  } finally {
+    rmSync(brainDir, { recursive: true, force: true });
+  }
+});
+
+test("defaultRunInstall: with no log injected, the repair is announced on the console", async () => {
+  const { brainDir, ragDir } = brainWithRag(NEVER_BUILT_ON_OPEN);
+  const printed = [];
+  const original = console.log;
+  console.log = (line) => printed.push(line);
+  try {
+    await defaultRunInstall({
+      ragDir,
+      brainDir,
+      platform: process.platform,
+      npmInstall: ({ cwd }) => {
+        if (!existsSync(join(cwd, "node_modules", "better-sqlite3"))) writeSqliteModule(cwd, OPENS);
+      },
+    });
+  } finally {
+    console.log = original;
+    rmSync(brainDir, { recursive: true, force: true });
+  }
+  assert.deepEqual(printed, ["✓ Search database repaired (npm had skipped building it)."]);
+});
+
+// The real npm call is a value, so what is run is asserted, not trusted.
+test("buildNpmInstallInvocation: `npm install` in the given folder, output shown to the owner", () => {
+  assert.deepEqual(buildNpmInstallInvocation({ cwd: "/b/rag", platform: "darwin" }), {
+    command: "npm",
+    args: ["install"],
+    options: { shell: false, cwd: "/b/rag", stdio: "inherit" },
+  });
+});
+
+test("buildNpmInstallInvocation: on Windows, npm.cmd through a shell (CVE-2024-27980)", () => {
+  assert.deepEqual(buildNpmInstallInvocation({ cwd: "C:\\b\\rag", platform: "win32" }), {
+    command: "npm.cmd",
+    args: ["install"],
+    options: { shell: true, cwd: "C:\\b\\rag", stdio: "inherit" },
+  });
 });
