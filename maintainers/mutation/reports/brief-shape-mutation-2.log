@@ -1,0 +1,85 @@
+[32m21:56:49 (57539) INFO ProjectReader[39m Found 1 of 1117 file(s) to be mutated.
+[32m21:56:49 (57539) INFO Instrumenter[39m Instrumented 1 source file(s) with 157 mutant(s)
+[32m21:56:49 (57539) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m21:56:49 (57539) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-xhyZRa
+[32m21:56:49 (57539) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m21:56:49 (57539) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m21:56:58 (57539) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 8 seconds (net 8766 ms, overhead 0 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/157 tested (0 survived, 0 timed out)
+Mutation testing 3% (elapsed: <1m, remaining: ~10m) 5/157 tested (0 survived, 0 timed out)
+Mutation testing 6% (elapsed: <1m, remaining: ~7m) 10/157 tested (0 survived, 0 timed out)
+Mutation testing 9% (elapsed: <1m, remaining: ~6m) 15/157 tested (0 survived, 0 timed out)
+Mutation testing 10% (elapsed: <1m, remaining: ~7m) 16/157 tested (0 survived, 0 timed out)
+Mutation testing 12% (elapsed: ~1m, remaining: ~6m) 20/157 tested (0 survived, 0 timed out)
+Mutation testing 15% (elapsed: ~1m, remaining: ~6m) 25/157 tested (0 survived, 0 timed out)
+Mutation testing 19% (elapsed: ~1m, remaining: ~5m) 30/157 tested (2 survived, 0 timed out)
+Mutation testing 21% (elapsed: ~1m, remaining: ~5m) 33/157 tested (2 survived, 0 timed out)
+Mutation testing 22% (elapsed: ~1m, remaining: ~5m) 36/157 tested (2 survived, 0 timed out)
+Mutation testing 26% (elapsed: ~1m, remaining: ~5m) 41/157 tested (2 survived, 0 timed out)
+Mutation testing 28% (elapsed: ~2m, remaining: ~4m) 45/157 tested (2 survived, 0 timed out)
+Mutation testing 31% (elapsed: ~2m, remaining: ~4m) 50/157 tested (2 survived, 0 timed out)
+Mutation testing 32% (elapsed: ~2m, remaining: ~4m) 51/157 tested (2 survived, 0 timed out)
+Mutation testing 35% (elapsed: ~2m, remaining: ~4m) 56/157 tested (2 survived, 0 timed out)
+Mutation testing 38% (elapsed: ~2m, remaining: ~4m) 61/157 tested (2 survived, 0 timed out)
+Mutation testing 41% (elapsed: ~2m, remaining: ~4m) 65/157 tested (2 survived, 0 timed out)
+Mutation testing 43% (elapsed: ~3m, remaining: ~3m) 68/157 tested (2 survived, 0 timed out)
+Mutation testing 45% (elapsed: ~3m, remaining: ~3m) 71/157 tested (3 survived, 0 timed out)
+Mutation testing 48% (elapsed: ~3m, remaining: ~3m) 76/157 tested (4 survived, 0 timed out)
+Mutation testing 51% (elapsed: ~3m, remaining: ~3m) 81/157 tested (4 survived, 0 timed out)
+Mutation testing 54% (elapsed: ~3m, remaining: ~3m) 86/157 tested (4 survived, 0 timed out)
+Mutation testing 54% (elapsed: ~3m, remaining: ~3m) 86/157 tested (4 survived, 0 timed out)
+Mutation testing 57% (elapsed: ~4m, remaining: ~2m) 91/157 tested (5 survived, 0 timed out)
+Mutation testing 61% (elapsed: ~4m, remaining: ~2m) 96/157 tested (5 survived, 0 timed out)
+Mutation testing 64% (elapsed: ~4m, remaining: ~2m) 101/157 tested (5 survived, 0 timed out)
+Mutation testing 67% (elapsed: ~4m, remaining: ~2m) 106/157 tested (5 survived, 0 timed out)
+Mutation testing 68% (elapsed: ~4m, remaining: ~2m) 107/157 tested (5 survived, 0 timed out)
+Mutation testing 70% (elapsed: ~4m, remaining: ~2m) 111/157 tested (5 survived, 0 timed out)
+Mutation testing 73% (elapsed: ~5m, remaining: ~1m) 116/157 tested (5 survived, 0 timed out)
+Mutation testing 77% (elapsed: ~5m, remaining: ~1m) 121/157 tested (5 survived, 0 timed out)
+Mutation testing 80% (elapsed: ~5m, remaining: ~1m) 126/157 tested (5 survived, 0 timed out)
+Mutation testing 80% (elapsed: ~5m, remaining: ~1m) 127/157 tested (5 survived, 0 timed out)
+Mutation testing 84% (elapsed: ~5m, remaining: ~1m) 132/157 tested (5 survived, 0 timed out)
+Mutation testing 87% (elapsed: ~5m, remaining: <1m) 137/157 tested (5 survived, 0 timed out)
+Mutation testing 89% (elapsed: ~6m, remaining: <1m) 141/157 tested (5 survived, 0 timed out)
+Mutation testing 92% (elapsed: ~6m, remaining: <1m) 146/157 tested (5 survived, 0 timed out)
+Mutation testing 93% (elapsed: ~6m, remaining: <1m) 147/157 tested (5 survived, 0 timed out)
+Mutation testing 96% (elapsed: ~6m, remaining: <1m) 152/157 tested (5 survived, 0 timed out)
+
+All tests
+  ✓ All tests (killed 152)
+
+[Survived] Regex
+scripts/lib/brief-shape.mjs:70:9
+-       if (/^\s*(```|~~~)/.test(text)) {
++       if (/\s*(```|~~~)/.test(text)) {
+
+[Survived] Regex
+scripts/lib/brief-shape.mjs:70:9
+-       if (/^\s*(```|~~~)/.test(text)) {
++       if (/^\S*(```|~~~)/.test(text)) {
+
+[Survived] Regex
+scripts/lib/brief-shape.mjs:128:20
+-       const marker = /^([-*+]|\d+[.)])\s+(.*)$/.exec(text);
++       const marker = /^([-*+]|\d+[.)])\s+(.*)/.exec(text);
+
+[Survived] Regex
+scripts/lib/brief-shape.mjs:128:20
+-       const marker = /^([-*+]|\d+[.)])\s+(.*)$/.exec(text);
++       const marker = /^([-*+]|\d+[.)])\s(.*)$/.exec(text);
+
+[Survived] MethodExpression
+scripts/lib/brief-shape.mjs:137:30
+-       else strays.push({ text: text.trim(), line });
++       else strays.push({ text: text, line });
+
+Ran 1.00 tests per mutant on average.
+-----------------|------------------|----------|-----------|------------|----------|----------|
+                 | % Mutation score |          |           |            |          |          |
+File             |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+-----------------|--------|---------|----------|-----------|------------|----------|----------|
+All files        |  96.82 |   96.82 |      152 |         0 |          5 |        0 |        0 |
+ brief-shape.mjs |  96.82 |   96.82 |      152 |         0 |          5 |        0 |        0 |
+-----------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m22:03:33 (57539) INFO MutationTestExecutor[39m Done in 6 minutes and 44 seconds.
+[32m22:03:33 (57539) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-xhyZRa.

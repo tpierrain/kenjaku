@@ -1,0 +1,114 @@
+[32m22:05:54 (61594) INFO ProjectReader[39m Found 2 of 1118 file(s) to be mutated.
+[32m22:05:55 (61594) INFO Instrumenter[39m Instrumented 2 source file(s) with 191 mutant(s)
+[32m22:05:55 (61594) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m22:05:55 (61594) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-U1GaD4
+[32m22:05:55 (61594) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m22:05:55 (61594) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m22:06:03 (61594) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 8 seconds (net 8772 ms, overhead 1 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/191 tested (0 survived, 0 timed out)
+Mutation testing 2% (elapsed: <1m, remaining: ~12m) 5/191 tested (0 survived, 0 timed out)
+Mutation testing 5% (elapsed: <1m, remaining: ~9m) 10/191 tested (0 survived, 0 timed out)
+Mutation testing 7% (elapsed: <1m, remaining: ~7m) 15/191 tested (0 survived, 0 timed out)
+Mutation testing 10% (elapsed: <1m, remaining: ~7m) 20/191 tested (0 survived, 0 timed out)
+Mutation testing 10% (elapsed: ~1m, remaining: ~8m) 21/191 tested (0 survived, 0 timed out)
+Mutation testing 13% (elapsed: ~1m, remaining: ~7m) 25/191 tested (0 survived, 0 timed out)
+Mutation testing 15% (elapsed: ~1m, remaining: ~7m) 30/191 tested (1 survived, 0 timed out)
+Mutation testing 18% (elapsed: ~1m, remaining: ~6m) 35/191 tested (1 survived, 0 timed out)
+Mutation testing 20% (elapsed: ~1m, remaining: ~6m) 40/191 tested (1 survived, 0 timed out)
+Mutation testing 23% (elapsed: ~1m, remaining: ~5m) 45/191 tested (1 survived, 0 timed out)
+Mutation testing 25% (elapsed: ~2m, remaining: ~5m) 48/191 tested (1 survived, 0 timed out)
+Mutation testing 26% (elapsed: ~2m, remaining: ~5m) 51/191 tested (1 survived, 0 timed out)
+Mutation testing 29% (elapsed: ~2m, remaining: ~5m) 56/191 tested (1 survived, 0 timed out)
+Mutation testing 31% (elapsed: ~2m, remaining: ~5m) 61/191 tested (1 survived, 0 timed out)
+Mutation testing 34% (elapsed: ~2m, remaining: ~5m) 65/191 tested (1 survived, 0 timed out)
+Mutation testing 36% (elapsed: ~2m, remaining: ~4m) 70/191 tested (2 survived, 0 timed out)
+Mutation testing 38% (elapsed: ~3m, remaining: ~4m) 73/191 tested (2 survived, 0 timed out)
+Mutation testing 39% (elapsed: ~3m, remaining: ~4m) 76/191 tested (3 survived, 0 timed out)
+Mutation testing 42% (elapsed: ~3m, remaining: ~4m) 81/191 tested (3 survived, 0 timed out)
+Mutation testing 45% (elapsed: ~3m, remaining: ~4m) 86/191 tested (3 survived, 0 timed out)
+Mutation testing 47% (elapsed: ~3m, remaining: ~4m) 91/191 tested (3 survived, 0 timed out)
+Mutation testing 50% (elapsed: ~3m, remaining: ~3m) 96/191 tested (3 survived, 0 timed out)
+Mutation testing 52% (elapsed: ~4m, remaining: ~3m) 100/191 tested (3 survived, 0 timed out)
+Mutation testing 52% (elapsed: ~4m, remaining: ~3m) 101/191 tested (3 survived, 0 timed out)
+Mutation testing 55% (elapsed: ~4m, remaining: ~3m) 106/191 tested (3 survived, 0 timed out)
+Mutation testing 58% (elapsed: ~4m, remaining: ~3m) 111/191 tested (3 survived, 0 timed out)
+Mutation testing 60% (elapsed: ~4m, remaining: ~3m) 116/191 tested (3 survived, 0 timed out)
+Mutation testing 63% (elapsed: ~4m, remaining: ~2m) 121/191 tested (3 survived, 0 timed out)
+Mutation testing 65% (elapsed: ~5m, remaining: ~2m) 126/191 tested (3 survived, 0 timed out)
+Mutation testing 67% (elapsed: ~5m, remaining: ~2m) 128/191 tested (3 survived, 0 timed out)
+Mutation testing 69% (elapsed: ~5m, remaining: ~2m) 132/191 tested (3 survived, 0 timed out)
+Mutation testing 71% (elapsed: ~5m, remaining: ~2m) 136/191 tested (3 survived, 0 timed out)
+Mutation testing 73% (elapsed: ~5m, remaining: ~2m) 141/191 tested (3 survived, 0 timed out)
+Mutation testing 76% (elapsed: ~5m, remaining: ~1m) 146/191 tested (3 survived, 0 timed out)
+Mutation testing 79% (elapsed: ~6m, remaining: ~1m) 151/191 tested (3 survived, 0 timed out)
+Mutation testing 80% (elapsed: ~6m, remaining: ~1m) 154/191 tested (3 survived, 0 timed out)
+Mutation testing 82% (elapsed: ~6m, remaining: ~1m) 158/191 tested (3 survived, 0 timed out)
+Mutation testing 84% (elapsed: ~6m, remaining: ~1m) 162/191 tested (3 survived, 0 timed out)
+Mutation testing 86% (elapsed: ~6m, remaining: ~1m) 166/191 tested (3 survived, 0 timed out)
+Mutation testing 89% (elapsed: ~6m, remaining: <1m) 171/191 tested (3 survived, 0 timed out)
+Mutation testing 91% (elapsed: ~7m, remaining: <1m) 174/191 tested (3 survived, 0 timed out)
+Mutation testing 93% (elapsed: ~7m, remaining: <1m) 179/191 tested (6 survived, 0 timed out)
+Mutation testing 96% (elapsed: ~7m, remaining: <1m) 184/191 tested (8 survived, 0 timed out)
+Mutation testing 98% (elapsed: ~7m, remaining: <1m) 189/191 tested (9 survived, 0 timed out)
+
+All tests
+  ✓ All tests (killed 182)
+
+[Survived] Regex
+scripts/lib/brief-shape.mjs:70:9
+-       if (/^\s*(```|~~~)/.test(text)) {
++       if (/^\S*(```|~~~)/.test(text)) {
+
+[Survived] Regex
+scripts/lib/brief-shape.mjs:128:20
+-       const marker = /^([-*+]|\d+[.)])\s+(.*)$/.exec(text);
++       const marker = /^([-*+]|\d+[.)])\s+(.*)/.exec(text);
+
+[Survived] Regex
+scripts/lib/brief-shape.mjs:128:20
+-       const marker = /^([-*+]|\d+[.)])\s+(.*)$/.exec(text);
++       const marker = /^([-*+]|\d+[.)])\s(.*)$/.exec(text);
+
+[Survived] BlockStatement
+scripts/lib/vault-write-guard.mjs:194:11
+-     } catch {
+-       return null;
+-     }
++     } catch {}
+
+[Survived] OptionalChaining
+scripts/lib/vault-write-guard.mjs:197:48
+-     const verdict = briefShapeVerdict({ content: parsed?.content ?? "", type: parsed?.data?.type });
++     const verdict = briefShapeVerdict({ content: parsed.content ?? "", type: parsed?.data?.type });
+
+[Survived] StringLiteral
+scripts/lib/vault-write-guard.mjs:197:67
+-     const verdict = briefShapeVerdict({ content: parsed?.content ?? "", type: parsed?.data?.type });
++     const verdict = briefShapeVerdict({ content: parsed?.content ?? "Stryker was here!", type: parsed?.data?.type });
+
+[Survived] OptionalChaining
+scripts/lib/vault-write-guard.mjs:197:77
+-     const verdict = briefShapeVerdict({ content: parsed?.content ?? "", type: parsed?.data?.type });
++     const verdict = briefShapeVerdict({ content: parsed?.content ?? "", type: parsed?.data.type });
+
+[Survived] OptionalChaining
+scripts/lib/vault-write-guard.mjs:197:77
+-     const verdict = briefShapeVerdict({ content: parsed?.content ?? "", type: parsed?.data?.type });
++     const verdict = briefShapeVerdict({ content: parsed?.content ?? "", type: parsed.data?.type });
+
+[Survived] StringLiteral
+scripts/lib/vault-write-guard.mjs:204:56
+-         `${verdict.violations.map((v) => v.message).join(" ")} ` +
++         `${verdict.violations.map((v) => v.message).join("")} ` +
+
+Ran 1.00 tests per mutant on average.
+-----------------------|------------------|----------|-----------|------------|----------|----------|
+                       | % Mutation score |          |           |            |          |          |
+File                   |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+-----------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files              |  95.29 |   95.29 |      182 |         0 |          9 |        0 |        0 |
+ brief-shape.mjs       |  98.09 |   98.09 |      154 |         0 |          3 |        0 |        0 |
+ vault-write-guard.mjs |  82.35 |   82.35 |       28 |         0 |          6 |        0 |        0 |
+-----------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m22:13:38 (61594) INFO MutationTestExecutor[39m Done in 7 minutes and 43 seconds.
+[32m22:13:38 (61594) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-U1GaD4.
