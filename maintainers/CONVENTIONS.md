@@ -368,6 +368,13 @@ healthy notes declared broken**. The vault was fine; the checker was wrong.
 
 ## 5quinquies. Mutate a NEW production file the day it is written — not at the release tail
 
+> 🛑 **A MUTATION SCORE IS NEVER COMPUTED BY HAND** _(owner, 2026-09-26)_. Not after one extra kill,
+> not "the same N mutants", not as a provisional figure marked *computed*. Every score written in a
+> plan, a commit, `mutation/RESULTS.md` or a reply comes from a run's own report, **after** the last
+> change to the file or its tests. No run since the change → write **"not re-measured"**, never a
+> number. Why: on v5.5.2 a figure was derived by arithmetic (90.24 %) and the real re-run said
+> 91.46 % — arithmetic assumes nothing else moved, and only the run can prove that.
+
 **The rule.** When a new production file is finished — the tests are green and you are about to move on
 to the next thing — mutate **that one file** before you do. Both commands run from the repo root:
 

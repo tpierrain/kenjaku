@@ -19,6 +19,7 @@ import {
   buildLocalMirrorCmdLauncher,
 } from "./rag-launcher.mjs";
 import { needsShell } from "./spawn-shell.mjs";
+import { healNeverBuiltBinding, probeSqlite, removeSqliteModule } from "./native-binding-heal.mjs";
 
 // npm is a shell-wrapped `.cmd` on Windows (unlike git, a real .exe) → platform switch.
 const npmExe = (platform) => (platform === "win32" ? "npm.cmd" : "npm");
@@ -30,14 +31,43 @@ const npmSpawnOpts = (platform, extra = {}) => ({
   ...extra,
 });
 
-export async function defaultRunInstall({ ragDir, brainDir, platform }) {
-  execFileSync(npmExe(platform), ["install"], npmSpawnOpts(platform, { cwd: ragDir, stdio: "inherit" }));
+export function buildNpmInstallInvocation({ cwd, platform }) {
+  return { command: npmExe(platform), args: ["install"], options: npmSpawnOpts(platform, { cwd, stdio: "inherit" }) };
+}
+
+function realNpmInstall(where) {
+  const { command, args, options } = buildNpmInstallInvocation(where);
+  execFileSync(command, args, options);
+}
+
+export async function defaultRunInstall({
+  ragDir,
+  brainDir,
+  platform,
+  npmInstall = realNpmInstall,
+  log = (line) => console.log(line),
+}) {
+  npmInstall({ cwd: ragDir, platform });
+  // A brain npm 12 broke before v5.5.2 has a database binary that was never
+  // built, and this install does not build it: heal it once (plan v5.5.2 § S4.3).
+  const heal = healNeverBuiltBinding({
+    probe: () => probeSqlite({ ragDir }),
+    remove: () => removeSqliteModule({ ragDir }),
+    reinstall: () => npmInstall({ cwd: ragDir, platform }),
+  });
+  if (heal.outcome === "healed") {
+    log("✓ Search database repaired (npm had skipped building it).");
+  } else if (heal.outcome === "still-broken") {
+    log(
+      "⚠️ The search database could not be repaired automatically. Run, from the brain folder:\n" +
+        "   cd rag && rm -rf node_modules/better-sqlite3 && npm install\n" +
+        `   (${heal.detail.split("\n")[0]})`,
+    );
+  }
   // local-mirror deps too, when the brain carries that package (pure JS →
   // no native build, plain install; absent on pre-local-mirror brains → skip).
   const gssDir = join(brainDir, "local-mirror");
-  if (existsSync(join(gssDir, "package.json"))) {
-    execFileSync(npmExe(platform), ["install"], npmSpawnOpts(platform, { cwd: gssDir, stdio: "inherit" }));
-  }
+  if (existsSync(join(gssDir, "package.json"))) npmInstall({ cwd: gssDir, platform });
 }
 
 // Reindex the brain's vault. `mode: "full"` (the default — a schema move) re-encodes

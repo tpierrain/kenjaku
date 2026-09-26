@@ -173,7 +173,16 @@ export class LocalMirror implements ILocalMirror {
    * the source as `partial` so a remote glitch can never wipe the local mirror.
    */
   async sync(name: string): Promise<SyncReport> {
-    if (name === 'all') return this.syncAll();
+    return name === 'all' ? this.syncAll() : this.syncOne(name);
+  }
+
+  /**
+   * One named source. `syncAll` calls THIS, never `sync`: going back through the dispatcher made
+   * the fan-out re-enter itself the moment the `'all'` test answered wrong, and an async
+   * recursion does not overflow the stack — it eats memory until the machine is killed. That is
+   * how one mutant of the line above took the nightly mutation run down, every night.
+   */
+  private async syncOne(name: string): Promise<SyncReport> {
     const configs = await this.deps.configStore.loadAll();
     const config = configs.find((c) => c.name === name);
     if (!config) {
@@ -298,7 +307,7 @@ export class LocalMirror implements ILocalMirror {
    */
   private async syncAll(): Promise<SyncReport> {
     const configs = await this.deps.configStore.loadAll();
-    const settled = await Promise.allSettled(configs.map((c) => this.sync(c.name)));
+    const settled = await Promise.allSettled(configs.map((c) => this.syncOne(c.name)));
     const sources = settled.map((outcome, i) =>
       outcome.status === 'fulfilled' ? outcome.value : failedReport(configs[i].name),
     );

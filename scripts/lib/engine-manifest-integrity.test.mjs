@@ -189,10 +189,16 @@ test("engine-manifest — the hook sweep reads every event, so an empty scan can
 // its helper `scripts/lib/note-refresh.mjs`, which `scripts/lib/**` did carry.
 //
 // Deliberately scoped to scripts a DELIVERED SKILL invokes, not "every script in
-// scripts/": `clear-example-notes.mjs`, `pick-folder.mjs` and `run-eval.mjs` are
-// install-time / maintainer-only on purpose, and no skill names them.
+// scripts/": `clear-example-notes.mjs` and `run-eval.mjs` are install-time /
+// maintainer-only on purpose, and no skill names them. (`pick-folder.mjs` used to be
+// listed here too — `/import` names it, and widening the scan below is what showed it.)
 test("engine-manifest — every script a delivered skill invokes is itself carried to upgraders", () => {
-  const skillFiles = trackedFiles.filter((file) => file.startsWith("engine-skills/"));
+  // Every place a delivered skill lives: `engine-skills/**`, the `.claude/skills/**` the
+  // manifest ships (`/sync`, `/update-engine`…), and their locale overlays. Scanning only
+  // the first let `/sync` call a script no upgrade carried (v5.5.2, #131) with this test green.
+  const skillFiles = trackedFiles.filter(
+    (file) => file.startsWith("engine-skills/") || /^(templates\/[^/]+\/)?\.claude\/skills\//.test(file),
+  );
 
   const undeclared = notCarried(scriptsNamedIn(skillFiles));
 

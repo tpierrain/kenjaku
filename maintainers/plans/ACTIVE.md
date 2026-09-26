@@ -13,7 +13,7 @@ only carries what a user of Kenjaku could read and care about (2026-09-12, tried
 ## The active plan
 
 🔴 [**`v5.5.2-bugfix-release-action.md`**](v5.5.2-bugfix-release-action.md) — the bugfix release.
-Opened 2026-09-26 at the owner's ask. **Resume there and nowhere else.** Order fixed by him:
+Opened 2026-09-26 at the owner's ask, worked on branch `fix/v5.5.2-bugfixes` (read the plan **there**). **Resume there and nowhere else.** Order fixed by him:
 [#132](https://github.com/tpierrain/kenjaku/issues/132) (the shipped vulnerabilities), then
 [#131](https://github.com/tpierrain/kenjaku/issues/131) (`/sync` reports a fiction), then the nightly
 mutation run, last.

@@ -363,6 +363,24 @@ pain got loud enough** into a **standing hygiene with a trigger**.
       reprend"* has to read before work starts, today versus after. The door (`ACTIVE.md`, 34 lines) plus
       the active plan's STATE block is the budget; anything else opened is the defect.
 
+### S4 — the `scripts` nightly, back as a rotation _(filed 2026-09-26, owner's call: "note B comme chantier futur")_
+
+Out of the nightly since v5.5.2 (plan `../v5.5.2-bugfix-release-action.md` § S3.2, option A): 13 306
+mutants, each judged by the whole ~30 s harness suite, is ~90 h against GitHub's 6 h ceiling, and it had
+not finished since at least 2026-08-18. What would bring it back, building on S1's narrowed judges:
+
+- [ ] **S4.1 One Stryker run per file, judged by that file's own tests** (`judgingTests`, as
+      `mutate-one.mjs` already does). Measure the real per-mutant cost first: the whole plan rests on it
+      being seconds, not the whole-suite 30 s.
+- [ ] **S4.2 A slice per night, not the package.** Files ordered stably, sliced so each night's
+      measured mutant count fits well inside 6 h at `--concurrency 2`; the whole package covered every
+      ~2 weeks. A night that cannot finish its slice is a red that names the slice.
+- [ ] **S4.3 The CI checkout needs `.git`** (the engine-manifest guards read `git ls-files`), which is
+      why the old nightly forced `--inPlace` on `scripts`; keep that, or run in a worktree like
+      `mutate-one.mjs`.
+- [ ] **S4.4 Unpin** `maintainers/mutation/nightly-workflow.test.mjs`'s package list in the same
+      commit that adds the rotation — that test exists so `scripts` cannot come back as the old job.
+
 ### Constraints and calls already settled — do not re-open
 
 - [x] **Not before the tag** _(2026-09-05, owner: "on valide cet ordre")_ — **that hold has expired on

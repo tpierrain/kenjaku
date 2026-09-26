@@ -241,6 +241,73 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## #131 — the /sync report, written by the machine — 2026-09-26
+
+`scripts/lib/sync-report.mjs` + `scripts/sync-report.mjs`, both new, via `mutate-one.mjs` (judged by
+their 2 test files, write guard 22 pass / 0 skipped).
+
+| Pass | Total | `lib/sync-report.mjs` | `sync-report.mjs` | Survived |
+|---|---|---|---|---|
+| 1 | 85.95 % | 88.62 % | 80 % | 34 |
+| 2 | **97.46 %** | **100 %** | 92 % | 6 |
+
+Pass 1's survivors were mostly **missing cases** (every English sentence past the first, one and
+three outside authors, no upstream, a push from this very machine, the identity registry, a parser
+that could take a neighbouring flag's name as a value) and two pieces of **dead code** (an unused
+default, a fake argument), deleted. Left alive: usage/diagnostic prose on stderr, a `.trim()` on a
+name that is slugged anyway, and `"utf-8"` → `""` before `JSON.parse` (equivalent).
+
+## #132 — the update heals the database binary npm 12 never built — 2026-09-26
+
+`scripts/lib/native-binding-heal.mjs` (new, whole) and the `defaultRunInstall` hunk of
+`scripts/lib/engine-seams.mjs` (lines 34-68), measured the day they were written with
+`mutate-one.mjs` (34 judging test files).
+
+| Pass | `native-binding-heal.mjs` | hunk survivors | What changed |
+|---|---|---|---|
+| 1 | 92.68 % | 10 | — |
+| 2 | **97.56 %** | 2 | the probe returns the error's own message; `npm install` becomes an asserted value (POSIX + Windows); removal, the `local-mirror/package.json` condition and the default console log pinned |
+
+- **The one real defect** pass 1 surfaced: the failure line quoted the first line of the child's
+  stderr, which is a **file path**, not the error. The owner would have been shown
+  `/…/better-sqlite3/index.js:1`. The child now writes `e.message` and nothing else; the test asserts
+  the exact message.
+- **A fake that was too kind**: the healed-path fake npm rewrote the module on every call, so a
+  mutant that skipped the removal survived. It now behaves like npm: a present module is left alone.
+- **Left alive, on purpose**: `realNpmInstall`'s body (the thin runner that spawns the real npm,
+  proven by the npm 12.1.0 rehearsal in the plan, S4.3.2) and `stdio: "pipe"` → `""` (equivalent: an
+  empty string falls back to Node's default, `pipe`).
+- The file-wide `engine-seams.mjs` score (71.58 %) is not this branch's: the other 25 survivors sit in
+  pre-existing defaults outside the hunk.
+
+## #132 — the install-script allowlist that npm 12 made load-bearing — 2026-09-26
+
+`maintainers/dependency-audit/install-scripts.mjs`, new, measured the day it was written (whole file,
+over `install-scripts.test.mjs`, disposable sandbox): **90.91 %** first pass, 4 survivors. Two pointed
+at a missing case (a pinned entry on a *scoped* package) — added, and one of the two mutants re-applied
+by hand turned it red. One was a `pkg?.` on an argument that is always an object — **deleted** rather
+than tested. One is equivalent (the `^` anchor: every input that could differ also fails later in the
+pattern). Re-measured at the release gate (2026-09-26, both `dependency-audit` test files as judges): **97.67 %**,
+1 survivor.
+
+## #132 — the gate that would have stopped v5.5.1's 12 findings — 2026-09-26
+
+`maintainers/dependency-audit/audit-gate.mjs`, a new file, measured the day it was written (whole
+file, Stryker `command` runner over `maintainers/dependency-audit/*.test.mjs`, disposable sandbox).
+
+| Pass | Score | Survived | What changed |
+|---|---|---|---|
+| 1 | 70.93 % | 25 | — |
+| 2 | 89.02 % | 9 | the npm call reached by a real, dependency-free package dir; null findings; a finding with no fix info; the Windows-only spawn branch **deleted** rather than tested (the gate never runs there) |
+| 3 | **91.46 %** — measured at the release gate, judged by both `dependency-audit` test files | 7 | "unreadable wins over blocking" in both orders; the MAJOR-bump warning pinned |
+
+- **The one real hole** pass 2 found: an unreadable report *before* a blocking one let the exit code
+  fall to 1. `if (exit === 0) exit = 1` → `if (true) exit = 1` was applied by hand and the new test
+  went red, then back.
+- **Left alive, on purpose**: `encoding: "utf8"` → `""` twice (equivalent: `JSON.parse` coerces the
+  Buffer), `process.argv[1] ?? …` (argv[1] is always set), and five log lines of prose — asserted on
+  by policy only where their absence is the defect (the package name and the major-bump warning).
+
 ## #128 — the first screen of a prep, and the guard that refuses one — 2026-09-14
 
 Gate 1 of the `feat/one-page-brief-shape` branch, on **what the branch wrote**, taken from

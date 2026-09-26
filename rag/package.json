@@ -1,6 +1,6 @@
 {
   "name": "second-brain-rag",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "type": "module",
   "engines": {
     "node": ">=22"
@@ -12,6 +12,14 @@
     "dev": "tsx src/index.ts",
     "test": "node --import tsx --test src/lib/*.test.ts src/test/*.test.ts ../shared/*.test.ts",
     "postinstall": "node -e \"import('./postinstall-restart-notice.mjs').then(m => m.main()).catch(() => {})\""
+  },
+  "allowScripts": {
+    "@google/genai": true,
+    "better-sqlite3": true,
+    "esbuild": true,
+    "fsevents": true,
+    "onnxruntime-node": true,
+    "protobufjs": true
   },
   "dependencies": {
     "@google/genai": "^1.0.0",

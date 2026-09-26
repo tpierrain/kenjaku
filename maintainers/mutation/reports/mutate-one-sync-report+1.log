@@ -1,0 +1,65 @@
+[32m09:47:02 (48759) INFO ProjectReader[39m Found 2 of 1121 file(s) to be mutated.
+[32m09:47:02 (48759) INFO Instrumenter[39m Instrumented 2 source file(s) with 236 mutant(s)
+[32m09:47:02 (48759) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m09:47:02 (48759) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-IXriFL
+[32m09:47:02 (48759) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m09:47:02 (48759) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m09:47:04 (48759) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 2 seconds (net 2076 ms, overhead 0 ms).
+Mutation testing 6% (elapsed: <1m, remaining: ~2m) 15/236 tested (0 survived, 0 timed out)
+Mutation testing 14% (elapsed: <1m, remaining: ~1m) 35/236 tested (0 survived, 0 timed out)
+Mutation testing 22% (elapsed: <1m, remaining: ~1m) 53/236 tested (0 survived, 0 timed out)
+Mutation testing 30% (elapsed: <1m, remaining: ~1m) 71/236 tested (0 survived, 0 timed out)
+Mutation testing 38% (elapsed: <1m, remaining: ~1m) 91/236 tested (0 survived, 0 timed out)
+Mutation testing 45% (elapsed: ~1m, remaining: ~1m) 108/236 tested (0 survived, 0 timed out)
+Mutation testing 53% (elapsed: ~1m, remaining: ~1m) 126/236 tested (0 survived, 0 timed out)
+Mutation testing 61% (elapsed: ~1m, remaining: <1m) 146/236 tested (0 survived, 0 timed out)
+Mutation testing 69% (elapsed: ~1m, remaining: <1m) 164/236 tested (0 survived, 0 timed out)
+Mutation testing 77% (elapsed: ~1m, remaining: <1m) 182/236 tested (0 survived, 0 timed out)
+Mutation testing 85% (elapsed: ~1m, remaining: <1m) 202/236 tested (2 survived, 0 timed out)
+Mutation testing 94% (elapsed: ~2m, remaining: <1m) 222/236 tested (5 survived, 0 timed out)
+
+All tests
+  ✓ All tests (killed 230)
+
+[Survived] ArrowFunction
+scripts/sync-report.mjs:44:124
+-   export function runSyncReport(argv, { brainDir = repoRoot(import.meta.url), write = (s) => process.stdout.write(s), warn = (s) => process.stderr.write(s) } = {}) {
++   export function runSyncReport(argv, { brainDir = repoRoot(import.meta.url), write = (s) => process.stdout.write(s), warn = () => undefined } = {}) {
+
+[Survived] StringLiteral
+scripts/sync-report.mjs:47:10
+-       warn("usage: node scripts/sync-report.mjs --before <sha> --committed yes|no --pushed ok|failed\n");
++       warn("");
+
+[Survived] StringLiteral
+scripts/sync-report.mjs:53:10
+-       warn(`sync-report: cannot compare ${args.before} with HEAD — ${diff.out.trim()}\n`);
++       warn(``);
+
+[Survived] MethodExpression
+scripts/sync-report.mjs:53:68
+-       warn(`sync-report: cannot compare ${args.before} with HEAD — ${diff.out.trim()}\n`);
++       warn(`sync-report: cannot compare ${args.before} with HEAD — ${diff.out}\n`);
+
+[Survived] MethodExpression
+scripts/sync-report.mjs:62:22
+-     const me = { name: git(["config", "user.name"]).out.trim(), email: git(["config", "user.email"]).out.trim() };
++     const me = { name: git(["config", "user.name"]).out, email: git(["config", "user.email"]).out.trim() };
+
+[Survived] StringLiteral
+scripts/sync-report.mjs:63:82
+-     const { identities } = readAuthorsState({ readFileSync: (p) => readFileSync(p, "utf-8") }, vaultRagDir(brainDir));
++     const { identities } = readAuthorsState({ readFileSync: (p) => readFileSync(p, "") }, vaultRagDir(brainDir));
+
+Ran 1.00 tests per mutant on average.
+------------------|------------------|----------|-----------|------------|----------|----------|
+                  | % Mutation score |          |           |            |          |          |
+File              |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files         |  97.46 |   97.46 |      230 |         0 |          6 |        0 |        0 |
+ lib              | 100.00 |  100.00 |      161 |         0 |          0 |        0 |        0 |
+  sync-report.mjs | 100.00 |  100.00 |      161 |         0 |          0 |        0 |        0 |
+ sync-report.mjs  |  92.00 |   92.00 |       69 |         0 |          6 |        0 |        0 |
+------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m09:49:10 (48759) INFO MutationTestExecutor[39m Done in 2 minutes and 8 seconds.
+[32m09:49:10 (48759) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-IXriFL.
