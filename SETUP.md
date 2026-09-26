@@ -580,7 +580,9 @@ log. Elsewhere — a person's page, a topic, anything you **rewrite** rather tha
 different versions **stop and ask you**, deliberately: keeping both halves of a page two people
 rewrote would leave it saying two contradictory things, and nobody would ever notice. When a merge
 needs a hand, your brain says so at your next message and walks you through it; the `/sync` skill is
-still there if you would rather do it yourself, at your moment.
+still there if you would rather do it yourself, at your moment. Its report says what it brought, what
+had **already** arrived on its own and when, and when your remote last received a push and from which
+machine — so "nothing new" never hides work the automatic check brought in an hour earlier.
 
 > Both knobs live in `.env` and neither is required: `REMOTE_SYNC_INTERVAL` (seconds, `0` turns the
 > automatic check off and leaves you the session-start catch-up and `/sync`) and `REMOTE_SYNC_BANNER`
@@ -635,6 +637,7 @@ perimeter. Worth two minutes before you invite anyone in. The three things peopl
 | Symptom | Probable cause | Remedy |
 |---|---|---|
 | `npm install` fails in `rag/` | Node too old (or, before v3.1.0, too new) | Node ≥ 20 (`node -v`); Node 24/25/26 are supported since v3.1.0. The installer now preflights this and tells you what to switch to (nvm/volta). |
+| Search fails with **`Could not locate the bindings file`** (`better-sqlite3`) after an install or update, and npm printed *"install scripts blocked because they are not covered by allowScripts"* | **npm 12** blocks dependencies' install scripts unless the project allows them, and an engine older than v5.5.2 does not declare them | Update the engine (v5.5.2 declares them), then `cd rag && rm -rf node_modules/better-sqlite3 && npm install`. (`npm rebuild` is not enough here: npm 12 does not re-run a script it blocked at install time.) |
 | `npm install` fails on **`better-sqlite3`** (Windows) | Native module without a prebuild for your Node version | Use an **LTS version** of Node (prebuilds available), or install the build tools: `npm install --global windows-build-tools` (old) or the *Visual Studio Build Tools* ("Desktop development with C++"). Then `cd rag && npm install`. |
 | RAG fails at startup with **`NODE_MODULE_VERSION` mismatch** / "compiled against a different Node.js version" / `ERR_DLOPEN_FAILED` | **Native-dep ABI skew** — `better-sqlite3` was built under one Node, then loaded by another (only happens on a machine with several Node versions, e.g. after switching Node). | **Self-heals since v3.1.0**: the engine detects the skew and runs **one automatic `npm rebuild better-sqlite3`** under the current Node on the next start, then retries — no action needed (the first start after a Node change just takes a few seconds longer). To force it manually: `cd rag && npm rebuild better-sqlite3`. |
 | Empty searches | Index not built / no key | `cd rag && npm run index` after setting the key |

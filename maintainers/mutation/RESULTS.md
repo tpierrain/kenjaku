@@ -264,7 +264,8 @@ over `install-scripts.test.mjs`, disposable sandbox): **90.91 %** first pass, 4 
 at a missing case (a pinned entry on a *scoped* package) — added, and one of the two mutants re-applied
 by hand turned it red. One was a `pkg?.` on an argument that is always an object — **deleted** rather
 than tested. One is equivalent (the `^` anchor: every input that could differ also fails later in the
-pattern). Not re-run after the fix; the second-pass figure is therefore not claimed.
+pattern). Re-measured at the release gate (2026-09-26, both `dependency-audit` test files as judges): **97.67 %**,
+1 survivor.
 
 ## #132 — the gate that would have stopped v5.5.1's 12 findings — 2026-09-26
 
@@ -275,7 +276,7 @@ file, Stryker `command` runner over `maintainers/dependency-audit/*.test.mjs`, d
 |---|---|---|---|
 | 1 | 70.93 % | 25 | — |
 | 2 | 89.02 % | 9 | the npm call reached by a real, dependency-free package dir; null findings; a finding with no fix info; the Windows-only spawn branch **deleted** rather than tested (the gate never runs there) |
-| 3 | 90.24 % — **computed, not re-run**: the same 82 mutants, the one below verified killed by hand | 8 | "unreadable wins over blocking" in both orders; the MAJOR-bump warning pinned |
+| 3 | **91.46 %** — measured at the release gate, judged by both `dependency-audit` test files | 7 | "unreadable wins over blocking" in both orders; the MAJOR-bump warning pinned |
 
 - **The one real hole** pass 2 found: an unreadable report *before* a blocking one let the exit code
   fall to 1. `if (exit === 0) exit = 1` → `if (true) exit = 1` was applied by hand and the new test
