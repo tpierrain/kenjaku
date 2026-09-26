@@ -59,8 +59,9 @@ export const realReadsDeps = {
 
 export function runRecorder(deps = realReadsDeps) {
   try {
+    // No id-guard here: startSession and recordRead both return the state unchanged
+    // without one, and an unchanged state is never written.
     const input = JSON.parse(deps.readInput());
-    if (!input?.session_id) return 0;
     const brainDir = deps.brainDir();
     const state = deps.readState(brainDir);
     const next =

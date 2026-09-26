@@ -82,6 +82,7 @@ export function readsFor(state, sessionId) {
  * than guess.
  */
 export function conversationReads({ sessionId, state }) {
-  if (!sessionId) return null;
+  // No id-guard of its own: startSession never opens an entry without an id, so an
+  // absent or empty one is simply never found — and that is null.
   return readsFor(state, sessionId);
 }

@@ -153,3 +153,20 @@ test("conversationReads — unknown (null) without a session id, whatever the re
   assert.deepEqual(conversationReads({ sessionId: "s1", state }), ["acme"]);
   assert.equal(conversationReads({ sessionId: "s9", state }), null);
 });
+
+test("a null entry in the record is survived everywhere — read, started beside, recorded into", () => {
+  // A hand-damaged file (or a future writer's bug) can leave `null` where an entry
+  // should be. Every path must survive it: a hook that throws here loses a read.
+  const state = { sessions: { s1: null, s2: { universes: ["acme"], at: 2 } } };
+  assert.deepEqual(readsFor(state, "s1"), []);
+  const started = startSession(state, { sessionId: "s3", source: "startup", now: 3 });
+  assert.deepEqual(Object.keys(started.sessions), ["s3", "s2", "s1"]);
+  // Nulls on both sides of a live entry: the sort compares them as either argument.
+  const both = startSession(
+    { sessions: { n1: null, s2: { universes: [], at: 2 }, n2: null } },
+    { sessionId: "s4", source: "clear", now: 4 },
+  );
+  assert.deepEqual(Object.keys(both.sessions).slice(0, 2), ["s4", "s2"]);
+  const recorded = recordRead({ sessions: { s0: null, s1: null } }, { sessionId: "s1", universe: "blue", now: 4 });
+  assert.deepEqual(recorded.sessions.s1, { universes: ["blue"], at: 4 });
+});
