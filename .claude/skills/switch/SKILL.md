@@ -69,10 +69,13 @@ node scripts/set-active-universe.mjs "<name>"
   the user reconnects them if this universe uses different accounts. You do **not** decide when to
   show it and **never reason about it yourself** (ADR 0009): the deterministic core owns that call,
   you only surface what it prints.
-- 🧠 **The core appends a SECOND disclosure, and it is about you** — when the switch *leaves* a named
-  universe, one line saying that **your conversation still holds everything you read there**, because
-  a switch re-points searches and cannot re-scope your own memory. **Relay it like the other one**:
-  same rule, the core decides when, you never judge it. And take it literally — after relaying it, do
+- 🧠 **The core appends a SECOND disclosure, and it is about you** — when this conversation read
+  notes in a universe the switch leaves out of scope, one line saying that **your conversation still
+  holds what you read there**, because a switch re-points searches and cannot re-scope your own
+  memory. The core knows which universes this conversation actually searched in; when it cannot know,
+  it says so conditionally (*"if I read anything in…"*). **Relay it like the other one**: same rule,
+  the core decides when, you never judge it — and **when it prints no such line, add none yourself**:
+  a conversation that read nothing has nothing to disclose. And take it literally — after relaying it, do
   not restate a fact you learned in the sphere you just left as if a search had just confirmed it. If
   it matters here, **search for it again** in this universe, or say plainly where you know it from.
   - **If the conversation genuinely holds a lot from the sphere just left**, you may offer — once, as

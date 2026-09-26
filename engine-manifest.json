@@ -49,6 +49,7 @@
       "scripts/refresh-note.mjs",
       "scripts/vault-write-guard.mjs",
       "scripts/vault-write-notice.mjs",
+      "scripts/conversation-reads.mjs",
       "scripts/engine-write-guard.mjs",
       "scripts/ai-summary-guard.mjs",
       "scripts/prompt-restart-nudge.mjs",

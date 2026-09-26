@@ -19,7 +19,10 @@ import {
   writeFileSync,
   mkdirSync,
 } from "node:fs";
+import { join } from "node:path";
 import { vaultRagDir } from "./lib/universes.mjs";
+import { conversationReads } from "./lib/conversation-reads.mjs";
+import { readConversationReads } from "./conversation-reads.mjs";
 import { runSwitchCliPersisted } from "./lib/universe-persist.mjs";
 import { runAsEntrypoint } from "./lib/entrypoint.mjs";
 import { buildGit, repoRoot } from "./auto-commit.mjs";
@@ -39,9 +42,29 @@ export const realSwitchDeps = () => ({
   io: realIo,
   vaultRagDir: vaultRagDir(),
   git: buildGit(repoRoot(import.meta.url)),
+  // Issue #130: what THIS conversation read, so the residue disclosure says only what
+  // is true. The session id is the one the harness exports to Bash (and hands every
+  // hook); null — no id, or no recorder wired — makes the core fall back to a
+  // conditional sentence rather than guess.
+  reads: () => {
+    const brain = repoRoot(import.meta.url);
+    return conversationReads({
+      sessionId: process.env.CLAUDE_CODE_SESSION_ID,
+      state: readConversationReads(brain),
+      settingsText: readOrNull(join(brain, ".claude", "settings.json")),
+    });
+  },
   sleep: realSleep,
   log: (m) => console.log(m),
 });
+
+function readOrNull(path) {
+  try {
+    return readFileSync(path, "utf-8");
+  } catch {
+    return null;
+  }
+}
 
 // Runs the switch and returns the exit code. All side effects (fs, git, sleep,
 // the console) arrive through `deps`, so this stays importable and testable.
@@ -51,6 +74,7 @@ export function runSetActiveUniverse(argv, deps = realSwitchDeps()) {
   const { code, message } = runSwitchCliPersisted(deps.io, deps.vaultRagDir, argv, {
     git: deps.git,
     sleep: deps.sleep,
+    reads: deps.reads?.() ?? null,
   });
   deps.log(message);
   return code;

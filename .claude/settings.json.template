@@ -109,6 +109,16 @@
             "timeout": 10000
           }
         ]
+      },
+      {
+        "matcher": "search_vault|get_document",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "{{NODE}} \"{{PROJECT_ROOT}}/scripts/conversation-reads.mjs\"",
+            "timeout": 10000
+          }
+        ]
       }
     ],
     "SessionStart": [
