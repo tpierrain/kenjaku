@@ -90,17 +90,22 @@ export function formatWhen(iso, locale, timeZone) {
   return words.when({ ...parts, monthShort });
 }
 
+// Never called with an empty list: `fromWhom` answers "" before it gets here.
 function joinNames(names, words) {
-  return names.length <= 1 ? (names[0] ?? "") : `${names.slice(0, -1).join(", ")} ${words.and} ${names.at(-1)}`;
+  return names.length === 1 ? names[0] : `${names.slice(0, -1).join(", ")} ${words.and} ${names.at(-1)}`;
 }
 
-/** How many files ("17 fichiers (dont 16 notes)"), and apart from it, from whom (" de ton autre machine", or ""). */
-function describe(files, authors, { me, identities }, words) {
+/** How many files: "17 fichiers (dont 16 notes)". */
+function howMany(files, words) {
   const notes = files.filter(isNote).length;
-  const what = `${words.files(files.length)}${notes > 0 ? words.ofWhichNotes(notes) : ""}`;
-  if (authors.length === 0) return { what, from: "" };
+  return `${words.files(files.length)}${notes > 0 ? words.ofWhichNotes(notes) : ""}`;
+}
+
+/** From whom, as a clause to append: " de ton autre machine", " de Claire", or "" when nobody is on record. */
+function fromWhom(authors, { me, identities }, words) {
+  if (authors.length === 0) return "";
   const allMe = authors.every((a) => isSamePerson(a, me.name, identities));
-  return { what, from: ` ${allMe ? words.fromOtherMachine : words.from(joinNames(authors, words))}` };
+  return ` ${allMe ? words.fromOtherMachine : words.from(joinNames(authors, words))}`;
 }
 
 function remoteLine(remoteHead, { me, identities, locale, timeZone }, words) {
@@ -117,16 +122,18 @@ function remoteLine(remoteHead, { me, identities, locale, timeZone }, words) {
 /**
  * The whole report, one fact per line, in the owner's language.
  * @param {{ locale: string, timeZone: string, trace: object|null, remoteHead: {at,name,email}|null,
- *   me: {name,email}, identities?: object[], thisSync: { committed: boolean, pulled: string[], pushed: "ok"|"failed" } }} facts
+ *   me: {name,email}, identities: object[], thisSync: { committed: boolean, pulled: string[], pushed: "ok"|"failed" } }} facts
  */
-export function syncReport({ locale, timeZone, trace, remoteHead, me, identities = [], thisSync }) {
+export function syncReport({ locale, timeZone, trace, remoteHead, me, identities, thisSync }) {
   const words = wordsFor(locale);
   const who = { me, identities };
-  const arrival = trace?.arrivedAt ? { when: formatWhen(trace.arrivedAt, locale, timeZone), ...describe(trace.files, trace.authors, who, words) } : null;
+  const arrival = trace?.arrivedAt
+    ? { when: formatWhen(trace.arrivedAt, locale, timeZone), what: howMany(trace.files, words), from: fromWhom(trace.authors, who, words) }
+    : null;
 
   const lines = [];
   if (thisSync.pulled.length > 0) {
-    lines.push(words.pulledNow(describe(thisSync.pulled, [], who, words).what));
+    lines.push(words.pulledNow(howMany(thisSync.pulled, words)));
     if (arrival) lines.push(words.previousArrival(arrival.when, arrival));
   } else {
     lines.push(arrival ? words.alreadyHere(arrival.when, arrival) : words.upToDate);

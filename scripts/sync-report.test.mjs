@@ -10,6 +10,7 @@ import { cpSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { parseArgs } from "./sync-report.mjs";
 
 const SCRIPTS = dirname(fileURLToPath(import.meta.url));
 
@@ -41,12 +42,12 @@ function world() {
   return { brain, other };
 }
 
-function pushFromOtherMachine(other, rel) {
+function pushFromOtherMachine(other, rel, author = {}) {
   const at = "2026-09-25T17:05:11Z";
   execFileSync("mkdir", ["-p", join(other, dirname(rel))]);
   writeFileSync(join(other, rel), "# a note\n");
   git(other, ["add", rel]);
-  git(other, ["commit", "-q", "-m", `add ${rel}`], { GIT_AUTHOR_DATE: at, GIT_COMMITTER_DATE: at });
+  git(other, ["commit", "-q", "-m", `add ${rel}`], { GIT_AUTHOR_DATE: at, GIT_COMMITTER_DATE: at, ...author });
   git(other, ["push", "-q", "origin", "main"]);
 }
 
@@ -125,4 +126,47 @@ test("a missing or malformed argument → exit 2 and nothing on stdout: a report
     assert.equal(run.status, 2, `args: ${args.join(" ")}`);
     assert.equal(run.stdout, "", `args: ${args.join(" ")}`);
   }
+});
+
+test("parseArgs: the three values, and nothing borrowed from a neighbouring flag", () => {
+  assert.deepEqual(parseArgs(["--before", "abc", "--committed", "yes", "--pushed", "failed"]), {
+    before: "abc",
+    committed: true,
+    pushed: "failed",
+  });
+  assert.deepEqual(parseArgs(["--pushed", "ok", "--committed", "no", "--before", "abc"]), { before: "abc", committed: false, pushed: "ok" });
+  // Without --before, "--committed" must not be read as the missing flag's value.
+  assert.equal(parseArgs(["--committed", "no", "--pushed", "ok"]), null);
+  assert.equal(parseArgs(["--before", "abc", "--pushed", "ok"]), null);
+});
+
+test("a push made from THIS machine is said as such, read from this machine's own git email", () => {
+  const { brain } = world();
+  const before = git(brain, ["rev-parse", "HEAD"]);
+  const run = runReport(brain, ["--before", before, "--committed", "no", "--pushed", "ok"]);
+  assert.equal(run.status, 0);
+  assert.match(run.stdout.split("\n")[1], /, under the same git identity as this machine\.$/);
+});
+
+test("the owner's own registry fuses a second spelling into 'your other machine'", () => {
+  const { brain, other } = world();
+  const before = git(brain, ["rev-parse", "HEAD"]);
+  pushFromOtherMachine(other, "vault/notes/a.md", { GIT_COMMITTER_NAME: "tpierrain", GIT_COMMITTER_EMAIL: "t@work.example" });
+  git(brain, ["fetch", "-q", "origin"]);
+  git(brain, ["rebase", "-q", "origin/main"]);
+  execFileSync("mkdir", ["-p", join(brain, ".vault-rag")]);
+  writeFileSync(join(brain, ".vault-rag", "authors.json"), JSON.stringify({ identities: [{ name: "Thomas Pierrain", aka: ["tpierrain"] }], distinct: [] }));
+
+  const run = runReport(brain, ["--before", before, "--committed", "no", "--pushed", "ok"]);
+  assert.equal(run.status, 0);
+  assert.equal(run.stdout.split("\n")[1], "📤 Last push the remote received: Friday 25 Sep at 19:05, from your other machine (t@work.example).");
+});
+
+test("a branch with no upstream: the remote line says unknown, the report still prints", () => {
+  const { brain } = world();
+  git(brain, ["checkout", "-q", "-b", "local-only"]);
+  const before = git(brain, ["rev-parse", "HEAD"]);
+  const run = runReport(brain, ["--before", before, "--committed", "no", "--pushed", "failed"]);
+  assert.equal(run.status, 0);
+  assert.equal(run.stdout.split("\n")[1], "📤 Last push the remote received: unknown (the remote branch could not be read).");
 });

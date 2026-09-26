@@ -158,6 +158,45 @@ test("a confirmed identity fuses two spellings into 'your other machine'", () =>
   assert.equal(out.split("\n")[1], "📤 Dernier push reçu par le dépôt distant : vendredi 25/09 à 19h05, depuis ton autre machine (t@work.example).");
 });
 
+test("one outside author is named alone; three are listed with commas", () => {
+  const one = report({ trace: { ...FRIDAY_TRACE, authors: ["Claire Martin"] } }).split("\n")[0];
+  assert.equal(
+    one,
+    "✅ Rien de nouveau depuis vendredi 25/09 à 19h06, heure à laquelle la synchro automatique a déjà rapatrié ici 17 fichiers (dont 16 notes) de Claire Martin.",
+  );
+  const three = report({ trace: { ...FRIDAY_TRACE, authors: ["Claire Martin", "Bob Durand", "Thomas Pierrain"] } }).split("\n")[0];
+  assert.equal(
+    three,
+    "✅ Rien de nouveau depuis vendredi 25/09 à 19h06, heure à laquelle la synchro automatique a déjà rapatrié ici 17 fichiers (dont 16 notes) de Claire Martin, Bob Durand et Thomas Pierrain.",
+  );
+});
+
+test("every other English sentence, pinned whole", () => {
+  const en = (overrides) => report({ locale: "en", ...overrides }).split("\n");
+  assert.deepEqual(en({ trace: null, remoteHead: null, thisSync: { committed: true, pulled: [], pushed: "failed" } }), [
+    "✅ Nothing new: this machine already has everything the remote holds.",
+    "📤 Last push the remote received: unknown (the remote branch could not be read).",
+    "This /sync: local commit yes · push failed.",
+  ]);
+  assert.deepEqual(
+    en({
+      trace: { ...FRIDAY_TRACE, authors: ["Claire Martin", "Bob Durand"] },
+      remoteHead: { ...REMOTE_FROM_OTHER_MACHINE, email: ME.email },
+      thisSync: { committed: false, pulled: ["vault/notes/a.md", "vault/notes/b.md"], pushed: "ok" },
+    }),
+    [
+      "📥 This /sync brought 2 files (2 of them notes).",
+      "🕘 Previous arrival on this machine: Friday 25 Sep at 19:06, by the automatic sync: 17 files (16 of them notes) from Claire Martin and Bob Durand.",
+      "📤 Last push the remote received: Friday 25 Sep at 19:05, under the same git identity as this machine.",
+      "This /sync: local commit no · push sent.",
+    ],
+  );
+  assert.equal(
+    en({ remoteHead: { at: REMOTE_FROM_OTHER_MACHINE.at, name: "Claire Martin", email: "claire@example.org" } })[1],
+    "📤 Last push the remote received: Friday 25 Sep at 19:05, by Claire Martin (claire@example.org).",
+  );
+});
+
 test("arrivals from somebody else are named, not called 'your other machine'", () => {
   const out = report({ trace: { ...FRIDAY_TRACE, authors: ["Claire Martin", "Thomas Pierrain"] } });
   assert.equal(
