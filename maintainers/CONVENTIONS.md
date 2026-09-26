@@ -833,6 +833,31 @@ Before the tag, in this order:
 > with no test for French guillemets. **A skip is a decision and must be written down as one** (§5quinquies
 > allows it for doc-only or wiring-only slices); what may never happen again is a skip nobody chose.
 
+## 9ter. Merge, tag and publish happen ONLY on the owner's explicit order
+
+**Being able to publish is not permission to publish.** A session may carry a release all the way to a
+green PR on its own. The three gestures that leave the repo — **merging to `main`, pushing a tag,
+creating a GitHub release** — happen only when the owner orders them, in plain words, **in the current
+conversation**.
+
+- **What counts as the order**: an explicit go for *this* release (*"lets go"*, *"merge et publie"*,
+  *"tag it"*), given after the release was presented. A green check, a finished gate list, a plan that
+  says "next: tag" or a silence are **not** orders.
+- **An order is spent by the release it was given for.** Consent for v5.5.2 does not carry to v5.5.3,
+  nor across a `/clear`, nor from a plan line written by an earlier session.
+- **The machine permission is the owner's to grant, and it changes nothing here.** The owner may allow
+  `git tag -a v*`, `git push origin v*` and `gh release *` in their personal
+  `.claude/settings.local.json` so a session *can* run them without a prompt. That removes the
+  mechanical stop, which is exactly why this rule exists: from then on, it is the only one.
+- **If the order is ambiguous, ask one question** (*"je fusionne et je publie v5.5.2 ?"*) rather than
+  reading intent into it. A question costs a line; a published release cannot be unpublished from the
+  users who already fetched it.
+
+> Origin _(2026-09-26, the owner, on v5.5.2)_: *« je veux que tu puisses le faire mais que tu ne le
+> fasses que quand je te l'ordonne explicitement »*. The auto-mode guard had refused the tag and the
+> release twice, including after a chat authorization; the durable fix is the permission for the
+> capability, plus this rule for the decision.
+
 ## 10. Every release re-reads the marketing surface
 
 **A release is not done when the tag is pushed. It is done when the way we present Kenjaku still tells
