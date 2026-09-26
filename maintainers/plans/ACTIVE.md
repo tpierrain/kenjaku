@@ -12,9 +12,9 @@ only carries what a user of Kenjaku could read and care about (2026-09-12, tried
 
 ## The active plan
 
-**None** _(2026-09-26)_. The last one shipped as v5.5.2, archived at
-[`archived/2026-09-26-v5.5.2-bugfix-release-action.md`](archived/2026-09-26-v5.5.2-bugfix-release-action.md).
-What resumes next is the owner's call: the paused work below.
+🔴 [**`v5.5.3-universe-residue-action.md`**](v5.5.3-universe-residue-action.md) — bug
+[#130](https://github.com/tpierrain/kenjaku/issues/130). Opened 2026-09-26 at the owner's ask, worked
+on branch `fix/v5.5.3-universe-residue`. **Resume there and nowhere else.**
 
 ## ⏸️ Paused behind it — do not resume without the owner _(2026-09-26)_
 
