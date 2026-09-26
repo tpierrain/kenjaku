@@ -49,9 +49,9 @@ function recordPath(brainDir, sessionId) {
 
 /** This conversation's universes, or null when the record never saw it begin. */
 export function readConversationReads(brainDir, sessionId) {
+  // No usable id (a null path) and no record (ENOENT) both land in the catch: unknown.
   try {
-    const path = recordPath(brainDir, sessionId);
-    return path && existsSync(path) ? parseReads(readFileSync(path, "utf8")) : null;
+    return parseReads(readFileSync(recordPath(brainDir, sessionId), "utf8"));
   } catch {
     return null;
   }
@@ -114,9 +114,9 @@ export function runRecorder(deps = realReadsDeps) {
     if (known === null || !deps.isMultiverse(brainDir)) return 0;
     const universes = namedUniverses(
       citedNotePaths({ toolName: input.tool_name, toolInput: input.tool_input, toolResponse: input.tool_response })
-        .map((rel) => deps.readNote(brainDir, rel))
-        .filter((raw) => raw !== null)
-        .map(universeOfNote),
+        // A note gone since the search reads as null, which universeOfNote files under
+        // the cross-cutting default: recorded as nothing.
+        .map((rel) => universeOfNote(deps.readNote(brainDir, rel))),
     );
     const text = linesToAppend(known, universes);
     if (text) deps.appendRecord(path, text);

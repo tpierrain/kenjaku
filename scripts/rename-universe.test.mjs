@@ -2,12 +2,12 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-import { runRenameUniverse } from "./rename-universe.mjs";
+import { realRenameDeps, runRenameUniverse } from "./rename-universe.mjs";
 
 const CLI = join(dirname(fileURLToPath(import.meta.url)), "rename-universe.mjs");
 
@@ -268,4 +268,20 @@ test("the CLI, run as a process — no args refuses without touching anything", 
 
   assert.equal(run.status, 1, `a missing universe name must exit 1 — stderr: ${run.stderr}`);
   assert.match(run.stderr, /A rename needs both a universe to rename and a new name/);
+});
+
+test("the real wiring renames the records on disk, and never lets a broken record fail the rename", (t) => {
+  const brain = mkdtempSync(join(tmpdir(), "rename-universe-reads-"));
+  t.after(() => rmSync(brain, { recursive: true, force: true }));
+  const dir = join(brain, ".cache", "conversation-reads");
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, "s1"), "acme\nblue\n");
+  const { renameConversationReads } = realRenameDeps();
+
+  renameConversationReads(brain, "acme", "acme-corp");
+  assert.equal(readFileSync(join(dir, "s1"), "utf8"), "acme-corp\nblue\n");
+
+  // A directory where a record should be: the rewrite throws, the rename must not.
+  mkdirSync(join(dir, "not-a-file"));
+  assert.doesNotThrow(() => renameConversationReads(brain, "blue", "navy"));
 });

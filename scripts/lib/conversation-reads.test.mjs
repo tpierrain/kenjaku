@@ -35,6 +35,8 @@ const TWO_CITATIONS =
   "**Path:** `vault/people/jane doe.md` | **Type:** person | **Score:** 0.700\n" +
   "🧠 [local copy](<file:///b/vault/people/jane%20doe.md>)\n\nAnother excerpt.";
 
+const cite = (path) => `### 1. T — S\n**Path:** \`vault/${path}\` | **Type:** topic | **Score:** 0.9\n\nexcerpt`;
+
 test("citedNotePaths — a search answer yields every note it cites, in order", () => {
   // The MCP content array, which is what PostToolUse hands over (seen live, 2026-09-26).
   assert.deepEqual(
@@ -193,4 +195,49 @@ test("sessionsToPrune — keeps the most recent conversations, names the rest", 
     sessionsToPrune([{ name: "old", mtimeMs: 1 }, { name: "new", mtimeMs: 3 }, { name: "mid", mtimeMs: 2 }], 2),
     ["old"],
   );
+});
+
+// ── assertion quality, from the first mutation pass on the redesign ────────────
+
+test("citedNotePaths — a citation line counts only at the start of a line", () => {
+  // An excerpt quoting a citation mid-line is prose, not a note returned.
+  const text = "excerpt says **Path:** `vault/acme/x.md` | **Type:** topic\n" + cite("blue/b.md");
+  assert.deepEqual(
+    citedNotePaths({ toolName: "mcp__vault-rag__search_vault", toolInput: {}, toolResponse: [{ type: "text", text }] }),
+    ["blue/b.md"],
+  );
+});
+
+test("citedNotePaths — parts of the answer that are not text are skipped, the text ones still read", () => {
+  // Two text parts too: each part is read on its own, so a citation starting the
+  // second part is still at the start of a line.
+  assert.deepEqual(
+    citedNotePaths({
+      toolName: "mcp__vault-rag__search_vault",
+      toolInput: {},
+      toolResponse: [null, { type: "image", data: "…" }, { type: "text", text: cite("acme/a.md") }, { type: "text", text: cite("blue/b.md") }],
+    }),
+    ["acme/a.md", "blue/b.md"],
+  );
+  assert.deepEqual(
+    citedNotePaths({ toolName: "mcp__vault-rag__search_vault", toolInput: {}, toolResponse: { content: "not a list" } }),
+    [],
+  );
+  assert.deepEqual(citedNotePaths({ toolName: undefined, toolInput: { path: "a.md" }, toolResponse: [] }), []);
+});
+
+test("universeOfNote — the frontmatter must OPEN the note, and may close it at the very end", () => {
+  assert.equal(universeOfNote("intro\n---\nuniverse: acme\n---\n"), "default");
+  assert.equal(universeOfNote("---\nuniverse: blue\n---"), "blue");
+});
+
+test("universeOfNote — YAML needs a space after the colon; quotes are unwrapped only when they wrap it all", () => {
+  // `universe:acme` is not a key in YAML, it is a one-word string.
+  assert.equal(universeOfNote("---\nuniverse:acme\n---\n"), "default");
+  assert.equal(universeOfNote("---\nuniverse:\tacme\n---\n"), "acme");
+  // The indexer trims the parsed value, so a padded quoted value is the bare name.
+  assert.equal(universeOfNote('---\nuniverse: " acme "\n---\n'), "acme");
+  assert.equal(universeOfNote("---\nuniverse: x'y'\n---\n"), "x'y'");
+  assert.equal(universeOfNote('---\nuniverse: "a"b\n---\n'), '"a"b');
+  assert.equal(universeOfNote(null), "default");
 });

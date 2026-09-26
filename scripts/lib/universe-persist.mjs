@@ -95,7 +95,7 @@ export function persistUniverseSwitch({ git, sleep, name }) {
 // Failures are appended to the user-facing message, never swallowed: the switch
 // itself did happen on disk (code stays 0), but the owner must hear it stayed
 // local. A deferral (paused merge/rebase) is noted calmly, not shouted.
-export function runSwitchCliPersisted(io, dir, argv, { git, sleep, reads = () => null }) {
+export function runSwitchCliPersisted(io, dir, argv, { git, sleep, reads }) {
   const res = runSwitchCli(io, dir, argv, { reads });
   if (!res.wrote) return res;
   const { commit, push } = persistUniverseSwitch({ git, sleep, name: res.wrote });

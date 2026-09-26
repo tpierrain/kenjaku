@@ -40,7 +40,7 @@ const CITATION_PATH = /^\*\*Path:\*\* `vault\/([^`]+)` \|/gm;
 
 // A leading YAML frontmatter block, CRLF-tolerant (cf. stamp-universe.mjs).
 const FRONTMATTER = /^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/;
-const UNIVERSE_KEY = /^universe:[ \t]*(.*?)[ \t]*\r?$/m;
+const UNIVERSE_KEY = /^universe:[ \t]+(.*?)[ \t]*\r?$/m;
 
 /** The file name for a session's record, or null when the id is unusable as one. */
 export function sessionFileName(sessionId) {
@@ -52,13 +52,12 @@ export function opensFreshWindow(source) {
   return FRESH_WINDOW_SOURCES.has(source);
 }
 
-// The text of a tool response, whichever shape it arrives in: the MCP content array
-// (what PostToolUse hands over), that array wrapped in `{ content }`, or a string.
-function responseText(toolResponse) {
-  if (typeof toolResponse === "string") return toolResponse;
+// The text parts of a tool response, whichever shape it arrives in: the MCP content
+// array (what PostToolUse hands over), that array wrapped in `{ content }`, or a string.
+function responseTexts(toolResponse) {
+  if (typeof toolResponse === "string") return [toolResponse];
   const content = Array.isArray(toolResponse) ? toolResponse : toolResponse?.content;
-  if (!Array.isArray(content)) return "";
-  return content.map((c) => (typeof c?.text === "string" ? c.text : "")).join("\n");
+  return Array.isArray(content) ? content.map((c) => c?.text).filter((t) => typeof t === "string") : [];
 }
 
 /**
@@ -67,20 +66,21 @@ function responseText(toolResponse) {
  * else — another tool, an answer without a citation — read no note.
  */
 export function citedNotePaths({ toolName, toolInput, toolResponse }) {
-  const name = String(toolName ?? "");
+  const name = String(toolName);
   if (name.endsWith("get_document")) {
     const path = toolInput?.path;
     return typeof path === "string" && path ? [path] : [];
   }
   if (name.endsWith("search_vault")) {
-    return [...responseText(toolResponse).matchAll(CITATION_PATH)].map((m) => m[1]);
+    return responseTexts(toolResponse).flatMap((text) => [...text.matchAll(CITATION_PATH)].map((m) => m[1]));
   }
   return [];
 }
 
-/** A note's universe: its frontmatter `universe:`, or the cross-cutting default. */
+/** A note's universe: its frontmatter `universe:`, or the cross-cutting default (also for
+ * a note that could not be read, passed as null). */
 export function universeOfNote(raw) {
-  const block = String(raw ?? "").match(FRONTMATTER);
+  const block = String(raw).match(FRONTMATTER);
   const declared = block?.[1].match(UNIVERSE_KEY)?.[1].replace(/^(["'])(.*)\1$/, "$2").trim();
   return declared || DEFAULT_UNIVERSE;
 }

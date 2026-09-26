@@ -17,7 +17,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
 
-import { CONVERSATION_READS_DIR_REL, readConversationReads, renameConversationReads } from "./conversation-reads.mjs";
+import { CONVERSATION_READS_DIR_REL, readConversationReads, renameConversationReads, runRecorder } from "./conversation-reads.mjs";
 import { MAX_SESSIONS } from "./lib/conversation-reads.mjs";
 
 // Issue #130 — the hook that records which universes a conversation read notes from.
@@ -264,4 +264,72 @@ test("the template wires the recorder on the REAL names of the two vault tools, 
     ["search_vault", "get_document", "list_documents", "reindex"].map(fires),
     [true, true, false, false],
   );
+});
+
+// ── runRecorder in-process, on doubles that record every call ──────────────────
+function fakeDeps({ input, record = "", multiverse = true, notes = {} }) {
+  const calls = [];
+  return {
+    calls,
+    deps: {
+      readInput: () => JSON.stringify(input),
+      brainDir: () => "/brain",
+      isMultiverse: (b) => (calls.push(["isMultiverse", b]), multiverse),
+      readNote: (b, rel) => (calls.push(["readNote", b, rel]), notes[rel] ?? null),
+      startRecord: (b, p) => calls.push(["startRecord", b, p]),
+      readRecord: (p) => (calls.push(["readRecord", p]), record),
+      appendRecord: (p, text) => calls.push(["appendRecord", p, text]),
+    },
+  };
+}
+const recordAt = join("/brain", CONVERSATION_READS_DIR_REL, "s1");
+const readOf = (paths) => ({
+  session_id: "s1",
+  hook_event_name: "PostToolUse",
+  tool_name: "mcp__vault-rag__search_vault",
+  tool_input: {},
+  tool_response: [{ type: "text", text: paths.map(cite).join("\n\n") }],
+});
+
+test("runRecorder — appends only what is new, and writes nothing when nothing is", () => {
+  const notes = { "acme/a.md": "---\nuniverse: acme\n---\n", "blue/b.md": "---\nuniverse: blue\n---\n", "gone.md": null };
+  const fresh = fakeDeps({ input: readOf(["acme/a.md", "gone.md", "blue/b.md"]), record: "acme\n", notes });
+  assert.equal(runRecorder(fresh.deps), 0);
+  assert.deepEqual(fresh.calls, [
+    ["readRecord", recordAt],
+    ["isMultiverse", "/brain"],
+    ["readNote", "/brain", "acme/a.md"],
+    ["readNote", "/brain", "gone.md"],
+    ["readNote", "/brain", "blue/b.md"],
+    ["appendRecord", recordAt, "blue\n"],
+  ]);
+  const nothingNew = fakeDeps({ input: readOf(["acme/a.md"]), record: "acme\n", notes });
+  runRecorder(nothingNew.deps);
+  assert.deepEqual(nothingNew.calls.map(([name]) => name), ["readRecord", "isMultiverse", "readNote"]);
+});
+
+test("runRecorder — an unknown conversation, or a single-universe brain, reads no note at all", () => {
+  const unknown = fakeDeps({ input: readOf(["acme/a.md"]), record: null });
+  runRecorder(unknown.deps);
+  assert.deepEqual(unknown.calls, [["readRecord", recordAt]]);
+  const single = fakeDeps({ input: readOf(["acme/a.md"]), multiverse: false });
+  runRecorder(single.deps);
+  assert.deepEqual(single.calls, [["readRecord", recordAt], ["isMultiverse", "/brain"]]);
+});
+
+test("runRecorder — SessionStart opens a record only for a fresh window, and reads nothing", () => {
+  const fresh = fakeDeps({ input: { session_id: "s1", hook_event_name: "SessionStart", source: "clear" } });
+  runRecorder(fresh.deps);
+  assert.deepEqual(fresh.calls, [["startRecord", "/brain", recordAt]]);
+  const resumed = fakeDeps({ input: { session_id: "s1", hook_event_name: "SessionStart", source: "resume" } });
+  runRecorder(resumed.deps);
+  assert.deepEqual(resumed.calls, []);
+});
+
+test("a conversation never seen stays unknown even once another one has created the record directory", () => {
+  withBrain((brain) => {
+    start(brain, "s-other");
+    search(brain, "s-old", ["acme/deals/big-deal.md"]);
+    assert.equal(existsSync(recordFile(brain, "s-old")), false);
+  });
 });

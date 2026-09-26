@@ -57,7 +57,7 @@ export function runSetActiveUniverse(argv, deps = realSwitchDeps()) {
   const { code, message } = runSwitchCliPersisted(deps.io, deps.vaultRagDir, argv, {
     git: deps.git,
     sleep: deps.sleep,
-    reads: deps.reads ?? (() => null),
+    reads: deps.reads,
   });
   deps.log(message);
   return code;
