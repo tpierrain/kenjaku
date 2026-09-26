@@ -3,9 +3,9 @@ import assert from "node:assert/strict";
 
 import {
   universeOfRead,
+  startSession,
   recordRead,
   readsFor,
-  recorderWired,
   conversationReads,
   MAX_SESSIONS,
 } from "./conversation-reads.mjs";
@@ -31,116 +31,125 @@ test("universeOfRead — an all-universes search is recorded as such, not as the
   assert.equal(universeOfRead({ toolInput: undefined, active: "acme" }), "acme");
 });
 
-test("recordRead — the first read of a session starts its record", () => {
-  assert.deepEqual(recordRead(null, { sessionId: "s1", universe: "acme", now: 111 }), {
-    sessions: { s1: { universes: ["acme"], at: 111 } },
-  });
+// ── startSession: a conversation is KNOWN from its first instant, or never ─────
+// The record can only vouch for a conversation it saw begin. One that started before
+// the recorder was wired (the gap between an update and the restart), or a resumed
+// one whose entry was pruned, has reads nobody recorded — so it must stay UNKNOWN,
+// never read as "read nothing".
+
+test("startSession — a new conversation (startup or /clear) starts with an empty record", () => {
+  for (const source of ["startup", "clear"]) {
+    assert.deepEqual(startSession(null, { sessionId: "s1", source, now: 7 }), {
+      sessions: { s1: { universes: [], at: 7 } },
+    }, source);
+  }
 });
 
-test("recordRead — later reads add a universe once, and leave other sessions alone", () => {
+test("startSession — a resumed or compacted conversation is left as it was", () => {
+  // Its window may hold reads from before: creating an empty entry would vouch for
+  // a silence nobody observed.
+  const state = { sessions: { s1: { universes: ["acme"], at: 1 } } };
+  for (const source of ["resume", "compact", undefined]) {
+    assert.equal(startSession(state, { sessionId: "s1", source, now: 9 }), state, String(source));
+    assert.equal(startSession(null, { sessionId: "s2", source, now: 9 }), null, String(source));
+  }
+});
+
+test("startSession — without a session id there is nothing to key it on", () => {
+  assert.equal(startSession(null, { sessionId: undefined, source: "startup", now: 1 }), null);
+  assert.equal(startSession(null, { sessionId: "", source: "startup", now: 1 }), null);
+});
+
+test("startSession — other conversations are kept, and the file keeps only the most recent", () => {
+  const sessions = {};
+  const order = [...Array(MAX_SESSIONS).keys()].reverse();
+  for (const i of order) sessions[`s${i}`] = { universes: ["acme"], at: 100 + i };
+  const next = startSession({ sessions }, { sessionId: "new", source: "startup", now: 999 });
+  const ids = Object.keys(next.sessions);
+  assert.equal(ids.length, MAX_SESSIONS);
+  assert.ok(!ids.includes("s0"), "the oldest conversation is the one dropped");
+  assert.deepEqual(next.sessions.s1, { universes: ["acme"], at: 101 });
+  assert.deepEqual(next.sessions.new, { universes: [], at: 999 });
+});
+
+test("startSession — at exactly the cap, the new conversation fits without dropping anyone", () => {
+  const sessions = {};
+  for (let i = 0; i < MAX_SESSIONS - 1; i++) sessions[`s${i}`] = { universes: [], at: i };
+  const next = startSession({ sessions }, { sessionId: "new", source: "startup", now: 999 });
+  assert.equal(Object.keys(next.sessions).length, MAX_SESSIONS);
+  assert.ok("s0" in next.sessions);
+});
+
+test("startSession — a corrupt record is started afresh rather than crashing the hook", () => {
+  for (const bad of [{}, { sessions: "x" }, { sessions: [] }, 42]) {
+    assert.deepEqual(startSession(bad, { sessionId: "s1", source: "startup", now: 5 }), {
+      sessions: { s1: { universes: [], at: 5 } },
+    });
+  }
+});
+
+// ── recordRead: only a conversation the record saw begin is written to ──────────
+
+test("recordRead — reads add a universe once, and leave other conversations alone", () => {
   const state = {
     sessions: {
-      s1: { universes: ["acme"], at: 1 },
+      s1: { universes: [], at: 1 },
       s2: { universes: ["zeta"], at: 2 },
     },
   };
   const once = recordRead(state, { sessionId: "s1", universe: "blue", now: 3 });
   const twice = recordRead(once, { sessionId: "s1", universe: "acme", now: 4 });
-  assert.deepEqual(twice, {
+  const again = recordRead(twice, { sessionId: "s1", universe: "blue", now: 5 });
+  assert.deepEqual(again, {
     sessions: {
-      s1: { universes: ["acme", "blue"], at: 4 },
+      s1: { universes: ["blue", "acme"], at: 5 },
       s2: { universes: ["zeta"], at: 2 },
     },
   });
   // Not mutated: the caller's copy is what it was.
-  assert.deepEqual(state.sessions.s1, { universes: ["acme"], at: 1 });
+  assert.deepEqual(state.sessions.s1, { universes: [], at: 1 });
 });
 
-test("recordRead — without a session id there is nothing to key it on, so nothing changes", () => {
-  const state = { sessions: { s1: { universes: ["acme"], at: 1 } } };
+test("recordRead — a conversation the record never saw begin is NOT started by a read", () => {
+  // Its earlier reads were never recorded: a partial list would name some spheres and
+  // hide others, which is worse than the conditional sentence.
+  const state = { sessions: { s1: { universes: [], at: 1 } } };
+  assert.equal(recordRead(state, { sessionId: "s2", universe: "acme", now: 2 }), state);
+  assert.equal(recordRead(null, { sessionId: "s2", universe: "acme", now: 2 }), null);
+  assert.equal(recordRead({ sessions: "x" }, { sessionId: "s2", universe: "acme", now: 2 }).sessions, "x");
+});
+
+test("recordRead — without a session id, nothing changes", () => {
+  const state = { sessions: { s1: { universes: [], at: 1 } } };
   assert.equal(recordRead(state, { sessionId: undefined, universe: "blue", now: 2 }), state);
   assert.equal(recordRead(state, { sessionId: "", universe: "blue", now: 2 }), state);
 });
 
-test("recordRead — a corrupt record is started afresh rather than crashing the hook", () => {
-  for (const bad of [{}, { sessions: "x" }, { sessions: { s1: { universes: "acme" } } }, 42]) {
-    assert.deepEqual(
-      recordRead(bad, { sessionId: "s1", universe: "blue", now: 5 }).sessions.s1,
-      { universes: ["blue"], at: 5 }
-    );
-  }
+test("recordRead — an entry whose universes are corrupt is repaired, not crashed on", () => {
+  const state = { sessions: { s1: { universes: "acme", at: 1 } } };
+  assert.deepEqual(recordRead(state, { sessionId: "s1", universe: "blue", now: 2 }).sessions.s1, {
+    universes: ["blue"],
+    at: 2,
+  });
 });
 
-test("recordRead — the file keeps only the most recent sessions", () => {
-  // MAX_SESSIONS existing, unsorted, then one more: the OLDEST goes, and only it.
-  const sessions = {};
-  const order = [...Array(MAX_SESSIONS).keys()].reverse();
-  for (const i of order) sessions[`s${i}`] = { universes: ["acme"], at: 100 + i };
-  const next = recordRead({ sessions }, { sessionId: "new", universe: "blue", now: 999 });
-  const ids = Object.keys(next.sessions);
-  assert.equal(ids.length, MAX_SESSIONS);
-  assert.ok(!ids.includes("s0"), "the oldest session is the one dropped");
-  assert.ok(ids.includes("s1") && ids.includes("new"));
-});
+// ── what the switch may rely on ────────────────────────────────────────────────
 
-test("recordRead — at exactly the cap, the new session fits without dropping anyone else", () => {
-  const sessions = {};
-  for (let i = 0; i < MAX_SESSIONS - 1; i++) sessions[`s${i}`] = { universes: [], at: i };
-  const next = recordRead({ sessions }, { sessionId: "new", universe: "blue", now: 999 });
-  assert.equal(Object.keys(next.sessions).length, MAX_SESSIONS);
-  assert.ok("s0" in next.sessions);
-});
-
-test("readsFor — this session's universes, or none when it never read", () => {
-  const state = { sessions: { s1: { universes: ["acme", "blue"], at: 1 } } };
+test("readsFor — this conversation's universes, or null when the record never saw it begin", () => {
+  const state = { sessions: { s1: { universes: ["acme", "blue"], at: 1 }, s3: { universes: [], at: 2 } } };
   assert.deepEqual(readsFor(state, "s1"), ["acme", "blue"]);
-  assert.deepEqual(readsFor(state, "s2"), []);
-  assert.deepEqual(readsFor(null, "s1"), []);
+  // Seen begin, read nothing: a KNOWN empty window.
+  assert.deepEqual(readsFor(state, "s3"), []);
+  assert.equal(readsFor(state, "s2"), null);
+  assert.equal(readsFor(null, "s1"), null);
+  assert.equal(readsFor({ sessions: "x" }, "s1"), null);
   assert.deepEqual(readsFor({ sessions: { s1: { universes: "acme" } } }, "s1"), []);
 });
 
-// A settings.json written the way a human would leave it, never by the code under
-// test: two events, the recorder among other PostToolUse hooks, a decoy elsewhere.
-const WIRED = `{
-  "hooks": {
-    "PreToolUse": [ { "matcher": "Write", "hooks": [ { "type": "command", "command": "node \\"/b/scripts/vault-write-guard.mjs\\"" } ] } ],
-    "PostToolUse": [
-      { "matcher": "Write|Edit", "hooks": [ { "type": "command", "command": "node \\"/b/scripts/auto-commit.mjs\\"" } ] },
-      { "matcher": "search_vault|get_document", "hooks": [ { "type": "command", "command": "node \\"/b/scripts/conversation-reads.mjs\\"" } ] }
-    ]
-  }
-}`;
-
-test("recorderWired — true when a PostToolUse hook runs the recorder", () => {
-  assert.equal(recorderWired(WIRED), true);
-});
-
-test("recorderWired — false when the recorder is absent, misplaced, or the file unusable", () => {
-  assert.equal(recorderWired(WIRED.replace("conversation-reads.mjs", "other.mjs")), false);
-  // Under another event it records nothing at the moment a read happens.
-  const misplaced = `{"hooks":{"PreToolUse":[{"hooks":[{"command":"node scripts/conversation-reads.mjs"}]}]}}`;
-  assert.equal(recorderWired(misplaced), false);
-  for (const bad of [null, "", "{not json", "{}", `{"hooks":{"PostToolUse":"x"}}`]) {
-    assert.equal(recorderWired(bad), false, `settings ${JSON.stringify(bad)}`);
-  }
-});
-
-test("conversationReads — known only with a session id AND a wired recorder", () => {
+test("conversationReads — unknown (null) without a session id, whatever the record says", () => {
   const state = { sessions: { s1: { universes: ["acme"], at: 1 } } };
-  assert.deepEqual(conversationReads({ sessionId: "s1", state, settingsText: WIRED }), ["acme"]);
-  // Wired, and this session never read: a KNOWN empty window, not an unknown one.
-  assert.deepEqual(conversationReads({ sessionId: "s9", state: null, settingsText: WIRED }), []);
-});
-
-test("conversationReads — unknown (null) without a session id", () => {
-  const state = { sessions: { s1: { universes: ["acme"], at: 1 } } };
-  assert.equal(conversationReads({ sessionId: undefined, state, settingsText: WIRED }), null);
-  assert.equal(conversationReads({ sessionId: "", state, settingsText: WIRED }), null);
-});
-
-test("conversationReads — unknown (null) when the recorder is not wired, whatever the file says", () => {
-  // A brain not yet updated: an empty record there proves nothing about the window.
-  const state = { sessions: { s1: { universes: ["acme"], at: 1 } } };
-  assert.equal(conversationReads({ sessionId: "s1", state, settingsText: "{}" }), null);
-  assert.equal(conversationReads({ sessionId: "s1", state: null, settingsText: null }), null);
+  assert.equal(conversationReads({ sessionId: undefined, state }), null);
+  assert.equal(conversationReads({ sessionId: "", state }), null);
+  assert.deepEqual(conversationReads({ sessionId: "s1", state }), ["acme"]);
+  assert.equal(conversationReads({ sessionId: "s9", state }), null);
 });

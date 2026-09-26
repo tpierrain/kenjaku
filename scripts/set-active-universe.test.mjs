@@ -275,25 +275,13 @@ test("the CLI, IMPORTED rather than run — the body must not fire on import", a
 // keeps. Spawned for real: the wiring (env, settings, record) is the whole fix, and
 // no in-process test can see it.
 // ─────────────────────────────────────────────────────────────────────────────
-const RECORDER_SETTINGS = JSON.stringify({
-  hooks: {
-    PostToolUse: [
-      { matcher: "search_vault|get_document", hooks: [{ type: "command", command: 'node "/x/scripts/conversation-reads.mjs"' }] },
-    ],
-  },
-});
-
-function switchInBrain({ settings, record, sessionId }) {
+function switchInBrain({ record, sessionId }) {
   const { repo } = tempGitRepo();
   try {
     cpSync(SCRIPTS_DIR, join(repo, "scripts"), { recursive: true });
     mkdirSync(join(repo, ".vault-rag"), { recursive: true });
     writeFileSync(join(repo, ".vault-rag", "universes.json"), JSON.stringify({ universes: ["acme", "blue"] }));
     writeFileSync(join(repo, ".vault-rag", "active-universe"), "acme\n");
-    if (settings) {
-      mkdirSync(join(repo, ".claude"), { recursive: true });
-      writeFileSync(join(repo, ".claude", "settings.json"), settings);
-    }
     if (record) {
       mkdirSync(join(repo, ".cache"), { recursive: true });
       writeFileSync(join(repo, ".cache", "conversation-reads.json"), JSON.stringify(record));
@@ -312,14 +300,14 @@ function switchInBrain({ settings, record, sessionId }) {
 }
 
 test("#130 reproduction, end to end — a fresh conversation switching is told nothing about residue", () => {
-  const out = switchInBrain({ settings: RECORDER_SETTINGS, sessionId: "s-fresh" });
+  // The recorder saw this conversation begin, and it read nothing.
+  const out = switchInBrain({ sessionId: "s-fresh", record: { sessions: { "s-fresh": { universes: [], at: 1 } } } });
   assert.match(out, /switched to 'blue'/);
   assert.doesNotMatch(out, /🧠/u);
 });
 
 test("#130 end to end — a conversation that searched in 'acme' is told it still holds it", () => {
   const out = switchInBrain({
-    settings: RECORDER_SETTINGS,
     sessionId: "s-live",
     // Another conversation's reads are a decoy: only THIS session's count.
     record: { sessions: { "s-live": { universes: ["acme"], at: 2 }, other: { universes: ["zeta"], at: 3 } } },
@@ -329,12 +317,12 @@ test("#130 end to end — a conversation that searched in 'acme' is told it stil
 });
 
 test("#130 end to end — with no session id, the sentence is the conditional one", () => {
-  const out = switchInBrain({ settings: RECORDER_SETTINGS });
+  const out = switchInBrain({ record: { sessions: { "s-fresh": { universes: [], at: 1 } } } });
   assert.match(out, /🧠 Heads-up: if I read anything in 'acme' earlier in this conversation/u);
 });
 
-test("#130 end to end — a brain whose recorder is not wired gets the conditional sentence too", () => {
-  // An empty record there proves nothing: nothing was ever recording.
-  const out = switchInBrain({ sessionId: "s-fresh" });
+test("#130 end to end — a conversation the recorder never saw begin gets the conditional sentence", () => {
+  // The gap between an update and the restart: no entry proves nothing.
+  const out = switchInBrain({ sessionId: "s-before-restart", record: { sessions: { other: { universes: [], at: 1 } } } });
   assert.match(out, /🧠 Heads-up: if I read anything in 'acme' earlier in this conversation/u);
 });

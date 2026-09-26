@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 // ─────────────────────────────────────────────────────────────────────────────
-// conversation-reads.mjs — the PostToolUse(search_vault|get_document) hook that
-// RECORDS which universe a vault read ran in, per conversation (issue #130).
+// conversation-reads.mjs — the hook that RECORDS which universes a conversation read
+// in (issue #130). Two events, one record:
+//   • SessionStart (startup, /clear) — opens an EMPTY entry for the conversation. That
+//     entry is what makes it known: the record only vouches for a window it saw begin.
+//   • PostToolUse(search_vault|get_document) — adds the universe the read ran in.
 //
 // `/switch` reads it back (set-active-universe.mjs) so its residue disclosure says
 // only what is true: nothing to a conversation that read nothing, and every universe
@@ -19,7 +22,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { runAsEntrypoint } from "./lib/entrypoint.mjs";
-import { recordRead, universeOfRead } from "./lib/conversation-reads.mjs";
+import { recordRead, startSession, universeOfRead } from "./lib/conversation-reads.mjs";
 import { readActiveUniverse, vaultRagDir } from "./lib/universes.mjs";
 
 // Per-machine, gitignored, throwaway: what a conversation read is a property of that
@@ -59,13 +62,17 @@ export function runRecorder(deps = realReadsDeps) {
     const input = JSON.parse(deps.readInput());
     if (!input?.session_id) return 0;
     const brainDir = deps.brainDir();
-    const universe = universeOfRead({ toolInput: input.tool_input, active: deps.active(brainDir) });
-    const next = recordRead(deps.readState(brainDir), {
-      sessionId: input.session_id,
-      universe,
-      now: deps.now(),
-    });
-    deps.writeState(brainDir, next);
+    const state = deps.readState(brainDir);
+    const next =
+      input.hook_event_name === "SessionStart"
+        ? startSession(state, { sessionId: input.session_id, source: input.source, now: deps.now() })
+        : recordRead(state, {
+            sessionId: input.session_id,
+            universe: universeOfRead({ toolInput: input.tool_input, active: deps.active(brainDir) }),
+            now: deps.now(),
+          });
+    // Unchanged means there is nothing this conversation may be vouched for: no write.
+    if (next !== state) deps.writeState(brainDir, next);
   } catch {
     // Fail-open, deliberately silent: see the header.
   }

@@ -14,10 +14,11 @@
 import { ALL_UNIVERSES_READ } from "./universes.mjs";
 
 /** How many conversations the file remembers. A switch only ever asks about its own. */
-export const MAX_SESSIONS = 20;
+export const MAX_SESSIONS = 50;
 
-// The engine script whose presence under PostToolUse means reads ARE being recorded.
-const RECORDER_SCRIPT = "scripts/conversation-reads.mjs";
+// The SessionStart sources that open an EMPTY window. `resume` and `compact` carry a
+// window whose earlier reads this record may never have seen.
+const FRESH_WINDOW_SOURCES = new Set(["startup", "clear"]);
 
 /**
  * The universe a vault read landed in: the one active when it ran (the server scopes
@@ -29,57 +30,58 @@ export function universeOfRead({ toolInput, active }) {
 
 function sessionsOf(state) {
   const sessions = state?.sessions;
-  return sessions && typeof sessions === "object" && !Array.isArray(sessions) ? sessions : {};
+  return sessions && typeof sessions === "object" && !Array.isArray(sessions) ? sessions : null;
 }
 
 function universesOf(entry) {
   return Array.isArray(entry?.universes) ? entry.universes : [];
 }
 
-/**
- * The record with `universe` added to this session's reads. Without a session id there
- * is nothing to key it on, so the state is returned as it was (the caller writes
- * nothing). A corrupt record is started afresh: a hook must never wedge a read.
- * Keeps the MAX_SESSIONS most recent sessions. Does not mutate its input.
- */
-export function recordRead(state, { sessionId, universe, now }) {
-  if (!sessionId) return state;
-  const sessions = { ...sessionsOf(state) };
-  const known = universesOf(sessions[sessionId]);
-  sessions[sessionId] = { universes: [...new Set([...known, universe])], at: now };
-  const kept = Object.entries(sessions)
+function withSession(sessions, sessionId, entry) {
+  const kept = Object.entries({ ...sessions, [sessionId]: entry })
     .sort(([, a], [, b]) => (b?.at ?? 0) - (a?.at ?? 0))
     .slice(0, MAX_SESSIONS);
   return { sessions: Object.fromEntries(kept) };
 }
 
-/** The universes this session read in; none when it never read (or the file is bad). */
+/**
+ * The record with an EMPTY entry for a conversation that has just begun with an empty
+ * window (startup, /clear). This entry is what makes the conversation KNOWN: the record
+ * can only vouch for a silence it saw from the first instant. Any other source, or no
+ * session id, returns the state as it was (the caller writes nothing). A corrupt record
+ * is started afresh. Keeps the MAX_SESSIONS most recent. Does not mutate its input.
+ */
+export function startSession(state, { sessionId, source, now }) {
+  if (!sessionId || !FRESH_WINDOW_SOURCES.has(source)) return state;
+  return withSession(sessionsOf(state) ?? {}, sessionId, { universes: [], at: now });
+}
+
+/**
+ * The record with `universe` added to this conversation's reads — only if the record
+ * saw it begin. A conversation it never saw (started before the recorder was wired, or
+ * resumed after its entry was pruned) stays unknown: a partial list would name some
+ * spheres and hide others. Does not mutate its input.
+ */
+export function recordRead(state, { sessionId, universe, now }) {
+  const sessions = sessionsOf(state);
+  if (!sessionId || !sessions || !(sessionId in sessions)) return state;
+  const known = universesOf(sessions[sessionId]);
+  return withSession(sessions, sessionId, { universes: [...new Set([...known, universe])], at: now });
+}
+
+/** This conversation's universes, or null when the record never saw it begin. */
 export function readsFor(state, sessionId) {
-  return universesOf(sessionsOf(state)[sessionId]);
+  const sessions = sessionsOf(state);
+  if (!sessions || !(sessionId in sessions)) return null;
+  return universesOf(sessions[sessionId]);
 }
 
 /**
- * Whether this brain's settings.json runs the recorder after a tool call. Without it
- * an empty record proves nothing (a brain not yet updated records no read at all).
+ * What the switch may rely on: this conversation's reads when they are KNOWN, otherwise
+ * null — which makes the residue reminder fall back to a conditional sentence rather
+ * than guess.
  */
-export function recorderWired(settingsText) {
-  try {
-    const groups = JSON.parse(settingsText)?.hooks?.PostToolUse;
-    if (!Array.isArray(groups)) return false;
-    return groups.some((g) =>
-      (g?.hooks ?? []).some((h) => typeof h?.command === "string" && h.command.includes(RECORDER_SCRIPT))
-    );
-  } catch {
-    return false;
-  }
-}
-
-/**
- * What the switch may rely on: this conversation's reads when they are KNOWN (a session
- * id, and a recorder wired to have written them), otherwise null — which makes the
- * residue reminder fall back to a conditional sentence rather than guess.
- */
-export function conversationReads({ sessionId, state, settingsText }) {
-  if (!sessionId || !recorderWired(settingsText)) return null;
+export function conversationReads({ sessionId, state }) {
+  if (!sessionId) return null;
   return readsFor(state, sessionId);
 }
