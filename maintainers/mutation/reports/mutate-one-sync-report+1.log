@@ -1,125 +1,25 @@
-[32m09:44:24 (71208) INFO ProjectReader[39m Found 2 of 1120 file(s) to be mutated.
-[32m09:44:24 (71208) INFO Instrumenter[39m Instrumented 2 source file(s) with 242 mutant(s)
-[32m09:44:24 (71208) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
-[32m09:44:24 (71208) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-y7RXra
-[32m09:44:24 (71208) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
-[32m09:44:24 (71208) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
-[32m09:44:25 (71208) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 1 second (net 1268 ms, overhead 0 ms).
-Mutation testing 10% (elapsed: <1m, remaining: ~1m) 26/242 tested (0 survived, 0 timed out)
-Mutation testing 23% (elapsed: <1m, remaining: ~1m) 58/242 tested (0 survived, 0 timed out)
-Mutation testing 36% (elapsed: <1m, remaining: <1m) 88/242 tested (10 survived, 0 timed out)
-Mutation testing 50% (elapsed: <1m, remaining: <1m) 121/242 tested (14 survived, 0 timed out)
-Mutation testing 61% (elapsed: <1m, remaining: <1m) 150/242 tested (17 survived, 0 timed out)
-Mutation testing 75% (elapsed: ~1m, remaining: <1m) 183/242 tested (21 survived, 0 timed out)
-Mutation testing 88% (elapsed: ~1m, remaining: <1m) 214/242 tested (23 survived, 0 timed out)
+[32m09:47:02 (48759) INFO ProjectReader[39m Found 2 of 1121 file(s) to be mutated.
+[32m09:47:02 (48759) INFO Instrumenter[39m Instrumented 2 source file(s) with 236 mutant(s)
+[32m09:47:02 (48759) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m09:47:02 (48759) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-IXriFL
+[32m09:47:02 (48759) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m09:47:02 (48759) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m09:47:04 (48759) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 2 seconds (net 2076 ms, overhead 0 ms).
+Mutation testing 6% (elapsed: <1m, remaining: ~2m) 15/236 tested (0 survived, 0 timed out)
+Mutation testing 14% (elapsed: <1m, remaining: ~1m) 35/236 tested (0 survived, 0 timed out)
+Mutation testing 22% (elapsed: <1m, remaining: ~1m) 53/236 tested (0 survived, 0 timed out)
+Mutation testing 30% (elapsed: <1m, remaining: ~1m) 71/236 tested (0 survived, 0 timed out)
+Mutation testing 38% (elapsed: <1m, remaining: ~1m) 91/236 tested (0 survived, 0 timed out)
+Mutation testing 45% (elapsed: ~1m, remaining: ~1m) 108/236 tested (0 survived, 0 timed out)
+Mutation testing 53% (elapsed: ~1m, remaining: ~1m) 126/236 tested (0 survived, 0 timed out)
+Mutation testing 61% (elapsed: ~1m, remaining: <1m) 146/236 tested (0 survived, 0 timed out)
+Mutation testing 69% (elapsed: ~1m, remaining: <1m) 164/236 tested (0 survived, 0 timed out)
+Mutation testing 77% (elapsed: ~1m, remaining: <1m) 182/236 tested (0 survived, 0 timed out)
+Mutation testing 85% (elapsed: ~1m, remaining: <1m) 202/236 tested (2 survived, 0 timed out)
+Mutation testing 94% (elapsed: ~2m, remaining: <1m) 222/236 tested (5 survived, 0 timed out)
 
 All tests
-  ✓ All tests (killed 208)
-
-[Survived] StringLiteral
-scripts/lib/sync-report.mjs:53:10
--       and: "and",
-+       and: "",
-
-[Survived] ArrowFunction
-scripts/lib/sync-report.mjs:55:11
--       from: (names) => `from ${names}`,
-+       from: () => undefined,
-
-[Survived] StringLiteral
-scripts/lib/sync-report.mjs:55:22
--       from: (names) => `from ${names}`,
-+       from: (names) => ``,
-
-[Survived] StringLiteral
-scripts/lib/sync-report.mjs:58:15
--       upToDate: "✅ Nothing new: this machine already has everything the remote holds.",
-+       upToDate: "",
-
-[Survived] ArrowFunction
-scripts/lib/sync-report.mjs:59:22
--       previousArrival: (when, { what, from }) => `🕘 Previous arrival on this machine: ${when}, by the automatic sync: ${what}${from}.`,
-+       previousArrival: () => undefined,
-
-[Survived] StringLiteral
-scripts/lib/sync-report.mjs:59:48
--       previousArrival: (when, { what, from }) => `🕘 Previous arrival on this machine: ${when}, by the automatic sync: ${what}${from}.`,
-+       previousArrival: (when, { what, from }) => ``,
-
-[Survived] StringLiteral
-scripts/lib/sync-report.mjs:61:20
--       remoteUnknown: "unknown (the remote branch could not be read)",
-+       remoteUnknown: "",
-
-[Survived] StringLiteral
-scripts/lib/sync-report.mjs:63:21
--       bySameIdentity: "under the same git identity as this machine",
-+       bySameIdentity: "",
-
-[Survived] ArrowFunction
-scripts/lib/sync-report.mjs:64:16
--       bySomeone: (name, email) => `by ${name} (${email})`,
-+       bySomeone: () => undefined,
-
-[Survived] StringLiteral
-scripts/lib/sync-report.mjs:64:33
--       bySomeone: (name, email) => `by ${name} (${email})`,
-+       bySomeone: (name, email) => ``,
-
-[Survived] ConditionalExpression
-scripts/lib/sync-report.mjs:94:10
--     return names.length <= 1 ? (names[0] ?? "") : `${names.slice(0, -1).join(", ")} ${words.and} ${names.at(-1)}`;
-+     return false ? (names[0] ?? "") : `${names.slice(0, -1).join(", ")} ${words.and} ${names.at(-1)}`;
-
-[Survived] EqualityOperator
-scripts/lib/sync-report.mjs:94:10
--     return names.length <= 1 ? (names[0] ?? "") : `${names.slice(0, -1).join(", ")} ${words.and} ${names.at(-1)}`;
-+     return names.length < 1 ? (names[0] ?? "") : `${names.slice(0, -1).join(", ")} ${words.and} ${names.at(-1)}`;
-
-[Survived] LogicalOperator
-scripts/lib/sync-report.mjs:94:31
--     return names.length <= 1 ? (names[0] ?? "") : `${names.slice(0, -1).join(", ")} ${words.and} ${names.at(-1)}`;
-+     return names.length <= 1 ? (names[0] && "") : `${names.slice(0, -1).join(", ")} ${words.and} ${names.at(-1)}`;
-
-[Survived] StringLiteral
-scripts/lib/sync-report.mjs:94:43
--     return names.length <= 1 ? (names[0] ?? "") : `${names.slice(0, -1).join(", ")} ${words.and} ${names.at(-1)}`;
-+     return names.length <= 1 ? (names[0] ?? "Stryker was here!") : `${names.slice(0, -1).join(", ")} ${words.and} ${names.at(-1)}`;
-
-[Survived] UnaryOperator
-scripts/lib/sync-report.mjs:94:67
--     return names.length <= 1 ? (names[0] ?? "") : `${names.slice(0, -1).join(", ")} ${words.and} ${names.at(-1)}`;
-+     return names.length <= 1 ? (names[0] ?? "") : `${names.slice(0, +1).join(", ")} ${words.and} ${names.at(-1)}`;
-
-[Survived] StringLiteral
-scripts/lib/sync-report.mjs:94:76
--     return names.length <= 1 ? (names[0] ?? "") : `${names.slice(0, -1).join(", ")} ${words.and} ${names.at(-1)}`;
-+     return names.length <= 1 ? (names[0] ?? "") : `${names.slice(0, -1).join("")} ${words.and} ${names.at(-1)}`;
-
-[Survived] UnaryOperator
-scripts/lib/sync-report.mjs:94:107
--     return names.length <= 1 ? (names[0] ?? "") : `${names.slice(0, -1).join(", ")} ${words.and} ${names.at(-1)}`;
-+     return names.length <= 1 ? (names[0] ?? "") : `${names.slice(0, -1).join(", ")} ${words.and} ${names.at(+1)}`;
-
-[Survived] ArrayDeclaration
-scripts/lib/sync-report.mjs:122:84
--   export function syncReport({ locale, timeZone, trace, remoteHead, me, identities = [], thisSync }) {
-+   export function syncReport({ locale, timeZone, trace, remoteHead, me, identities = ["Stryker was here"], thisSync }) {
-
-[Survived] ArrayDeclaration
-scripts/lib/sync-report.mjs:129:58
--       lines.push(words.pulledNow(describe(thisSync.pulled, [], who, words).what));
-+       lines.push(words.pulledNow(describe(thisSync.pulled, ["Stryker was here"], who, words).what));
-
-[Survived] ConditionalExpression
-scripts/sync-report.mjs:35:12
--       return at === -1 ? undefined : argv[at + 1];
-+       return false ? undefined : argv[at + 1];
-
-[Survived] UnaryOperator
-scripts/sync-report.mjs:35:19
--       return at === -1 ? undefined : argv[at + 1];
-+       return at === +1 ? undefined : argv[at + 1];
+  ✓ All tests (killed 230)
 
 [Survived] ArrowFunction
 scripts/sync-report.mjs:44:124
@@ -141,45 +41,10 @@ scripts/sync-report.mjs:53:68
 -       warn(`sync-report: cannot compare ${args.before} with HEAD — ${diff.out.trim()}\n`);
 +       warn(`sync-report: cannot compare ${args.before} with HEAD — ${diff.out}\n`);
 
-[Survived] ArrayDeclaration
-scripts/sync-report.mjs:59:69
--     const [at, name, email] = head.ok ? head.out.trim().split("\t") : [];
-+     const [at, name, email] = head.ok ? head.out.trim().split("\t") : ["Stryker was here"];
-
 [Survived] MethodExpression
 scripts/sync-report.mjs:62:22
 -     const me = { name: git(["config", "user.name"]).out.trim(), email: git(["config", "user.email"]).out.trim() };
 +     const me = { name: git(["config", "user.name"]).out, email: git(["config", "user.email"]).out.trim() };
-
-[Survived] MethodExpression
-scripts/sync-report.mjs:62:70
--     const me = { name: git(["config", "user.name"]).out.trim(), email: git(["config", "user.email"]).out.trim() };
-+     const me = { name: git(["config", "user.name"]).out.trim(), email: git(["config", "user.email"]).out };
-
-[Survived] ArrayDeclaration
-scripts/sync-report.mjs:62:74
--     const me = { name: git(["config", "user.name"]).out.trim(), email: git(["config", "user.email"]).out.trim() };
-+     const me = { name: git(["config", "user.name"]).out.trim(), email: git([]).out.trim() };
-
-[Survived] StringLiteral
-scripts/sync-report.mjs:62:75
--     const me = { name: git(["config", "user.name"]).out.trim(), email: git(["config", "user.email"]).out.trim() };
-+     const me = { name: git(["config", "user.name"]).out.trim(), email: git(["", "user.email"]).out.trim() };
-
-[Survived] StringLiteral
-scripts/sync-report.mjs:62:85
--     const me = { name: git(["config", "user.name"]).out.trim(), email: git(["config", "user.email"]).out.trim() };
-+     const me = { name: git(["config", "user.name"]).out.trim(), email: git(["config", ""]).out.trim() };
-
-[Survived] ObjectLiteral
-scripts/sync-report.mjs:63:43
--     const { identities } = readAuthorsState({ readFileSync: (p) => readFileSync(p, "utf-8") }, vaultRagDir(brainDir));
-+     const { identities } = readAuthorsState({}, vaultRagDir(brainDir));
-
-[Survived] ArrowFunction
-scripts/sync-report.mjs:63:59
--     const { identities } = readAuthorsState({ readFileSync: (p) => readFileSync(p, "utf-8") }, vaultRagDir(brainDir));
-+     const { identities } = readAuthorsState({ readFileSync: () => undefined }, vaultRagDir(brainDir));
 
 [Survived] StringLiteral
 scripts/sync-report.mjs:63:82
@@ -191,10 +56,10 @@ Ran 1.00 tests per mutant on average.
                   | % Mutation score |          |           |            |          |          |
 File              |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
 ------------------|--------|---------|----------|-----------|------------|----------|----------|
-All files         |  85.95 |   85.95 |      208 |         0 |         34 |        0 |        0 |
- lib              |  88.62 |   88.62 |      148 |         0 |         19 |        0 |        0 |
-  sync-report.mjs |  88.62 |   88.62 |      148 |         0 |         19 |        0 |        0 |
- sync-report.mjs  |  80.00 |   80.00 |       60 |         0 |         15 |        0 |        0 |
+All files         |  97.46 |   97.46 |      230 |         0 |          6 |        0 |        0 |
+ lib              | 100.00 |  100.00 |      161 |         0 |          0 |        0 |        0 |
+  sync-report.mjs | 100.00 |  100.00 |      161 |         0 |          0 |        0 |        0 |
+ sync-report.mjs  |  92.00 |   92.00 |       69 |         0 |          6 |        0 |        0 |
 ------------------|--------|---------|----------|-----------|------------|----------|----------|
-[32m09:45:44 (71208) INFO MutationTestExecutor[39m Done in 1 minute and 19 seconds.
-[32m09:45:44 (71208) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-y7RXra.
+[32m09:49:10 (48759) INFO MutationTestExecutor[39m Done in 2 minutes and 8 seconds.
+[32m09:49:10 (48759) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-IXriFL.

@@ -241,6 +241,22 @@ local-mirror's `fs-state-store` and `content-hash`.
 
 ---
 
+## #131 — the /sync report, written by the machine — 2026-09-26
+
+`scripts/lib/sync-report.mjs` + `scripts/sync-report.mjs`, both new, via `mutate-one.mjs` (judged by
+their 2 test files, write guard 22 pass / 0 skipped).
+
+| Pass | Total | `lib/sync-report.mjs` | `sync-report.mjs` | Survived |
+|---|---|---|---|---|
+| 1 | 85.95 % | 88.62 % | 80 % | 34 |
+| 2 | **97.46 %** | **100 %** | 92 % | 6 |
+
+Pass 1's survivors were mostly **missing cases** (every English sentence past the first, one and
+three outside authors, no upstream, a push from this very machine, the identity registry, a parser
+that could take a neighbouring flag's name as a value) and two pieces of **dead code** (an unused
+default, a fake argument), deleted. Left alive: usage/diagnostic prose on stderr, a `.trim()` on a
+name that is slugged anyway, and `"utf-8"` → `""` before `JSON.parse` (equivalent).
+
 ## #132 — the install-script allowlist that npm 12 made load-bearing — 2026-09-26
 
 `maintainers/dependency-audit/install-scripts.mjs`, new, measured the day it was written (whole file,
