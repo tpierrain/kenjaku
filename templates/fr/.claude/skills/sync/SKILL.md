@@ -35,6 +35,7 @@ Crée un point de retour sûr avant le rebase.
 ### Étape 3 — Fetch et rebase
 ```bash
 node scripts/set-active-universe.mjs current   # le mémoriser : l'étape 5 compare
+git rev-parse HEAD                             # mémoriser ce sha : l'étape 5 le passe en --before
 git fetch origin
 git rebase origin/$(git branch --show-current)
 ```
@@ -77,10 +78,20 @@ la règle refuse. Résous, puis `git rebase --continue`, et laisse l'étape 5 l'
 ### Étape 5 — Push et résumé
 ```bash
 git push
+node scripts/sync-report.mjs --before <sha de l'étape 3> --committed <yes|no> --pushed <ok|failed>
 node scripts/set-active-universe.mjs current   # comparer avec ce qu'a lu l'étape 3
 node scripts/set-active-universe.mjs gate      # de quel côté de la porte de divulgation
 ```
-Afficher : commit local oui/non, fichiers récupérés depuis l'autre machine, statut du push.
+`--committed yes` si l'étape 2 a fait un commit ; `--pushed ok` si `git push` a réussi.
+
+**Relayer le rapport TEL QUEL**, tel qu'imprimé, dans un bloc de citation. Ne pas le reformuler,
+le raccourcir, le résumer ni le compléter, et surtout **ne jamais écrire soi-même une date, une
+heure ou un jour de la semaine** : toutes celles du rapport sont calculées par la machine.
+Pourquoi : ce rapport était rédigé ici, et il a dit « ton autre machine n'a rien poussé » à
+propos d'une machine qui avait poussé toute la journée. La synchro en arrière-plan avait déjà
+rapatrié son travail, le rebase n'avait donc plus rien à faire, et seule la trace des arrivées
+que lit le script distingue ces deux cas. Si le script sort en erreur, dire que le rapport n'a
+pas pu être produit et pourquoi ; ne pas en rédiger un à la place.
 
 **La condition, c'est la PORTE, pas le changement.** `/sync` est précisément le moment où l'univers
 actif peut arriver d'une autre machine, puisque c'est un état versionné (ADR 0034). Un rapport qui
@@ -101,6 +112,7 @@ répond.
   silence n'est légitime que dans ce cas précis.
 
 ## Cas limites
-- **Rien à sync** : repo clean + à jour → « Rien à synchroniser (commit abc1234). »
+- **Rien à sync** : repo clean + à jour → faire quand même l'étape 5 ; le rapport dit ce qui est
+  déjà ici et depuis quand. Ne jamais répondre « rien à synchroniser » de soi-même.
 - **Réseau indisponible** : `git fetch` échoue → signaler, changements locaux intacts.
 - **Conflit complexe** (binaires, restructuration) : recommander une résolution manuelle.

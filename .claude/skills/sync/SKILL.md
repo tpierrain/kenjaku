@@ -35,6 +35,7 @@ Creates a safe restore point before the rebase.
 ### Step 3 — Fetch and rebase
 ```bash
 node scripts/set-active-universe.mjs current   # remember it: step 5 compares
+git rev-parse HEAD                             # remember this sha: step 5 passes it as --before
 git fetch origin
 git rebase origin/$(git branch --show-current)
 ```
@@ -77,10 +78,19 @@ the rule refuses. Resolve it, then `git rebase --continue`, and let step 5 annou
 ### Step 5 — Push and summary
 ```bash
 git push
+node scripts/sync-report.mjs --before <sha from step 3> --committed <yes|no> --pushed <ok|failed>
 node scripts/set-active-universe.mjs current   # compare with what step 3 read
 node scripts/set-active-universe.mjs gate      # which side of the disclosure gate
 ```
-Show: local commit yes/no, files pulled in from the other machine, push status.
+`--committed yes` if step 2 made a commit; `--pushed ok` if `git push` succeeded.
+
+**Relay the report VERBATIM**, as printed, in a quote block. Do not reword it, shorten it,
+summarise it or add to it — above all, **never write a date, a time or a weekday yourself**:
+every one in the report is computed by the machine. Why: the report used to be composed here,
+and it told an owner *"your other machine pushed nothing"* about a machine that had pushed all
+day — the background sync had already brought its work in, so the rebase had nothing left to
+do, and only the arrivals record the script reads tells those two cases apart. If the script
+exits non-zero, say the report could not be produced and why; do not compose one instead.
 
 **The condition is the GATE, not the change.** `/sync` is precisely the moment the active
 universe can arrive from another machine, since it is committed state (ADR 0034) — so a
@@ -101,6 +111,7 @@ answers it.
   silence is **the only** case where it is right.
 
 ## Edge cases
-- **Nothing to sync**: repo clean + up to date → "Nothing to synchronize (commit abc1234)."
+- **Nothing to sync**: repo clean + up to date → still run step 5; the report says what is
+  already here and since when. Never answer "nothing to synchronize" on your own.
 - **Network unavailable**: `git fetch` fails → report, local changes intact.
 - **Complex conflict** (binaries, restructuring): recommend a manual resolution.

@@ -53,6 +53,8 @@
       "scripts/ai-summary-guard.mjs",
       "scripts/prompt-restart-nudge.mjs",
       "scripts/remote-sync.mjs",
+      "scripts/sync-report.mjs",
+      "scripts/pick-folder.mjs",
       "scripts/known-source.mjs",
       "scripts/dated-note-path.mjs",
       "scripts/author-identity.mjs",
