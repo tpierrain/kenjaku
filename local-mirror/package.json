@@ -11,6 +11,10 @@
     "typecheck": "tsc --noEmit",
     "test": "node --import tsx --test src/**/*.test.ts"
   },
+  "allowScripts": {
+    "esbuild": true,
+    "fsevents": true
+  },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.0",
     "@notionhq/client": "^5.22.0",
