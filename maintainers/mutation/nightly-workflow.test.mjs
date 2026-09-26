@@ -35,3 +35,14 @@ test("the mutate step caps every Node process's heap, under what the machine can
   const mb = Number(cap[1]);
   assert.ok(mb > 0 && mb <= MAX_HEAP_MB, `heap ceiling ${mb} MB is outside (0, ${MAX_HEAP_MB}]`);
 });
+
+// The owner's call, 2026-09-26 (plan v5.5.2 § S3.2, option A): `scripts` is OUT of the
+// nightly. 13 306 mutants, each judged by the whole 30 s harness suite, is ~90 h against
+// a 6 h ceiling — it had not finished since at least 2026-08-18, so every night was a red
+// that measured nothing. It comes back only as the rotation filed in
+// ../plans/prospective/harness-speed-and-test-quality-action.md (S4), and this test is
+// what makes putting it back a deliberate act instead of a one-line revert.
+test("the nightly mutates exactly rag and local-mirror — scripts returns only as a rotation", () => {
+  const packages = [...readFileSync(WORKFLOW, "utf8").matchAll(/^\s+- package:\s*(\S+)\s*$/gm)].map((m) => m[1]);
+  assert.deepEqual(packages, ["rag", "local-mirror"]);
+});

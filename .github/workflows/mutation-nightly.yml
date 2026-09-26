@@ -13,9 +13,15 @@
 #     exits 0 (a red job here means a crash, not a weak score).
 #
 # Cost: mutation is OS-agnostic, so this runs ONLY on ubuntu-latest (macOS
-# Actions minutes bill x10 for zero extra signal). The three packages fan out
-# as parallel matrix jobs so the slow one (scripts, 513 tests re-run per mutant)
-# does not serialize behind the others.
+# Actions minutes bill x10 for zero extra signal). The packages fan out as
+# parallel matrix jobs so the slower one does not serialize behind the other.
+#
+# `scripts` is NOT here (owner's call, 2026-09-26, plan v5.5.2 § S3.2): 13 306
+# mutants each judged by the whole 30 s harness suite is ~90 h against a 6 h
+# ceiling, so it had not finished since at least 2026-08-18. Its files are
+# mutated the day they are written (mutate-one.mjs) and at every release cut; a
+# nightly rotation is filed in
+# maintainers/plans/prospective/harness-speed-and-test-quality-action.md (S4).
 #
 # Rollout (per the plan): validated first via `workflow_dispatch` to confirm the
 # scores are HONEST (no false-timeout inflation) BEFORE trusting the cron.
@@ -39,20 +45,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # rag + local-mirror use their configs' inPlace (mutate the checked-out
-          # tree, restored after). scripts overrides to --inPlace too: its committed
-          # config is inPlace:false (a Stryker SANDBOX), but the sandbox copy has NO
-          # .git, and the harness suite's `engine-manifest` integrity test asserts on
-          # `git ls-files` (tracked files) — with no .git every glob matches nothing
-          # and the dry-run fails. inPlace runs against the checkout (git present), and
-          # the vault-mutating clear-example-notes tests are hermetic (temp dirs +
-          # injected deps, never the real vault/), so the ephemeral runner is safe.
+          # Both use their configs' inPlace (mutate the checked-out tree, restored after).
           - package: rag
-            extra: ""
           - package: local-mirror
-            extra: ""
-          - package: scripts
-            extra: "--inPlace"
     steps:
       # fetch-depth: 0 — the suites under mutation assert against REAL git history:
       # the QA fixtures replay a brain from tag v3.6.0, one test checks that every
@@ -87,8 +82,6 @@ jobs:
         working-directory: local-mirror
         run: npm ci
 
-      # scripts needs no package deps (pure .mjs seams, like the CI harness job);
-      # only the Stryker workspace is required.
       - name: Install the Stryker workspace
         working-directory: maintainers/mutation
         run: npm ci
@@ -97,8 +90,8 @@ jobs:
       # configs' 4-5 concurrent runners (each re-runs the WHOLE package suite per
       # mutant), which inflates genuine kills into FALSE timeouts and a bogus high
       # score (the documented trap, see RESULTS.md § Gotchas). Start low so a
-      # timeout means a REAL infinite loop, not a starved runner. `extra` carries
-      # per-package overrides (scripts: --inPlace, see the matrix comment).
+      # timeout means a REAL infinite loop, not a starved runner.
+      #
       # A heap ceiling on every Node process of the run (Stryker and the test processes it
       # spawns). A mutant that recurses without end eats memory until GitHub kills the
       # machine, and the whole job goes with it: that is how local-mirror died at mutant
@@ -107,7 +100,7 @@ jobs:
       - name: Mutate ${{ matrix.package }}
         env:
           NODE_OPTIONS: --max-old-space-size=3072
-        run: npm --prefix maintainers/mutation run mutate:${{ matrix.package }} -- --concurrency 2 ${{ matrix.extra }}
+        run: npm --prefix maintainers/mutation run mutate:${{ matrix.package }} -- --concurrency 2
 
       - name: Upload the HTML report (informational)
         if: always()
