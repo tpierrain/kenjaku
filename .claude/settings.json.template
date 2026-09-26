@@ -207,7 +207,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "{{NODE}} \"{{PROJECT_ROOT}}/scripts/conversation-reads.mjs\"",
+            "command": "{{NODE}} \"{{PROJECT_ROOT}}/scripts/session-reads.mjs\"",
             "timeout": 10000
           }
         ]

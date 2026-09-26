@@ -51,8 +51,10 @@ function withBrain(fn, { universes = ["acme", "blue"] } = {}) {
   }
 }
 
+// The two entry points, one per event (see session-reads.mjs for why they are two).
 function runHook(brain, input) {
-  return spawnSync(process.execPath, [join(brain, "scripts", "conversation-reads.mjs")], {
+  const script = input?.hook_event_name === "SessionStart" ? "session-reads.mjs" : "conversation-reads.mjs";
+  return spawnSync(process.execPath, [join(brain, "scripts", script)], {
     input: typeof input === "string" ? input : JSON.stringify(input),
     encoding: "utf8",
   });
@@ -332,4 +334,33 @@ test("a conversation never seen stays unknown even once another one has created 
     search(brain, "s-old", ["acme/deals/big-deal.md"]);
     assert.equal(existsSync(recordFile(brain, "s-old")), false);
   });
+});
+
+test("the template opens the record with session-reads on SessionStart, and records with conversation-reads after a read", () => {
+  const settings = JSON.parse(readFileSync(join(SCRIPTS_DIR, "..", ".claude", "settings.json.template"), "utf8"));
+  const eventsRunning = (script) =>
+    Object.entries(settings.hooks)
+      .filter(([, groups]) => groups.some((g) => g.hooks.some((h) => h.command.includes(`scripts/${script}`))))
+      .map(([event]) => event);
+  assert.deepEqual(eventsRunning("session-reads.mjs"), ["SessionStart"]);
+  assert.deepEqual(eventsRunning("conversation-reads.mjs"), ["PostToolUse"]);
+});
+
+test("no engine script is wired on two events", () => {
+  // The update report is printed by the OLD engine already in a brain, whose reconcile
+  // names a script once per event it adds it to: a script on two events reads
+  // "conversation-reads, conversation-reads" to its owner, and no new code can reach
+  // that line (seen on the rehearsal of 2026-09-26). One script, one event.
+  const settings = JSON.parse(readFileSync(join(SCRIPTS_DIR, "..", ".claude", "settings.json.template"), "utf8"));
+  const seen = new Map();
+  for (const [event, groups] of Object.entries(settings.hooks)) {
+    for (const g of groups) {
+      for (const h of g.hooks) {
+        const script = h.command.match(/scripts\/[\w.-]+\.mjs/)?.[0];
+        if (!script) continue;
+        seen.set(script, [...new Set([...(seen.get(script) ?? []), event])]);
+      }
+    }
+  }
+  assert.deepEqual([...seen].filter(([, events]) => events.length > 1), []);
 });

@@ -2,7 +2,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // conversation-reads.mjs — the hook that RECORDS which universes a conversation read
 // notes from (issue #130). Two events, one record per conversation:
-//   • SessionStart (startup, /clear) — creates an EMPTY record for the conversation.
+//   • SessionStart (startup, /clear), through session-reads.mjs — creates an EMPTY record.
 //     That record is what makes it known: it only vouches for a window it saw begin.
 //   • PostToolUse(mcp__vault-rag__search_vault|get_document) — appends the universe of
 //     every note the tool returned (its own frontmatter), once each.

@@ -409,17 +409,16 @@ test("reconcileHooks — a brain with no UserPromptSubmit at all is given the re
   assert.ok(hooksAdded.includes("scripts/prompt-restart-nudge.mjs"), "the newly-wired nudge must be named in hooksAdded");
 });
 
-// #130: one engine script can be wired on TWO events (conversation-reads runs on
-// SessionStart and PostToolUse). Every consumer of hooksAdded speaks to the owner —
-// the update report, the second-machine self-heal banner, the hook-gap detector — so
-// the script is named ONCE, at the source, rather than deduped by each of them.
-test("reconcileHooks — a script wired on two events is added on both, and named once", () => {
+// #130: the recorder is two scripts, one per event (session-reads on SessionStart,
+// conversation-reads on PostToolUse), so an existing brain gets both, each named once.
+test("reconcileHooks — the conversation-reads recorder reaches a brain as two scripts on two events", () => {
   const { hooks, hooksAdded } = reconcileHooks({ brainHooks: {}, templateHooks: realTemplateHooks(), projectRoot: "/brains/foo" });
-  const wiredOn = Object.entries(hooks)
-    .filter(([, groups]) => groups.some((g) => g.hooks.some((h) => h.command.includes("conversation-reads.mjs"))))
-    .map(([event]) => event)
-    .sort();
-  assert.deepEqual(wiredOn, ["PostToolUse", "SessionStart"]);
-  assert.equal(hooksAdded.filter((s) => s === "scripts/conversation-reads.mjs").length, 1);
+  const eventsOf = (script) =>
+    Object.entries(hooks)
+      .filter(([, groups]) => groups.some((g) => g.hooks.some((h) => h.command.includes(script))))
+      .map(([event]) => event);
+  assert.deepEqual(eventsOf("scripts/session-reads.mjs"), ["SessionStart"]);
+  assert.deepEqual(eventsOf("scripts/conversation-reads.mjs"), ["PostToolUse"]);
   assert.equal(new Set(hooksAdded).size, hooksAdded.length, "no script is named twice");
+  assert.ok(hooksAdded.includes("scripts/session-reads.mjs") && hooksAdded.includes("scripts/conversation-reads.mjs"));
 });

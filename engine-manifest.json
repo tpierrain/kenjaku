@@ -50,6 +50,7 @@
       "scripts/vault-write-guard.mjs",
       "scripts/vault-write-notice.mjs",
       "scripts/conversation-reads.mjs",
+      "scripts/session-reads.mjs",
       "scripts/engine-write-guard.mjs",
       "scripts/ai-summary-guard.mjs",
       "scripts/prompt-restart-nudge.mjs",

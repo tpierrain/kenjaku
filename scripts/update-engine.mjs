@@ -62,17 +62,8 @@ export function countNewCapabilities(report) {
   return (
     (report.installedSkills?.length ?? 0) +
     (report.mcpServersAdded?.length ?? 0) +
-    wiredHookScripts(report).length
+    (report.hooksAdded?.length ?? 0)
   );
-}
-
-// One engine script wired on two events (#130: conversation-reads runs on SessionStart
-// AND PostToolUse) is ONE capability to the owner — counted once, named once. The
-// reconcile names it once already, but in the field that reconcile is run by the OLD
-// engine already in the brain, which names it once per event: this report is the new
-// engine's only chance to say it right (seen on the 2026-09-26 rehearsal).
-function wiredHookScripts(report) {
-  return [...new Set(report.hooksAdded ?? [])];
 }
 
 // Did this update place anything on disk that only takes effect at the next session
@@ -431,7 +422,7 @@ export function formatReport(report) {
   const { ref, engineVersion, copied, regenerated, reindexed, reindexReason, vaultNoteCount, committed, installedSkills = [], skillsRefreshed = [], skillsPreserved = [], skillsMerged = [], conflicts = [], scriptsRefreshed = [], scriptsPreserved = [], scriptsMerged = [], scriptConflicts = [], doctrineRefreshed = [], doctrinePreserved = [], doctrineMerged = [], doctrineConflicts = [], skillsRetired = [], skillsRetirePreserved = [], workflowsRetired = [], mcpServersAdded = [], hooksAdded = [], hooksRepaired = [], statusLineRemoved = false, pointerUnignored = false, divergence = [], divergenceUnreadable = [], healed = [], ancestorsUnreachable = [], ancestorsUnmatched = [] } = report;
   // F-B2 (ADR 0026): the engine-owned SessionStart hooks wired into an upgrader's
   // settings.json, by their bare name (scripts/session-health.mjs → session-health).
-  const wiredHooks = wiredHookScripts({ hooksAdded }).map(bareHookName);
+  const wiredHooks = hooksAdded.map(bareHookName);
   // Issue #31: broken `cmd /c "…\run-node.cmd"` hook/statusLine commands healed in place
   // on a pre-fix Windows brain (by bare name; "statusLine" passes through unchanged).
   const healedHooks = hooksRepaired.map(bareHookName);
