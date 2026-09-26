@@ -383,9 +383,10 @@ Then tell your brain to re-index (or run `cd rag && npm run reindex`), and re-cr
 A scope you cannot see is a scope you cannot trust, so since **v5.3.0** your brain states it rather
 than leaving you to infer it. Four moments, and none of them asks you anything:
 
-- **When you switch**, it names what the switch could *not* re-scope: this conversation still holds
-  everything it already read from the sphere you just left. The searches from here on are scoped —
-  the words already on screen are not, and only you can tell which is which.
+- **When you switch**, it names what the switch could *not* re-scope: what this conversation already
+  read in the universes it leaves out of scope. The searches from here on are scoped — the words
+  already on screen are not, and only you can tell which is which. Since **v5.5.3** it only says so
+  when the conversation actually read there: a fresh conversation that switches is told nothing.
 - **When it answers from a narrowed scope**, it says so. An answer that *looks* like it covers
   everything you know, when it covered one sphere, is the one failure a second universe must never
   cost you.
