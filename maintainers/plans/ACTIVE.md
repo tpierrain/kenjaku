@@ -12,17 +12,21 @@ only carries what a user of Kenjaku could read and care about (2026-09-12, tried
 
 ## The active plan
 
-🔴 [**`one-page-briefs-action.md`**](one-page-briefs-action.md) —
-[#128](https://github.com/tpierrain/kenjaku/issues/128): a prep's first screen is the whole brief, and
-a check says so. Opened 2026-09-14 at the owner's ask. **Resume there and nowhere else** — and since
-2026-09-14 "there" is on the branch **`feat/one-page-brief-shape`**: check it out first, `main`'s copy
-of that plan is deliberately behind.
+🔴 [**`v5.5.2-bugfix-release-action.md`**](v5.5.2-bugfix-release-action.md) — the bugfix release.
+Opened 2026-09-26 at the owner's ask. **Resume there and nowhere else.** Order fixed by him:
+[#132](https://github.com/tpierrain/kenjaku/issues/132) (the shipped vulnerabilities), then
+[#131](https://github.com/tpierrain/kenjaku/issues/131) (`/sync` reports a fiction), then the nightly
+mutation run, last.
 
-Parts B and C ([#126](https://github.com/tpierrain/kenjaku/issues/126),
-[#127](https://github.com/tpierrain/kenjaku/issues/127), under the
-[#119](https://github.com/tpierrain/kenjaku/issues/119) umbrella) are **not** in it: they
-wait on the open measurements in
-[`../studies/ambient-ingestion-feasibility-study.md`](../studies/ambient-ingestion-feasibility-study.md).
+## ⏸️ Paused behind it — do not resume without the owner _(2026-09-26)_
+
+- [`../studies/ambient-ingestion-feasibility-study.md`](../studies/ambient-ingestion-feasibility-study.md)
+  — #119 parts B/C ([#126](https://github.com/tpierrain/kenjaku/issues/126) /
+  [#127](https://github.com/tpierrain/kenjaku/issues/127)). Product pass finished, no code written.
+- [`one-page-briefs-action.md`](one-page-briefs-action.md)
+  ([#128](https://github.com/tpierrain/kenjaku/issues/128)) — green on
+  [PR #129](https://github.com/tpierrain/kenjaku/pull/129), but it **does not release on its own**
+  (owner, 2026-09-15): it lands with the ambient ingestion.
 
 ## Open, but NOT active
 
@@ -30,7 +34,6 @@ wait on the open measurements in
 - [`prospective/shipped-ci-workflows-action.md`](prospective/shipped-ci-workflows-action.md)
 - [`prospective/harness-speed-and-test-quality-action.md`](prospective/harness-speed-and-test-quality-action.md)
 - [`../studies/plan-state-single-source-study.md`](../studies/plan-state-single-source-study.md)
-- [`../studies/ambient-ingestion-feasibility-study.md`](../studies/ambient-ingestion-feasibility-study.md) — #119 B/C
 
 > **Why this file exists** (Thomas, 2026-08-22): *"un plan, on est censé avoir qu'un seul plan actif à
 > l'instant T… et ça c'est pour que le 'on reprend' fonctionne."* Answering one *"on reprends"* that
