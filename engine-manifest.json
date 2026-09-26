@@ -5,7 +5,7 @@
     "rag": "1.5.1",
     "local-mirror": "0.3.1",
     "constitutionTemplate": "1.4.0",
-    "scripts": "1.20.0"
+    "scripts": "1.21.0"
   },
   "indexSchemaVersion": 2,
   "regimes": {
