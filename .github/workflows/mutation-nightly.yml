@@ -99,7 +99,14 @@ jobs:
       # score (the documented trap, see RESULTS.md § Gotchas). Start low so a
       # timeout means a REAL infinite loop, not a starved runner. `extra` carries
       # per-package overrides (scripts: --inPlace, see the matrix comment).
+      # A heap ceiling on every Node process of the run (Stryker and the test processes it
+      # spawns). A mutant that recurses without end eats memory until GitHub kills the
+      # machine, and the whole job goes with it: that is how local-mirror died at mutant
+      # 349 most nights from 2026-09-16. Past the ceiling the test process crashes and the
+      # mutant is scored killed. 3 x 3 GB fits the 16 GB runner; pinned by a test.
       - name: Mutate ${{ matrix.package }}
+        env:
+          NODE_OPTIONS: --max-old-space-size=3072
         run: npm --prefix maintainers/mutation run mutate:${{ matrix.package }} -- --concurrency 2 ${{ matrix.extra }}
 
       - name: Upload the HTML report (informational)
