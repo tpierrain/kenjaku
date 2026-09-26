@@ -7,7 +7,11 @@
 
 # Study — ambient ingestion: what is actually reachable without a human
 
-- **STATUS:** 🔬 Study. Nothing implemented.
+- **STATUS:** 🔬 Study. **Nothing implemented, and deliberately so** — the product pass of
+  2026-09-15/26 is done (PM1 to PM6 all answered, § *Open product questions*), and the owner then
+  **paused this chantier to ship a bugfix release** (issues #131 / #132). **Resume at S4**: the
+  blocking gates, then the two ADRs, then the action plan. **The first slice, when it comes, is the
+  intake running MUTE** (C10).
 - **Scope:** how the brain stays fresh when nobody drives it. Parts B and C of the
   [#119](https://github.com/tpierrain/kenjaku/issues/119) umbrella, split out on 2026-09-14 into
   [#126](https://github.com/tpierrain/kenjaku/issues/126) (ambient ingestion) and
@@ -511,6 +515,71 @@ switch it off whenever you want"* is only true if the person can find the switch
 would have this switched on *by an update it did not ask for*. The engine update flow already collects
 consent; this must be part of it, and must not arrive silently.
 
+### C7 · Who pays, and how a silent death is made loud _(2026-09-26, PM4)_
+
+C6 ships this ON, so **every installer pays the running cost by default**. Three policy decisions, all
+three validated by the owner. They are policy, not numbers: the numbers are gate 8.
+
+- **a · Consumption is visible, in one line, and only in the digest.** *"Yesterday: 48 probes, 6
+  passes."* Not a dashboard, not a per-answer footer — this is a product whose whole style rule
+  (C4.c) is to spend a reader's attention as if it were expensive.
+- **b · The brake slows down, it does not stop, and it says so.** Under budget pressure the cadence
+  stretches (30 min → 2 h) and the person is told. A feature that dies silently to protect a quota has
+  chosen the worst of both: no freshness, and no signal either.
+- **c · A dead pass is announced at the start of every conversation, and this one is NOT negotiable.**
+  If the last successful pass is older than the threshold, one line says so.
+
+> 🎯 **Why (c) outranks the other two.** A dead ingestion does not look like an error, **it looks like
+> a quiet week.** The person sees a brain that stops finding anything interesting, which is
+> indistinguishable from nothing having happened — so they lose trust in the brain rather than
+> learning the job is down. This is August's constraint (*"a dead service says nothing, and the owner
+> just sees stale answers with nowhere to look"*) reaching its sharpest form, and the check is
+> deterministic: read the watermark's date, compare, print. It must never be a report the dead job was
+> itself supposed to produce.
+
+### C8 · Unreviewed pages get a grouped review moment _(2026-09-26, PM5)_
+
+They do not live unreviewed for ever, and they are not auto-expired. **The afternoon digest lists
+what is waiting** — *"3 pages written, say « relis » to go through them"* — and the owner validates
+them **in one batch**, in one sitting. Between writing and review they stay usable, cited as
+unreviewed (C2).
+
+- **Rejected: letting them accumulate silently.** In six months half the vault is *unreviewed* and the
+  mark stops meaning anything, which is the same death as a warning nobody reads.
+- **Rejected: auto-expiry after N days.** It throws away work whose only fault was arriving in a busy
+  week.
+- 🔗 **It is a 🟡 batched announcement, which this repo already built once**:
+  `scripts/lib/batched-announcement.mjs` exists precisely so five gestures become one message, and
+  carries the veto sentence. No new interaction tier is being invented here.
+
+### C9 · The one observable, in two weeks _(2026-09-26, PM6)_
+
+**« Je ne demande plus jamais à mon cerveau d'aller chercher quelque chose avant une réunion. »**
+The owner's choice, over the two alternatives put to him.
+
+⚠️ **This measures VALUE, and it is not the same thing as the constraint.** Zero false positives
+(C5.a) was offered as the success measure and deliberately **not** chosen — but it remains a
+**constraint that can fail the feature**, not a metric that can pass it. Both live:
+
+- **C9 says it was worth building.** If the owner still asks for a fetch before every meeting, the
+  feature did not land, however clean its alerts were.
+- **C5.a says it is allowed to ship.** One convincing false ⚡ a week is disqualifying, whatever C9
+  says.
+
+### C10 · The first slice is the intake, RUNNING MUTE _(2026-09-26, PM5bis)_
+
+Build the clock, the probe, the reading and the filing. **Nothing interrupts, nothing is sent, no page
+is written.** For some days it runs and the *would-have-been* alerts are recorded rather than
+delivered.
+
+🎯 **This is the only way C5.a's "zero false positives" is honoured by MEASUREMENT rather than by
+hope.** The precision of the ⚡ rules can be read off real days on the owner's real sources **before a
+single alert ever reaches him** — and the rules can be tuned against evidence instead of against an
+argument. Shipping intake and interruption together would mean discovering the false-positive rate the
+one way the owner said kills the product: in his face.
+
+**It also front-loads the honest answer to gate 8**: a mute run is the measurement.
+
 ### What these calls do NOT answer
 
 **Mail scope is still open** (gate 6). C3 settles *how* mail is read; it says nothing about **which**
@@ -544,6 +613,14 @@ mail is in, and what must never be filed. That remains the owner's call and the 
       keychain access on a locked Mac is the classic failure. Schedule one real run, read the exit code.
 - [ ] **Gate 3 — how does connector auth expire, and what does the run see when it does?** Undocumented.
       This is what turns *"the digest says DOWN"* from a sentence into the thing that saves the feature.
+      🔎 **Half of it is already answered, and the answer is that the existing remedy does not apply**
+      _(read 2026-09-26)_: `engine-skills/mcp-token-expired/` already recognises `token_expired` /
+      `not_authed` / `invalid_auth_token` and knows what to do — **show a human an alert and have them
+      type `/mcp` to re-authenticate**. An unattended pass has no human to show it to and no `/mcp` to
+      type, so **the skill is correct and unreachable** in this mode. What gate 3 must produce is the
+      unattended half: the pass marks the source DOWN, writes it to the watermark, and the **next
+      interactive session** is what raises the existing alert. The error strings, at least, need no
+      rediscovery.
 - [ ] 🔴 **Gate 4 — `busy_timeout`**, unset today, before anything writes concurrently. **Promoted to
       BLOCKING by C1**: at 5 minutes the pass writes while the owner is typing, which is the exact
       contention this was filed against. At twice a day it was nearly theoretical.
@@ -590,9 +667,33 @@ Six questions were put; they are answered here **in the order they were asked**,
         every 30 minutes is the bigger gesture and was not in it**, and shipping ON would have meant
         reading without ever having asked. So: *may I read?*, then, only on yes, *may I write to you?*
         See C6.a for what each answer leaves running.
-- [ ] **PM4 — who pays, and does the person see it?** Not yet put. Overlaps gate 8.
-- [ ] **PM5 — unreviewed pages pile up: then what?** Not yet put.
-- [ ] **PM6 — in two weeks, what single observable says this was worth it?** Not yet put.
+- [x] **PM4 — who pays, and does the person see it?** ✅ Answered by C7: one line in the digest, a
+      brake that slows and says so, and a dead pass announced at every session start (non-negotiable).
+- [x] **PM5 — unreviewed pages pile up: then what?** ✅ Answered by C8: a grouped review moment in the
+      afternoon digest, reusing the 🟡 batched-announcement module that already exists.
+- [x] **PM6 — in two weeks, what single observable says this was worth it?** ✅ Answered by C9:
+      *"I never again ask my brain to go and fetch something before a meeting."* Value, not precision —
+      and C5.a stays a constraint alongside it.
+- [x] **PM5bis — what is built first?** ✅ Answered by C10: the intake, **running mute**, so the
+      false-positive rate is measured before a single alert reaches a human.
+
+### 🧰 What already exists and must be REUSED, not re-invented _(read 2026-09-26)_
+
+Read off the repo rather than remembered. Every line below is a module this feature would otherwise
+have rebuilt:
+
+| Need | Already in the repo |
+|---|---|
+| A detached short-lived child, spawned from a hook, that notifies **once** on a newly-broken thing | `scripts/health-probe-run.mjs` + `scripts/session-health.mjs` — the exact architecture, including the do-not-re-nag rule |
+| An OS notification | `rag/src/notify-cli.ts`, reached via `notifyInvocation()` |
+| The 🟡 "announce N gestures in one message, act unless vetoed" tier | `scripts/lib/batched-announcement.mjs`, with `VETO_CLOSING` |
+| Where the VIP list lives (C5.c) | `scripts/lib/universe-profile.mjs` — the `universe.md` note, per universe, **already capped at 12 digest lines** |
+| A brain-level setting (cadence, the two consents) | `git config secondbrain.*`, the mechanism `secondbrain.autopush` already uses |
+| Dedup, filing, dated paths | `scripts/known-source.mjs`, `scripts/lib/source-key.mjs`, `scripts/dated-note-path.mjs`, `scripts/file-back-note.mjs` |
+| Stage 2, "what needs consolidating", deterministic with an exit code | `scripts/consolidate-scan.mjs` + `scripts/lib/consolidation-candidates.mjs` |
+| Reindex coalescing and locking | `ReindexScheduler` / `ReindexLock`, plus `scripts/lib/reindex-trigger.mjs` |
+| Keeping every owner-facing string plain (ADR 0043) | `scripts/lib/owner-facing.mjs` |
+| Running an entry point as a process in its tests | `scripts/lib/entrypoint.mjs` (the entry-point seam rule) |
 
 ### O1 — where the surfacing lands in an exchange · ✅ CLOSED 2026-09-15
 

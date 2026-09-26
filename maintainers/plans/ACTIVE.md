@@ -12,6 +12,11 @@ only carries what a user of Kenjaku could read and care about (2026-09-12, tried
 
 ## The active plan
 
+⏸️ **PAUSED 2026-09-26 at the owner's ask** — a bugfix release comes first
+([#131](https://github.com/tpierrain/kenjaku/issues/131),
+[#132](https://github.com/tpierrain/kenjaku/issues/132)). Nothing below is abandoned; nothing below is
+being worked either.
+
 🔴 [**`one-page-briefs-action.md`**](one-page-briefs-action.md) —
 [#128](https://github.com/tpierrain/kenjaku/issues/128): a prep's first screen is the whole brief, and
 a check says so. Opened 2026-09-14 at the owner's ask. **Resume there and nowhere else.**
