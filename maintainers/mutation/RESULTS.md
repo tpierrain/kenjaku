@@ -257,6 +257,29 @@ that could take a neighbouring flag's name as a value) and two pieces of **dead 
 default, a fake argument), deleted. Left alive: usage/diagnostic prose on stderr, a `.trim()` on a
 name that is slugged anyway, and `"utf-8"` → `""` before `JSON.parse` (equivalent).
 
+## #132 — the update heals the database binary npm 12 never built — 2026-09-26
+
+`scripts/lib/native-binding-heal.mjs` (new, whole) and the `defaultRunInstall` hunk of
+`scripts/lib/engine-seams.mjs` (lines 34-68), measured the day they were written with
+`mutate-one.mjs` (34 judging test files).
+
+| Pass | `native-binding-heal.mjs` | hunk survivors | What changed |
+|---|---|---|---|
+| 1 | 92.68 % | 10 | — |
+| 2 | **97.56 %** | 2 | the probe returns the error's own message; `npm install` becomes an asserted value (POSIX + Windows); removal, the `local-mirror/package.json` condition and the default console log pinned |
+
+- **The one real defect** pass 1 surfaced: the failure line quoted the first line of the child's
+  stderr, which is a **file path**, not the error. The owner would have been shown
+  `/…/better-sqlite3/index.js:1`. The child now writes `e.message` and nothing else; the test asserts
+  the exact message.
+- **A fake that was too kind**: the healed-path fake npm rewrote the module on every call, so a
+  mutant that skipped the removal survived. It now behaves like npm: a present module is left alone.
+- **Left alive, on purpose**: `realNpmInstall`'s body (the thin runner that spawns the real npm,
+  proven by the npm 12.1.0 rehearsal in the plan, S4.3.2) and `stdio: "pipe"` → `""` (equivalent: an
+  empty string falls back to Node's default, `pipe`).
+- The file-wide `engine-seams.mjs` score (71.58 %) is not this branch's: the other 25 survivors sit in
+  pre-existing defaults outside the hunk.
+
 ## #132 — the install-script allowlist that npm 12 made load-bearing — 2026-09-26
 
 `maintainers/dependency-audit/install-scripts.mjs`, new, measured the day it was written (whole file,

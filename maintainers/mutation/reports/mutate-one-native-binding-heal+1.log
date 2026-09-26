@@ -1,0 +1,194 @@
+[32m10:27:26 (35900) INFO ProjectReader[39m Found 2 of 1124 file(s) to be mutated.
+[32m10:27:26 (35900) INFO Instrumenter[39m Instrumented 2 source file(s) with 136 mutant(s)
+[32m10:27:26 (35900) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m10:27:26 (35900) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-2SSVj2
+[32m10:27:26 (35900) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m10:27:26 (35900) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m10:27:27 (35900) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 1 second (net 1154 ms, overhead 0 ms).
+Mutation testing 3% (elapsed: <1m, remaining: ~4m) 5/136 tested (0 survived, 0 timed out)
+Mutation testing 7% (elapsed: <1m, remaining: ~4m) 10/136 tested (0 survived, 0 timed out)
+Mutation testing 11% (elapsed: <1m, remaining: ~4m) 15/136 tested (0 survived, 0 timed out)
+Mutation testing 18% (elapsed: <1m, remaining: ~2m) 25/136 tested (1 survived, 0 timed out)
+Mutation testing 22% (elapsed: <1m, remaining: ~2m) 30/136 tested (1 survived, 0 timed out)
+Mutation testing 27% (elapsed: ~1m, remaining: ~2m) 37/136 tested (1 survived, 0 timed out)
+Mutation testing 33% (elapsed: ~1m, remaining: ~2m) 45/136 tested (1 survived, 0 timed out)
+Mutation testing 35% (elapsed: ~1m, remaining: ~2m) 48/136 tested (3 survived, 0 timed out)
+Mutation testing 40% (elapsed: ~1m, remaining: ~2m) 55/136 tested (9 survived, 0 timed out)
+Mutation testing 44% (elapsed: ~1m, remaining: ~2m) 61/136 tested (13 survived, 0 timed out)
+Mutation testing 51% (elapsed: ~1m, remaining: ~1m) 70/136 tested (14 survived, 0 timed out)
+Mutation testing 55% (elapsed: ~2m, remaining: ~1m) 76/136 tested (14 survived, 0 timed out)
+Mutation testing 63% (elapsed: ~2m, remaining: ~1m) 86/136 tested (18 survived, 0 timed out)
+Mutation testing 66% (elapsed: ~2m, remaining: ~1m) 91/136 tested (23 survived, 0 timed out)
+Mutation testing 73% (elapsed: ~2m, remaining: <1m) 100/136 tested (27 survived, 0 timed out)
+Mutation testing 77% (elapsed: ~2m, remaining: <1m) 106/136 tested (27 survived, 0 timed out)
+Mutation testing 83% (elapsed: ~2m, remaining: <1m) 114/136 tested (27 survived, 0 timed out)
+Mutation testing 88% (elapsed: ~3m, remaining: <1m) 121/136 tested (27 survived, 0 timed out)
+Mutation testing 92% (elapsed: ~3m, remaining: <1m) 126/136 tested (28 survived, 0 timed out)
+
+All tests
+  ✓ All tests (killed 108)
+
+[Survived] BlockStatement
+scripts/lib/engine-seams.mjs:38:32
+-   function realNpmInstall(where) {
+-     const { command, args, options } = buildNpmInstallInvocation(where);
+-     execFileSync(command, args, options);
+-   }
++   function realNpmInstall(where) {}
+
+[Survived] StringLiteral
+scripts/lib/engine-seams.mjs:78:70
+-   export async function defaultRunReindex({ brainDir, platform, mode = "full" }) {
++   export async function defaultRunReindex({ brainDir, platform, mode = "" }) {
+
+[Survived] ConditionalExpression
+scripts/lib/engine-seams.mjs:79:18
+-     const script = mode === "incremental" ? "index" : "reindex";
++     const script = true ? "index" : "reindex";
+
+[Survived] BlockStatement
+scripts/lib/engine-seams.mjs:78:80
+-   export async function defaultRunReindex({ brainDir, platform, mode = "full" }) {
+-     const script = mode === "incremental" ? "index" : "reindex";
+-     execFileSync(npmExe(platform), ["run", script], npmSpawnOpts(platform, { cwd: join(brainDir, "rag"), stdio: "inherit" }));
+-   }
++   export async function defaultRunReindex({ brainDir, platform, mode = "full" }) {}
+
+[Survived] ConditionalExpression
+scripts/lib/engine-seams.mjs:79:18
+-     const script = mode === "incremental" ? "index" : "reindex";
++     const script = false ? "index" : "reindex";
+
+[Survived] EqualityOperator
+scripts/lib/engine-seams.mjs:79:18
+-     const script = mode === "incremental" ? "index" : "reindex";
++     const script = mode !== "incremental" ? "index" : "reindex";
+
+[Survived] StringLiteral
+scripts/lib/engine-seams.mjs:79:43
+-     const script = mode === "incremental" ? "index" : "reindex";
++     const script = mode === "incremental" ? "" : "reindex";
+
+[Survived] StringLiteral
+scripts/lib/engine-seams.mjs:79:53
+-     const script = mode === "incremental" ? "index" : "reindex";
++     const script = mode === "incremental" ? "index" : "";
+
+[Survived] ArrayDeclaration
+scripts/lib/engine-seams.mjs:80:34
+-     execFileSync(npmExe(platform), ["run", script], npmSpawnOpts(platform, { cwd: join(brainDir, "rag"), stdio: "inherit" }));
++     execFileSync(npmExe(platform), [], npmSpawnOpts(platform, { cwd: join(brainDir, "rag"), stdio: "inherit" }));
+
+[Survived] StringLiteral
+scripts/lib/engine-seams.mjs:80:35
+-     execFileSync(npmExe(platform), ["run", script], npmSpawnOpts(platform, { cwd: join(brainDir, "rag"), stdio: "inherit" }));
++     execFileSync(npmExe(platform), ["", script], npmSpawnOpts(platform, { cwd: join(brainDir, "rag"), stdio: "inherit" }));
+
+[Survived] ObjectLiteral
+scripts/lib/engine-seams.mjs:80:74
+-     execFileSync(npmExe(platform), ["run", script], npmSpawnOpts(platform, { cwd: join(brainDir, "rag"), stdio: "inherit" }));
++     execFileSync(npmExe(platform), ["run", script], npmSpawnOpts(platform, {}));
+
+[Survived] StringLiteral
+scripts/lib/engine-seams.mjs:80:96
+-     execFileSync(npmExe(platform), ["run", script], npmSpawnOpts(platform, { cwd: join(brainDir, "rag"), stdio: "inherit" }));
++     execFileSync(npmExe(platform), ["run", script], npmSpawnOpts(platform, { cwd: join(brainDir, ""), stdio: "inherit" }));
+
+[Survived] StringLiteral
+scripts/lib/engine-seams.mjs:89:35
+-     const vaultDir = join(brainDir, "vault");
++     const vaultDir = join(brainDir, "");
+
+[Survived] StringLiteral
+scripts/lib/engine-seams.mjs:91:50
+-     const EXCLUDE_NAMES = new Set(["_template.md", ".gitkeep"]);
++     const EXCLUDE_NAMES = new Set(["_template.md", ""]);
+
+[Survived] BlockStatement
+scripts/lib/engine-seams.mjs:103:64
+-   export async function defaultRegenerateLaunchers({ brainDir }) {
+-     writeFileSync(join(brainDir, "rag", "launch.sh"), buildShLauncher());
+-     writeFileSync(join(brainDir, "rag", "launch.cmd"), buildCmdLauncher());
+-     writeFileSync(join(brainDir, "local-mirror", "launch.sh"), buildLocalMirrorShLauncher());
+-     writeFileSync(join(brainDir, "local-mirror", "launch.cmd"), buildLocalMirrorCmdLauncher());
+-     writeFileSync(join(brainDir, "scripts", "run-node.sh"), buildNodeRunnerSh());
+-     writeFileSync(join(brainDir, "scripts", "run-node.cmd"), buildNodeRunnerCmd());
+-   }
++   export async function defaultRegenerateLaunchers({ brainDir }) {}
+
+[Survived] StringLiteral
+scripts/lib/engine-seams.mjs:104:32
+-     writeFileSync(join(brainDir, "rag", "launch.sh"), buildShLauncher());
++     writeFileSync(join(brainDir, "", "launch.sh"), buildShLauncher());
+
+[Survived] StringLiteral
+scripts/lib/engine-seams.mjs:104:39
+-     writeFileSync(join(brainDir, "rag", "launch.sh"), buildShLauncher());
++     writeFileSync(join(brainDir, "rag", ""), buildShLauncher());
+
+[Survived] StringLiteral
+scripts/lib/engine-seams.mjs:105:32
+-     writeFileSync(join(brainDir, "rag", "launch.cmd"), buildCmdLauncher());
++     writeFileSync(join(brainDir, "", "launch.cmd"), buildCmdLauncher());
+
+[Survived] StringLiteral
+scripts/lib/engine-seams.mjs:105:39
+-     writeFileSync(join(brainDir, "rag", "launch.cmd"), buildCmdLauncher());
++     writeFileSync(join(brainDir, "rag", ""), buildCmdLauncher());
+
+[Survived] StringLiteral
+scripts/lib/engine-seams.mjs:106:32
+-     writeFileSync(join(brainDir, "local-mirror", "launch.sh"), buildLocalMirrorShLauncher());
++     writeFileSync(join(brainDir, "", "launch.sh"), buildLocalMirrorShLauncher());
+
+[Survived] StringLiteral
+scripts/lib/engine-seams.mjs:106:48
+-     writeFileSync(join(brainDir, "local-mirror", "launch.sh"), buildLocalMirrorShLauncher());
++     writeFileSync(join(brainDir, "local-mirror", ""), buildLocalMirrorShLauncher());
+
+[Survived] StringLiteral
+scripts/lib/engine-seams.mjs:107:48
+-     writeFileSync(join(brainDir, "local-mirror", "launch.cmd"), buildLocalMirrorCmdLauncher());
++     writeFileSync(join(brainDir, "local-mirror", ""), buildLocalMirrorCmdLauncher());
+
+[Survived] StringLiteral
+scripts/lib/engine-seams.mjs:107:32
+-     writeFileSync(join(brainDir, "local-mirror", "launch.cmd"), buildLocalMirrorCmdLauncher());
++     writeFileSync(join(brainDir, "", "launch.cmd"), buildLocalMirrorCmdLauncher());
+
+[Survived] StringLiteral
+scripts/lib/engine-seams.mjs:108:32
+-     writeFileSync(join(brainDir, "scripts", "run-node.sh"), buildNodeRunnerSh());
++     writeFileSync(join(brainDir, "", "run-node.sh"), buildNodeRunnerSh());
+
+[Survived] StringLiteral
+scripts/lib/engine-seams.mjs:108:43
+-     writeFileSync(join(brainDir, "scripts", "run-node.sh"), buildNodeRunnerSh());
++     writeFileSync(join(brainDir, "scripts", ""), buildNodeRunnerSh());
+
+[Survived] StringLiteral
+scripts/lib/engine-seams.mjs:109:32
+-     writeFileSync(join(brainDir, "scripts", "run-node.cmd"), buildNodeRunnerCmd());
++     writeFileSync(join(brainDir, "", "run-node.cmd"), buildNodeRunnerCmd());
+
+[Survived] StringLiteral
+scripts/lib/engine-seams.mjs:109:43
+-     writeFileSync(join(brainDir, "scripts", "run-node.cmd"), buildNodeRunnerCmd());
++     writeFileSync(join(brainDir, "scripts", ""), buildNodeRunnerCmd());
+
+[Survived] StringLiteral
+scripts/lib/native-binding-heal.mjs:52:91
+-     return { command: process.execPath, args: ["-e", PROBE], options: { cwd: ragDir, stdio: "pipe" } };
++     return { command: process.execPath, args: ["-e", PROBE], options: { cwd: ragDir, stdio: "" } };
+
+Ran 1.00 tests per mutant on average.
+-------------------------|------------------|----------|-----------|------------|----------|----------|
+                         | % Mutation score |          |           |            |          |          |
+File                     |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+-------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files                |  79.41 |   79.41 |      108 |         0 |         28 |        0 |        0 |
+ engine-seams.mjs        |  71.58 |   71.58 |       68 |         0 |         27 |        0 |        0 |
+ native-binding-heal.mjs |  97.56 |   97.56 |       40 |         0 |          1 |        0 |        0 |
+-------------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m10:30:44 (35900) INFO MutationTestExecutor[39m Done in 3 minutes and 18 seconds.
+[32m10:30:44 (35900) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-2SSVj2.
