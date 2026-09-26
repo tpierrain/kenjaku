@@ -267,7 +267,9 @@ stringifies alike), `{ force: true }` on a prune of files just listed, a `catch`
 `undefined` to `universeOfNote(String(…))`, `() => undefined` as the reads default (the reminder's
 own `= null` absorbs it), `[ \t]+` → `[ \t]` (the value is trimmed), and the `[]` fallback of
 `responseTexts` (a fake text matches no citation). Log: `reports/mutate-one-conversation-reads+10.log`
-(pass 4).
+(pass 4). After pass 4 (`910ca0a`), the rehearsal moved the SessionStart half into its own
+one-line entry point, `scripts/session-reads.mjs` (judged by its process test), and the
+`hooks-reconcile.mjs` dedupe hunk went back to `main`: no logic measured above changed.
 
 Pass 1's survivors: a `null` entry in the record that no test fed (three `?.`, killed by one test),
 and two id-guards already guaranteed downstream, **deleted** rather than tested. Left alive, all
