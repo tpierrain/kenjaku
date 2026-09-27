@@ -31,6 +31,7 @@ What resumes next is the owner's call: the paused work below.
 - [`prospective/clear-the-tracker-action.md`](prospective/clear-the-tracker-action.md)
 - [`prospective/shipped-ci-workflows-action.md`](prospective/shipped-ci-workflows-action.md)
 - [`prospective/harness-speed-and-test-quality-action.md`](prospective/harness-speed-and-test-quality-action.md)
+- [`prospective/license-fsl-action.md`](prospective/license-fsl-action.md)
 - [`../studies/plan-state-single-source-study.md`](../studies/plan-state-single-source-study.md)
 
 > **Why this file exists** (Thomas, 2026-08-22): *"un plan, on est censé avoir qu'un seul plan actif à
