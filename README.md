@@ -256,7 +256,8 @@ and **git**. The installer checks each one and tells you cleanly if something's 
   your connectors were already tied to your accounts rather than to a laptop, so your notes now agree
   with them instead of contradicting them. **Since v5.3.0 it also says which universe it answered
   from** — and, just as importantly, what a switch could *not* re-scope: the conversation you are
-  already in still holds everything it read from the sphere you just left. It tells you when a note is
+  already in still holds what it read in the sphere you just left (and, since v5.5.3, it says so only
+  when it did read there). It tells you when a note is
   about to be filed in a different sphere from the one you are working in, and it fixes a universe
   name you spelled wrong rather than quietly filing the note somewhere new. **An answer that looks
   scoped and is not is the one thing a second universe must never cost you.**

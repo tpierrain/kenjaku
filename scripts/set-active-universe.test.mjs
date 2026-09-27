@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
-import { mkdtempSync, rmSync, existsSync, writeFileSync, cpSync, readFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, rmSync, existsSync, writeFileSync, cpSync, readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { tmpdir } from "node:os";
@@ -267,4 +267,64 @@ test("the CLI, IMPORTED rather than run — the body must not fire on import", a
 
   assert.equal(run.status, 0, `importing the CLI must not exit — stderr: ${run.stderr}`);
   assert.equal(run.stdout.trim(), "imported-and-still-alive");
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Issue #130 — the REAL entry point reads what THIS conversation read, from the
+// session id the harness exports to Bash and the record the conversation-reads hook
+// keeps. Spawned for real: the wiring (env, settings, record) is the whole fix, and
+// no in-process test can see it.
+// ─────────────────────────────────────────────────────────────────────────────
+function switchInBrain({ record, sessionId }) {
+  const { repo } = tempGitRepo();
+  try {
+    cpSync(SCRIPTS_DIR, join(repo, "scripts"), { recursive: true });
+    mkdirSync(join(repo, ".vault-rag"), { recursive: true });
+    writeFileSync(join(repo, ".vault-rag", "universes.json"), JSON.stringify({ universes: ["acme", "blue"] }));
+    writeFileSync(join(repo, ".vault-rag", "active-universe"), "acme\n");
+    // One file per conversation, one universe per line — written by hand, the shape
+    // the conversation-reads hook leaves.
+    for (const [id, universes] of Object.entries(record ?? {})) {
+      mkdirSync(join(repo, ".cache", "conversation-reads"), { recursive: true });
+      writeFileSync(join(repo, ".cache", "conversation-reads", id), universes.map((u) => `${u}\n`).join(""));
+    }
+    const env = { ...process.env };
+    delete env.CLAUDE_CODE_SESSION_ID;
+    if (sessionId) env.CLAUDE_CODE_SESSION_ID = sessionId;
+    return execFileSync(process.execPath, [join(repo, "scripts", "set-active-universe.mjs"), "blue"], {
+      cwd: repo,
+      encoding: "utf8",
+      env,
+    });
+  } finally {
+    rmSync(repo, { recursive: true, force: true });
+  }
+}
+
+test("#130 reproduction, end to end — a fresh conversation switching is told nothing about residue", () => {
+  // The recorder saw this conversation begin, and it read nothing.
+  const out = switchInBrain({ sessionId: "s-fresh", record: { "s-fresh": [] } });
+  assert.match(out, /switched to 'blue'/);
+  assert.doesNotMatch(out, /🧠/u);
+});
+
+test("#130 end to end — a conversation that searched in 'acme' is told it still holds it", () => {
+  const out = switchInBrain({
+    sessionId: "s-live",
+    // Another conversation's reads are a decoy: only THIS session's count.
+    record: { "s-live": ["acme"], other: ["zeta"] },
+  });
+  assert.match(out, /🧠 Heads-up: earlier in this conversation I read notes in 'acme', and they are still in my memory\./u);
+  assert.doesNotMatch(out, /zeta/);
+});
+
+test("#130 end to end — with no session id, the sentence is the conditional one", () => {
+  const out = switchInBrain({ record: { "s-fresh": [] } });
+  assert.match(out, /🧠 Heads-up: if I read anything in 'acme' earlier in this conversation/u);
+});
+
+test("#130 end to end — a conversation the recorder never saw begin gets the conditional sentence", () => {
+  // The gap between an update and the restart: no entry proves nothing.
+  const out = switchInBrain({ sessionId: "s-before-restart", record: { other: [] } });
+  assert.match(out, /🧠 Heads-up: if I read anything in 'acme' earlier in this conversation/u);
 });

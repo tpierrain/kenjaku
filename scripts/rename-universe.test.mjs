@@ -2,12 +2,12 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-import { runRenameUniverse } from "./rename-universe.mjs";
+import { realRenameDeps, runRenameUniverse } from "./rename-universe.mjs";
 
 const CLI = join(dirname(fileURLToPath(import.meta.url)), "rename-universe.mjs");
 
@@ -18,7 +18,7 @@ const CLI = join(dirname(fileURLToPath(import.meta.url)), "rename-universe.mjs")
 // every path changed.
 
 function deps(overrides = {}) {
-  const calls = { logged: [], errored: [], moved: [], written: [], spawned: [] };
+  const calls = { logged: [], errored: [], moved: [], written: [], spawned: [], readsRenamed: [] };
   const files = new Map(Object.entries(overrides.files ?? {}));
   const base = {
     cwd: () => "/brain",
@@ -30,6 +30,7 @@ function deps(overrides = {}) {
     },
     listNotes: (dir) => files.get(`__notes__${dir}`) ?? [],
     renameSync: (from, to) => calls.moved.push({ from, to }),
+    renameConversationReads: (root, from, to) => calls.readsRenamed.push({ root, from, to }),
     spawnSync: (...args) => (calls.spawned.push(args), { status: 0 }),
     platform: "darwin",
     log: (m) => calls.logged.push(m),
@@ -117,6 +118,25 @@ test("runRenameUniverse moves the folder and renames the registry entry", () => 
   assert.deepEqual(JSON.parse(files.get("/brain/.vault-rag/universes.json")), {
     universes: ["acme-corp", "blue"],
   });
+});
+
+test("runRenameUniverse renames the universe in what open conversations have read (#130)", () => {
+  // Otherwise the next /switch names a universe that no longer exists, and reports the
+  // renamed one as out of scope when it is the very destination.
+  const { args, calls } = deps({
+    files: { "/brain/.vault-rag/universes.json": '{"universes":["acme","blue"]}' },
+  });
+  assert.equal(runRenameUniverse(["acme", "Acme Corp"], args), 0);
+  assert.deepEqual(calls.readsRenamed, [{ root: "/brain", from: "acme", to: "acme-corp" }]);
+});
+
+test("runRenameUniverse leaves the conversations' reads alone when it refuses, or only describes", () => {
+  const { args, calls } = deps({
+    files: { "/brain/.vault-rag/universes.json": '{"universes":["acme","blue"]}' },
+  });
+  runRenameUniverse(["acme", "blue"], args);
+  runRenameUniverse(["--preflight", "acme", "zeta"], args);
+  assert.deepEqual(calls.readsRenamed, []);
 });
 
 test("runRenameUniverse re-stamps every note under the moved folder", () => {
@@ -248,4 +268,20 @@ test("the CLI, run as a process — no args refuses without touching anything", 
 
   assert.equal(run.status, 1, `a missing universe name must exit 1 — stderr: ${run.stderr}`);
   assert.match(run.stderr, /A rename needs both a universe to rename and a new name/);
+});
+
+test("the real wiring renames the records on disk, and never lets a broken record fail the rename", (t) => {
+  const brain = mkdtempSync(join(tmpdir(), "rename-universe-reads-"));
+  t.after(() => rmSync(brain, { recursive: true, force: true }));
+  const dir = join(brain, ".cache", "conversation-reads");
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, "s1"), "acme\nblue\n");
+  const { renameConversationReads } = realRenameDeps();
+
+  renameConversationReads(brain, "acme", "acme-corp");
+  assert.equal(readFileSync(join(dir, "s1"), "utf8"), "acme-corp\nblue\n");
+
+  // A directory where a record should be: the rewrite throws, the rename must not.
+  mkdirSync(join(dir, "not-a-file"));
+  assert.doesNotThrow(() => renameConversationReads(brain, "blue", "navy"));
 });

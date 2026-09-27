@@ -1,0 +1,78 @@
+[32m12:12:53 (7951) INFO ProjectReader[39m Found 3 of 1133 file(s) to be mutated.
+[32m12:12:53 (7951) INFO Instrumenter[39m Instrumented 3 source file(s) with 107 mutant(s)
+[32m12:12:53 (7951) INFO ConcurrencyTokenProvider[39m Creating 5 test runner process(es).
+[32m12:12:53 (7951) INFO Sandbox[39m In place mode is enabled, Stryker will be overriding YOUR files. Find your backup at: .stryker-tmp/backup-OJZ7HG
+[32m12:12:53 (7951) INFO BroadcastReporter[39m Detected that current console does not support the "progress" reporter, downgrading to "progress-append-only" reporter
+[32m12:12:53 (7951) INFO DryRunExecutor[39m Starting initial test run (command test runner with "off" coverage analysis). This may take a while.
+[32m12:12:55 (7951) INFO DryRunExecutor[39m Initial test run succeeded. Ran 1 tests in 2 seconds (net 2051 ms, overhead 0 ms).
+Mutation testing 0% (elapsed: <1m, remaining: n/a) 0/107 tested (0 survived, 0 timed out)
+Mutation testing 4% (elapsed: <1m, remaining: ~6m) 5/107 tested (1 survived, 0 timed out)
+Mutation testing 9% (elapsed: <1m, remaining: ~4m) 10/107 tested (3 survived, 0 timed out)
+Mutation testing 14% (elapsed: <1m, remaining: ~4m) 15/107 tested (4 survived, 0 timed out)
+Mutation testing 14% (elapsed: <1m, remaining: ~5m) 15/107 tested (4 survived, 0 timed out)
+Mutation testing 18% (elapsed: ~1m, remaining: ~4m) 20/107 tested (5 survived, 0 timed out)
+Mutation testing 23% (elapsed: ~1m, remaining: ~3m) 25/107 tested (5 survived, 0 timed out)
+Mutation testing 28% (elapsed: ~1m, remaining: ~3m) 30/107 tested (5 survived, 0 timed out)
+Mutation testing 32% (elapsed: ~1m, remaining: ~3m) 35/107 tested (5 survived, 0 timed out)
+Mutation testing 32% (elapsed: ~1m, remaining: ~3m) 35/107 tested (5 survived, 0 timed out)
+Mutation testing 37% (elapsed: ~1m, remaining: ~3m) 40/107 tested (5 survived, 0 timed out)
+Mutation testing 42% (elapsed: ~2m, remaining: ~2m) 45/107 tested (5 survived, 0 timed out)
+Mutation testing 46% (elapsed: ~2m, remaining: ~2m) 50/107 tested (5 survived, 0 timed out)
+Mutation testing 51% (elapsed: ~2m, remaining: ~2m) 55/107 tested (5 survived, 0 timed out)
+Mutation testing 51% (elapsed: ~2m, remaining: ~2m) 55/107 tested (5 survived, 0 timed out)
+Mutation testing 56% (elapsed: ~2m, remaining: ~2m) 60/107 tested (5 survived, 0 timed out)
+Mutation testing 60% (elapsed: ~2m, remaining: ~1m) 65/107 tested (5 survived, 0 timed out)
+Mutation testing 65% (elapsed: ~3m, remaining: ~1m) 70/107 tested (5 survived, 0 timed out)
+Mutation testing 70% (elapsed: ~3m, remaining: ~1m) 75/107 tested (5 survived, 0 timed out)
+Mutation testing 70% (elapsed: ~3m, remaining: ~1m) 75/107 tested (5 survived, 0 timed out)
+Mutation testing 74% (elapsed: ~3m, remaining: ~1m) 80/107 tested (5 survived, 0 timed out)
+Mutation testing 79% (elapsed: ~3m, remaining: <1m) 85/107 tested (5 survived, 0 timed out)
+Mutation testing 84% (elapsed: ~3m, remaining: <1m) 90/107 tested (5 survived, 0 timed out)
+Mutation testing 84% (elapsed: ~4m, remaining: <1m) 90/107 tested (5 survived, 0 timed out)
+Mutation testing 88% (elapsed: ~4m, remaining: <1m) 95/107 tested (5 survived, 0 timed out)
+Mutation testing 93% (elapsed: ~4m, remaining: <1m) 100/107 tested (5 survived, 0 timed out)
+Mutation testing 98% (elapsed: ~4m, remaining: <1m) 105/107 tested (5 survived, 0 timed out)
+
+All tests
+  ✓ All tests (killed 102)
+
+[Survived] StringLiteral
+scripts/conversation-reads.mjs:32:71
+-   const fsIo = { existsSync, readFileSync: (path) => readFileSync(path, "utf8") };
++   const fsIo = { existsSync, readFileSync: (path) => readFileSync(path, "") };
+
+[Survived] StringLiteral
+scripts/conversation-reads.mjs:38:61
+-       return existsSync(path) ? JSON.parse(readFileSync(path, "utf8")) : null;
++       return existsSync(path) ? JSON.parse(readFileSync(path, "")) : null;
+
+[Survived] BlockStatement
+scripts/conversation-reads.mjs:39:11
+-     } catch {
+-       return null;
+-     }
++     } catch {}
+
+[Survived] StringLiteral
+scripts/conversation-reads.mjs:45:36
+-     readInput: () => readFileSync(0, "utf8"),
++     readInput: () => readFileSync(0, ""),
+
+[Survived] StringLiteral
+scripts/conversation-reads.mjs:55:58
+-       writeFileSync(path, JSON.stringify(state, null, 2) + "\n");
++       writeFileSync(path, JSON.stringify(state, null, 2) + "");
+
+Ran 1.00 tests per mutant on average.
+-------------------------|------------------|----------|-----------|------------|----------|----------|
+                         | % Mutation score |          |           |            |          |          |
+File                     |  total | covered | # killed | # timeout | # survived | # no cov | # errors |
+-------------------------|--------|---------|----------|-----------|------------|----------|----------|
+All files                |  95.33 |   95.33 |      102 |         0 |          5 |        0 |        0 |
+ lib                     | 100.00 |  100.00 |       62 |         0 |          0 |        0 |        0 |
+  conversation-reads.mjs | 100.00 |  100.00 |       62 |         0 |          0 |        0 |        0 |
+ conversation-reads.mjs  |  84.85 |   84.85 |       28 |         0 |          5 |        0 |        0 |
+ update-engine.mjs       | 100.00 |  100.00 |       12 |         0 |          0 |        0 |        0 |
+-------------------------|--------|---------|----------|-----------|------------|----------|----------|
+[32m12:17:29 (7951) INFO MutationTestExecutor[39m Done in 4 minutes and 36 seconds.
+[32m12:17:29 (7951) INFO Sandbox[39m Resetting your original files from .stryker-tmp/backup-OJZ7HG.

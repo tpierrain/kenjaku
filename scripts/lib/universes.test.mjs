@@ -728,6 +728,127 @@ test("conversationResidueReminder stays silent when LEAVING the cross-cutting sc
   assert.equal(conversationResidueReminder({ from: DEFAULT_UNIVERSE, to: "acme" }), "");
 });
 
+// ── #130: the reminder speaks from what THIS conversation read, when that is known ──
+// Without `reads` the core cannot see the conversation, so it may only say something
+// true without knowing: a CONDITIONAL sentence. With `reads` (the universes this
+// session searched in, recorded by the conversation-reads hook) it says exactly what
+// is in the window, and nothing at all when the window holds nothing out of scope.
+// The tail is shared by both shapes, so it is pinned once here.
+const RESIDUE_TAIL = (to) =>
+  ` My searches now stay in '${to}', but my memory of this conversation does not — ` +
+  `ask me for a fresh conversation if you want a clean slate here.`;
+
+test("#130 reproduction — a conversation that read NOTHING is told nothing about residue", () => {
+  // The reported case: a brand-new conversation, first message `/switch blue`, while
+  // an earlier session had left 'acme' active. Nothing was read, so nothing is residue.
+  assert.equal(conversationResidueReminder({ from: "acme", to: "blue", reads: [] }), "");
+});
+
+test("#130 — a conversation that read in the universe it leaves is told so, in full", () => {
+  assert.equal(
+    conversationResidueReminder({ from: "acme", to: "blue", reads: ["acme"] }),
+    "\n🧠 Heads-up: earlier in this conversation I read notes in 'acme', and they are still " +
+      "in my memory." + RESIDUE_TAIL("blue")
+  );
+});
+
+test("#130 — every universe read is named, except the destination and the cross-cutting scope", () => {
+  // Unsorted, with both decoys: the destination (its notes are back in scope) and
+  // `default` (cross-cutting notes are always in scope, ADR 0034). Sorted output, so
+  // the sentence does not depend on the order the searches happened in.
+  assert.equal(
+    conversationResidueReminder({
+      from: "zeta",
+      to: "blue",
+      reads: ["zeta", "blue", "default", "acme", "zeta"],
+    }),
+    "\n🧠 Heads-up: earlier in this conversation I read notes in 'acme' and 'zeta', and they " +
+      "are still in my memory." + RESIDUE_TAIL("blue")
+  );
+});
+
+test("#130 — three universes read are listed as a sentence, not a bare list", () => {
+  assert.equal(
+    conversationResidueReminder({ from: "c", to: "default", reads: ["c", "a", "b"] }),
+    "\n🧠 Heads-up: earlier in this conversation I read notes in 'a', 'b' and 'c', and they " +
+      "are still in my memory." + RESIDUE_TAIL("default")
+  );
+});
+
+test("#130 — a universe read two switches ago is still named (the second lie the old sentence told)", () => {
+  // acme → default → blue: the old reminder only knew `from` ('default' → silent), so
+  // it said nothing while the window still held everything read in 'acme'.
+  assert.equal(
+    conversationResidueReminder({ from: DEFAULT_UNIVERSE, to: "blue", reads: ["acme"] }),
+    "\n🧠 Heads-up: earlier in this conversation I read notes in 'acme', and they are still " +
+      "in my memory." + RESIDUE_TAIL("blue")
+  );
+});
+
+test("#130 — having read only in the destination and the cross-cutting scope leaves nothing to say", () => {
+  assert.equal(
+    conversationResidueReminder({ from: "acme", to: "blue", reads: ["blue", "default"] }),
+    ""
+  );
+});
+
+test("#130 — without a record of the conversation, the sentence is CONDITIONAL, and true", () => {
+  const expected =
+    "\n🧠 Heads-up: if I read anything in 'acme' earlier in this conversation, it is still " +
+    "in my memory." + RESIDUE_TAIL("blue");
+  // Both spellings of "unknown": omitted, and an explicit null.
+  assert.equal(conversationResidueReminder({ from: "acme", to: "blue" }), expected);
+  assert.equal(conversationResidueReminder({ from: "acme", to: "blue", reads: null }), expected);
+});
+
+test("#130 — runSwitchCli threads the conversation's reads into its message", () => {
+  const io = fakeFs({
+    ".vault-rag/universes.json": JSON.stringify({ universes: ["acme", "blue"] }),
+    ".vault-rag/active-universe": "acme",
+  });
+  // Whole message: the connectors reminder still rides (it is about accounts, not
+  // the window), and the residue sentence is gone because nothing was read.
+  assert.deepEqual(runSwitchCli(io, ".vault-rag", ["blue"], { reads: () => [] }), {
+    code: 0,
+    message: "switched to 'blue'" + nativeConnectorsReminder({ from: "acme", to: "blue" }),
+    wrote: "blue",
+  });
+});
+
+test("#130 — create-and-switch threads the reads too", () => {
+  const io = fakeFs({
+    ".vault-rag/universes.json": JSON.stringify({ universes: ["acme"] }),
+    ".vault-rag/active-universe": "acme",
+  });
+  assert.deepEqual(runSwitchCli(io, ".vault-rag", ["create", "blue"], { reads: () => ["acme"] }), {
+    code: 0,
+    message:
+      "created and switched to 'blue'" +
+      "\n🧠 Heads-up: earlier in this conversation I read notes in 'acme', and they are still " +
+      "in my memory." + RESIDUE_TAIL("blue"),
+    wrote: "blue",
+  });
+});
+
+test("#130 — only a create or a switch asks what the conversation read; read-only actions never do", () => {
+  // The record is I/O the other actions have no use for: `list`, `current`, the gate
+  // and the menu run at the start of many flows, and must not pay for it.
+  const io = fakeFs({
+    ".vault-rag/universes.json": JSON.stringify({ universes: ["acme", "blue"] }),
+    ".vault-rag/active-universe": "acme",
+  });
+  const asked = [];
+  const reads = () => {
+    asked.push("asked");
+    return [];
+  };
+  for (const argv of [["list"], ["current"], ["gate"], []]) runSwitchCli(io, ".vault-rag", argv, { reads });
+  assert.deepEqual(asked, []);
+  runSwitchCli(io, ".vault-rag", ["blue"], { reads });
+  runSwitchCli(io, ".vault-rag", ["create", "zeta"], { reads });
+  assert.deepEqual(asked, ["asked", "asked"]);
+});
+
 test("runSwitchCli carries the residue reminder, so the skill only relays it", () => {
   // The whole design of ADR 0009 in one assertion: the core SAYS it, the skill does
   // not compose it. A fixture under NAMED universes on both sides, never `default`

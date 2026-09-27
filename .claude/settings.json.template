@@ -109,6 +109,16 @@
             "timeout": 10000
           }
         ]
+      },
+      {
+        "matcher": "mcp__vault-rag__(search_vault|get_document)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "{{NODE}} \"{{PROJECT_ROOT}}/scripts/conversation-reads.mjs\"",
+            "timeout": 10000
+          }
+        ]
       }
     ],
     "SessionStart": [
@@ -189,6 +199,16 @@
             "type": "command",
             "command": "{{NODE}} \"{{PROJECT_ROOT}}/scripts/session-status.mjs\"",
             "timeout": 20000
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "{{NODE}} \"{{PROJECT_ROOT}}/scripts/session-reads.mjs\"",
+            "timeout": 10000
           }
         ]
       },

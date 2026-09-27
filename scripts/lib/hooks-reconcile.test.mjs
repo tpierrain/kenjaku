@@ -171,10 +171,17 @@ test("reconcileHooks — a brain that already HAS PostToolUse (auto-commit) gain
         matcher: "Read|read_file_content|download_file_content|search_files|slack_read_file",
         hooks: [{ type: "command", command: '/usr/local/bin/node "/brains/foo/scripts/ai-summary-guard.mjs"', timeout: 10000 }],
       },
+      // #130: the conversation-reads recorder rides the same additive path to an
+      // existing brain — which is what lets the switch stop guessing there too.
+      {
+        matcher: "mcp__vault-rag__(search_vault|get_document)",
+        hooks: [{ type: "command", command: '/usr/local/bin/node "/brains/foo/scripts/conversation-reads.mjs"', timeout: 10000 }],
+      },
     ],
-    "auto-commit stays first and byte-identical; the read guard is appended after it, matcher and timeout intact",
+    "auto-commit stays first and byte-identical; the engine's read hooks are appended after it, matcher and timeout intact",
   );
   assert.ok(hooksAdded.includes("scripts/ai-summary-guard.mjs"), "the newly-wired read guard must be named in hooksAdded");
+  assert.ok(hooksAdded.includes("scripts/conversation-reads.mjs"), "so must the newly-wired read recorder");
   assert.ok(!hooksAdded.includes("scripts/auto-commit.mjs"), "the hook the brain already runs must NOT be re-added");
 });
 
@@ -185,6 +192,7 @@ test("reconcileHooks — idempotent on that second group: a brain already runnin
       { matcher: "Write|Edit", hooks: [{ type: "command", command: '/usr/local/bin/node "/brains/foo/scripts/auto-commit.mjs"', timeout: 30000 }] },
       // a brain that wired the guard itself, on a matcher of its OWN choosing:
       { matcher: "Read", hooks: [{ type: "command", command: '/usr/local/bin/node "/brains/foo/scripts/ai-summary-guard.mjs"', timeout: 10000 }] },
+      { matcher: "search_vault", hooks: [{ type: "command", command: '/usr/local/bin/node "/brains/foo/scripts/conversation-reads.mjs"', timeout: 10000 }] },
     ],
   };
   const { hooks, hooksAdded } = reconcileHooks({ brainHooks: converged, templateHooks: realTemplateHooks(), projectRoot: "/brains/foo" });
@@ -399,4 +407,18 @@ test("reconcileHooks — a brain with no UserPromptSubmit at all is given the re
     "the event must be CREATED, matcher and timeout intact, with the brain's own node + dir substituted",
   );
   assert.ok(hooksAdded.includes("scripts/prompt-restart-nudge.mjs"), "the newly-wired nudge must be named in hooksAdded");
+});
+
+// #130: the recorder is two scripts, one per event (session-reads on SessionStart,
+// conversation-reads on PostToolUse), so an existing brain gets both, each named once.
+test("reconcileHooks — the conversation-reads recorder reaches a brain as two scripts on two events", () => {
+  const { hooks, hooksAdded } = reconcileHooks({ brainHooks: {}, templateHooks: realTemplateHooks(), projectRoot: "/brains/foo" });
+  const eventsOf = (script) =>
+    Object.entries(hooks)
+      .filter(([, groups]) => groups.some((g) => g.hooks.some((h) => h.command.includes(script))))
+      .map(([event]) => event);
+  assert.deepEqual(eventsOf("scripts/session-reads.mjs"), ["SessionStart"]);
+  assert.deepEqual(eventsOf("scripts/conversation-reads.mjs"), ["PostToolUse"]);
+  assert.equal(new Set(hooksAdded).size, hooksAdded.length, "no script is named twice");
+  assert.ok(hooksAdded.includes("scripts/session-reads.mjs") && hooksAdded.includes("scripts/conversation-reads.mjs"));
 });

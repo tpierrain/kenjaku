@@ -5,7 +5,7 @@
     "rag": "1.5.1",
     "local-mirror": "0.3.1",
     "constitutionTemplate": "1.4.0",
-    "scripts": "1.20.0"
+    "scripts": "1.21.0"
   },
   "indexSchemaVersion": 2,
   "regimes": {
@@ -49,6 +49,8 @@
       "scripts/refresh-note.mjs",
       "scripts/vault-write-guard.mjs",
       "scripts/vault-write-notice.mjs",
+      "scripts/conversation-reads.mjs",
+      "scripts/session-reads.mjs",
       "scripts/engine-write-guard.mjs",
       "scripts/ai-summary-guard.mjs",
       "scripts/prompt-restart-nudge.mjs",
